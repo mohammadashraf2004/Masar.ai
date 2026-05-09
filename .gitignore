@@ -1,4 +1,7 @@
 curriculum/
 ai_engineer_track/
-
+node_modules/
+.next/
+.env
+.env.local
 

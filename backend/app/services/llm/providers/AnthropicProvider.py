@@ -1,0 +1,40 @@
+from typing import List
+import anthropic
+
+from app.services.llm.providers.BaseLLMProvider import BaseLLMProvider
+
+
+class AnthropicProvider(BaseLLMProvider):
+
+    def __init__(
+        self,
+        api_key: str,
+        model_id: str,
+        default_max_tokens: int = 1000,
+        default_temperature: float = 0.7,
+        default_input_max_characters: int = 10000,
+    ):
+        self.api_key = api_key
+        self.model_id = model_id
+        self.default_max_tokens = default_max_tokens
+        self.default_temperature = default_temperature
+        self.default_input_max_characters = default_input_max_characters
+        self._client = None
+
+    def _get_client(self) -> anthropic.Anthropic:
+        if self._client is None:
+            self._client = anthropic.Anthropic(api_key=self.api_key)
+        return self._client
+
+    def validate(self) -> bool:
+        return bool(self.api_key)
+
+    def chat(self, system: str, messages: List[dict], max_tokens: int = None) -> str:
+        client = self._get_client()
+        response = client.messages.create(
+            model=self.model_id,
+            max_tokens=max_tokens or self.default_max_tokens,
+            system=system,
+            messages=messages,
+        )
+        return response.content[0].text

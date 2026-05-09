@@ -1,0 +1,1 @@
+from .interview_service import generate_question

@@ -177,3 +177,7 @@ frontend/.env.local.example
 ```
 
 for all required environment variables.
+
+## License
+
+This project is licensed under the MIT License.

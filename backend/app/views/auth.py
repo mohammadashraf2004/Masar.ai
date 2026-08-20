@@ -16,6 +16,19 @@ class UserLogin(BaseModel):
     password: str
 
 
+class VerifyEmailRequest(BaseModel):
+    token: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=8)
+
+
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     bio: Optional[str] = None
@@ -30,6 +43,7 @@ class UserResponse(BaseModel):
     full_name: str
     role: UserRole
     experience_level: ExperienceLevel
+    is_verified: bool
     bio: Optional[str]
     github_url: Optional[str]
     linkedin_url: Optional[str]

@@ -1,15 +1,16 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { User } from '@/types'
 import { api } from '@/lib/api'
 
 interface AuthState {
   user: User | null
   token: string | null
-  isLoading: boolean
+  _hasHydrated: boolean
   setAuth: (token: string, user: User) => void
   logout: () => void
   refreshUser: () => Promise<void>
+  setHasHydrated: (val: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -17,17 +18,19 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       token: null,
-      isLoading: false,
+      _hasHydrated: false,
+
+      setHasHydrated: (val) => set({ _hasHydrated: val }),
 
       setAuth: (token, user) => {
-        localStorage.setItem('token', token)
         set({ token, user })
       },
 
       logout: () => {
-        localStorage.removeItem('token')
         set({ token: null, user: null })
-        window.location.href = '/auth/login'
+        if (typeof window !== 'undefined') {
+          window.location.href = '/auth/login'
+        }
       },
 
       refreshUser: async () => {
@@ -40,8 +43,18 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'auth',
+      name: 'auth-storage',
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? localStorage : {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {},
+        }
+      ),
       partialize: (s) => ({ token: s.token, user: s.user }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      },
     }
   )
 )

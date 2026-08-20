@@ -44,3 +44,72 @@ def get_mentor_reply(
     if isinstance(data, dict):
         return data.get("reply", raw), data.get("suggested_actions", [])
     return fallback
+# ── Add this to the END of backend/app/services/mentor/mentor_service.py ─────
+
+HINT_SYSTEM_PROMPT = """You are an expert AI mentor helping a student work through a real-world
+data engineering challenge. Your job is to give a targeted, Socratic hint — guide them toward
+the solution without giving it away directly.
+
+Rules:
+- NEVER write the complete solution code
+- DO point to the right tool, concept, or approach
+- DO ask a guiding question that helps them think through the problem
+- Keep it short: 3-5 sentences max
+- If they mention a specific error or stuck point, address that directly
+- Use concrete examples from the Egyptian/MENA tech context when relevant
+
+Return a JSON object with keys:
+  "hint"        — the hint text (string)
+  "concept"     — the key concept or tool they should look up (e.g. "pandas.drop_duplicates")
+  "next_step"   — one concrete action they can take right now (string)
+"""
+
+
+def get_challenge_hint(
+    llm,
+    challenge_title: str,
+    challenge_difficulty: str,
+    rubric: list,
+    dirty_dataset_sample: list,
+    stuck_on: str,
+    hints_already_given: list = None,
+) -> dict:
+    rubric_text = "\n".join([
+        f"- {r['criterion']} ({r['weight']}%): {r['description']}"
+        for r in rubric
+    ])
+
+    prev_hints = ""
+    if hints_already_given:
+        prev_hints = "\n\nPrevious hints already given (don't repeat):\n" + "\n".join(
+            f"- {h}" for h in hints_already_given
+        )
+
+    message = f"""Challenge: {challenge_title} ({challenge_difficulty})
+
+Grading rubric:
+{rubric_text}
+
+Sample of the dirty dataset (first 3 records):
+{json.dumps(dirty_dataset_sample[:3], ensure_ascii=False, indent=2)}
+
+The student says they are stuck on:
+"{stuck_on}"
+{prev_hints}
+
+Give a targeted hint that guides them without solving it for them."""
+
+    raw = llm.chat(
+        system=HINT_SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": message}],
+        max_tokens=300,
+    )
+
+    data = parse_json_response(raw, None)
+    if isinstance(data, dict):
+        return {
+            "hint":      data.get("hint", raw),
+            "concept":   data.get("concept", ""),
+            "next_step": data.get("next_step", ""),
+        }
+    return {"hint": raw, "concept": "", "next_step": ""}

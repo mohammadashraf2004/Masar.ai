@@ -34,9 +34,9 @@ class UserProgress(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=False)
+    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     status = Column(Enum(ProgressStatus), default=ProgressStatus.not_started)
-    lessons_completed = Column(JSON, default=list)  # list of lesson IDs
+    lessons_completed = Column(JSON, default=list)
     exercises_completed = Column(JSON, default=list)
     started_at = Column(DateTime(timezone=True), nullable=True)
     completed_at = Column(DateTime(timezone=True), nullable=True)
@@ -45,6 +45,12 @@ class UserProgress(Base):
     user = relationship("User", back_populates="progress_records")
     topic = relationship("Topic", back_populates="progress_records")
 
+    # A progress row belongs to EITHER a track topic OR a tool topic, never
+    # both — same convention as Lesson/Exercise/Quiz/Project's tool_topic_id.
+    tool_topic_id = Column(Integer, ForeignKey("tool_topics.id"), nullable=True)
+    tool_topic    = relationship("ToolTopic", back_populates="progress_records",
+                                 foreign_keys="[UserProgress.tool_topic_id]")
+
 
 class QuizAttempt(Base):
     __tablename__ = "quiz_attempts"
@@ -52,10 +58,10 @@ class QuizAttempt(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     quiz_id = Column(Integer, ForeignKey("quizzes.id"), nullable=False)
-    answers = Column(JSON, nullable=False)  # {question_index: selected_option}
+    answers = Column(JSON, nullable=False)
     score = Column(Float, nullable=False)
     passed = Column(Boolean, nullable=False)
-    feedback = Column(JSON, default=dict)  # per-question feedback
+    feedback = Column(JSON, default=dict)
     attempted_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="quiz_attempts")
@@ -70,8 +76,11 @@ class ProjectSubmission(Base):
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
     github_url = Column(String, nullable=True)
     description = Column(Text, nullable=True)
-    ai_review = Column(JSON, nullable=True)  # AI feedback JSON
+    ai_review = Column(JSON, nullable=True)
     score = Column(Float, nullable=True)
+    # New: performance metrics captured during AI code review
+    review_latency_ms = Column(Float, nullable=True)
+    review_tokens_used = Column(Integer, nullable=True)
     submitted_at = Column(DateTime(timezone=True), server_default=func.now())
     reviewed_at = Column(DateTime(timezone=True), nullable=True)
 
@@ -88,7 +97,9 @@ class MentorSession(Base):
     title = Column(String, nullable=True)
     context_topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     messages = Column(JSON, default=list)
-    # messages format: [{"role": "user"|"assistant", "content": "...", "timestamp": "..."}]
+    # messages format: [{"role": "user"|"assistant", "content": "...", "timestamp": "...", "latency_ms": int, "tokens": int}]
+    total_tokens = Column(Integer, default=0)
+    avg_latency_ms = Column(Float, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -96,13 +107,62 @@ class MentorSession(Base):
 
 
 class UserSkillScore(Base):
-    """Tracks individual skill competency scores"""
+    """Tracks individual skill competency scores with verified metrics"""
     __tablename__ = "user_skill_scores"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     skill_name = Column(String, nullable=False)
-    score = Column(Float, default=0.0)  # 0-100
+    score = Column(Float, default=0.0)           # 0–100 competency
     last_assessed_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Verified performance metrics (populated from real activity)
+    avg_latency_ms = Column(Float, nullable=True)
+    cost_per_1k_tokens = Column(Float, nullable=True)
+    hallucination_rate = Column(Float, nullable=True)   # 0–1
+    retrieval_precision = Column(Float, nullable=True)  # 0–100
+    tokens_used = Column(Integer, nullable=True)
+    verified = Column(Boolean, default=False)
+    evidence_source = Column(String, nullable=True)     # "exam"|"project"|"mentor"|"skill_gap"
+
     user = relationship("User", back_populates="skill_scores")
+
+
+class EngineerScorecard(Base):
+    """Aggregated verified engineer scorecard — one per user"""
+    __tablename__ = "engineer_scorecards"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
+
+    # Certification
+    certs_earned = Column(Integer, default=0)
+    exams_attempted = Column(Integer, default=0)
+    exam_pass_rate = Column(Float, nullable=True)        # 0–100
+
+    # Performance
+    avg_latency_ms = Column(Float, nullable=True)
+    p95_latency_ms = Column(Float, nullable=True)
+    cost_per_1k_requests = Column(Float, nullable=True)
+    total_tokens_used = Column(Integer, default=0)
+
+    # Quality
+    hallucination_rate = Column(Float, nullable=True)   # 0–1 lower is better
+    retrieval_precision = Column(Float, nullable=True)  # 0–100
+    code_quality_score = Column(Float, nullable=True)   # 0–100
+    avg_project_score = Column(Float, nullable=True)    # 0–100
+
+    # Activity
+    projects_submitted = Column(Integer, default=0)
+    quizzes_passed = Column(Integer, default=0)
+    mentor_sessions_count = Column(Integer, default=0)
+    total_study_minutes = Column(Integer, default=0)
+
+    # Summary
+    overall_grade = Column(String(2), nullable=True)    # A+, A, B+, B, C, D
+    hire_ready = Column(Boolean, default=False)
+    last_computed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    user = relationship("User", back_populates="scorecard")

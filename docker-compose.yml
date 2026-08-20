@@ -1,20 +1,18 @@
-version: "3.9"
-
 services:
   # ─── PostgreSQL with pgvector ──────────────────────────────────────
   db:
     image: pgvector/pgvector:pg16
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: ai_career_platform
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_career_platform}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -26,34 +24,75 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://postgres:password@db:5432/ai_career_platform
-      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      AI_PROVIDER: ${AI_PROVIDER:-anthropic}
-      AI_MODEL: ${AI_MODEL:-claude-sonnet-4-20250514}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      # Always overridden regardless of backend/.env — a host-local
+      # DATABASE_URL (e.g. localhost:5432) wouldn't resolve inside the
+      # container network anyway, so this one MUST be the docker-internal
+      # host.
+      - APP_ENV=${APP_ENV:-production}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-ai_career_platform}
+      # No hard requirement here — app/core/config.py already refuses to
+      # boot when APP_ENV=production and this is left at the default/short.
+      # Generate a real one with: openssl rand -hex 32
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      # Bare passthroughs (no `=value`): only injected into the container
+      # if actually set in the host shell/.env-passed-to-compose. Giving
+      # these a `${VAR:-default}` fallback like the ones above would set
+      # a real container env var either way, which — since pydantic-settings
+      # prioritizes real env vars over backend/.env — would silently shadow
+      # whatever a developer configured in backend/.env for local dev.
+      - ANTHROPIC_API_KEY
+      - OPENAI_API_KEY
+      - GENERATION_BACKEND
+      - GENERATION_MODEL_ID
+      - EXTRA_CORS_ORIGINS
+      - RESEND_API_KEY
+      - EMAIL_FROM
+      - PAYMOB_API_KEY
+      - PAYMOB_INTEGRATION_ID_CARD
+      - PAYMOB_INTEGRATION_ID_WALLET
+      - PAYMOB_IFRAME_ID
+      - PAYMOB_HMAC_SECRET
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w 4 --bind 0.0.0.0:8000 --timeout 60
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # ─── Next.js Frontend ──────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      # The standalone server.js binds to this interface — without it,
+      # it only listens on the container's specific bridge IP, not
+      # 127.0.0.1. External requests still work fine (Docker's port
+      # publishing routes straight to that IP), but anything running
+      # *inside* the container and calling `localhost:3000` — like our
+      # own healthcheck below — gets ECONNREFUSED.
+      - HOSTNAME=0.0.0.0
     ports:
       - "3000:3000"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
 volumes:
   postgres_data:

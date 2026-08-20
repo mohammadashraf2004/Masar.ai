@@ -4,7 +4,7 @@ from typing import List
 
 from app.db.session import get_db
 from app.models.user import User
-from app.models.learning import CareerTrack, Topic, Lesson, Quiz, Project
+from app.models.learning import CareerTrack, TrackLevel, Topic, Lesson, Exercise, Project, Quiz
 from app.models.progress import Enrollment, UserProgress, QuizAttempt, ProjectSubmission, ProgressStatus
 from app.views.learning import (
     CareerTrackResponse, CareerTrackSummary,
@@ -15,7 +15,7 @@ from app.views.learning import (
     TopicResponse,
 )
 from app.core.security import get_current_user
-from app.services import ai_service
+from app.services import get_llm, code_review_service
 from datetime import datetime
 
 router = APIRouter(prefix="/tracks", tags=["Learning Tracks"])
@@ -28,24 +28,7 @@ def list_tracks(db: Session = Depends(get_db)):
     return db.query(CareerTrack).filter(CareerTrack.is_active == True).all()
 
 
-@router.get("/{slug}", response_model=CareerTrackResponse)
-def get_track(slug: str, db: Session = Depends(get_db)):
-    track = (
-        db.query(CareerTrack)
-        .options(
-            joinedload(CareerTrack.levels).joinedload("topics").joinedload("lessons"),
-            joinedload(CareerTrack.levels).joinedload("topics").joinedload("exercises"),
-            joinedload(CareerTrack.levels).joinedload("topics").joinedload("projects"),
-        )
-        .filter(CareerTrack.slug == slug, CareerTrack.is_active == True)
-        .first()
-    )
-    if not track:
-        raise HTTPException(status_code=404, detail="Track not found")
-    return track
-
-
-# ─── Enrollment ─────────────────────────────────────────────────────────
+# ─── Enrollment — MUST come before /{slug} to avoid route collision ─────
 
 @router.post("/enroll", response_model=EnrollmentResponse, status_code=status.HTTP_201_CREATED)
 def enroll(
@@ -87,6 +70,31 @@ def my_enrollments(
         .filter(Enrollment.user_id == current_user.id, Enrollment.is_active == True)
         .all()
     )
+
+
+# ─── Track detail — AFTER all literal routes ────────────────────────────
+
+@router.get("/{slug}", response_model=CareerTrackResponse)
+def get_track(slug: str, db: Session = Depends(get_db)):
+    track = (
+        db.query(CareerTrack)
+        .options(
+            joinedload(CareerTrack.levels)
+                .joinedload(TrackLevel.topics)
+                .joinedload(Topic.lessons),
+            joinedload(CareerTrack.levels)
+                .joinedload(TrackLevel.topics)
+                .joinedload(Topic.exercises),
+            joinedload(CareerTrack.levels)
+                .joinedload(TrackLevel.topics)
+                .joinedload(Topic.projects),
+        )
+        .filter(CareerTrack.slug == slug, CareerTrack.is_active == True)
+        .first()
+    )
+    if not track:
+        raise HTTPException(status_code=404, detail="Track not found")
+    return track
 
 
 # ─── Topic Detail ────────────────────────────────────────────────────────
@@ -224,10 +232,11 @@ def submit_project(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # Trigger AI code review if description provided
     ai_review = None
     if payload.description:
-        ai_review = ai_service.review_code(
+        llm = get_llm()
+        ai_review = code_review_service.review_code(
+            llm=llm,
             code=payload.description,
             language="python",
             context=f"Project: {project.title}. {project.description}",

@@ -1,0 +1,18 @@
+# Auto-loaded by `docker compose up` alongside docker-compose.yml.
+# Local development only — adds hot-reload and relaxes prod-only requirements
+# (docker-compose.yml's SECRET_KEY requirement, gunicorn multi-worker, etc).
+# For a prod-like run, ignore this file explicitly:
+#   docker compose -f docker-compose.yml up
+services:
+  api:
+    environment:
+      APP_ENV: development
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # No override needed for frontend: it always runs the standalone
+  # production build (`node server.js`) in both dev and prod compose runs
+  # — there's no `next dev` mode wired into the Dockerfile. Forcing
+  # NODE_ENV=development here previously broke routing on the prod build
+  # artifact (buildId fell back to "development", pages 404'd).

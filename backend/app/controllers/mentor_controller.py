@@ -22,6 +22,7 @@ from app.services import (
     interview_service,
     roadmap_service,
 )
+from app.services.wallet.wallet_service import deduct_credits
 
 router = APIRouter(prefix="/mentor", tags=["AI Mentor"])
 
@@ -32,6 +33,9 @@ def chat_with_mentor(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # ── Deduct credits before calling LLM ─────────────────────────────────────
+    deduct_credits(current_user.id, "mentor_chat", db)
+
     session = (
         db.query(MentorSession)
         .filter(MentorSession.user_id == current_user.id)
@@ -109,7 +113,12 @@ def get_session(session_id: int, current_user: User = Depends(get_current_user),
 
 
 @router.post("/code-review", response_model=CodeReviewResponse)
-def review_code(payload: CodeReviewRequest, current_user: User = Depends(get_current_user)):
+def review_code(
+    payload: CodeReviewRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    deduct_credits(current_user.id, "code_review", db)
     result = code_review_service.review_code(
         llm=get_llm(), code=payload.code, language=payload.language, context=payload.context,
     )
@@ -122,6 +131,7 @@ def analyze_skill_gap(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    deduct_credits(current_user.id, "skill_gap", db)
     result = skill_gap_service.analyze_skill_gap(
         llm=get_llm(),
         target_role=payload.target_role,
@@ -136,7 +146,12 @@ def analyze_skill_gap(
 
 
 @router.post("/mock-interview", response_model=MockInterviewResponse)
-def mock_interview(payload: MockInterviewRequest, current_user: User = Depends(get_current_user)):
+def mock_interview(
+    payload: MockInterviewRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    deduct_credits(current_user.id, "mock_interview", db)
     result = interview_service.generate_question(
         llm=get_llm(), topic=payload.topic, difficulty=payload.difficulty, previous_qa=payload.previous_qa,
     )
@@ -144,7 +159,12 @@ def mock_interview(payload: MockInterviewRequest, current_user: User = Depends(g
 
 
 @router.get("/roadmap")
-def get_roadmap(track: str = "AI Engineer", current_user: User = Depends(get_current_user)):
+def get_roadmap(
+    track: str = "AI Engineer",
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    deduct_credits(current_user.id, "roadmap", db)
     weak_skills = [s.skill_name for s in current_user.skill_scores if s.score < 50]
     weeks = roadmap_service.generate_roadmap(
         llm=get_llm(), track=track,

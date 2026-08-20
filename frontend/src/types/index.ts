@@ -6,6 +6,7 @@ export interface User {
   full_name: string
   role: 'student' | 'mentor' | 'admin'
   experience_level: 'beginner' | 'intermediate' | 'advanced'
+  is_verified: boolean
   bio?: string
   github_url?: string
   linkedin_url?: string
@@ -117,6 +118,50 @@ export interface Enrollment {
   completion_percentage: number
   enrolled_at: string
   target_job_title?: string
+}
+
+// ─── Tool Courses ──────────────────────────────────────────────────────────
+
+export interface ToolCourseSummary {
+  id: number
+  slug: string
+  title: string
+  description?: string
+  icon?: string
+  category?: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  estimated_hours?: number
+  related_track_ids: number[]
+  topic_count: number
+}
+
+export interface ToolTopic {
+  id: number
+  title: string
+  slug: string
+  description?: string
+  order: number
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  estimated_hours: number
+  skill_tags: string[]
+  prerequisite_ids: number[]
+  lessons: { id: number; title: string; content: string; order: number; estimated_minutes: number; has_code_examples: boolean }[]
+  exercises: { id: number; title: string; description: string; starter_code?: string; difficulty: string; skill_tested: string[] }[]
+  quizzes: { id: number; title: string; questions: any[]; passing_score: number }[]
+  projects: { id: number; title: string; description: string; difficulty: string; tech_stack: string[]; objectives: string[]; rubric: Record<string, any>; starter_repo_url?: string; estimated_hours: number }[]
+}
+
+export interface ToolCourse extends Omit<ToolCourseSummary, 'topic_count'> {
+  topics: ToolTopic[]
+}
+
+export interface ToolEnrollment {
+  id: number
+  tool_course_id: number
+  tool_course: ToolCourseSummary
+  progress_pct: number
+  enrolled_at: string
+  completed_at?: string
 }
 
 export interface UserProgress {

@@ -4,9 +4,15 @@ from alembic import context
 
 # Import all models so Alembic can detect them
 from app.db.session import Base
-import app.models.user  # noqa
-import app.models.learning  # noqa
-import app.models.progress  # noqa
+import app.models.user         # noqa
+import app.models.learning     # noqa
+import app.models.progress     # noqa
+import app.models.community    # noqa
+import app.models.wallet       # noqa
+import app.models.auth_token   # noqa
+import app.models.challenge    # noqa
+import app.models.exam         # noqa
+import app.models.tool_course  # noqa
 
 config = context.config
 if config.config_file_name is not None:

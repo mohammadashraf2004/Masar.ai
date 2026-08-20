@@ -75,7 +75,7 @@ class Lesson(Base):
     __tablename__ = "lessons"
 
     id = Column(Integer, primary_key=True, index=True)
-    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=False)
+    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)  # Markdown
     order = Column(Integer, nullable=False)
@@ -84,6 +84,9 @@ class Lesson(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     topic = relationship("Topic", back_populates="lessons")
+    tool_topic_id = Column(Integer, ForeignKey("tool_topics.id"), nullable=True)
+    tool_topic    = relationship("ToolTopic", back_populates="lessons",
+                                 foreign_keys="[Lesson.tool_topic_id]")
 
 
 class Exercise(Base):
@@ -91,7 +94,7 @@ class Exercise(Base):
     __tablename__ = "exercises"
 
     id = Column(Integer, primary_key=True, index=True)
-    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=False)
+    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
     starter_code = Column(Text)
@@ -100,6 +103,9 @@ class Exercise(Base):
     skill_tested = Column(JSON, default=list)
 
     topic = relationship("Topic", back_populates="exercises")
+    tool_topic_id = Column(Integer, ForeignKey("tool_topics.id"), nullable=True)
+    tool_topic    = relationship("ToolTopic", back_populates="exercises",
+                                 foreign_keys="[Exercise.tool_topic_id]")
 
 
 class Project(Base):
@@ -107,7 +113,7 @@ class Project(Base):
     __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True, index=True)
-    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=False)
+    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
     difficulty = Column(Enum(DifficultyLevel), default=DifficultyLevel.beginner)
@@ -119,6 +125,9 @@ class Project(Base):
 
     topic = relationship("Topic", back_populates="projects")
     submissions = relationship("ProjectSubmission", back_populates="project")
+    tool_topic_id = Column(Integer, ForeignKey("tool_topics.id"), nullable=True)
+    tool_topic    = relationship("ToolTopic", back_populates="projects",
+                                 foreign_keys="[Project.tool_topic_id]")
 
 
 class Quiz(Base):
@@ -126,7 +135,7 @@ class Quiz(Base):
     __tablename__ = "quizzes"
 
     id = Column(Integer, primary_key=True, index=True)
-    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=False)
+    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     title = Column(String, nullable=False)
     questions = Column(JSON, nullable=False)
     # questions format: [{"question": "...", "options": [...], "correct": 0, "explanation": "..."}]
@@ -134,3 +143,6 @@ class Quiz(Base):
 
     topic = relationship("Topic", back_populates="quizzes")
     attempts = relationship("QuizAttempt", back_populates="quiz")
+    tool_topic_id = Column(Integer, ForeignKey("tool_topics.id"), nullable=True)
+    tool_topic    = relationship("ToolTopic", back_populates="quizzes",
+                                 foreign_keys="[Quiz.tool_topic_id]")

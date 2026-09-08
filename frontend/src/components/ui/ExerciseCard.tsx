@@ -1,9 +1,8 @@
 'use client'
-import { Code2, ListChecks, PenLine } from 'lucide-react'
+import { ListChecks, PenLine } from 'lucide-react'
 import { Badge } from '@/components/ui/index'
 import { MarkdownLesson } from '@/components/ui/MarkdownLesson'
 import { AnswerChat } from '@/components/ui/AnswerChat'
-import { CodeBlock } from '@/components/ui/CodeBlock'
 import { useI18n } from '@/lib/i18n'
 import { pickText } from '@/lib/content-language'
 import { cn } from '@/lib/utils'
@@ -21,8 +20,8 @@ import type { Exercise } from '@/types'
  *
  * So: the brief goes through the same markdown renderer the lessons use
  * (compact scale), and the card is split into labelled sections — what to
- * do, the starter code, where to answer — so the order of operations is
- * visible at a glance instead of inferred from a paragraph.
+ * do, then where to answer — so the order of operations is visible at a
+ * glance instead of inferred from a paragraph.
  *
  * Shared by the track and tool-course readers; they had identical copies of
  * the old markup, and identical bugs in it.
@@ -93,14 +92,12 @@ export function ExerciseCard({
         />
       </Section>
 
-      {/* ── Starter code, if the exercise scaffolds one ── */}
-      {hasCode && (
-        <Section icon={<Code2 size={13} />} label={t('exercise.starterCode')}>
-          <CodeBlock code={exercise.starter_code!} language="python" />
-        </Section>
-      )}
-
-      {/* ── Where to answer ── */}
+      {/* ── Where to answer ──
+          The starter code used to get a read-only Section of its own here.
+          It is gone because AnswerChat pre-fills the editor with the same
+          scaffold and offers "Start again" to restore it — so this panel
+          was showing the student a copy of text they already had in front
+          of them, editable, one section further down. */}
       <Section icon={<PenLine size={13} />} label={t('exercise.yourAnswer')} last>
         <AnswerChat
           target={{ kind: 'exercise', id: exercise.id }}
@@ -113,7 +110,7 @@ export function ExerciseCard({
 }
 
 /** A labelled band inside the card. The label is what makes the order of
- *  operations readable — task, then scaffold, then answer. */
+ *  operations readable — task, then answer. */
 function Section({
   icon,
   label,

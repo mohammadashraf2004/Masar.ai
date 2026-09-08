@@ -8,3 +8,7 @@ from app.models.tool_course import (  # noqa: F401
     ToolEnrollment,
     ToolCourseCompletion,
 )
+
+from app.models.answer_submission import AnswerSubmission  # noqa: F401
+
+from app.models.vocabulary import UserTermProgress, TermStatus  # noqa: F401

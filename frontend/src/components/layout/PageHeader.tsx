@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/lib/store'
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { Zap, AlertTriangle, User, LogOut, Settings } from 'lucide-react'
 
 interface PageHeaderProps {
@@ -78,7 +79,7 @@ function ProfileMenu() {
             {user.full_name.charAt(0).toUpperCase()}
           </span>
         </div>
-        <div className="hidden sm:block text-left">
+        <div className="hidden sm:block text-start">
           <p className="text-xs font-medium text-bright leading-none">{user.full_name.split(' ')[0]}</p>
           <p className="text-xs text-ghost capitalize leading-none mt-0.5">{user.experience_level}</p>
         </div>
@@ -86,7 +87,7 @@ function ProfileMenu() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-52 bg-ink border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
+        <div className="absolute end-0 top-full mt-2 w-52 bg-ink border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
           {/* User info */}
           <div className="px-4 py-3 border-b border-border">
             <p className="text-xs font-semibold text-bright truncate">{user.full_name}</p>
@@ -138,13 +139,17 @@ export function PageHeader({ title, subtitle, action, className }: PageHeaderPro
     )}>
       {/* Left: title + subtitle */}
       <div className="min-w-0">
-        <h1 className="font-display font-700 text-xl text-white tracking-tight truncate">{title}</h1>
+        <h1 className="font-display font-bold text-xl text-white tracking-tight truncate">{title}</h1>
         {subtitle && <p className="text-sm text-ghost mt-0.5 truncate">{subtitle}</p>}
       </div>
 
-      {/* Right: action + credits + profile */}
+      {/* Right: action + language + credits + profile.
+          The language control sits in the header rather than buried in
+          settings: switching between Arabic explanations and industry
+          terminology is something a student does mid-lesson, not once. */}
       <div className="flex items-center gap-3 flex-shrink-0">
         {action && <div>{action}</div>}
+        <LanguageSwitcher />
         <CreditsBadge />
         <ProfileMenu />
       </div>

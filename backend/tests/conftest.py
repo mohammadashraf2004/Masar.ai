@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 # they needed to be.
 import app.main  # noqa: F401
 from app.db.session import engine, SessionLocal
+from app.core import login_guard
 from app.core.limiter import limiter
 
 
@@ -29,11 +30,62 @@ def _migrate_db():
     from alembic.config import Config
     from alembic import command
 
+    from sqlalchemy import text
+
+    # ── Refuse to run against anything but a disposable test database ──
+    # This fixture DROPs the entire public schema. backend/.env points at
+    # the development database, and pytest picks that up unless
+    # DATABASE_URL is overridden — so an ordinary `pytest` in backend/
+    # would silently destroy real local data. (Stray "Test Track" /
+    # "Test Tool" rows in the dev catalogue are the harmless evidence that
+    # this already happened once.)
+    #
+    # The database NAME must contain "test". CI uses
+    # ai_career_platform_test and passes; the dev database
+    # ai_career_platform does not, and stops here.
+    db_name = engine.url.database or ""
+    if "test" not in db_name.lower():
+        pytest.exit(
+            "\n\n"
+            f"Refusing to run: DATABASE_URL points at '{db_name}', which is not a\n"
+            "test database, and this fixture DROPs the whole public schema.\n\n"
+            "Point it at a disposable database, e.g.\n"
+            f"  DATABASE_URL=postgresql://.../{db_name}_test pytest\n",
+            returncode=1,
+        )
+
     cfg = Config("alembic.ini")
     # str(engine.url) masks the password as '***' — need the real DSN.
     cfg.set_main_option("sqlalchemy.url", engine.url.render_as_string(hide_password=False))
-    command.downgrade(cfg, "base")
+
+    # Drop the schema outright rather than `downgrade base`. The downgrade
+    # chain can't run against a database that already holds rows from a
+    # previous run (002's downgrade restores user_progress.topic_id NOT
+    # NULL, which fails once any tool-course progress row exists), so a
+    # re-run against a used database would abort during collection with a
+    # confusing IntegrityError. This always starts from nothing, and still
+    # exercises the entire upgrade chain — which is the half that has to
+    # work in production.
+    with engine.begin() as conn:
+        conn.execute(text("DROP SCHEMA public CASCADE"))
+        conn.execute(text("CREATE SCHEMA public"))
     command.upgrade(cfg, "head")
+    yield
+
+
+@pytest.fixture(autouse=True)
+def _promo_disabled_by_default(monkeypatch):
+    """The launch promotion is OFF unless a test explicitly turns it on.
+
+    pydantic-settings reads backend/.env, and the test container mounts
+    the repo — so without this, enabling the promo locally silently
+    changes the starting credit balance for every registration test and
+    four unrelated tests start failing. Preconditions belong in the test,
+    not in whatever the developer happens to have configured.
+    """
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "LAUNCH_PROMO_UNTIL", "")
     yield
 
 
@@ -44,6 +96,10 @@ def _reset_rate_limiter():
     from more than a handful of tests would start returning 429s
     regardless of which test is running."""
     limiter.reset()
+    # Same reasoning for the per-account failed-login lockout: its
+    # counters outlive a single test, so one test's deliberate bad
+    # passwords would lock out an unrelated test's login.
+    login_guard.reset()
     yield
 
 

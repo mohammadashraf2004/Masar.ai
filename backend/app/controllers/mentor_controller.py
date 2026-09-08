@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
@@ -13,6 +15,7 @@ from app.views.mentor import (
     SkillGapRequest, SkillGapResponse,
     MockInterviewRequest, MockInterviewResponse,
 )
+from app.core.limiter import limiter
 from app.core.security import get_current_user
 from app.services import (
     get_llm,
@@ -22,13 +25,23 @@ from app.services import (
     interview_service,
     roadmap_service,
 )
-from app.services.wallet.wallet_service import deduct_credits
+from app.services.wallet.wallet_service import deduct_credits, refund_credits
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/mentor", tags=["AI Mentor"])
 
+# The credit wallet is the primary control on AI spend here (every handler
+# below calls deduct_credits first). These limits are the second one: they
+# bound *concurrency and burst*, which credits do not — a scripted client
+# with a topped-up wallet could otherwise open hundreds of simultaneous
+# provider calls and exhaust our rate budget with the upstream vendor.
+
 
 @router.post("/chat", response_model=MentorResponse)
+@limiter.limit("20/minute")
 def chat_with_mentor(
+    request: Request,
     payload: MentorMessage,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -68,6 +81,8 @@ def chat_with_mentor(
         conversation_history=history,
         user_message=payload.content,
         user_context=user_context,
+        language=payload.language,
+        terminology_mode=payload.terminology_mode,
     )
 
     new_messages = list(session.messages or [])
@@ -113,7 +128,9 @@ def get_session(session_id: int, current_user: User = Depends(get_current_user),
 
 
 @router.post("/code-review", response_model=CodeReviewResponse)
+@limiter.limit("10/minute")
 def review_code(
+    request: Request,
     payload: CodeReviewRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -126,7 +143,9 @@ def review_code(
 
 
 @router.post("/skill-gap", response_model=SkillGapResponse)
+@limiter.limit("6/minute")
 def analyze_skill_gap(
+    request: Request,
     payload: SkillGapRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -146,7 +165,9 @@ def analyze_skill_gap(
 
 
 @router.post("/mock-interview", response_model=MockInterviewResponse)
+@limiter.limit("15/minute")
 def mock_interview(
+    request: Request,
     payload: MockInterviewRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -159,18 +180,72 @@ def mock_interview(
 
 
 @router.get("/roadmap")
+@limiter.limit("6/minute")
 def get_roadmap(
-    track: str = "AI Engineer",
+    request: Request,
+    track: str = Query("AI Engineer", max_length=120),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # Charged before the call, as every handler here does. What follows is
+    # the other half of that bargain: the deduction commits immediately, so
+    # if generation then fails the student has paid for nothing. Without the
+    # refund below, a provider outage silently bills every user who asks.
     deduct_credits(current_user.id, "roadmap", db)
+
+    def _refund(why: str) -> None:
+        """Reverse the charge above. Used by both failure paths: a provider
+        that raised, and a provider that returned something unusable — the
+        student is equally empty-handed either way."""
+        try:
+            refund_credits(
+                current_user.id, "roadmap", db,
+                reason=f"Refund: roadmap generation failed ({track})",
+            )
+        except Exception:
+            # The charge stands and we could not reverse it. Loud, because
+            # this is the one path that leaves a user out of pocket and only
+            # the log will say so.
+            logger.critical(
+                "roadmap refund FAILED after %s; user is owed credits", why,
+                extra={"user_id": current_user.id, "action": "roadmap"},
+            )
+
+    # Deliberately identical for every failure: the client is told the
+    # roadmap is unavailable and that the credits came back, never why the
+    # provider misbehaved.
+    UNAVAILABLE = "Roadmap generation is unavailable right now. Your credits were refunded."
+
     weak_skills = [s.skill_name for s in current_user.skill_scores if s.score < 50]
-    weeks = roadmap_service.generate_roadmap(
-        llm=get_llm(), track=track,
-        experience_level=current_user.experience_level,
-        weak_skills=weak_skills,
-    )
+    try:
+        weeks = roadmap_service.generate_roadmap(
+            llm=get_llm(), track=track,
+            experience_level=current_user.experience_level,
+            weak_skills=weak_skills,
+        )
+    except Exception:
+        # Only reached when generation itself failed. An insufficient-credits
+        # 402 is raised by deduct_credits above, outside this block, so it
+        # can never be "refunded" — there was no deduction to reverse.
+        logger.exception(
+            "roadmap generation failed; refunding the credits",
+            extra={"user_id": current_user.id, "track": track},
+        )
+        _refund("a provider exception")
+        raise HTTPException(status_code=503, detail=UNAVAILABLE)
+
+    if not weeks:
+        # The provider answered, but with nothing we can show: no parseable
+        # week array, or one whose entries were all unusable. Returning
+        # `{"weeks": []}` with a 200 here is what silently billed students
+        # for a blank plan — a success status for a non-result.
+        logger.warning(
+            "roadmap generation produced no usable weeks; refunding the credits",
+            extra={"user_id": current_user.id, "track": track},
+        )
+        _refund("an unusable roadmap")
+        raise HTTPException(status_code=503, detail=UNAVAILABLE)
+
     return {"track": track, "weeks": weeks}
 
 

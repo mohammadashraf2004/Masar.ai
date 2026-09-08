@@ -25,6 +25,10 @@ class ToolCourse(Base):
     slug              = Column(String, unique=True, index=True, nullable=False)
     title             = Column(String, nullable=False)
     description       = Column(Text, nullable=True)
+    # Arabic-first metadata. Nullable: courses seeded before the policy keep
+    # working and simply fall back to the English fields.
+    title_ar          = Column(String, nullable=True)
+    description_ar    = Column(Text, nullable=True)
     icon              = Column(String, nullable=True)
     # Display grouping for the browse page, e.g. "LLM & AI Application Layer",
     # "Vector Databases", "MLOps & Infrastructure", "Data Tools". A plain
@@ -38,6 +42,14 @@ class ToolCourse(Base):
     # Used for display only ("relevant to ML Engineer, AI Developer").
     # Never drives unlock or completion logic.
     related_track_ids = Column(JSON, default=list)
+    # Terminology dictionary ids the course teaches, e.g. ["rag", "embeddings"].
+    # Powers the course vocabulary panel and the "where you'll see this"
+    # job-role mapping. Ids that aren't in the dictionary are ignored.
+    technical_terms   = Column(JSON, default=list)
+    # Free-form skill labels as they appear in job descriptions, e.g.
+    # ["LLM", "RAG", "Vector Search"]. Not dictionary ids — these are the
+    # words a recruiter searches for.
+    industry_skills   = Column(JSON, default=list)
     created_at        = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
@@ -55,10 +67,13 @@ class ToolTopic(Base):
     title            = Column(String, nullable=False)
     slug             = Column(String, index=True, nullable=False)
     description      = Column(Text, nullable=True)
+    title_ar         = Column(String, nullable=True)
+    description_ar   = Column(Text, nullable=True)
     order            = Column(Integer, nullable=False)       # "order" not "order_index"
     difficulty       = Column(Enum(DifficultyLevel), default=DifficultyLevel.beginner)
     estimated_hours  = Column(Float, default=2.0)
     skill_tags       = Column(JSON, default=list)            # e.g. ["langchain", "rag"]
+    technical_terms  = Column(JSON, default=list)            # terminology dictionary ids
     prerequisite_ids = Column(JSON, default=list)            # list of ToolTopic IDs
 
     # Relationships

@@ -4,19 +4,22 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { VocabularyProgress } from '@/components/ui/VocabularyProgress'
 import { Card, ProgressBar, Badge, Spinner } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { PaymentResultBanner } from '@/components/ui/PaymentResultBanner'
 import { api } from '@/lib/api'
 import type { Enrollment, SkillScore, RoadmapWeek } from '@/types'
 import { Brain, BookOpen, ArrowRight, Zap, Target, TrendingUp, Clock } from 'lucide-react'
-import { scoreColor } from '@/lib/utils'
+import { scoreColor, getErrorMessage } from '@/lib/utils'
 
 export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth()
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [skills, setSkills] = useState<SkillScore[]>([])
   const [roadmap, setRoadmap] = useState<RoadmapWeek[]>([])
+  const [roadmapLoading, setRoadmapLoading] = useState(false)
+  const [roadmapError, setRoadmapError] = useState('')
   const [dataLoading, setDataLoading] = useState(true)
 
   useEffect(() => {
@@ -29,17 +32,37 @@ export default function DashboardPage() {
         ])
         setEnrollments(enr)
         setSkills(scoreData.skills)
-        if (enr.length > 0) {
-          try {
-            const rm = await api.getRoadmap(enr[0].track.title)
-            setRoadmap(rm.weeks)
-          } catch {}
-        }
+        // The roadmap is NOT fetched here. Generating one is a live LLM call
+        // that costs 5 credits, and doing it on mount billed the student for
+        // simply opening — or re-opening — this page, with the cost hidden
+        // because the failure path was swallowed. It is now explicit: see
+        // generateRoadmap below.
       } catch {}
       setDataLoading(false)
     }
     load()
   }, [authLoading])
+
+  async function generateRoadmap() {
+    if (roadmapLoading || enrollments.length === 0) return
+    setRoadmapLoading(true)
+    setRoadmapError('')
+    try {
+      const rm = await api.getRoadmap(enrollments[0].track.title)
+      setRoadmap(rm.weeks)
+    } catch (err) {
+      // Deliberately surfaced rather than swallowed: running out of credits
+      // is the most likely failure here, and the student needs to be told.
+      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+      if (typeof detail === 'object' && detail !== null && 'error' in detail
+          && (detail as { error?: string }).error === 'insufficient_credits') {
+        setRoadmapError('Not enough credits to generate a roadmap.')
+      } else {
+        setRoadmapError(getErrorMessage(err))
+      }
+    }
+    setRoadmapLoading(false)
+  }
 
   if (authLoading) {
     return (
@@ -124,9 +147,32 @@ export default function DashboardPage() {
               ))
             )}
 
-            {roadmap.length > 0 && (
+            {enrollments.length > 0 && (
               <div>
-                <h2 className="text-xs font-medium text-ghost uppercase tracking-widest mb-3">Weekly plan</h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">Weekly plan</h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    loading={roadmapLoading}
+                    onClick={() => void generateRoadmap()}
+                  >
+                    {roadmap.length > 0 ? 'Regenerate' : 'Generate roadmap'}
+                    <span className="ms-1.5 text-[10px] text-ghost">5 credits</span>
+                  </Button>
+                </div>
+
+                {roadmapError && (
+                  <p className="mb-3 text-xs text-rose leading-relaxed">{roadmapError}</p>
+                )}
+
+                {roadmap.length === 0 && !roadmapLoading && !roadmapError && (
+                  <p className="mb-3 text-xs text-ghost leading-relaxed">
+                    Generate a personalised weekly plan for {enrollments[0].track.title}.
+                    Each run asks the AI mentor to build a fresh plan and costs 5 credits.
+                  </p>
+                )}
+
                 <div className="space-y-2">
                   {roadmap.slice(0, 4).map(week => (
                     <Card key={week.week} className="p-4 flex items-start gap-4">
@@ -147,8 +193,13 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Skill scores + mentor CTA */}
+          {/* Vocabulary + skill scores + mentor CTA */}
           <div className="space-y-4">
+            {/* Terminology progress sits above skill scores deliberately:
+                being able to name a concept in English is the difference
+                between understanding it and being hireable for it. */}
+            <VocabularyProgress limit={6} />
+
             <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">Skill scores</h2>
             <Card className="p-4">
               {dataLoading ? (

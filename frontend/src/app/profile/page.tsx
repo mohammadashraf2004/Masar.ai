@@ -118,7 +118,7 @@ function SectionHeader({ icon: Icon, label, color = 'text-amber' }: {
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const { user } = useAuth()
-  const { setAuth, token, logout } = useAuthStore()
+  const { token, logout } = useAuthStore()
 
   const [resendingVerification, setResendingVerification] = useState(false)
   const [verificationSent, setVerificationSent] = useState(false)
@@ -196,7 +196,9 @@ export default function ProfilePage() {
     setFormError('')
     try {
       const updated = await api.updateMe(form)
-      if (token) setAuth(token, updated)
+      // Refresh the cached user only — reusing setAuth's default TTL
+      // here would silently extend the session on every profile save.
+      if (token) useAuthStore.setState({ user: updated })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     } catch (err) {

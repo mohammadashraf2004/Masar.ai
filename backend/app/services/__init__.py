@@ -17,6 +17,7 @@ from app.core.config import settings
 from app.services.llm import LLMProviderFactory, LLMEnum, BaseLLMProvider
 
 from app.services.mentor      import mentor_service       # noqa: F401
+from app.services.mentor      import answer_evaluator_service  # noqa: F401
 from app.services.code_review import code_review_service  # noqa: F401
 from app.services.skill_gap   import skill_gap_service    # noqa: F401
 from app.services.interview   import interview_service     # noqa: F401
@@ -55,6 +56,7 @@ def get_llm() -> BaseLLMProvider:
 __all__ = [
     "get_llm",
     "mentor_service",
+    "answer_evaluator_service",
     "code_review_service",
     "skill_gap_service",
     "interview_service",

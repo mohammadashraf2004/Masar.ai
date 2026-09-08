@@ -8,7 +8,8 @@ import { api } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { getErrorMessage } from '@/lib/utils'
-import { Cpu, ArrowRight, Check } from 'lucide-react'
+import { ArrowRight, Check } from 'lucide-react'
+import { Logo } from '@/components/layout/Logo'
 
 const LEVELS = [
   { value: 'beginner',     label: 'Beginner',     desc: 'New to programming' },
@@ -32,7 +33,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       const data = await api.register(form)
-      setAuth(data.access_token, data.user)
+      setAuth(data.access_token, data.user, data.expires_in)
       router.replace('/dashboard')
     } catch (err) {
       setError(getErrorMessage(err))
@@ -44,14 +45,9 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-void flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-7 h-7 rounded-md bg-amber flex items-center justify-center">
-            <Cpu size={13} className="text-void" />
-          </div>
-          <span className="font-display font-700 text-bright text-sm">AI Career Platform</span>
-        </div>
+        <Logo size={28} className="mb-8" wordmarkClassName="text-sm" />
 
-        <h1 className="font-display font-700 text-2xl text-white mb-1">Start your journey</h1>
+        <h1 className="font-display font-bold text-2xl text-white mb-1">Start your journey</h1>
         <p className="text-sm text-ghost mb-8">Create your account and get a personalized AI engineer roadmap.</p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -73,10 +69,11 @@ export default function RegisterPage() {
           <Input
             label="Password"
             type="password"
-            placeholder="Min. 8 characters"
+            placeholder="At least 10 characters"
             value={form.password}
             onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-            minLength={8}
+            minLength={10}
+            maxLength={72}
             required
           />
 

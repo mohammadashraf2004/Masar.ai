@@ -1,11 +1,14 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
+from app.core import security_log
+from app.core.authz import is_admin
 from app.db.session import get_db
+from app.models.challenge import ExamPayment
 from app.models.user import User
 from app.models.exam import (
     Exam, ExamAttempt, ProctoringEvent,
@@ -23,6 +26,42 @@ router = APIRouter(prefix="/exams", tags=["Exams & Certification"])
 
 # Max violations before attempt is flagged regardless of score
 MAX_VIOLATIONS_BEFORE_FLAG = 5
+
+# Clock skew / last-request-in-flight allowance on the exam deadline.
+SUBMIT_GRACE_SECONDS = 60
+
+
+def _has_paid_for_exam(db: Session, user: User, exam_id: int) -> bool:
+    """Certification exams are paid (see exam_payment_controller /
+    payments_controller). Until now this was checked ONLY by the frontend
+    before it called /start — so anyone who could issue an HTTP request
+    could take a paid exam, pass it, and be issued a real certificate for
+    free. Access control belongs here, where a client can't skip it."""
+    if is_admin(user):
+        return True
+    return db.query(ExamPayment).filter(
+        ExamPayment.user_id == user.id,
+        ExamPayment.exam_id == exam_id,
+        ExamPayment.status == "confirmed",
+    ).first() is not None
+
+
+def _require_paid_exam(db: Session, user: User, exam_id: int) -> None:
+    if not _has_paid_for_exam(db, user, exam_id):
+        security_log.authz_denied(
+            user_id=user.id, path=f"/exams/{exam_id}", reason="exam_payment_required",
+        )
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="This certification exam requires a confirmed payment before it can be started.",
+        )
+
+
+def _deadline(attempt: ExamAttempt, exam: Exam) -> datetime:
+    started = attempt.started_at
+    if started.tzinfo is None:
+        started = started.replace(tzinfo=timezone.utc)
+    return started + timedelta(minutes=exam.duration_minutes)
 
 
 # ─── List exams for a track ───────────────────────────────────────────────────
@@ -80,6 +119,8 @@ def start_exam(
     if not exam:
         raise HTTPException(status_code=404, detail="Exam not found")
 
+    _require_paid_exam(db, current_user, exam_id)
+
     # Check eligibility
     attempts = db.query(ExamAttempt).filter(
         ExamAttempt.exam_id == exam_id,
@@ -100,14 +141,27 @@ def start_exam(
         (a for a in attempts if a.status == ExamStatus.in_progress), None
     )
     if in_progress:
-        # Resume existing attempt
+        # Resume existing attempt — but only while it is still inside its
+        # own window. Without this an attempt sits "in progress" forever,
+        # which turns a 60-minute timed exam into an untimed one: start
+        # it, go research every answer, come back tomorrow and resume.
+        if datetime.now(timezone.utc) > _deadline(in_progress, exam):
+            in_progress.status = ExamStatus.failed
+            in_progress.passed = False
+            in_progress.score = in_progress.score or 0
+            in_progress.submitted_at = datetime.now(timezone.utc)
+            db.commit()
+            raise HTTPException(
+                status_code=400,
+                detail="Your previous attempt ran out of time and has been closed.",
+            )
         attempt = in_progress
     else:
         attempt = ExamAttempt(
             exam_id=exam_id,
             user_id=current_user.id,
             status=ExamStatus.in_progress,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
         )
         db.add(attempt)
         db.commit()
@@ -192,6 +246,27 @@ def submit_exam(
         raise HTTPException(status_code=400, detail="Attempt already submitted")
 
     exam = db.query(Exam).filter(Exam.id == attempt.exam_id).first()
+
+    # The exam was paid for at /start; re-checking here means a refund or
+    # a reversed/charged-back payment can't be outrun by an attempt that
+    # was already open.
+    _require_paid_exam(db, current_user, attempt.exam_id)
+
+    now = datetime.now(timezone.utc)
+    if now > _deadline(attempt, exam) + timedelta(seconds=SUBMIT_GRACE_SECONDS):
+        attempt.status = ExamStatus.failed
+        attempt.passed = False
+        attempt.score = 0
+        attempt.submitted_at = now
+        db.commit()
+        raise HTTPException(status_code=400, detail="Time limit exceeded — this attempt is closed.")
+
+    # Elapsed time is computed from the server-recorded start, never taken
+    # from payload.time_spent_seconds: that number is supplied by the same
+    # client being timed, so it can claim any duration it likes.
+    started = attempt.started_at if attempt.started_at.tzinfo else attempt.started_at.replace(tzinfo=timezone.utc)
+    elapsed_seconds = max(0, int((now - started).total_seconds()))
+
     questions = exam.questions
 
     # Grade
@@ -233,8 +308,8 @@ def submit_exam(
     attempt.answers = payload.answers
     attempt.score = score
     attempt.passed = passed
-    attempt.submitted_at = datetime.utcnow()
-    attempt.time_spent_seconds = payload.time_spent_seconds
+    attempt.submitted_at = now
+    attempt.time_spent_seconds = elapsed_seconds
 
     # Issue certificate if passed
     cert_id = None
@@ -260,7 +335,7 @@ def submit_exam(
         violations_count=attempt.violations_count,
         tab_switches=attempt.tab_switches,
         face_warnings=attempt.face_warnings,
-        time_spent_seconds=payload.time_spent_seconds,
+        time_spent_seconds=elapsed_seconds,
         question_results=question_results,
         certificate_id=cert_id,
     )

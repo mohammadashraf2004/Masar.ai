@@ -1,24 +1,36 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { LanguageProvider } from '@/components/layout/LanguageProvider'
+import { fontVariables } from '@/fonts'
 
 export const metadata: Metadata = {
-  title: 'AI Career Platform',
-  description: 'From student to job-ready AI engineer.',
+  // Both scripts in the tab title: the browser tab is the one surface that
+  // cannot follow the reader's language preference, since it is rendered
+  // before the client store has hydrated.
+  title: {
+    default: 'Masar مسار',
+    template: '%s · Masar',
+  },
+  description: 'Arabic-first AI engineering. From student to job-ready AI engineer.',
+  applicationName: 'Masar',
+  // Needed for the OpenGraph image URL to resolve absolutely. Set
+  // NEXT_PUBLIC_SITE_URL in production or link previews point at localhost.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  openGraph: {
+    siteName: 'Masar',
+    locale: 'ar_AR',
+    alternateLocale: 'en_US',
+    type: 'website',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    // Arabic-first is the default posture, so the document starts in
+    // Arabic/RTL; LanguageProvider flips it for readers who choose English.
+    <html lang="ar" dir="rtl" className={fontVariables}>
       <body className="bg-void text-bright antialiased">
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   )

@@ -1,4 +1,4 @@
-# AI Career Platform — Frontend
+# Masar — Frontend
 
 Next.js 14 frontend with App Router, TypeScript, Tailwind CSS, and Zustand.
 

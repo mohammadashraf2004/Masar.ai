@@ -51,6 +51,22 @@ jobs:
         working-directory: backend
         run: pytest -v
 
+      - name: Dependency vulnerability audit
+        working-directory: backend
+        # Fails the build on a known-vulnerable pinned dependency. Runs
+        # after the tests so a real regression is reported first.
+        run: |
+          pip install pip-audit==2.7.3
+          pip-audit --requirement requirements.txt --strict
+
+      - name: Check no .env file is tracked in git
+        run: |
+          if git ls-files --error-unmatch backend/.env frontend/.env.local 2>/dev/null; then
+            echo "A real .env file is tracked by git — remove it and rotate every secret it held."
+            exit 1
+          fi
+          echo "No tracked .env files."
+
   frontend:
     runs-on: ubuntu-latest
     steps:
@@ -75,3 +91,11 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+
+      - name: Dependency vulnerability audit (runtime deps)
+        working-directory: frontend
+        # The backend had pip-audit in CI from the start; the frontend had
+        # no equivalent, which is exactly why a batch of high-severity
+        # advisories in the runtime dependencies went unnoticed. --omit=dev
+        # keeps the gate on what actually ships to users.
+        run: npm audit --omit=dev --audit-level=high

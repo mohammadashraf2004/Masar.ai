@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Favicon cut of the Masar mark. The rails are thicker and the marker
+       larger than in public/masar-mark.svg: at 16px the 5-unit rails of the
+       display mark fall below one device pixel and smear into the amber. -->
+  <rect width="64" height="64" rx="14" fill="#F59E0B"/>
+  <rect x="10" y="13" width="7" height="38" fill="#080A0E"/>
+  <rect x="47" y="13" width="7" height="38" fill="#080A0E"/>
+  <circle cx="32" cy="32" r="11" fill="#080A0E"/>
+</svg>

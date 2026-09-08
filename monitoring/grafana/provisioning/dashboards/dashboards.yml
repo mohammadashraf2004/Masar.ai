@@ -1,0 +1,16 @@
+# Loads every dashboard JSON in the mounted folder on boot, and picks up
+# edits to those files without a restart. Dashboards edited in the UI are
+# not saved back here — change the JSON if you want it to survive.
+apiVersion: 1
+
+providers:
+  - name: careertrack
+    orgId: 1
+    folder: CareerTrack
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

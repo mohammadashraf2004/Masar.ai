@@ -74,7 +74,15 @@ class ProjectSubmission(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
+    # Legacy. No request schema accepts it and no response returns it any
+    # more — a project is submitted as code written in the reader, not as a
+    # repo link. Kept because rows written before that change still hold
+    # real URLs; see alembic/versions/007_project_submission_code.py.
     github_url = Column(String, nullable=True)
+    # The submitted solution. This is what the AI reviewer reads.
+    code = Column(Text, nullable=True)
+    # Optional notes on approach and decisions — context for the reviewer,
+    # never a substitute for the code.
     description = Column(Text, nullable=True)
     ai_review = Column(JSON, nullable=True)
     score = Column(Float, nullable=True)

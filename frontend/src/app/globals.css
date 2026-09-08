@@ -1,13 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-dm-sans: 'DM Sans', sans-serif;
-  --font-syne: 'Syne', sans-serif;
-  --font-jetbrains: 'JetBrains Mono', monospace;
+  /* --font-dm-sans, --font-syne, --font-jetbrains and --font-plex-arabic
+     are set on <html> by next/font/local; see src/fonts/index.ts. Only the
+     composite stack is assembled here.
+
+     Arabic text falls to IBM Plex Sans Arabic; DM Sans has no Arabic
+     coverage, and letting the browser pick produces a different fallback
+     face on every OS. Latin comes first so English technical terms inside
+     Arabic prose keep the product's own typography. */
+  --font-arabic: var(--font-dm-sans), var(--font-plex-arabic), sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -30,6 +34,53 @@ body {
 ::-webkit-scrollbar-track { background: #0D1117; }
 ::-webkit-scrollbar-thumb { background: #2A3347; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: #F59E0B; }
+
+/* ── Arabic-first typography and RTL ──────────────────────────────────
+   Only direction-dependent rules live here; everything else uses Tailwind
+   logical utilities (ps-/pe-/ms-/me-/start-/end-) so a single class works
+   in both directions. Code is explicitly excluded: a code block stays LTR
+   and left-aligned inside an RTL page, because a Python snippet does not
+   change direction when the sentence around it is Arabic. */
+html[lang="ar"] body,
+html[lang="ar"] .lesson-content {
+  font-family: var(--font-arabic);
+}
+html[lang="ar"] .lesson-content {
+  /* Arabic script needs more vertical room than Latin at the same size. */
+  line-height: 1.95;
+}
+[dir="rtl"] .lesson-content th,
+[dir="rtl"] .lesson-content td {
+  text-align: right;
+}
+[dir="rtl"] .lesson-content input[type="checkbox"] {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+.prism-code,
+.prism-inline-code,
+code, pre, kbd, samp {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.prism-code, pre {
+  text-align: left;
+}
+[dir="rtl"] .nav-link::after { left: auto; right: 0; }
+
+/* ── Brand wordmark ──────────────────────────────────────────────────
+   The name is written in both scripts and CSS picks the one matching the
+   reader; the comment in components/layout/Logo.tsx says why this is not
+   done in React. Syne carries the Latin form, IBM Plex Sans Arabic the
+   Arabic one — DM Sans has no Arabic coverage, and the wordmark is the one
+   place a fallback face would be most obvious. */
+.brand-ar { display: none; }
+html[lang="ar"] .brand-en { display: none; }
+html[lang="ar"] .brand-ar {
+  display: inline;
+  font-family: var(--font-plex-arabic), sans-serif;
+  font-weight: 700;
+}
 
 /* Selection */
 ::selection { background: #F59E0B30; color: #FBBF24; }
@@ -148,4 +199,103 @@ body {
   border-radius: 999px;
   background: linear-gradient(90deg, #F59E0B, #FBBF24);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Prism token theme, shared by the editable CodeCell (react-simple-
+   code-editor) and read-only code blocks in lesson content (MarkdownLesson)
+   — one color mapping so an interactive cell and a rendered code sample
+   look like the same product, not two different libraries bolted on. ── */
+.prism-code {
+  font-family: var(--font-jetbrains), monospace;
+}
+.prism-code .token.comment,
+.prism-code .token.prolog,
+.prism-code .token.doctype,
+.prism-code .token.cdata {
+  color: #4A5568; /* ghost */
+  font-style: italic;
+}
+.prism-code .token.keyword,
+.prism-code .token.selector,
+.prism-code .token.important {
+  color: #8B5CF6; /* violet */
+}
+.prism-code .token.string,
+.prism-code .token.char,
+.prism-code .token.attr-value {
+  color: #10B981; /* emerald */
+}
+.prism-code .token.number,
+.prism-code .token.boolean,
+.prism-code .token.constant {
+  color: #FBBF24; /* amber2 */
+}
+.prism-code .token.function,
+.prism-code .token.class-name {
+  color: #38BDF8; /* sky */
+}
+.prism-code .token.builtin,
+.prism-code .token.decorator {
+  color: #F59E0B; /* amber */
+}
+.prism-code .token.operator,
+.prism-code .token.punctuation {
+  color: #A0AEC0; /* soft */
+}
+.prism-code .token.property {
+  color: #38BDF8; /* sky */
+}
+
+/* ── Lesson content (components/ui/MarkdownLesson.tsx) ──────────────────
+   Deliberately separate from .prose-dark (still used by the mentor chat
+   markdown renderer) — MarkdownLesson styles every element it knows about
+   via per-component Tailwind classes, so this only needs to cover base
+   fallbacks and GFM extras (tables, strikethrough, task-list checkboxes)
+   that don't have a custom renderer. ── */
+.lesson-content {
+  color: #A0AEC0; /* soft */
+}
+.lesson-content del {
+  color: #4A5568; /* ghost */
+}
+.lesson-content input[type="checkbox"] {
+  accent-color: #F59E0B;
+  margin-right: 0.5rem;
+}
+.lesson-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.875rem;
+}
+.lesson-content th, .lesson-content td {
+  border: 1px solid #1E2535;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.lesson-content th {
+  background: #111620;
+  color: #E2E8F0;
+  font-weight: 600;
+}
+
+/* Compact prose — an exercise or project brief rendered inside a card.
+   Same renderer as a lesson, one scale down, so a numbered task list reads
+   as a task list instead of a wall of text. */
+.lesson-content--compact table {
+  margin: 0.75rem 0;
+  font-size: 0.8125rem;
+}
+.lesson-content--compact pre {
+  margin: 0.75rem 0;
+}
+
+.prism-inline-code {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 0.85em;
+  background: #161C28;
+  color: #FBBF24;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #1E2535;
 }

@@ -6,4 +6,17 @@ node_modules/
 .env.local
 
 
+# TypeScript incremental build cache (created by `npm run typecheck`)
+*.tsbuildinfo
 
+# prometheus_client multiprocess state — one mmap file per worker PID,
+# written to PROMETHEUS_MULTIPROC_DIR (or the cwd when it is empty or
+# relative). Pure runtime state; see backend/app/core/metrics.py.
+counter_*.db
+gauge_livesum_*.db
+histogram_*.db
+
+# Python bytecode — was tracked by mistake; removed from the index
+# (files kept on disk) so runs stop dirtying the working tree.
+__pycache__/
+*.py[cod]

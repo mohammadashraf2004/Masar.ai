@@ -8,24 +8,35 @@ import { Card } from '@/components/ui/index'
 import { Badge } from '@/components/ui/index'
 import { ProgressBar } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
+import { QuizPanel } from '@/components/ui/QuizPanel'
+import { ExerciseCard } from '@/components/ui/ExerciseCard'
+import { ProjectCard as ProjectBrief } from '@/components/ui/ProjectCard'
+import { ProjectSubmit } from '@/components/ui/ProjectSubmit'
 import { api } from '@/lib/api'
-import type { CareerTrack, Topic, Enrollment } from '@/types'
-import { difficultyBg, cn } from '@/lib/utils'
+import type { CareerTrack, Topic, Enrollment, Lesson, Project } from '@/types'
+import { difficultyBg, cn, safeUrl } from '@/lib/utils'
+import { isTrackComingSoon } from '@/lib/tracks'
+import { useI18n } from '@/lib/i18n'
+import {
+  localizedTitle, localizedDescription, localizedContent,
+} from '@/lib/content-language'
 import {
   ChevronDown, ChevronRight, BookOpen, Code, FolderKanban,
-  Lock, CheckCircle, Circle, ArrowRight, Play
+  Lock, CheckCircle, Circle, ArrowRight, Play, HelpCircle
 } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { MarkdownLesson } from '@/components/ui/MarkdownLesson'
+import { CourseVocabulary } from '@/components/ui/TechnicalTerm'
+import { Info } from 'lucide-react'
 
 export default function TrackPage() {
   useAuth()
+  const { t, language } = useI18n()
   const { slug } = useParams() as { slug: string }
   const [track, setTrack] = useState<CareerTrack | null>(null)
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null)
   const [expandedLevel, setExpandedLevel] = useState<number>(0)
   const [activeTopic, setActiveTopic] = useState<Topic | null>(null)
-  const [activeTab, setActiveTab] = useState<'lesson' | 'exercise' | 'project'>('lesson')
+  const [activeTab, setActiveTab] = useState<'lesson' | 'exercise' | 'quiz' | 'project'>('lesson')
   const [loading, setLoading] = useState(true)
   const [enrolling, setEnrolling] = useState(false)
 
@@ -73,14 +84,21 @@ export default function TrackPage() {
   return (
     <AppShell>
       <PageHeader
-        title={track.title}
-        subtitle={track.description ?? ''}
+        title={localizedTitle(track, language)}
+        subtitle={localizedDescription(track, language)}
         action={
           enrollment ? (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-emerald">Enrolled</span>
+              <span className="text-xs text-emerald">{t('course.enrolled')}</span>
               <ProgressBar value={enrollment.completion_percentage} className="w-24" />
             </div>
+          ) : isTrackComingSoon(track.slug) ? (
+            // Reachable by URL even though the tracks list offers no way in,
+            // so the CTA has to be gated here too — otherwise a stale link
+            // enrols someone in a track with no lessons behind it.
+            <Button size="sm" variant="ghost" disabled>
+              {t('course.comingSoon')}
+            </Button>
           ) : (
             <Button onClick={handleEnroll} loading={enrolling} size="sm">
               Enroll now
@@ -103,7 +121,9 @@ export default function TrackPage() {
                   <div className="w-5 h-5 rounded bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0">
                     <span className="text-xs font-mono text-amber">{li + 1}</span>
                   </div>
-                  <span className="text-sm font-medium text-bright flex-1 text-left">{level.title}</span>
+                  <span className="text-sm font-medium text-bright flex-1 text-start">
+                    {localizedTitle(level, language)}
+                  </span>
                   {isOpen
                     ? <ChevronDown size={13} className="text-ghost" />
                     : <ChevronRight size={13} className="text-ghost" />
@@ -127,7 +147,7 @@ export default function TrackPage() {
                         >
                           <div className="flex items-center gap-2">
                             <Circle size={8} className={active ? 'text-amber' : 'text-ghost'} />
-                            <span className="flex-1">{topic.title}</span>
+                            <span className="flex-1">{localizedTitle(topic, language)}</span>
                           </div>
                           <div className="flex items-center gap-2 mt-1 ml-3.5">
                             <Badge variant={topic.difficulty as 'beginner' | 'intermediate' | 'advanced'} className="text-[10px] py-0">
@@ -152,7 +172,7 @@ export default function TrackPage() {
             <div className="px-8 py-5 border-b border-border shrink-0">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="font-display font-700 text-white text-lg mb-2">{activeTopic.title}</h2>
+                  <h2 className="font-display font-bold text-white text-lg mb-2">{activeTopic.title}</h2>
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant={activeTopic.difficulty as 'beginner' | 'intermediate' | 'advanced'}>
                       {activeTopic.difficulty}
@@ -170,6 +190,7 @@ export default function TrackPage() {
                 {[
                   { key: 'lesson', icon: BookOpen, label: 'Lessons', count: activeTopic.lessons.length },
                   { key: 'exercise', icon: Code, label: 'Exercises', count: activeTopic.exercises.length },
+                  { key: 'quiz', icon: HelpCircle, label: 'Quiz', count: activeTopic.quizzes.length },
                   { key: 'project', icon: FolderKanban, label: 'Projects', count: activeTopic.projects.length },
                 ].map(({ key, icon: Icon, label, count }) => (
                   <button
@@ -200,39 +221,42 @@ export default function TrackPage() {
               {activeTab === 'lesson' && (
                 <div className="space-y-4 max-w-3xl">
                   {activeTopic.lessons.length === 0 ? (
-                    <p className="text-ghost text-sm">No lessons for this topic yet.</p>
+                    <p className="text-ghost text-sm">{t('course.noLessons')}</p>
                   ) : activeTopic.lessons.map((lesson, i) => (
                     <LessonCard key={lesson.id} lesson={lesson} index={i} />
                   ))}
+
+                  {/* The English terminology this topic teaches, so the
+                      student leaves able to name what they just learned. */}
+                  <CourseVocabulary terms={activeTopic.technical_terms ?? []} className="pt-4" />
                 </div>
               )}
 
               {activeTab === 'exercise' && (
-                <div className="space-y-4 max-w-3xl">
+                <div className="space-y-5 max-w-3xl">
                   {activeTopic.exercises.length === 0 ? (
-                    <p className="text-ghost text-sm">No exercises for this topic yet.</p>
-                  ) : activeTopic.exercises.map(ex => (
-                    <Card key={ex.id} className="p-5">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-medium text-bright">{ex.title}</h3>
-                        <Badge variant={ex.difficulty as 'beginner' | 'intermediate' | 'advanced'}>
-                          {ex.difficulty}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-soft leading-relaxed mb-4">{ex.description}</p>
-                      {ex.starter_code && (
-                        <pre className="bg-ink border border-border rounded p-4 text-xs font-mono text-soft overflow-x-auto">
-                          {ex.starter_code}
-                        </pre>
-                      )}
-                      <div className="flex gap-2 flex-wrap mt-3">
-                        {ex.skill_tested.map(s => (
-                          <Badge key={s} variant="ghost">{s}</Badge>
-                        ))}
-                      </div>
-                    </Card>
+                    <p className="text-ghost text-sm">{t('exercise.noneYet')}</p>
+                  ) : activeTopic.exercises.map((ex, i) => (
+                    <ExerciseCard
+                      key={ex.id}
+                      exercise={ex}
+                      index={i}
+                      total={activeTopic.exercises.length}
+                    />
                   ))}
                 </div>
+              )}
+
+              {activeTab === 'quiz' && (
+                activeTopic.quizzes.length === 0 ? (
+                  <p className="text-ghost text-sm">No quiz for this topic yet.</p>
+                ) : (
+                  <div className="space-y-8">
+                    {activeTopic.quizzes.map(quiz => (
+                      <QuizPanel key={quiz.id} quiz={quiz} />
+                    ))}
+                  </div>
+                )
               )}
 
               {activeTab === 'project' && (
@@ -259,34 +283,43 @@ export default function TrackPage() {
 
 // ── Sub-components ──────────────────────────────────────────────────────────
 
-function LessonCard({ lesson, index }: { lesson: { id: number; title: string; content: string; estimated_minutes: number }; index: number }) {
+function LessonCard({ lesson, index }: { lesson: Lesson; index: number }) {
+  const { t, language } = useI18n()
   const [expanded, setExpanded] = useState(index === 0)
+
+  // Same fallback rule as the tool-course reader: show the Arabic body when
+  // it exists, otherwise the English original with a note.
+  const body = localizedContent(lesson, language)
 
   return (
     <Card className={cn('overflow-hidden transition-all', expanded ? 'border-amber/20' : '')}>
       <button
-        className="w-full flex items-center gap-4 p-5 text-left hover:bg-surface/50 transition-colors"
+        className="w-full flex items-center gap-4 p-5 text-start hover:bg-surface/50 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
         <div className="w-7 h-7 rounded bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0">
           <Play size={11} className="text-amber" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-bright text-sm">{lesson.title}</p>
+          <p className="font-medium text-bright text-sm">{localizedTitle(lesson, language)}</p>
           <p className="text-xs text-ghost mt-0.5">{lesson.estimated_minutes} min read</p>
         </div>
         {expanded
           ? <ChevronDown size={14} className="text-ghost shrink-0" />
-          : <ChevronRight size={14} className="text-ghost shrink-0" />
+          : <ChevronRight size={14} className="text-ghost shrink-0 rtl:rotate-180" />
         }
       </button>
 
       {expanded && (
         <div className="px-5 pb-6 border-t border-border">
-          <div className="prose-dark mt-4 text-sm">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {lesson.content}
-            </ReactMarkdown>
+          {body.isFallback && (
+            <div className="mt-4 flex items-start gap-2 px-3 py-2 rounded-lg bg-sky/5 border border-sky/20">
+              <Info size={13} className="text-sky shrink-0 mt-0.5" />
+              <p className="text-xs text-soft leading-relaxed">{t('course.arabicUnavailable')}</p>
+            </div>
+          )}
+          <div className="mt-4">
+            <MarkdownLesson content={body.text} dir={body.shownIn === 'ar' ? 'rtl' : 'ltr'} />
           </div>
         </div>
       )}
@@ -294,96 +327,8 @@ function LessonCard({ lesson, index }: { lesson: { id: number; title: string; co
   )
 }
 
-function ProjectCard({ project }: { project: CareerTrack['levels'][0]['topics'][0]['projects'][0] }) {
-  const [submitting, setSubmitting] = useState(false)
-  const [github, setGithub] = useState('')
-  const [desc, setDesc] = useState('')
-  const [review, setReview] = useState<{ score?: number; summary?: string } | null>(null)
-  const [showForm, setShowForm] = useState(false)
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault()
-    setSubmitting(true)
-    try {
-      const result = await api.submitProject(project.id, { github_url: github, description: desc })
-      setReview(result.ai_review ?? null)
-      setShowForm(false)
-    } catch {}
-    setSubmitting(false)
-  }
-
-  return (
-    <Card className="p-6">
-      <div className="flex items-start justify-between mb-3">
-        <h3 className="font-medium text-bright text-base">{project.title}</h3>
-        <Badge variant={project.difficulty as 'beginner' | 'intermediate' | 'advanced'}>
-          {project.difficulty}
-        </Badge>
-      </div>
-      <p className="text-sm text-soft leading-relaxed mb-4">{project.description}</p>
-
-      <div className="flex flex-wrap gap-1.5 mb-4">
-        {project.tech_stack.map(t => (
-          <span key={t} className="px-2 py-0.5 rounded bg-surface border border-border text-xs font-mono text-dim">
-            {t}
-          </span>
-        ))}
-      </div>
-
-      <div className="mb-4">
-        <p className="text-xs font-medium text-ghost uppercase tracking-wide mb-2">Objectives</p>
-        <ul className="space-y-1">
-          {project.objectives.map((obj, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-soft">
-              <CheckCircle size={12} className="text-emerald mt-0.5 shrink-0" />
-              {obj}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <Badge variant="ghost">{project.estimated_hours}h project</Badge>
-        {project.starter_repo_url && (
-          <a href={project.starter_repo_url} target="_blank" rel="noopener noreferrer"
-            className="text-xs text-amber hover:text-amber2 transition-colors">
-            Starter repo →
-          </a>
-        )}
-        <Button variant="ghost" size="sm" className="ml-auto" onClick={() => setShowForm(!showForm)}>
-          Submit project
-        </Button>
-      </div>
-
-      {showForm && (
-        <form onSubmit={submit} className="mt-4 space-y-3 border-t border-border pt-4">
-          <input
-            className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
-            placeholder="GitHub repo URL"
-            value={github}
-            onChange={e => setGithub(e.target.value)}
-          />
-          <textarea
-            className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-24 resize-none"
-            placeholder="Describe your approach and key decisions…"
-            value={desc}
-            onChange={e => setDesc(e.target.value)}
-          />
-          <Button type="submit" size="sm" loading={submitting}>
-            Submit for AI review
-          </Button>
-        </form>
-      )}
-
-      {review && (
-        <div className="mt-4 p-4 rounded bg-emerald/5 border border-emerald/20">
-          <div className="flex items-center gap-2 mb-1">
-            <CheckCircle size={13} className="text-emerald" />
-            <span className="text-sm font-medium text-emerald">AI Review — Score: {review.score}/100</span>
-          </div>
-          <p className="text-xs text-soft">{review.summary}</p>
-        </div>
-      )}
-    </Card>
-  )
+function ProjectCard({ project }: { project: Project }) {
+  // Brief and submission are both shared with the tool-course reader now —
+  // this page used to carry its own copy of each, and its own bugs in them.
+  return <ProjectBrief project={project} footer={<ProjectSubmit project={project} />} />
 }

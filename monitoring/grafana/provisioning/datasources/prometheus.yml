@@ -1,0 +1,15 @@
+# Provisioned at startup — no clicking through the UI to add a datasource,
+# and no dashboard that silently points at a datasource UID that only exists
+# on one person's machine.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: careertrack-prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: 15s

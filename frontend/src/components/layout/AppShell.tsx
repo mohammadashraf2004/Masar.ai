@@ -3,23 +3,30 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuthStore } from '@/lib/store'
+import { useI18n } from '@/lib/i18n'
+import type { StringKey } from '@/lib/i18n'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Spinner } from '@/components/ui/index'
+import { LogoMark, Wordmark } from '@/components/layout/Logo'
 import {
   LayoutDashboard, BookOpen, Brain,
-  LogOut, Cpu, ChevronRight, Zap, Users,
+  LogOut, ChevronRight, Zap, Users,
   ShieldCheck, X, Trophy, Clock, Star,
-  CheckCircle, Lock, Flame, Wrench
+  CheckCircle, Lock, Flame, Wrench, BookMarked
 } from 'lucide-react'
 
-const NAV = [
-  { href: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/tracks',     icon: BookOpen,        label: 'Learning tracks' },
-  { href: '/tools',      icon: Wrench,          label: 'Tools & frameworks' },
-  { href: '/mentor',     icon: Brain,           label: 'AI mentor' },
-  { href: '/community',  icon: Users,           label: 'Community' },
-  { href: '/challenges', icon: Flame,           label: 'Challenges' },
+// Labels are i18n keys, not strings: the sidebar is the one piece of chrome
+// on every page, so it has to follow the reader's language like the content
+// does.
+const NAV: Array<{ href: string; icon: React.ElementType; label: StringKey }> = [
+  { href: '/dashboard',  icon: LayoutDashboard, label: 'nav.dashboard' },
+  { href: '/tracks',     icon: BookOpen,        label: 'nav.tracks' },
+  { href: '/tools',      icon: Wrench,          label: 'nav.tools' },
+  { href: '/glossary',   icon: BookMarked,      label: 'nav.glossary' },
+  { href: '/mentor',     icon: Brain,           label: 'nav.mentor' },
+  { href: '/community',  icon: Users,           label: 'nav.community' },
+  { href: '/challenges', icon: Flame,           label: 'nav.challenges' },
 ]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -281,6 +288,7 @@ function ExamPickerModal({ onClose }: { onClose: () => void }) {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { user, logout } = useAuthStore()
+  const { t } = useI18n()
   const [showExamPicker, setShowExamPicker] = useState(false)
 
   return (
@@ -289,23 +297,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {showExamPicker && <ExamPickerModal onClose={() => setShowExamPicker(false)} />}
 
       {/* ── Sidebar ── */}
-      <aside className="w-56 shrink-0 flex flex-col bg-ink border-r border-border">
+      <aside className="w-56 shrink-0 flex flex-col bg-ink border-e border-border">
 
         {/* Brand */}
-        <div className="px-5 py-5 flex items-center gap-2.5 border-b border-border">
-          <div className="w-7 h-7 rounded-md bg-amber flex items-center justify-center">
-            <Cpu size={14} className="text-void" />
-          </div>
-          <span className="font-display font-700 text-bright text-sm tracking-tight">
-            AI Career
-          </span>
-        </div>
+        <Link
+          href="/dashboard"
+          className="px-5 py-5 flex items-center gap-2.5 border-b border-border"
+        >
+          <LogoMark size={28} label={null} />
+          <Wordmark className="text-sm" />
+        </Link>
 
         {/* Readiness pill */}
         {user && (
           <div className="mx-3 mt-4 px-3 py-2 rounded bg-surface border border-border">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-ghost">Readiness</span>
+              <span className="text-xs text-ghost">{t('nav.readiness')}</span>
               <span className="text-xs font-mono text-amber">
                 {user.overall_readiness_score.toFixed(0)}%
               </span>
@@ -335,8 +342,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 )}
               >
                 <Icon size={15} className={cn(active ? 'text-amber' : 'text-ghost group-hover:text-soft')} />
-                <span className="flex-1">{label}</span>
-                {active && <ChevronRight size={12} className="text-amber/60" />}
+                <span className="flex-1">{t(label)}</span>
+                {active && <ChevronRight size={12} className="text-amber/60 rtl:rotate-180" />}
               </Link>
             )
           })}
@@ -346,10 +353,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="mx-3 mb-3 px-3 py-2.5 rounded bg-surface border border-border">
           <div className="flex items-center gap-2 mb-1">
             <Zap size={12} className="text-amber" />
-            <span className="text-xs text-amber font-medium">Quick action</span>
+            <span className="text-xs text-amber font-medium">{t('nav.quickAction')}</span>
           </div>
           <Link href="/mentor" className="text-xs text-ghost hover:text-soft transition-colors">
-            Ask your AI mentor →
+            {t('nav.askMentor')} →
           </Link>
         </div>
 
@@ -360,8 +367,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded bg-amber/10 border border-amber/20 text-amber text-sm font-medium hover:bg-amber/20 hover:border-amber/40 transition-all duration-150 group"
           >
             <ShieldCheck size={15} className="flex-shrink-0" />
-            <span className="flex-1 text-left">Get Verified</span>
-            <ChevronRight size={12} className="text-amber/50 group-hover:text-amber/80 transition-colors" />
+            <span className="flex-1 text-start">{t('nav.getVerified')}</span>
+            <ChevronRight size={12} className="text-amber/50 group-hover:text-amber/80 transition-colors rtl:rotate-180" />
           </button>
         </div>
 
@@ -373,7 +380,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               className="w-full flex items-center gap-2 px-3 py-2 rounded text-xs text-ghost hover:text-rose hover:bg-rose/5 transition-colors"
             >
               <LogOut size={12} />
-              Sign out
+              {t('nav.signOut')}
             </button>
           </div>
         )}

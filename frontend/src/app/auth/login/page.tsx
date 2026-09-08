@@ -8,7 +8,16 @@ import { api } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { getErrorMessage } from '@/lib/utils'
-import { Cpu, ArrowRight, CheckCircle, XCircle } from 'lucide-react'
+import { ArrowRight, CheckCircle, XCircle, BookOpen, Brain, ShieldCheck } from 'lucide-react'
+import { Logo } from '@/components/layout/Logo'
+
+// What the panel promises has to be something the product actually does —
+// each of these maps to a shipped feature, not a projected number.
+const HIGHLIGHTS: Array<{ icon: React.ElementType; label: string }> = [
+  { icon: BookOpen,    label: 'Arabic-first lessons, English terminology' },
+  { icon: Brain,       label: 'AI-graded exercises and quizzes' },
+  { icon: ShieldCheck, label: 'Proctored exams, verified certificates' },
+]
 
 export default function LoginPage() {
   return (
@@ -51,7 +60,7 @@ function LoginPageInner() {
     setLoading(true)
     try {
       const data = await api.login(form.email, form.password)
-      setAuth(data.access_token, data.user)
+      setAuth(data.access_token, data.user, data.expires_in)
       router.replace('/dashboard')
     } catch (err) {
       setError(getErrorMessage(err))
@@ -103,12 +112,7 @@ function LoginPageInner() {
         />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-amber/5 blur-3xl pointer-events-none" />
 
-        <div className="relative flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-amber flex items-center justify-center">
-            <Cpu size={16} className="text-void" />
-          </div>
-          <span className="font-display font-bold text-bright text-base">AI Career Platform</span>
-        </div>
+        <Logo size={32} className="relative gap-3" wordmarkClassName="text-base" />
 
         <div className="relative space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber/10 border border-amber/20">
@@ -125,11 +129,11 @@ function LoginPageInner() {
           </p>
         </div>
 
-        <div className="relative flex gap-8 text-sm">
-          {[['5', 'Levels'], ['24', 'Weeks'], ['100%', 'Project-based']].map(([n, l]) => (
-            <div key={l}>
-              <div className="text-2xl font-display font-bold text-amber">{n}</div>
-              <div className="text-ghost text-xs mt-0.5">{l}</div>
+        <div className="relative space-y-3">
+          {HIGHLIGHTS.map(({ icon: Icon, label }) => (
+            <div key={label} className="flex items-center gap-2.5">
+              <Icon size={14} className="text-amber shrink-0" />
+              <span className="text-xs text-dim">{label}</span>
             </div>
           ))}
         </div>
@@ -139,12 +143,7 @@ function LoginPageInner() {
       <div className="flex-1 flex items-center justify-center px-8">
         <div className="w-full max-w-sm">
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-6 lg:hidden">
-              <div className="w-7 h-7 rounded-md bg-amber flex items-center justify-center">
-                <Cpu size={13} className="text-void" />
-              </div>
-              <span className="font-display font-bold text-bright text-sm">AI Career Platform</span>
-            </div>
+            <Logo size={28} className="mb-6 lg:hidden" wordmarkClassName="text-sm" />
             <h1 className="font-display font-bold text-2xl text-white mb-1">
               {mode === 'forgot' ? 'Reset your password' : mode === 'reset' ? 'Choose a new password' : 'Welcome back'}
             </h1>

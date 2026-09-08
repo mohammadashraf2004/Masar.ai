@@ -1,6 +1,7 @@
 from typing import List, Optional
 import openai
 
+from app.core.metrics import observe_llm_call
 from app.services.llm.providers.BaseLLMProvider import BaseLLMProvider
 
 
@@ -36,10 +37,20 @@ class OpenAIProvider(BaseLLMProvider):
 
     def chat(self, system: str, messages: List[dict], max_tokens: int = None) -> str:
         client = self._get_client()
+        system, messages = self.clip_input(system, messages)
         full_messages = [{"role": "system", "content": system}] + messages
-        response = client.chat.completions.create(
-            model=self.model_id,
-            max_tokens=max_tokens or self.default_max_tokens,
-            messages=full_messages,
-        )
-        return response.choices[0].message.content
+        # Token usage only exists on the provider's own response, so it is
+        # reported from here rather than estimated anywhere else. This is
+        # the number that answers "what is a mentor conversation costing".
+        with observe_llm_call("openai", self.model_id) as call:
+            response = client.chat.completions.create(
+                model=self.model_id,
+                max_tokens=max_tokens or self.default_max_tokens,
+                messages=full_messages,
+            )
+            usage = getattr(response, "usage", None)
+            call.record_usage(
+                getattr(usage, "prompt_tokens", None),
+                getattr(usage, "completion_tokens", None),
+            )
+            return response.choices[0].message.content

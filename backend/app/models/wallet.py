@@ -1,7 +1,7 @@
 """
 backend/app/models/wallet.py
 """
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum, Index, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -14,6 +14,7 @@ class TransactionType(str, enum.Enum):
     deduction = "deduction"   # credits spent on AI action
     refund    = "refund"      # admin refund
     bonus     = "bonus"       # free credits granted
+    expiry    = "expiry"      # promo credits removed after their window closed
 
 
 class TransactionStatus(str, enum.Enum):
@@ -32,12 +33,25 @@ class PaymentMethod(str, enum.Enum):
 
 class UserWallet(Base):
     __tablename__ = "user_wallets"
+    # Supports reporting on outstanding promo liability (which wallets
+    # still hold unexpired promo credits, and when they lapse).
+    __table_args__ = (Index("ix_user_wallets_promo_expires_at", "promo_expires_at"),)
 
     id                  = Column(Integer, primary_key=True, index=True)
     user_id             = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
     credit_balance      = Column(Integer, default=0)          # current spendable credits
     lifetime_purchased  = Column(Integer, default=0)          # total credits ever bought
     lifetime_spent      = Column(Integer, default=0)          # total credits ever spent
+    # ─── Launch-promo accounting ──────────────────────────────────────────
+    # Promo credits are part of credit_balance like any other, but tracked
+    # separately so the UNSPENT remainder can be withdrawn when the user's
+    # promo window closes. Spending draws down promo credits first, so a
+    # user never loses credits they actually paid for.
+    #
+    # Server-set only: no request schema exposes either column, so a client
+    # cannot extend its own promo or mint credits.
+    promo_credits_remaining = Column(Integer, default=0, nullable=False, server_default="0")
+    promo_expires_at        = Column(DateTime(timezone=True), nullable=True)
     is_active           = Column(Boolean, default=True)
     created_at          = Column(DateTime(timezone=True), server_default=func.now())
     updated_at          = Column(DateTime(timezone=True), onupdate=func.now())

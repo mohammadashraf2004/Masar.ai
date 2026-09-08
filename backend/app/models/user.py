@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, Text, Float
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, Index, Text, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -20,12 +20,26 @@ class ExperienceLevel(str, enum.Enum):
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (
+        # The plain unique index on `email` is case-SENSITIVE, so it would
+        # happily store Alice@x.com alongside alice@x.com — two accounts
+        # the user experiences as one. The API normalizes to lowercase
+        # (app.core.security.normalize_email); this index is the guarantee
+        # that holds even for rows a seed script or a future code path
+        # writes without going through that.
+        Index("ix_users_email_lower", func.lower(Column("email", String)), unique=True),
+    )
 
     id                      = Column(Integer, primary_key=True, index=True)
     email                   = Column(String, unique=True, index=True, nullable=False)
     full_name               = Column(String, nullable=False)
     hashed_password         = Column(String, nullable=False)
-    role                    = Column(Enum(UserRole), default=UserRole.student)
+    # NOT NULL: every authorization decision reads this column, and a
+    # NULL role is an ambiguous state an authz check has to guess about.
+    # See alembic/versions/004_security_constraints.py.
+    role                    = Column(
+        Enum(UserRole), default=UserRole.student, server_default="student", nullable=False,
+    )
     experience_level        = Column(Enum(ExperienceLevel), default=ExperienceLevel.beginner)
     is_active               = Column(Boolean, default=True)
     is_verified             = Column(Boolean, default=False, nullable=False)

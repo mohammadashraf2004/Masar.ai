@@ -41,14 +41,20 @@ class ExamSessionResponse(BaseModel):
 
 # ─── Submit answers ───────────────────────────────────────────────────────────
 class ExamSubmit(BaseModel):
-    answers: Dict[str, int]    # {question_id: selected_option_index}
-    time_spent_seconds: int
+    # Bounded so a submission can't carry an arbitrarily large map (the
+    # grader iterates the exam's questions, not this dict, so extra keys
+    # were previously accepted and stored verbatim on the attempt row).
+    answers: Dict[str, int] = Field(..., max_length=500)
+    # Accepted for backwards compatibility with existing clients but NOT
+    # trusted: the stored and returned duration is computed server-side
+    # from the recorded start time. See exam_controller.submit_exam.
+    time_spent_seconds: int = Field(0, ge=0, le=86_400)
 
 
 # ─── Proctoring violation ─────────────────────────────────────────────────────
 class ViolationReport(BaseModel):
     violation: ViolationType
-    description: Optional[str] = None
+    description: Optional[str] = Field(None, max_length=500)
 
 
 # ─── Result ───────────────────────────────────────────────────────────────────

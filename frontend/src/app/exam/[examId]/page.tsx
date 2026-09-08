@@ -47,10 +47,41 @@ type Answers = Record<number, string | string[]>;
 // ─────────────────────────────────────────────────────────────────────────────
 // Utilities
 // ─────────────────────────────────────────────────────────────────────────────
+// Mirrors the server's MAX_VIOLATIONS_BEFORE_FLAG. Advisory only —
+// exam_controller.py enforces the real flagging decision.
+const MAX_VIOLATIONS = 5;
+
 function fmtTime(sec: number) {
   const m = Math.floor(sec / 60).toString().padStart(2, "0");
   const s = (sec % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
+}
+
+/** Whole seconds left before `deadline` (epoch ms), never negative. */
+function secondsUntil(deadline: number) {
+  return Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+}
+
+/**
+ * The moment this attempt stops being submittable, in epoch ms.
+ *
+ * This is the client-side mirror of `_deadline()` in
+ * backend/app/controllers/exam_controller.py: `started_at + duration`,
+ * measured from when the attempt was CREATED, not from when this page
+ * loaded. Resuming or reloading must not restart the clock — the server
+ * still measures from the original start, so a fresh full-length timer
+ * would tell a student on minute 50 of a 60-minute exam that they had an
+ * hour left, and their submission would come back 400 with a score of 0
+ * and an attempt consumed.
+ *
+ * Falls back to a full duration from now only if the server sent no
+ * usable `started_at`. The server remains authoritative either way; this
+ * only decides what the student is shown.
+ */
+function attemptDeadline(startedAt: string | undefined, durationMinutes: number) {
+  const durationMs = durationMinutes * 60_000;
+  const started = startedAt ? Date.parse(startedAt) : NaN;
+  return (Number.isNaN(started) ? Date.now() : started) + durationMs;
 }
 
 const TYPE_META: Record<string, { label: string; icon: any; variant: string }> = {
@@ -288,6 +319,9 @@ export default function ExamPage() {
   const [current, setCurrent] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [violations, setViolations] = useState(0);
+  // Mirrors `violations` so reportViolation can compute the next value
+  // without doing side effects inside a state updater.
+  const violationsRef = useRef(0);
   const [violationMsg, setViolationMsg] = useState("");
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
@@ -300,6 +334,10 @@ export default function ExamPage() {
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const attemptId = useRef<number | null>(null);
+  // Epoch ms, from the server's started_at. The countdown is derived from
+  // this rather than decremented, so a reload, a resumed attempt and a tab
+  // the browser throttled in the background all agree with the server.
+  const deadlineRef = useRef<number | null>(null);
 
   // ── Load exam ──────────────────────────────────────────────────────────────
   const startExam = useCallback(async () => {
@@ -315,7 +353,12 @@ export default function ExamPage() {
       const data = await api.startExam(parseInt(examId));
       attemptId.current = data.attempt_id;
       setExam(data);
-      setTimeLeft(data.duration_minutes * 60);
+      // NOT `duration_minutes * 60`: this endpoint returns an existing
+      // in-progress attempt unchanged when there is one, so on a resume or
+      // a reload that would restart a clock the server never restarted.
+      const deadline = attemptDeadline(data.started_at, data.duration_minutes);
+      deadlineRef.current = deadline;
+      setTimeLeft(secondsUntil(deadline));
       setPhase("setup");
     } catch (e: any) {
       setError(e?.response?.data?.detail ?? "Failed to start exam. Please try again.");
@@ -323,7 +366,11 @@ export default function ExamPage() {
     }
   }, [examId]);
 
-  useEffect(() => { startExam(); }, [startExam]);
+  useEffect(() => {
+    // Awaited rather than fire-and-forget so every state write inside
+    // startExam sits after an await boundary.
+    void (async () => { await startExam(); })();
+  }, [startExam]);
 
   // ── Webcam ─────────────────────────────────────────────────────────────────
   const startWebcam = async () => {
@@ -338,20 +385,70 @@ export default function ExamPage() {
   };
 
   const enterFullscreen = async () => {
+    // The window can lapse while the student is on the setup screen — they
+    // may have resumed with a minute left, or left this tab open. Entering
+    // the exam would put them straight into a submission the server
+    // rejects, so stop here instead.
+    if (deadlineRef.current !== null && secondsUntil(deadlineRef.current) <= 0) {
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      setError("This attempt has run out of time.");
+      setPhase("error");
+      return;
+    }
     try { await document.documentElement.requestFullscreen(); } catch { /* ignore */ }
+    // The countdown effect below picks this up; it is driven by the
+    // deadline, not by when this ran.
     setPhase("active");
-    startTimer();
   };
 
   // ── Timer ──────────────────────────────────────────────────────────────────
-  const startTimer = () => {
-    timerRef.current = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) { clearInterval(timerRef.current!); handleSubmit(); return 0; }
-        return t - 1;
-      });
+  // Reaches handleSubmit through a ref rather than closing over it
+  // directly. handleSubmit is a `const` useCallback declared further down;
+  // `const` is not hoisted, so a direct reference here sits in the
+  // temporal dead zone and the React Compiler rejects it ("cannot access
+  // variable before it is declared"). The ref is assigned in an effect
+  // below, after handleSubmit exists, and always holds the current one —
+  // which also stops the interval from firing a stale closure.
+  const handleSubmitRef = useRef<() => void>(() => {});
+
+  // Recomputed from the deadline every tick rather than decremented by one.
+  // A decrementing counter drifts away from the server whenever the tab is
+  // backgrounded (browsers throttle setInterval to once a minute), and it
+  // cannot survive a reload at all — both of which end in the same place: a
+  // client that thinks there is time left after the server's window shut.
+  //
+  // Runs during setup as well as during the exam, because the server's
+  // clock starts when the attempt is CREATED (POST /exams/{id}/start), not
+  // when the student enters fullscreen. Time spent on the webcam screen is
+  // already being spent.
+  useEffect(() => {
+    if (phase !== "setup" && phase !== "active") return;
+    const deadline = deadlineRef.current;
+    if (deadline === null) return;
+
+    const expire = () => {
+      if (phase === "active") {
+        // Same behaviour as before: hand in whatever is answered.
+        handleSubmitRef.current();
+      } else {
+        streamRef.current?.getTracks().forEach((t) => t.stop());
+        setError("This attempt has run out of time.");
+        setPhase("error");
+      }
+    };
+
+    const left = secondsUntil(deadline);
+    setTimeLeft(left);
+    if (left <= 0) { expire(); return; }
+
+    const id = setInterval(() => {
+      const next = secondsUntil(deadline);
+      setTimeLeft(next);
+      if (next <= 0) { clearInterval(id); expire(); }
     }, 1000);
-  };
+    timerRef.current = id;
+    return () => clearInterval(id);
+  }, [phase]);
 
   // ── Proctoring ─────────────────────────────────────────────────────────────
   const reportViolation = useCallback(async (type: string, desc: string) => {
@@ -359,14 +456,19 @@ export default function ExamPage() {
     try {
       await api.reportViolation(attemptId.current, { violation_type: type, description: desc });
     } catch { /* best-effort */ }
-    setViolations((v) => {
-      const next = v + 1;
-      setViolationMsg(`Violation ${next}/5: ${desc}`);
-      setTimeout(() => setViolationMsg(""), 4000);
-      if (next >= 5) handleSubmit();
-      return next;
-    });
-  }, []); // eslint-disable-line
+    // The side effects below used to live INSIDE the setViolations
+    // updater. A state updater must be pure: React may invoke it twice
+    // (StrictMode, concurrent rendering), which would have double-posted
+    // the warning toast and could have fired handleSubmit twice on the
+    // fifth violation. The count is tracked in a ref so the next value is
+    // known without reading state inside an updater.
+    const next = violationsRef.current + 1;
+    violationsRef.current = next;
+    setViolations(next);
+    setViolationMsg(`Violation ${next}/5: ${desc}`);
+    setTimeout(() => setViolationMsg(""), 4000);
+    if (next >= MAX_VIOLATIONS) handleSubmitRef.current();
+  }, []);
 
   useEffect(() => {
     if (phase !== "active") return;
@@ -409,6 +511,9 @@ export default function ExamPage() {
       setPhase("error");
     }
   }, [answers, submitting]);
+
+  // Keep the timer's escape hatch pointing at the current handleSubmit.
+  useEffect(() => { handleSubmitRef.current = handleSubmit; }, [handleSubmit]);
 
   const setAnswer = (qid: number, val: any) => {
     setAnswers((prev) => ({ ...prev, [qid]: val }));
@@ -553,7 +658,10 @@ export default function ExamPage() {
           {/* Meta chips */}
           <div className="flex flex-wrap gap-2 justify-center mb-2">
             {[
-              { icon: Clock, label: `${exam.duration_minutes} minutes` },
+              // Time REMAINING, not the exam's nominal length: on a resumed
+              // attempt those are different numbers, and the server honours
+              // the first one.
+              { icon: Clock, label: `${fmtTime(timeLeft)} remaining` },
               { icon: AlignLeft, label: `${exam.questions.length} questions` },
               { icon: Trophy, label: `${exam.total_points} points` },
               { icon: CheckCircle, label: `Pass: ${exam.passing_score}+` },
@@ -577,7 +685,10 @@ export default function ExamPage() {
                 "Do not switch tabs or minimize the window",
                 "Right-click and developer tools are disabled",
                 "Maximum 5 violations before auto-submission",
-                "Timer starts when you enter fullscreen",
+                // The clock starts server-side when the attempt is created,
+                // which is when this page loaded — not on the button below.
+                // It used to claim the opposite.
+                "Your time is already running — it started when this attempt began",
               ].map((rule) => (
                 <li key={rule} className="flex items-start gap-2 text-xs text-ghost">
                   <ChevronRight size={12} className="text-border mt-0.5 flex-shrink-0" />

@@ -5,16 +5,20 @@ Register in main.py:
     from app.controllers.wallet_controller import router as wallet_router
     app.include_router(wallet_router, prefix="/api/v1/wallet", tags=["Wallet"])
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.db.session import get_db
+from app.core import security_log
+from app.core.authz import require_admin
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.wallet import UserWallet, WalletTransaction, CreditPackage, PaymentMethod
-from app.services.wallet.wallet_service import get_or_create_wallet, add_credits, CREDIT_COSTS
+from app.services.wallet.wallet_service import (
+    get_or_create_wallet, add_credits, expire_promo_credits_if_due, CREDIT_COSTS,
+)
 
 router = APIRouter()
 
@@ -24,6 +28,10 @@ class WalletResponse(BaseModel):
     credit_balance: int
     lifetime_purchased: int
     lifetime_spent: int
+    # Read-only, server-computed. Lets the UI say "480 free credits, 22
+    # days left" without the client ever being able to set either value.
+    promo_credits_remaining: int = 0
+    promo_expires_at: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -76,15 +84,18 @@ class PackageResponse(BaseModel):
 
 
 class TopUpRequest(BaseModel):
-    package_id: int
-    payment_method: str          # "fawry" | "instapay" | "vodafone_cash"
-    payment_ref: str             # reference number from payment provider
+    package_id: int = Field(..., gt=0)
+    payment_method: str = Field(..., max_length=32)   # "fawry" | "instapay" | "vodafone_cash"
+    payment_ref: str = Field(..., min_length=3, max_length=100)  # reference from the payment provider
 
 
 class AdminGrantRequest(BaseModel):
-    user_id: int
-    credits: int
-    description: str = "Admin grant"
+    user_id: int = Field(..., gt=0)
+    # Bounded on both ends: a grant is a credit *issue*, not an arbitrary
+    # balance write, so a negative value (a silent debit) and an absurd
+    # positive one are both rejected rather than trusted.
+    credits: int = Field(..., gt=0, le=100_000)
+    description: str = Field("Admin grant", max_length=200)
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
@@ -94,12 +105,22 @@ def get_wallet(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return get_or_create_wallet(current_user.id, db)
+    wallet = get_or_create_wallet(current_user.id, db)
+    # Sweep here too, so a user who only ever opens the wallet screen sees
+    # a truthful balance rather than one that shrinks on their next action.
+    expire_promo_credits_if_due(wallet, db)
+    return WalletResponse(
+        credit_balance=wallet.credit_balance,
+        lifetime_purchased=wallet.lifetime_purchased,
+        lifetime_spent=wallet.lifetime_spent,
+        promo_credits_remaining=wallet.promo_credits_remaining or 0,
+        promo_expires_at=wallet.promo_expires_at.isoformat() if wallet.promo_expires_at else None,
+    )
 
 
 @router.get("/transactions", response_model=List[TransactionResponse])
 def get_transactions(
-    limit: int = 20,
+    limit: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -182,16 +203,16 @@ def request_topup(
 @router.post("/admin/confirm/{payment_ref}")
 def confirm_payment(
     payment_ref: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """
     Admin endpoint: confirm a pending payment and release credits.
     In production this would be called by a Fawry/InstaPay webhook.
-    """
-    if current_user.role.value != "admin":
-        raise HTTPException(status_code=403, detail="Admin only")
 
+    Authorization is the require_admin dependency, not an inline role
+    string comparison — see app/core/authz.py for why.
+    """
     tx = db.query(WalletTransaction).filter(
         WalletTransaction.payment_ref == payment_ref,
         WalletTransaction.status == "pending",
@@ -206,6 +227,9 @@ def confirm_payment(
     tx.balance_after = wallet.credit_balance
 
     db.commit()
+    security_log.admin_action(
+        admin_id=current_user.id, action="wallet.confirm_payment", target=payment_ref,
+    )
     return {
         "message": "Payment confirmed. Credits released.",
         "credits_added": tx.credits,
@@ -216,12 +240,12 @@ def confirm_payment(
 @router.post("/admin/grant")
 def admin_grant(
     payload: AdminGrantRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Admin: grant free credits to any user."""
-    if current_user.role.value != "admin":
-        raise HTTPException(status_code=403, detail="Admin only")
+    if not db.query(User.id).filter(User.id == payload.user_id).first():
+        raise HTTPException(status_code=404, detail="User not found")
 
     wallet = add_credits(
         user_id=payload.user_id,
@@ -230,5 +254,9 @@ def admin_grant(
         payment_method="admin",
         description=payload.description,
         transaction_type="bonus",
+    )
+    security_log.admin_action(
+        admin_id=current_user.id, action="wallet.grant_credits",
+        target=f"user={payload.user_id} credits={payload.credits}",
     )
     return {"message": "Credits granted.", "new_balance": wallet.credit_balance}

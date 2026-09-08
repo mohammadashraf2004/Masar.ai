@@ -9,7 +9,7 @@ in memory while validating.
 """
 import enum
 
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -23,6 +23,9 @@ class EmailTokenPurpose(str, enum.Enum):
 
 class EmailToken(Base):
     __tablename__ = "email_tokens"
+    # Supports the "retire this user's outstanding tokens of this purpose"
+    # sweep that runs every time a new verify/reset link is issued.
+    __table_args__ = (Index("ix_email_tokens_user_purpose", "user_id", "purpose"),)
 
     id          = Column(Integer, primary_key=True, index=True)
     user_id     = Column(Integer, ForeignKey("users.id"), nullable=False)

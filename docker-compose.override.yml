@@ -4,9 +4,32 @@
 # For a prod-like run, ignore this file explicitly:
 #   docker compose -f docker-compose.yml up
 services:
+  # Development-only: expose Postgres on the host so psql / a GUI client /
+  # a natively-run backend can reach it. docker-compose.yml deliberately
+  # does not publish this port, so a prod-like run
+  # (`docker compose -f docker-compose.yml up`) keeps the database off the
+  # host's network interfaces entirely.
+  db:
+    ports:
+      - "5432:5432"
+
   api:
     environment:
       APP_ENV: development
+      # Empty (not absent — compose can't unset an inherited var) so metrics
+      # use the ordinary in-process registry. Multiprocess mode is for the
+      # 4-worker gunicorn run; under `--reload` each reload forks a new pid
+      # whose metric files nothing ever retires, so counters would only ever
+      # climb.
+      #
+      # An empty value alone does NOT disable it: prometheus_client switches
+      # on the presence of the key, so "" turned multiprocess mode on and
+      # wrote counter_*.db / gauge_livesum_*.db / histogram_*.db into the
+      # working directory (the bind-mounted source tree below). What makes
+      # this line mean what it says is _sanitize_multiproc_env() in
+      # backend/app/core/metrics.py, which deletes a blank key before
+      # prometheus_client is imported. Keep the two together.
+      PROMETHEUS_MULTIPROC_DIR: ""
     volumes:
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

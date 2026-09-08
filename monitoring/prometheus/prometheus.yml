@@ -1,0 +1,58 @@
+# Prometheus scrape configuration.
+#
+# Everything here is scraped over the compose network by service name — none
+# of these targets is published to the host, and neither is Prometheus itself
+# (docker-compose binds it to 127.0.0.1).
+#
+# The api target needs a bearer token because /metrics is served by the
+# application on its public port. METRICS_TOKEN is written into
+# monitoring/prometheus/token by docker-compose at startup.
+
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+  external_labels:
+    platform: careertrack
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+scrape_configs:
+  # ─── The application ────────────────────────────────────────────────
+  # Four gunicorn workers behind one port; /metrics aggregates across all
+  # of them (see backend/app/core/metrics.py), so this is one target, not
+  # four, and no worker-level labels are needed.
+  - job_name: api
+    metrics_path: /metrics
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/token
+    static_configs:
+      - targets: ["api:8000"]
+        labels:
+          service: api
+
+  # ─── Postgres ───────────────────────────────────────────────────────
+  # Connection saturation is the failure mode that takes the app down
+  # without the app itself looking unhealthy: gunicorn workers queue on a
+  # pool that is waiting on a database that has run out of connections.
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+        labels:
+          service: postgres
+
+  # ─── Redis ──────────────────────────────────────────────────────────
+  # Rate limits and login lockouts live here. If Redis evicts keys under
+  # memory pressure, limits silently stop being enforced — which is why
+  # memory and evictions are worth watching rather than assuming.
+  - job_name: redis
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+        labels:
+          service: redis
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

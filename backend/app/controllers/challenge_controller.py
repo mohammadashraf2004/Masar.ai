@@ -5,21 +5,28 @@ Register in main.py:
     from app.controllers.challenge_controller import router as challenge_router
     app.include_router(challenge_router, prefix="/api/v1/challenges", tags=["Challenges"])
 """
-from fastapi import APIRouter, Depends, HTTPException
+import logging
+import re
+
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime, timezone
 import json
 
 from app.db.session import get_db
+from app.core.limiter import limiter
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.challenge import ChallengeProject, ChallengeAttempt, ChallengeStatus
-from app.services.wallet.wallet_service import deduct_credits, get_or_create_wallet
+from app.services.wallet.wallet_service import deduct_credits, refund_credits
 from app.services import get_llm
 from app.services.mentor.mentor_service import get_challenge_hint
+from app.views.auth import MAX_URL_LENGTH, validate_public_url
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -53,9 +60,16 @@ class ChallengeDetail(ChallengeListItem):
 
 
 class SubmitSolutionRequest(BaseModel):
-    solution_code: str
-    solution_notes: Optional[str] = None
-    github_url: Optional[str] = None
+    # solution_code is pasted into the grading prompt; cap it the same way
+    # every other LLM-facing field is capped.
+    solution_code: str = Field(..., min_length=1, max_length=50_000)
+    solution_notes: Optional[str] = Field(None, max_length=10_000)
+    github_url: Optional[str] = Field(None, max_length=MAX_URL_LENGTH)
+
+    @field_validator("github_url", mode="after")
+    @classmethod
+    def _safe_url(cls, v: Optional[str]) -> Optional[str]:
+        return validate_public_url(v)
 
 
 class GradeFeedbackItem(BaseModel):
@@ -77,8 +91,16 @@ class SubmissionResult(BaseModel):
 
 
 class HintRequest(BaseModel):
-    stuck_on: str
-    previous_hints: list = []
+    stuck_on: str = Field(..., min_length=1, max_length=2_000)
+    previous_hints: list = Field(default_factory=list, max_length=20)
+    # Same language settings the mentor chat takes — a hint follows the same
+    # rules as every other AI response: Arabic explanation, English terms,
+    # untouched code. Pattern-bounded; anything else falls back to the
+    # Arabic-first default in language_policy.py.
+    language: Optional[str] = Field(None, pattern="^(ar|en)$")
+    terminology_mode: Optional[str] = Field(
+        None, pattern="^(arabic_first|industry|english_technical)$"
+    )
 
 
 class HintResponse(BaseModel):
@@ -257,49 +279,69 @@ def enroll_challenge(
     if active:
         raise HTTPException(status_code=400, detail="Already enrolled in this challenge")
 
-    # Deduct credits
-    wallet = get_or_create_wallet(current_user.id, db)
-    if wallet.credit_balance < ch.credit_cost:
-        raise HTTPException(
-            status_code=402,
-            detail={
-                "error": "insufficient_credits",
-                "message": f"This challenge costs {ch.credit_cost} credits. You have {wallet.credit_balance}.",
-                "credits_needed": ch.credit_cost,
-                "credits_available": wallet.credit_balance,
-            }
-        )
-
-    wallet.credit_balance -= ch.credit_cost
-    wallet.lifetime_spent += ch.credit_cost
-
-    from app.models.wallet import WalletTransaction, TransactionType, TransactionStatus
-    tx = WalletTransaction(
-        wallet_id=wallet.id,
-        transaction_type=TransactionType.deduction,
-        status=TransactionStatus.confirmed,
-        credits=-ch.credit_cost,
+    # Charge through the wallet service rather than adjusting the row here.
+    # An inline deduction skipped the SELECT ... FOR UPDATE row lock, the
+    # lazy promo-expiry check and the promo-balance decrement, so enrolling
+    # left `promo_credits_remaining` overstated (and expiry then clawed
+    # back purchased credits), and already-expired promo credits stayed
+    # spendable through this route. The price is unchanged — it still comes
+    # from the challenge row, passed as an explicit cost because it varies
+    # per challenge and so has no entry in CREDIT_COSTS.
+    #
+    # Raises 402 with the standard insufficient_credits payload; the wording
+    # of `message` differs from the old bespoke one, but the fields the
+    # client actually renders (error, credits_needed, credits_available)
+    # are the same.
+    charge = deduct_credits(
+        current_user.id, "challenge_enroll", db,
+        cost=ch.credit_cost,
         description=f"Enrolled in challenge: {ch.title}",
-        action_type="challenge_enroll",
-        balance_after=wallet.credit_balance,
     )
-    db.add(tx)
 
-    attempt = ChallengeAttempt(
-        user_id=current_user.id,
-        challenge_id=ch.id,
-        status=ChallengeStatus.enrolled,
-        attempt_number=attempts_used + 1,
-        credits_spent=ch.credit_cost,
-    )
-    db.add(attempt)
-    db.commit()
-    db.refresh(attempt)
+    # deduct_credits commits, so the enrolment row can no longer share the
+    # deduction's transaction the way the inline version did. If creating it
+    # fails, the student has paid for an enrolment they did not get — so put
+    # the credits back, the same way the roadmap and hint paths do.
+    try:
+        attempt = ChallengeAttempt(
+            user_id=current_user.id,
+            challenge_id=ch.id,
+            status=ChallengeStatus.enrolled,
+            attempt_number=attempts_used + 1,
+            credits_spent=ch.credit_cost,
+        )
+        db.add(attempt)
+        db.commit()
+        db.refresh(attempt)
+    except Exception:
+        db.rollback()
+        logger.exception(
+            "challenge enrolment failed after charging; refunding",
+            extra={"user_id": current_user.id, "challenge_id": ch.id},
+        )
+        try:
+            refund_credits(
+                current_user.id, "challenge_enroll", db,
+                reason=f"Refund: enrolment failed for {ch.title}",
+                cost=ch.credit_cost,
+            )
+        except Exception:
+            # The charge stands and we could not reverse it. Loud, because
+            # this is the one path that leaves a user out of pocket and
+            # only the log will say so. Same handling as the roadmap path.
+            logger.critical(
+                "challenge enrolment refund FAILED; user is owed credits",
+                extra={"user_id": current_user.id, "action": "challenge_enroll"},
+            )
+        raise HTTPException(
+            status_code=503,
+            detail="Could not start this challenge right now. Your credits were refunded.",
+        )
 
     return {
         "message": f"Enrolled successfully! {ch.credit_cost} credits deducted.",
         "attempt_id": attempt.id,
-        "credits_remaining": wallet.credit_balance,
+        "credits_remaining": charge["balance_after"],
         "dataset_unlocked": True,
     }
 
@@ -322,14 +364,22 @@ def download_dataset(
     if not attempt:
         raise HTTPException(status_code=403, detail="Enroll in this challenge to download the dataset")
 
+    # dataset_filename comes out of the database and is interpolated into
+    # a response header. A value containing a quote or a CR/LF would break
+    # out of the header (response-splitting); one containing a path would
+    # steer where a naive client writes the file. Reduce it to a bare,
+    # safe basename before it goes anywhere near the header.
+    safe_name = re.sub(r"[^A-Za-z0-9._-]", "_", (ch.dataset_filename or "dataset.json").rsplit("/", 1)[-1])[:100]
     return JSONResponse(
         content=ch.dirty_dataset,
-        headers={"Content-Disposition": f'attachment; filename="{ch.dataset_filename}"'},
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
     )
 
 
 @router.post("/{slug}/submit", response_model=SubmissionResult)
+@limiter.limit("10/hour")
 def submit_solution(
+    request: Request,
     slug: str,
     payload: SubmitSolutionRequest,
     current_user: User = Depends(get_current_user),
@@ -423,7 +473,9 @@ def get_my_attempts(
     ]
 
 @router.post("/{slug}/hint", response_model=HintResponse)
+@limiter.limit("20/hour")
 def get_hint(
+    request: Request,
     slug: str,
     payload: HintRequest,
     current_user: User = Depends(get_current_user),
@@ -444,41 +496,52 @@ def get_hint(
     if not attempt:
         raise HTTPException(status_code=403, detail="Enroll in this challenge to get AI hints")
 
-    # Deduct 1 credit per hint
-    from app.services.wallet.wallet_service import get_or_create_wallet
-    from app.models.wallet import WalletTransaction, TransactionType, TransactionStatus
-    wallet = get_or_create_wallet(current_user.id, db)
-    if wallet.credit_balance < 1:
-        raise HTTPException(
-            status_code=402,
-            detail={
-                "error": "insufficient_credits",
-                "message": "You need 1 credit for a hint.",
-                "credits_needed": 1,
-                "credits_available": 0,
-            }
-        )
-    wallet.credit_balance -= 1
-    wallet.lifetime_spent += 1
-    tx = WalletTransaction(
-        wallet_id=wallet.id,
-        transaction_type=TransactionType.deduction,
-        status=TransactionStatus.confirmed,
-        credits=-1,
-        description=f"AI hint: {ch.title}",
-        action_type="challenge_hint",
-        balance_after=wallet.credit_balance,
-    )
-    db.add(tx)
-    db.commit()
+    # 1 credit per hint, unchanged — the price now lives in CREDIT_COSTS
+    # under "challenge_hint" instead of being written out here, so this
+    # goes through the same locked, promo-aware path as every other AI
+    # spend. Adjusting the wallet inline (as this did) bypassed the promo
+    # accounting entirely and let expired promo credits buy hints.
+    deduct_credits(current_user.id, "challenge_hint", db)
 
-    result = get_challenge_hint(
-        llm=get_llm(),
-        challenge_title=ch.title,
-        challenge_difficulty=ch.difficulty.value,
-        rubric=ch.grading_rubric,
-        dirty_dataset_sample=ch.dirty_dataset[:3],
-        stuck_on=payload.stuck_on,
-        hints_already_given=payload.previous_hints,
-    )
-    return HintResponse(**result)
+    # The charge above commits immediately, so everything that can still
+    # fail has to give it back. That includes building the response, not
+    # just the provider call: HintResponse requires three string fields,
+    # and a model that returns a non-string for one of them raises a
+    # validation error *after* the student has paid — a charged 500.
+    try:
+        result = get_challenge_hint(
+            llm=get_llm(),
+            challenge_title=ch.title,
+            challenge_difficulty=ch.difficulty.value,
+            rubric=ch.grading_rubric,
+            dirty_dataset_sample=ch.dirty_dataset[:3],
+            stuck_on=payload.stuck_on,
+            hints_already_given=payload.previous_hints,
+            language=payload.language,
+            terminology_mode=payload.terminology_mode,
+        )
+        response = HintResponse(**result)
+    except Exception:
+        logger.exception(
+            "challenge hint failed after charging; refunding",
+            extra={"user_id": current_user.id, "challenge_id": ch.id},
+        )
+        try:
+            refund_credits(
+                current_user.id, "challenge_hint", db,
+                reason=f"Refund: hint unavailable for {ch.title}",
+            )
+        except Exception:
+            # The charge stands and we could not reverse it. Loud, because
+            # this is the one path that leaves a user out of pocket and
+            # only the log will say so. Same handling as the enrolment path.
+            logger.critical(
+                "challenge hint refund FAILED; user is owed credits",
+                extra={"user_id": current_user.id, "action": "challenge_hint"},
+            )
+        raise HTTPException(
+            status_code=503,
+            detail="Hints are unavailable right now. Your credits were refunded.",
+        )
+
+    return response

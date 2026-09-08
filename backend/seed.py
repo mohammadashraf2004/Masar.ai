@@ -15,6 +15,7 @@ import app.models.progress     # noqa: F401
 import app.models.community    # noqa: F401
 import app.models.wallet       # noqa: F401
 import app.models.auth_token   # noqa: F401
+import app.models.answer_submission  # noqa: F401
 import app.models.challenge    # noqa: F401
 import app.models.exam         # noqa: F401
 import app.models.tool_course  # noqa: F401

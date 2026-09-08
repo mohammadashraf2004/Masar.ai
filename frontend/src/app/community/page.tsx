@@ -1,11 +1,11 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Badge, Spinner } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
-import { cn, formatRelative } from '@/lib/utils'
+import { cn, formatRelative, safeUrl } from '@/lib/utils'
 import axios from 'axios'
 import {
   Heart, MessageCircle, Github, Trophy,
@@ -214,9 +214,9 @@ function PostCard({ post, onUpdate }: { post: Post; onUpdate: (p: Post) => void 
       )}
 
       {/* GitHub link */}
-      {post.github_url && (
+      {safeUrl(post.github_url) && (
         <a
-          href={post.github_url}
+          href={safeUrl(post.github_url)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 mt-3 text-xs text-ghost hover:text-bright transition-colors border border-border rounded px-2.5 py-1"
@@ -441,20 +441,40 @@ export default function CommunityPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [activeTab, setActiveTab] = useState<'feed' | 'leaderboard'>('feed')
 
-  useEffect(() => {
-    if (authLoading) return
-    loadFeed()
-    fetchLeaderboard().then(d => setLeaderboard(d.entries)).catch(() => {})
-  }, [authLoading, filter])
-
-  async function loadFeed() {
+  // Declared before the effect that uses it, and memoized on `filter`, so
+  // the dependency array can name it honestly. Previously this was a
+  // hoisted `function` called above its own declaration with `loadFeed`
+  // missing from the deps — which the React Compiler flags as
+  // "cannot access variable before it is declared".
+  // Reset the spinner when the filter changes, in the render phase; the
+  // callback below only fetches. `loading` already starts true for the
+  // first load.
+  const [trackedFilter, setTrackedFilter] = useState(filter)
+  if (filter !== trackedFilter) {
+    setTrackedFilter(filter)
     setLoading(true)
+  }
+
+  const loadFeed = useCallback(async () => {
     try {
       const data = await fetchFeed(filter)
       setPosts(data.posts)
     } catch {}
     setLoading(false)
-  }
+  }, [filter])
+
+  useEffect(() => {
+    if (authLoading) return
+    let cancelled = false
+    ;(async () => {
+      await loadFeed()
+      try {
+        const d = await fetchLeaderboard()
+        if (!cancelled) setLeaderboard(d.entries)
+      } catch { /* leaderboard is non-essential */ }
+    })()
+    return () => { cancelled = true }
+  }, [authLoading, loadFeed])
 
   function updatePost(updated: Post) {
     setPosts(prev => prev.map(p => p.id === updated.id ? updated : p))

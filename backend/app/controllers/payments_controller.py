@@ -13,6 +13,7 @@ Register in main.py:
     from app.controllers.payments_controller import router as payments_router
     app.include_router(payments_router, prefix="/api/v1/payments", tags=["Payments"])
 """
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Literal
@@ -20,9 +21,10 @@ from typing import Literal
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.core import security_log
 from app.core.config import settings
 from app.core.limiter import limiter
 from app.db.session import get_db
@@ -41,15 +43,17 @@ EXAM_PRICE_EGP = 150.0  # kept in sync with exam_payment_controller.EXAM_PRICE_E
 
 class InitPaymentRequest(BaseModel):
     method: Literal["card", "wallet"]
-    phone_number: str | None = None  # required for method="wallet"
+    # Digits (with optional leading +) only — this value is forwarded to
+    # the payment provider, so it should not be a free-text passthrough.
+    phone_number: str | None = Field(None, min_length=6, max_length=20, pattern=r"^\+?[0-9]{6,19}$")
 
 
 class WalletTopUpInitRequest(InitPaymentRequest):
-    package_id: int
+    package_id: int = Field(..., gt=0)
 
 
 class ExamPaymentInitRequest(InitPaymentRequest):
-    exam_id: int
+    exam_id: int = Field(..., gt=0)
 
 
 def _new_merchant_order_id(prefix: str) -> str:
@@ -74,7 +78,12 @@ def _init_checkout(amount_egp: float, merchant_order_id: str, payload: InitPayme
     except paymob_service.PaymobConfigError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except httpx.HTTPStatusError as e:
-        raise HTTPException(status_code=502, detail=f"Paymob rejected the request: {e.response.text[:300]}")
+        # The upstream body can echo request details and provider-side
+        # diagnostics; it belongs in our logs, not in a client response.
+        logging.getLogger("app.payments").warning(
+            "Paymob rejected a payment init (status=%s)", e.response.status_code,
+        )
+        raise HTTPException(status_code=502, detail="The payment provider rejected this request.")
     except httpx.HTTPError:
         raise HTTPException(status_code=502, detail="Could not reach Paymob. Please try again.")
     return result["checkout_url"]
@@ -190,12 +199,22 @@ def get_payment_status(
 # ─── Webhook (authoritative) ─────────────────────────────────────────────────
 
 @router.post("/paymob/webhook")
+# Unauthenticated by necessity (Paymob calls it server-to-server) — HMAC
+# is the authentication. The limit bounds how hard an attacker can grind
+# forged signatures, and how much load a replay flood can create.
+@limiter.limit("120/minute")
 async def paymob_webhook(request: Request, db: Session = Depends(get_db)):
-    payload = await request.json()
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Malformed webhook payload")
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="Malformed webhook payload")
     obj = payload.get("obj") or {}
     received_hmac = request.query_params.get("hmac") or payload.get("hmac", "")
 
     if not paymob_service.verify_webhook_hmac(obj, received_hmac):
+        security_log.payment_event(kind="hmac_rejected", ref="<unverified>", success=False)
         raise HTTPException(status_code=401, detail="Invalid HMAC signature")
 
     success = bool(obj.get("success"))
@@ -223,6 +242,9 @@ async def paymob_webhook(request: Request, db: Session = Depends(get_db)):
         else:
             tx.status = TransactionStatus.failed
         db.commit()
+        security_log.payment_event(
+            kind="wallet_topup", ref=merchant_order_id, success=success, user_id=wallet.user_id,
+        )
         return {"status": "processed", "kind": "wallet_topup", "success": success}
 
     # Exam fee?
@@ -241,6 +263,9 @@ async def paymob_webhook(request: Request, db: Session = Depends(get_db)):
             payment.confirmed_by = "webhook"
             payment.confirmed_at = datetime.now(timezone.utc)
         db.commit()
+        security_log.payment_event(
+            kind="exam_payment", ref=merchant_order_id, success=success, user_id=payment.user_id,
+        )
         return {"status": "processed", "kind": "exam_payment", "success": success}
 
     # Nothing pending matches — ack 200 anyway (so Paymob doesn't retry

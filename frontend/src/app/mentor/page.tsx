@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import { MentorMessage, CodeReviewResult, SkillGapResult, InterviewQuestion } from '@/types'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/lib/i18n'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {
@@ -26,10 +27,17 @@ const TOOLS: { key: Tool; icon: typeof Brain; label: string; desc: string }[] = 
 
 export default function MentorPage() {
   useAuth()
+  // Aliased: `language` on this page already means the code-review
+  // language picker (python/js/...), which is a different axis entirely.
+  const { language: uiLanguage, mode } = useI18n()
   const [tool, setTool] = useState<Tool>('chat')
   const [messages, setMessages] = useState<MentorMessage[]>([{
     role: 'assistant',
-    content: "Hey! I'm your AI mentor. I can explain concepts, quiz you, review your code, and help you stay on track.\n\nWhat are you working on today?",
+    // Greets in Arabic because that is the platform's default posture. Its
+    // *answers* follow the same policy the lessons do — Arabic explanation,
+    // English terminology, untouched code — enforced server-side from the
+    // language settings sent with each message (see language_policy.py).
+    content: 'أهلاً! أنا مرشدك الذكي. أقدر أشرح لك المفاهيم، وأختبرك فيها، وأراجع الكود بتاعك.\n\nعلى إيه شغّال دلوقتي؟',
     timestamp: new Date().toISOString(),
   }])
   const [input, setInput] = useState('')
@@ -74,7 +82,12 @@ export default function MentorPage() {
     setLoading(true)
 
     try {
-      const res = await api.chat(text)
+      // The mentor answers in the reader's language and terminology mode —
+      // the same policy the lessons follow, applied server-side.
+      const res = await api.chat(text, undefined, {
+        language: uiLanguage,
+        terminology_mode: mode,
+      })
       setMessages(p => [...p, { role: 'assistant', content: res.reply, timestamp: new Date().toISOString() }])
       setSuggestions(res.suggested_actions)
     } catch {
@@ -175,7 +188,10 @@ export default function MentorPage() {
                         : 'bg-surface border border-border text-soft rounded-bl-sm'
                     )}>
                       {msg.role === 'assistant' ? (
-                        <div className="prose-dark text-sm leading-relaxed">
+                        <div
+                          className="prose-dark text-sm leading-relaxed"
+                          dir={uiLanguage === 'ar' ? 'rtl' : 'ltr'}
+                        >
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                         </div>
                       ) : (
@@ -301,7 +317,7 @@ export default function MentorPage() {
                         )}>
                           {codeReview.overall_quality}
                         </span>
-                        <span className="text-2xl font-display font-700 text-amber">{codeReview.score}</span>
+                        <span className="text-2xl font-display font-bold text-amber">{codeReview.score}</span>
                         <span className="text-ghost text-sm">/100</span>
                       </div>
                     </div>
@@ -393,7 +409,7 @@ export default function MentorPage() {
                   <Card className="p-5">
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-medium text-bright">Readiness for {skillGap.target_role}</span>
-                      <span className={cn('text-2xl font-display font-700',
+                      <span className={cn('text-2xl font-display font-bold',
                         skillGap.readiness_score >= 70 ? 'text-emerald'
                         : skillGap.readiness_score >= 40 ? 'text-amber'
                         : 'text-rose'

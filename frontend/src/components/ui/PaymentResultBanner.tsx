@@ -14,14 +14,27 @@ export function PaymentResultBanner() {
   const router = useRouter()
   const pathname = usePathname()
   const ref = params.get('payment_ref') ?? ''
-  const [status, setStatus] = useState<'pending' | 'confirmed' | 'failed' | null>(null)
+  const [status, setStatus] = useState<'pending' | 'confirmed' | 'failed' | null>(ref ? 'pending' : null)
   const [kind, setKind] = useState<'wallet_topup' | 'exam_payment' | null>(null)
   const attempts = useRef(0)
+
+  // Reset when the payment_ref in the URL changes. This is React's
+  // documented "adjusting state when a prop changes" pattern: doing it in
+  // an effect instead sets state during commit and forces a second render
+  // pass, which is what react-hooks/set-state-in-effect flags.
+  const [trackedRef, setTrackedRef] = useState(ref)
+  if (ref !== trackedRef) {
+    setTrackedRef(ref)
+    setStatus(ref ? 'pending' : null)
+    setKind(null)
+  }
 
   useEffect(() => {
     if (!ref) return
     let cancelled = false
-    setStatus('pending')
+    // Reset the poll counter here rather than in the render phase — refs
+    // must not be mutated during render (react-hooks/refs).
+    attempts.current = 0
 
     async function poll() {
       try {

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -269,13 +269,29 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
   const [hintError, setHintError] = useState('')
   const [aiHints, setAiHints] = useState<{hint:string;concept:string;next_step:string}[]>([])
 
-  const load = async () => {
+  // Reset on slug change in the render phase; the effect only fetches.
+  const [trackedSlug, setTrackedSlug] = useState(slug)
+  if (slug !== trackedSlug) {
+    setTrackedSlug(slug)
     setLoading(true)
-    try { setCh(await api.getChallenge(slug)) } catch {}
-    setLoading(false)
   }
 
-  useEffect(() => { load() }, [slug])
+  // Also called by the enroll/submit modals to refresh after a mutation.
+  // Every state write sits after the await, so this is safe to call from
+  // an effect as well as from an event handler.
+  const load = useCallback(async () => {
+    try {
+      const data = await api.getChallenge(slug)
+      setCh(data)
+    } catch { /* leave the previous detail in place */ }
+    setLoading(false)
+  }, [slug])
+
+  useEffect(() => {
+    // Awaited so every state write inside `load` follows an await
+    // boundary (react-hooks/set-state-in-effect).
+    void (async () => { await load() })()
+  }, [load])
 
   const askForHint = async () => {
     if (!hintQuestion.trim()) return
@@ -486,7 +502,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                     <span className="text-xs text-ghost ml-auto">1 credit per hint</span>
                   </div>
                   <p className="text-xs text-ghost mb-3 leading-relaxed">
-                    Describe what you're stuck on. The AI will guide you toward the answer without revealing the solution.
+                    Describe what you&apos;re stuck on. The AI will guide you toward the answer without revealing the solution.
                   </p>
                   <textarea
                     className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none mb-3"
@@ -550,13 +566,23 @@ export default function ChallengesPage() {
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null)
   const [filter, setFilter]         = useState<string>('all')
 
-  const load = async () => {
-    setLoading(true)
-    try { setChallenges(await api.getChallenges()) } catch {}
+  // `loading` starts true (see useState above), so this never sets it
+  // synchronously inside the effect — which is what
+  // react-hooks/set-state-in-effect flags. Also called when returning
+  // from the detail view, to pick up enrollment changes.
+  const load = useCallback(async () => {
+    try {
+      const data = await api.getChallenges()
+      setChallenges(data)
+    } catch { /* leave the list as-is */ }
     setLoading(false)
-  }
+  }, [])
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    // Awaited so every state write inside `load` follows an await
+    // boundary (react-hooks/set-state-in-effect).
+    void (async () => { await load() })()
+  }, [load])
 
   const filtered = filter === 'all'
     ? challenges

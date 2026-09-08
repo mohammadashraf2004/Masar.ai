@@ -5,6 +5,17 @@ def _unique_email() -> str:
     return f"test-{uuid.uuid4().hex[:12]}@example.com"
 
 
+def test_register_grants_starter_credits(client):
+    email = _unique_email()
+    reg = client.post("/api/v1/auth/register", json={
+        "email": email, "full_name": "Test User", "password": "correcthorsebatterystaple",
+    })
+    token = reg.json()["access_token"]
+    wallet = client.get("/api/v1/wallet/", headers={"Authorization": f"Bearer {token}"})
+    assert wallet.status_code == 200
+    assert wallet.json()["credit_balance"] == 10
+
+
 def test_register_then_login(client):
     email = _unique_email()
     resp = client.post("/api/v1/auth/register", json={

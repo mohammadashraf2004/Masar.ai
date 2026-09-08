@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import type { CareerTrackSummary, Enrollment } from '@/types'
 import { cn } from '@/lib/utils'
+import { isTrackComingSoon } from '@/lib/tracks'
 import {
   BarChart2, Brain, Code2, Server, Layers,
   CheckCircle, Lock, ArrowRight, ChevronRight,
@@ -82,7 +83,7 @@ const TRACK_META: Record<string, {
 const APEX_SLUG = 'ai-engineer'
 const APEX_REQUIRED_COUNT = 3
 
-type TrackStatus = 'locked' | 'available' | 'enrolled' | 'completed'
+type TrackStatus = 'locked' | 'available' | 'enrolled' | 'completed' | 'coming_soon'
 
 interface TrackWithStatus extends CareerTrackSummary {
   status: TrackStatus
@@ -114,7 +115,10 @@ export default function TracksPage() {
         const withStatus: TrackWithStatus[] = allTracks.map(t => {
           const enr = enrMap.get(t.id)
           let status: TrackStatus = 'available'
+          // An existing enrolment wins: someone already in a track keeps their
+          // way back into it, the same rule the tool courses use.
           if (enr) status = enr.completion_percentage >= 100 ? 'completed' : 'enrolled'
+          else if (isTrackComingSoon(t.slug)) status = 'coming_soon'
           return { ...t, status, enrollment: enr }
         })
 
@@ -123,8 +127,12 @@ export default function TracksPage() {
 
         setTracks(rest)
         setApexTrack(apex ?? null)
-        // Auto-select first enrolled or first available
-        const firstActive = rest.find(t => t.status === 'enrolled') ?? rest[0]
+        // Auto-select first enrolled, else the first track anyone can start —
+        // opening on a coming-soon track shows a panel whose only action is
+        // disabled.
+        const firstActive = rest.find(t => t.status === 'enrolled')
+          ?? rest.find(t => t.status !== 'coming_soon')
+          ?? rest[0]
         if (firstActive) setSelected(firstActive)
       } catch {}
       setLoading(false)
@@ -150,6 +158,9 @@ export default function TracksPage() {
   const enrolledCount  = tracks.filter(t => t.status === 'enrolled').length
   const apexProgress   = Math.round((completedCount / APEX_REQUIRED_COUNT) * 100)
   const apexUnlocked   = completedCount >= APEX_REQUIRED_COUNT
+  // The apex is gated on finishing other tracks, so it cannot be reachable
+  // while those tracks are themselves unpublished.
+  const apexComingSoon = apexTrack?.status === 'coming_soon'
 
   if (authLoading || loading) return (
     <div className="min-h-screen bg-void flex items-center justify-center">
@@ -163,7 +174,7 @@ export default function TracksPage() {
     <AppShell>
       <PageHeader
         title="Career tracks"
-        subtitle="Choose your specialisation path. Complete tracks to unlock Full Stack AI Engineer."
+        subtitle="Choose your specialisation path. Complete available tracks to progress toward Full Stack AI Engineer."
       />
 
       <div className="flex-1 overflow-y-auto px-8 py-6">
@@ -182,6 +193,7 @@ export default function TracksPage() {
                 const Icon = m.icon ?? BookOpen
                 const isSelected = selected?.id === track.id
                 const pct = track.enrollment?.completion_percentage ?? 0
+                const comingSoon = track.status === 'coming_soon'
 
                 return (
                   <button
@@ -191,12 +203,13 @@ export default function TracksPage() {
                       'text-left p-4 rounded-lg border transition-all duration-150',
                       isSelected
                         ? `${m.bgColor ?? 'bg-surface'} ${m.borderColor ?? 'border-border'} ring-1 ring-offset-1 ring-offset-void ${m.borderColor ?? ''}`
-                        : 'bg-panel border-border hover:border-muted'
+                        : 'bg-panel border-border hover:border-muted',
+                      comingSoon && 'opacity-60'
                     )}
                   >
                     <Icon
                       size={20}
-                      className={cn('mb-3', m.textColor ?? 'text-ghost')}
+                      className={cn('mb-3', comingSoon ? 'text-ghost' : (m.textColor ?? 'text-ghost'))}
                     />
                     <div className="text-sm font-medium text-bright mb-1 leading-tight">
                       {track.title}
@@ -205,33 +218,44 @@ export default function TracksPage() {
                       {track.estimated_weeks}w
                     </div>
 
-                    {/* Progress bar */}
-                    <div className="h-1 bg-muted rounded-full overflow-hidden mb-1.5">
-                      <div
-                        className={cn(
-                          'h-full rounded-full transition-all duration-700',
-                          track.status === 'completed' ? 'bg-emerald'
-                          : track.status === 'enrolled'  ? `bg-${m.color ?? 'sky'}`
-                          : 'bg-muted'
-                        )}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
+                    {/* An unpublished track has nothing to be a percentage of,
+                        so the label stands in for the progress row. */}
+                    {comingSoon ? (
+                      <div className="flex items-center gap-1.5 text-xs text-ghost">
+                        <Clock size={11} className="shrink-0" />
+                        Coming soon
+                      </div>
+                    ) : (
+                      <>
+                        {/* Progress bar */}
+                        <div className="h-1 bg-muted rounded-full overflow-hidden mb-1.5">
+                          <div
+                            className={cn(
+                              'h-full rounded-full transition-all duration-700',
+                              track.status === 'completed' ? 'bg-emerald'
+                              : track.status === 'enrolled'  ? `bg-${m.color ?? 'sky'}`
+                              : 'bg-muted'
+                            )}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-ghost">
-                        {pct > 0 ? `${Math.round(pct)}%` : '0%'}
-                      </span>
-                      {track.status === 'completed' && (
-                        <CheckCircle size={12} className="text-emerald" />
-                      )}
-                      {track.status === 'enrolled' && (
-                        <span className={cn('text-xs', m.textColor)}>active</span>
-                      )}
-                      {track.status === 'available' && (
-                        <span className="text-xs text-ghost">—</span>
-                      )}
-                    </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-ghost">
+                            {pct > 0 ? `${Math.round(pct)}%` : '0%'}
+                          </span>
+                          {track.status === 'completed' && (
+                            <CheckCircle size={12} className="text-emerald" />
+                          )}
+                          {track.status === 'enrolled' && (
+                            <span className={cn('text-xs', m.textColor)}>active</span>
+                          )}
+                          {track.status === 'available' && (
+                            <span className="text-xs text-ghost">—</span>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </button>
                 )
               })}
@@ -263,15 +287,17 @@ export default function TracksPage() {
                   : 'border-border bg-panel opacity-80'
               )}>
                 <div className="flex items-center justify-center gap-2 mb-1">
-                  {apexUnlocked
-                    ? <Star size={16} className="text-amber" />
-                    : <Lock size={14} className="text-ghost" />
+                  {apexComingSoon
+                    ? <Clock size={14} className="text-ghost" />
+                    : apexUnlocked
+                      ? <Star size={16} className="text-amber" />
+                      : <Lock size={14} className="text-ghost" />
                   }
                   <span className={cn(
                     'text-xs font-medium uppercase tracking-widest',
-                    apexUnlocked ? 'text-amber' : 'text-ghost'
+                    apexUnlocked && !apexComingSoon ? 'text-amber' : 'text-ghost'
                   )}>
-                    {apexUnlocked ? 'Unlocked' : 'End goal'}
+                    {apexComingSoon ? 'Coming soon' : apexUnlocked ? 'Unlocked' : 'End goal'}
                   </span>
                 </div>
 
@@ -279,41 +305,54 @@ export default function TracksPage() {
                   {apexTrack.title}
                 </h3>
                 <p className="text-xs text-ghost mb-4">
-                  Complete any {APEX_REQUIRED_COUNT} tracks to unlock
+                  {apexComingSoon
+                    ? 'Opens once the specialisation tracks are published'
+                    : `Complete any ${APEX_REQUIRED_COUNT} tracks to unlock`}
                 </p>
 
-                {/* Apex progress */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-amber rounded-full transition-all duration-700"
-                      style={{ width: `${apexProgress}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-mono text-amber shrink-0">
-                    {completedCount} / {APEX_REQUIRED_COUNT}
-                  </span>
-                </div>
+                {/* The unlock counter only says something while there are
+                    tracks to complete. With the specialisations unpublished it
+                    would sit at 0 / 3 for everyone, forever. */}
+                {!apexComingSoon && (
+                  <>
+                    {/* Apex progress */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-amber rounded-full transition-all duration-700"
+                          style={{ width: `${apexProgress}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-mono text-amber shrink-0">
+                        {completedCount} / {APEX_REQUIRED_COUNT}
+                      </span>
+                    </div>
 
-                {/* Requirement chips */}
-                <div className="flex gap-2 flex-wrap justify-center mb-4">
-                  {tracks.map(t => (
-                    <span
-                      key={t.id}
-                      className={cn(
-                        'text-xs px-2.5 py-1 rounded-full border',
-                        t.status === 'completed'
-                          ? 'bg-emerald/10 border-emerald/30 text-emerald'
-                          : 'bg-surface border-border text-ghost'
-                      )}
-                    >
-                      {t.status === 'completed' && <CheckCircle size={10} className="inline mr-1" />}
-                      {t.title}
-                    </span>
-                  ))}
-                </div>
+                    {/* Requirement chips */}
+                    <div className="flex gap-2 flex-wrap justify-center mb-4">
+                      {tracks.map(t => (
+                        <span
+                          key={t.id}
+                          className={cn(
+                            'text-xs px-2.5 py-1 rounded-full border',
+                            t.status === 'completed'
+                              ? 'bg-emerald/10 border-emerald/30 text-emerald'
+                              : 'bg-surface border-border text-ghost'
+                          )}
+                        >
+                          {t.status === 'completed' && <CheckCircle size={10} className="inline mr-1" />}
+                          {t.title}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )}
 
-                {apexUnlocked ? (
+                {apexComingSoon ? (
+                  <Button variant="ghost" size="sm" className="w-full" disabled>
+                    Coming soon
+                  </Button>
+                ) : apexUnlocked ? (
                   <Link href={`/tracks/${apexTrack.slug}`}>
                     <Button variant="amber" size="sm" className="w-full">
                       Start full stack path <ArrowRight size={12} />
@@ -349,12 +388,23 @@ export default function TracksPage() {
                       {selected.status === 'completed' && (
                         <Badge variant="emerald">Completed</Badge>
                       )}
+                      {selected.status === 'coming_soon' && (
+                        <Badge variant="ghost">
+                          <Clock size={10} className="mr-1" />
+                          Coming soon
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 {/* CTA */}
                 <div>
+                  {selected.status === 'coming_soon' && (
+                    <Button size="sm" variant="ghost" disabled>
+                      Coming soon
+                    </Button>
+                  )}
                   {selected.status === 'available' && (
                     <Button
                       onClick={() => handleEnroll(selected)}
@@ -400,7 +450,7 @@ export default function TracksPage() {
               {/* Topics grid */}
               <div>
                 <div className="text-xs font-medium text-ghost uppercase tracking-widest mb-3">
-                  What you'll learn
+                  What you&apos;ll learn
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {meta.topics.map((topic, i) => {

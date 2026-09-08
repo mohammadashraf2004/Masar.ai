@@ -7,6 +7,7 @@ sends: verify-your-email and reset-your-password. Deliberately fails soft
 email provider in dev shouldn't block registration/login flows that don't
 strictly require the email to have sent.
 """
+import html as html_lib
 import logging
 
 import resend
@@ -35,12 +36,16 @@ def _send(to: str, subject: str, html: str) -> bool:
 
 
 def send_verification_email(to: str, full_name: str, token: str) -> bool:
+    # full_name is user-supplied and goes into an HTML document. Escaping
+    # it stops a crafted display name from injecting markup (or a link)
+    # into a mail our domain signs and sends.
+    full_name = html_lib.escape(full_name or "there")
     link = f"{settings.FRONTEND_URL}/auth/login?verify_token={token}"
     html = f"""
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
       <h2>Verify your email</h2>
       <p>Hi {full_name},</p>
-      <p>Confirm your email address to finish setting up your AI Career Platform account.</p>
+      <p>Confirm your email address to finish setting up your Masar account.</p>
       <p><a href="{link}" style="display:inline-block;padding:10px 20px;background:#f5a623;color:#111;text-decoration:none;border-radius:6px;font-weight:600">Verify email</a></p>
       <p style="color:#888;font-size:12px">This link expires in 24 hours. If you didn't create this account, you can ignore this email.</p>
     </div>
@@ -49,6 +54,10 @@ def send_verification_email(to: str, full_name: str, token: str) -> bool:
 
 
 def send_password_reset_email(to: str, full_name: str, token: str) -> bool:
+    full_name = html_lib.escape(full_name or "there")
+    # NOTE: the token is deliberately never logged here or anywhere else —
+    # a reset link in an application log is a password reset for whoever
+    # can read logs.
     link = f"{settings.FRONTEND_URL}/auth/login?reset_token={token}"
     html = f"""
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto">

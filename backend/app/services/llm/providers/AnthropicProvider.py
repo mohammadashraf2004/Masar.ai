@@ -1,6 +1,7 @@
 from typing import List
 import anthropic
 
+from app.core.metrics import observe_llm_call
 from app.services.llm.providers.BaseLLMProvider import BaseLLMProvider
 
 
@@ -31,10 +32,18 @@ class AnthropicProvider(BaseLLMProvider):
 
     def chat(self, system: str, messages: List[dict], max_tokens: int = None) -> str:
         client = self._get_client()
-        response = client.messages.create(
-            model=self.model_id,
-            max_tokens=max_tokens or self.default_max_tokens,
-            system=system,
-            messages=messages,
-        )
-        return response.content[0].text
+        system, messages = self.clip_input(system, messages)
+        # See OpenAIProvider.chat — usage comes from the provider response.
+        with observe_llm_call("anthropic", self.model_id) as call:
+            response = client.messages.create(
+                model=self.model_id,
+                max_tokens=max_tokens or self.default_max_tokens,
+                system=system,
+                messages=messages,
+            )
+            usage = getattr(response, "usage", None)
+            call.record_usage(
+                getattr(usage, "input_tokens", None),
+                getattr(usage, "output_tokens", None),
+            )
+            return response.content[0].text

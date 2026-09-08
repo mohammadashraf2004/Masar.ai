@@ -1,0 +1,153 @@
+# Alert rules — the things worth being woken up for at launch.
+#
+# There is no Alertmanager wired up: these fire in Prometheus' own Alerts
+# page and show on the Grafana dashboard. Point them at Alertmanager (or
+# Grafana alerting) with real routes before you rely on being told rather
+# than looking.
+#
+# Deliberately few. An alert that fires on a normal Tuesday teaches everyone
+# to ignore the channel, and at launch the signal-to-noise ratio matters more
+# than coverage.
+
+groups:
+  - name: availability
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} is not being scraped"
+          description: >-
+            Prometheus cannot reach {{ $labels.instance }} ({{ $labels.job }}).
+            Either the service is down or it stopped serving /metrics.
+
+      - alert: HighServerErrorRate
+        # 5xx share of all requests. Ignores 4xx on purpose: a client sending
+        # bad input is not an incident, and at launch there will be plenty.
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+          clamp_min(sum(rate(http_requests_total[5m])), 0.001)
+            > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Over 5% of requests are failing"
+          description: "5xx rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+  - name: latency
+    rules:
+      - alert: SlowRequests
+        # p95 across everything except the AI routes, which are legitimately
+        # slow — they are covered by their own alert below.
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le) (
+              rate(http_request_duration_seconds_bucket{path!~"/api/v1/(mentor|practice|challenges).*"}[5m])
+            )
+          ) > 2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 latency above 2s on non-AI routes"
+          description: "p95 is {{ $value | humanizeDuration }}."
+
+      - alert: LLMCallsSlow
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, provider) (rate(llm_request_duration_seconds_bucket[10m]))
+          ) > 45
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.provider }} calls are taking over 45s at p95"
+          description: >-
+            Students are waiting this long for a mentor reply or a graded
+            answer. Check the provider's status page before assuming it's us.
+
+  - name: product
+    rules:
+      - alert: LLMErrorRate
+        expr: |
+          sum(rate(llm_requests_total{outcome="error"}[10m]))
+            /
+          clamp_min(sum(rate(llm_requests_total[10m])), 0.001)
+            > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Over 10% of LLM calls are failing"
+          description: >-
+            Every AI feature is degraded — mentor chat, hints, answer
+            grading, project review. Usually a key, a quota or an outage.
+
+      - alert: CreditDenialsSpiking
+        # Users hitting a wall on paid features. Not an outage, but it is
+        # the thing you want to know about on launch day rather than from
+        # a support ticket a week later.
+        expr: sum(rate(credit_denials_total[15m])) > 0.05
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Users are running out of credits"
+          description: "{{ $value | humanize }} denials/sec over the last 15 minutes."
+
+      - alert: LoginFailureSpike
+        # Brute force, or a broken login form. Both want looking at.
+        expr: |
+          sum(rate(auth_events_total{event="login.failure"}[5m]))
+            /
+          clamp_min(sum(rate(auth_events_total{event=~"login.*"}[5m])), 0.001)
+            > 0.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than half of login attempts are failing"
+
+  - name: infrastructure
+    rules:
+      - alert: PostgresConnectionsHigh
+        expr: |
+          sum(pg_stat_activity_count)
+            /
+          clamp_min(sum(pg_settings_max_connections), 1)
+            > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Postgres is over 80% of max_connections"
+          description: >-
+            Four gunicorn workers each hold a pool. Running out here shows
+            up as the whole app hanging, not as a database error.
+
+      - alert: RedisMemoryHigh
+        # `redis_memory_max_bytes > 0` is a filter, not a comparison: with no
+        # maxmemory configured the exporter reports 0, and dividing by a
+        # clamped 1 made this fire immediately on a perfectly healthy Redis.
+        # Written this way the rule produces no samples at all until a limit
+        # is actually set, which is the honest behaviour — an alert that
+        # fires on a normal Tuesday trains everyone to ignore the channel.
+        expr: |
+          redis_memory_used_bytes
+            /
+          (redis_memory_max_bytes > 0)
+            > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis is near its memory limit"
+          description: >-
+            Evictions here silently disable rate limits and login lockouts,
+            because that is where their counters live.

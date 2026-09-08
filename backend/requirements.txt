@@ -1,20 +1,57 @@
-fastapi==0.111.0
+# Pinned exactly on purpose: a floating range means the artifact that
+# passed CI is not necessarily the artifact that ships. Security-motivated
+# upgrades below are annotated with what they fix.
+
+fastapi==0.141.1
+# Pulled in by fastapi but pinned explicitly, because the advisories that
+# forced this upgrade are Starlette's rather than FastAPI's: a multipart
+# DoS (CVE-2024-47874) plus the PYSEC-2026-2xx series. fastapi 0.111
+# capped starlette below the fixed range, which is why FastAPI itself had
+# to move too.
+starlette==1.3.1
 uvicorn[standard]==0.29.0
-gunicorn==22.0.0
+# 22.0.0 has a request-smuggling issue in its HTTP parser (CVE-2024-6827).
+gunicorn==23.0.0
 sqlalchemy==2.0.30
 alembic==1.13.1
 psycopg2-binary==2.9.9
 pgvector==0.2.5
-pydantic==2.7.1
-pydantic-settings==2.2.1
-python-jose[cryptography]==3.3.0
+# fastapi 0.141 requires >=2.9; this is the version the resolver picks
+# alongside the pinned starlette/fastapi above.
+pydantic==2.13.5
+pydantic-settings==2.15.0
+# Replaces python-jose. python-jose 3.3.0 carried an algorithm-confusion
+# flaw (CVE-2024-33663) and a JWE decompression bomb (CVE-2024-33664),
+# and even on 3.5.0 it pulls in `ecdsa`, whose Minerva timing side channel
+# the maintainers have declined to fix. We only ever sign HS256, so none
+# of that dependency tree earns its risk. PyJWT is actively maintained,
+# has no ecdsa dependency, and supports the `require` option that lets
+# app/core/security.py assert claims are PRESENT rather than merely
+# valid-if-present.
+PyJWT==2.13.0
+# Provides the HMAC/crypto primitives PyJWT uses.
+cryptography==50.0.0
+# passlib 1.7.4 is unmaintained and breaks against bcrypt>=4.1 (it reads
+# the removed bcrypt.__about__). Keep bcrypt pinned here until the hash
+# layer moves off passlib — see SECURITY.md ("remaining risk").
 bcrypt==4.0.1
 passlib[bcrypt]==1.7.4
-python-multipart==0.0.9
+# Several DoS advisories affect every 0.0.x below 0.0.31
+# (CVE-2024-53981 and the PYSEC-2026-303x series).
+python-multipart==0.0.32
 openai==1.30.1
 anthropic==0.28.0
 httpx==0.27.0
-python-dotenv==1.0.1
+# PYSEC-2026-2270 affects <1.2.2.
+python-dotenv==1.2.2
 email-validator==2.1.1
 slowapi==0.1.9
+# Optional: only imported when REDIS_URL is set, so that slowapi's
+# counters are shared across gunicorn workers and replicas instead of
+# each process enforcing its own separate budget.
+redis==5.0.4
 resend==2.0.0
+# Prometheus exposition. Runs in multiprocess mode under gunicorn — see
+# app/core/metrics.py and gunicorn.conf.py, which are both required for the
+# per-worker counters to add up correctly.
+prometheus-client==0.21.1

@@ -5,16 +5,49 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      # Compose interpolates each file independently and BEFORE merging,
+      # so a `:?required` here would break plain `docker compose up` in
+      # development (the override file can't satisfy it). The real
+      # production guard is app/core/config.py, which refuses to boot with
+      # APP_ENV=production while DATABASE_URL still carries these dev
+      # credentials. Set POSTGRES_PASSWORD in the environment before any
+      # production deploy.
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-ai_career_platform}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # NO published port. Publishing 5432 binds it to every interface on
+    # the host, so on any machine with a public IP the production database
+    # is directly reachable from the internet, protected only by the
+    # POSTGRES_PASSWORD (which defaults to "password"). The api service
+    # reaches it over the compose network as `db:5432` and needs no
+    # published port at all. docker-compose.override.yml publishes it for
+    # local development only.
+    expose:
+      - "5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
+      retries: 10
+
+  # ─── Redis (shared rate-limit / login-lockout counters) ────────────
+  # REQUIRED, not optional: the api service below runs gunicorn with 4
+  # workers, and slowapi's default in-memory counters are per-process, so
+  # without shared storage a documented "10/minute" login limit really
+  # admits 40/minute and the per-account lockout resets per worker.
+  # app/core/config.py refuses to start in production without REDIS_URL.
+  # Not published to the host — only the api service needs to reach it.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
       retries: 10
 
   # ─── FastAPI Backend ───────────────────────────────────────────────
@@ -33,6 +66,10 @@ services:
       # No hard requirement here — app/core/config.py already refuses to
       # boot when APP_ENV=production and this is left at the default/short.
       # Generate a real one with: openssl rand -hex 32
+      # Same reasoning as POSTGRES_PASSWORD above: the default keeps local
+      # dev working, and app/core/config.py refuses to start with
+      # APP_ENV=production unless this is a real random value of 32+ chars.
+      # Generate one with: openssl rand -hex 32
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
       # Bare passthroughs (no `=value`): only injected into the container
@@ -43,9 +80,31 @@ services:
       # whatever a developer configured in backend/.env for local dev.
       - ANTHROPIC_API_KEY
       - OPENAI_API_KEY
+      # Base URL for any OpenAI-compatible endpoint. Leave unset for
+      # api.openai.com; point it at a local model server or gateway
+      # (Ollama, vLLM, LiteLLM, LM Studio, OpenRouter) to self-host
+      # inference. Without this passthrough the value in backend/.env is
+      # silently ignored under Docker.
+      - OPENAI_API_URL
       - GENERATION_BACKEND
       - GENERATION_MODEL_ID
       - EXTRA_CORS_ORIGINS
+      # Launch promotion — see backend/.env.example. Blank disables it.
+      - LAUNCH_PROMO_UNTIL
+      - LAUNCH_PROMO_CREDITS
+      - LAUNCH_PROMO_DAYS
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      # Metrics. /metrics is served on this same published port, so it is
+      # bearer-token gated; app/core/config.py refuses to boot in
+      # production with METRICS_ENABLED and no token.
+      - METRICS_ENABLED=${METRICS_ENABLED:-true}
+      - METRICS_TOKEN=${METRICS_TOKEN:-local-dev-metrics-token}
+      # Four gunicorn workers each keep their own counters in memory, so
+      # they are written to this shared directory instead and summed at
+      # scrape time. gunicorn.conf.py empties it at boot and retires a
+      # worker's files when it dies — without both, the numbers drift up
+      # forever. See backend/app/core/metrics.py.
+      - PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus-multiproc
       - RESEND_API_KEY
       - EMAIL_FROM
       - PAYMOB_API_KEY
@@ -58,7 +117,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w 4 --bind 0.0.0.0:8000 --timeout 60
+      redis:
+        condition: service_healthy
+    command: gunicorn app.main:app -c gunicorn.conf.py -k uvicorn.workers.UvicornWorker -w 4 --bind 0.0.0.0:8000 --timeout 60
+    # tmpfs, not a volume: these are per-run scratch files that must not
+    # survive a restart — stale ones are counted as live workers.
+    tmpfs:
+      - /tmp/prometheus-multiproc
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
       interval: 15s
@@ -94,5 +159,91 @@ services:
       retries: 5
       start_period: 15s
 
+  # ─── Monitoring ────────────────────────────────────────────────────
+  # Prometheus and Grafana are bound to 127.0.0.1 deliberately. Grafana
+  # ships with a default admin login and Prometheus has no auth at all;
+  # neither belongs on a public interface. Reach them through an SSH
+  # tunnel on a server, or put them behind your own authenticating proxy.
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    restart: unless-stopped
+    # Writes the scrape credential from the environment into a file
+    # Prometheus can read, so METRICS_TOKEN lives in one place instead of
+    # being duplicated into a committed config file.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        printf '%s' "$${METRICS_TOKEN:-local-dev-metrics-token}" > /etc/prometheus/token
+        exec /bin/prometheus           --config.file=/etc/prometheus/prometheus.yml           --storage.tsdb.path=/prometheus           --storage.tsdb.retention.time=15d           --web.enable-lifecycle
+    environment:
+      - METRICS_TOKEN=${METRICS_TOKEN:-local-dev-metrics-token}
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      # Nothing here should be reachable without logging in, and this
+      # instance has no business phoning home or letting people self-serve
+      # accounts.
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+
+  # Postgres connection saturation is the failure that takes the app down
+  # while the app itself still looks healthy.
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.16.0
+    restart: unless-stopped
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-ai_career_platform}?sslmode=disable
+    expose:
+      - "9187"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Rate limits and login lockouts live in Redis — if it evicts under
+  # memory pressure, those stop being enforced without any error.
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.66.0
+    restart: unless-stopped
+    command: ["--redis.addr", "redis://redis:6379"]
+    expose:
+      - "9121"
+    depends_on:
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:

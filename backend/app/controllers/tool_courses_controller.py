@@ -30,6 +30,30 @@ from app.core.security import get_current_user
 
 router = APIRouter(prefix="/tool-courses", tags=["Tool Courses"])
 
+# Mirrors tracks_controller.MAX_TOPIC_MINUTES.
+MAX_TOPIC_MINUTES = 100_000
+
+
+def _validate_progress_targets(db: Session, payload: ToolProgressUpdate, *, topic_id: int) -> None:
+    """Same rule as tracks_controller._validate_progress_targets, and for
+    the same reason — here it matters more, because completion of every
+    topic in a tool course writes a ToolCourseCompletion row, i.e. a
+    credential. Marking topics done with lesson ids picked out of thin air
+    would forge that credential outright."""
+    if payload.lesson_id is not None:
+        if not db.query(Lesson.id).filter(
+            Lesson.id == payload.lesson_id,
+            Lesson.tool_topic_id == topic_id,
+        ).first():
+            raise HTTPException(status_code=400, detail="That lesson does not belong to this topic")
+
+    if payload.exercise_id is not None:
+        if not db.query(Exercise.id).filter(
+            Exercise.id == payload.exercise_id,
+            Exercise.tool_topic_id == topic_id,
+        ).first():
+            raise HTTPException(status_code=400, detail="That exercise does not belong to this topic")
+
 
 # ─── Browse ──────────────────────────────────────────────────────────────
 
@@ -85,10 +109,17 @@ def my_enrollments(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # Same reasoning as tracks_controller.my_enrollments: a retired course
+    # must not linger on the dashboard, since GET /tool-courses/{slug}
+    # filters on is_active and would 404 on the card.
     enrollments = (
         db.query(ToolEnrollment)
+        .join(ToolCourse, ToolEnrollment.tool_course_id == ToolCourse.id)
         .options(joinedload(ToolEnrollment.tool_course).joinedload(ToolCourse.topics))
-        .filter(ToolEnrollment.user_id == current_user.id)
+        .filter(
+            ToolEnrollment.user_id == current_user.id,
+            ToolCourse.is_active == True,
+        )
         .all()
     )
     result = []
@@ -111,7 +142,13 @@ def my_enrollments(
 # ─── Course detail — AFTER all literal routes ───────────────────────────
 
 @router.get("/{slug}", response_model=ToolCourseResponse)
-def get_tool_course(slug: str, db: Session = Depends(get_db)):
+def get_tool_course(
+    slug: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Authenticated, same reasoning as GET /tracks/{slug}: the response
+    carries the course's full lesson bodies, not a catalogue entry."""
     course = (
         db.query(ToolCourse)
         .options(
@@ -199,6 +236,7 @@ def update_tool_progress(
     topic = db.query(ToolTopic).filter(ToolTopic.id == topic_id).first()
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
+    _validate_progress_targets(db, payload, topic_id=topic_id)
 
     progress = db.query(UserProgress).filter(
         UserProgress.user_id == current_user.id,
@@ -221,7 +259,10 @@ def update_tool_progress(
         progress.exercises_completed = (progress.exercises_completed or []) + [payload.exercise_id]
 
     if payload.time_spent_minutes:
-        progress.time_spent_minutes = (progress.time_spent_minutes or 0) + payload.time_spent_minutes
+        progress.time_spent_minutes = min(
+            MAX_TOPIC_MINUTES,
+            (progress.time_spent_minutes or 0) + payload.time_spent_minutes,
+        )
 
     # A topic counts as done once every lesson and exercise attached to it
     # has been marked complete.

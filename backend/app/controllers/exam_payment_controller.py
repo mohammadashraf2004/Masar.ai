@@ -6,13 +6,15 @@ Register in main.py:
     from app.controllers.exam_payment_controller import router as exam_payment_router
     app.include_router(exam_payment_router, prefix="/api/v1/exam-payments", tags=["Exam Payments"])
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime, timezone
 
 from app.db.session import get_db
+from app.core import security_log
+from app.core.authz import require_admin
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.challenge import ExamPayment
@@ -31,13 +33,13 @@ PAYMENT_LABELS = {
 
 
 class ExamPaymentRequest(BaseModel):
-    exam_id: int
-    payment_method: str       # fawry | instapay | vodafone_cash
-    payment_ref: str
+    exam_id: int = Field(..., gt=0)
+    payment_method: str = Field(..., max_length=32)   # fawry | instapay | vodafone_cash
+    payment_ref: str = Field(..., min_length=3, max_length=100)
 
 
 class ConfirmPaymentRequest(BaseModel):
-    payment_ref: str
+    payment_ref: str = Field(..., min_length=3, max_length=100)
 
 
 @router.get("/price")
@@ -123,13 +125,15 @@ def submit_exam_payment(
 @router.post("/admin/confirm/{payment_ref}")
 def confirm_exam_payment(
     payment_ref: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    """Admin: confirm an exam payment and grant access."""
-    if current_user.role.value != "admin":
-        raise HTTPException(status_code=403, detail="Admin only")
+    """Admin: confirm an exam payment and grant access.
 
+    This is the only thing standing between "submitted a reference
+    number" and "may sit a paid certification exam", so it is both
+    admin-gated and audit-logged.
+    """
     payment = db.query(ExamPayment).filter(
         ExamPayment.payment_ref == payment_ref,
         ExamPayment.status == "pending",
@@ -142,6 +146,10 @@ def confirm_exam_payment(
     payment.confirmed_at = datetime.now(timezone.utc)
     db.commit()
 
+    security_log.admin_action(
+        admin_id=current_user.id, action="exam_payment.confirm",
+        target=f"ref={payment_ref} user={payment.user_id} exam={payment.exam_id}",
+    )
     return {
         "message": "Payment confirmed. User can now access the exam.",
         "user_id": payment.user_id,
@@ -152,19 +160,16 @@ def confirm_exam_payment(
 
 @router.get("/admin/pending")
 def list_pending_payments(
-    limit: int = 100,
-    current_user: User = Depends(get_current_user),
+    limit: int = Query(100, ge=1, le=500),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Admin: list pending exam payments, oldest first (most urgent to clear)."""
-    if current_user.role.value != "admin":
-        raise HTTPException(status_code=403, detail="Admin only")
-
     payments = (
         db.query(ExamPayment)
         .filter(ExamPayment.status == "pending")
         .order_by(ExamPayment.created_at.asc())
-        .limit(min(limit, 500))
+        .limit(limit)
         .all()
     )
     return [

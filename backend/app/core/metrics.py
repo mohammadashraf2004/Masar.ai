@@ -43,7 +43,7 @@ from typing import Iterator, Optional
 #
 #     if 'PROMETHEUS_MULTIPROC_DIR' in os.environ: return MultiProcessValue()
 #
-# So `PROMETHEUS_MULTIPROC_DIR=""` — which docker-compose.override.yml sets
+# So `PROMETHEUS_MULTIPROC_DIR=""` — which docker-compose.dev.yml sets
 # because Compose cannot unset an inherited variable — switched multiprocess
 # mode ON, not off. The path was then built as
 # `os.path.join("", "counter_<pid>.db")`, which is relative, so every worker

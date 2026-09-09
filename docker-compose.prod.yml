@@ -1,0 +1,159 @@
+# Production hardening overlay.
+#
+# docker-compose.yml is already production-configured (APP_ENV=production,
+# gunicorn -w 4, Postgres and Redis unpublished). What it cannot do on its
+# own is close the last two public ports and terminate TLS, because it has
+# no reverse proxy. This overlay adds one, and takes the API and frontend
+# off the host's network interfaces entirely.
+#
+#   docker compose --env-file /etc/masar/production.env \
+#     -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# It also adds the two production components the base stack is missing:
+# Alertmanager (so a firing alert reaches a person rather than only the
+# Prometheus UI) and a scheduled, encrypted database backup.
+#
+# ── Why `!reset` and not `[]` ───────────────────────────────────────────
+# Compose MERGES the `ports` list across files. An override of `ports: []`
+# leaves the inherited publish in place — verified against Compose v5.0.2:
+#
+#   base 8000:8000 + override `ports: []`         -> still published
+#   base 8000:8000 + override `ports: !reset []`  -> removed
+#
+# So `[]` here would look like it closed the port while leaving it open on
+# 0.0.0.0. Only `!reset` actually removes it. Requires Compose >= v2.24.
+#
+# ── This is defence in depth, not the whole defence ─────────────────────
+# Removing the publish means the API and frontend are reachable only over
+# the Compose network. A host firewall / security group is still required
+# (DEPLOYMENT.md §1, LAUNCH_CHECKLIST Phase 2): Docker writes its own
+# iptables rules and a future compose change could republish a port.
+
+services:
+  # ─── The only public entry point ──────────────────────────────────
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"     # HTTP/3
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+      - API_DOMAIN=${API_DOMAIN:-api.localhost}
+      # `:-` (not `-`) so that an ACME_EMAIL present-but-empty in the env
+      # file still falls back to the placeholder. Caddy's own
+      # `{$ACME_EMAIL:default}` only substitutes when the variable is
+      # UNSET, so an empty value reached it as an empty argument and it
+      # refused to start with "wrong argument count for 'email'" — taking
+      # the entire public entry point down. Both layers now have a default.
+      #
+      # Production must set a real address; Let's Encrypt will reject the
+      # placeholder. Local runs use *.localhost, where Caddy issues from
+      # its internal CA and never contacts ACME at all.
+      - ACME_EMAIL=${ACME_EMAIL:-ops@localhost}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificates and ACME account keys. MUST persist — losing this
+      # volume means re-issuing certificates on every restart, which will
+      # hit Let's Encrypt rate limits.
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:2019/config/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ─── Take the app off the host's interfaces ───────────────────────
+  api:
+    ports: !reset []
+
+  frontend:
+    ports: !reset []
+
+  # ─── Alert delivery ───────────────────────────────────────────────
+  # Prometheus evaluates rules and decides an alert is firing; without an
+  # Alertmanager that decision reaches nobody. See LAUNCH_CHECKLIST Phase 6.
+  #
+  # The entrypoint substitutes the receiver URL from the environment at
+  # startup, the same pattern docker-compose.yml already uses to get
+  # METRICS_TOKEN into the Prometheus config without committing it.
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    restart: unless-stopped
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        sed -e "s|__ALERT_RECEIVER_URL__|$${ALERT_RECEIVER_URL:-http://alert-sink:8080/webhook}|g" \
+            /etc/alertmanager/alertmanager.tmpl.yml > /tmp/alertmanager.yml
+        exec /bin/alertmanager \
+          --config.file=/tmp/alertmanager.yml \
+          --storage.path=/alertmanager
+    environment:
+      - ALERT_RECEIVER_URL=${ALERT_RECEIVER_URL:-}
+    volumes:
+      - ./deploy/alertmanager.yml:/etc/alertmanager/alertmanager.tmpl.yml:ro
+      - alertmanager_data:/alertmanager
+    # Not published. Reachable from Prometheus over the compose network.
+    expose:
+      - "9093"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ─── Scheduled, encrypted database backups ────────────────────────
+  # See deploy/backup/pg-backup.sh. Runs pg_dump -Fc, encrypts with
+  # AES-256, prunes by retention, and writes a heartbeat file that
+  # Prometheus can alert on when it goes stale.
+  db-backup:
+    # Debian, NOT -alpine. The alpine postgres image ships libssl but not
+    # the `openssl` command-line tool, so every backup failed at the
+    # encryption step with "sh: openssl: not found". Caught by running it:
+    # the dump succeeded, encryption failed, and the script correctly
+    # refused to leave an unencrypted or half-written artifact behind.
+    # Installing openssl at container start instead would put an apk fetch
+    # on the critical path of every restart.
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      - PGHOST=db
+      - PGUSER=${POSTGRES_USER:-postgres}
+      - PGPASSWORD=${POSTGRES_PASSWORD:-password}
+      - PGDATABASE=${POSTGRES_DB:-ai_career_platform}
+      - BACKUP_ENCRYPTION_PASSPHRASE=${BACKUP_ENCRYPTION_PASSPHRASE:?set a passphrase you can still reach when the database is gone}
+      - BACKUP_INTERVAL_SECONDS=${BACKUP_INTERVAL_SECONDS:-86400}
+      - BACKUP_RETENTION_DAILY=${BACKUP_RETENTION_DAILY:-7}
+      - BACKUP_RETENTION_WEEKLY=${BACKUP_RETENTION_WEEKLY:-4}
+      - BACKUP_RETENTION_MONTHLY=${BACKUP_RETENTION_MONTHLY:-6}
+    volumes:
+      - ./deploy/backup/pg-backup.sh:/usr/local/bin/pg-backup.sh:ro
+      # Deliberately a named volume, NOT a bind mount into the repo: a
+      # backup written into the source tree would end up in the build
+      # context and, one careless `git add -f` later, in Git.
+      #
+      # This volume is on the same host as the database, which is NOT
+      # sufficient on its own — see LAUNCH_CHECKLIST Phase 5. Replicate it
+      # off-host (restic/rclone to object storage) and only then is the
+      # off-host requirement met.
+      - backup_data:/backups
+    entrypoint: ["/bin/sh", "/usr/local/bin/pg-backup.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  caddy_data:
+  caddy_config:
+  alertmanager_data:
+  backup_data:

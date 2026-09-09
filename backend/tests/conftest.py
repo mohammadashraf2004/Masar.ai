@@ -103,6 +103,43 @@ def _reset_rate_limiter():
     yield
 
 
+def verify_user(db: Session, user_id: int) -> None:
+    """Mark a registered account's email as verified.
+
+    Registration deliberately leaves `is_verified` False, and every
+    credit-spending path now refuses an unverified account (see
+    app.core.authz and wallet_service.deduct_credits). Tests that are about
+    something *else* — what a hint costs, whether a refund lands, whether a
+    rate limit holds — would otherwise all fail on the verification gate
+    instead of exercising what they are named for.
+
+    Tests that are about the gate itself must NOT call this; see
+    test_email_verification_gate.py.
+    """
+    from app.models.user import User
+
+    db.query(User).filter(User.id == user_id).update({"is_verified": True})
+    db.commit()
+
+
+def verify_registered(client, user_id: int) -> None:
+    """verify_user() for the many `_register(client)` helpers that never
+    took a `db` handle.
+
+    Pulls the *same* Session the request just used back out of the app's
+    dependency overrides, rather than opening a second one. That matters:
+    a second session's commit would not be reflected in this session's
+    identity map, so the next request's get_current_user could read a
+    stale is_verified=False off the cached User object and reject a user
+    the database says is verified.
+    """
+    from app.db.session import get_db
+
+    override = client.app.dependency_overrides[get_db]
+    session = next(override())
+    verify_user(session, user_id)
+
+
 @pytest.fixture()
 def db() -> Session:
     session = SessionLocal()

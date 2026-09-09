@@ -18,6 +18,7 @@ import json
 
 from app.db.session import get_db
 from app.core.limiter import limiter
+from app.core.authz import require_verified_user
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.challenge import ChallengeProject, ChallengeAttempt, ChallengeStatus
@@ -377,12 +378,18 @@ def download_dataset(
 
 
 @router.post("/{slug}/submit", response_model=SubmissionResult)
+# LLM-backed, but the enrolment fee already paid for this grading run, so
+# there is no deduct_credits() call here to carry the email-verification
+# gate. Attached explicitly instead. In practice an unverified user cannot
+# reach this anyway — enrolling is metered and would already have been
+# refused — but relying on that leaves the guard one refactor away from
+# disappearing, and this is a provider call.
 @limiter.limit("10/hour")
 def submit_solution(
     request: Request,
     slug: str,
     payload: SubmitSolutionRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_user),
     db: Session = Depends(get_db),
 ):
     ch = db.query(ChallengeProject).filter(ChallengeProject.slug == slug).first()

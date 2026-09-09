@@ -1,7 +1,7 @@
 """
 backend/app/models/challenge.py
 """
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum, Text, JSON
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum, Text, JSON, Index, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -91,6 +91,21 @@ class ChallengeAttempt(Base):
 class ExamPayment(Base):
     """EGP-only payment record for certification exam access."""
     __tablename__ = "exam_payments"
+    __table_args__ = (
+        # Lookup index for the submit-path reference checks.
+        Index("ix_exam_payments_ref_status", "payment_ref", "status"),
+        # One CONFIRMED payment per reference — the invariant that stops two
+        # people getting exam access from a single real payment. Partial, so
+        # competing *pending* claims stay legal: enforcing uniqueness over
+        # pending rows is what previously let a reference be squatted away
+        # from the person who actually paid. See migration 008.
+        Index(
+            "uq_exam_payments_confirmed_ref",
+            "payment_ref",
+            unique=True,
+            postgresql_where=text("status = 'confirmed'"),
+        ),
+    )
 
     id               = Column(Integer, primary_key=True, index=True)
     user_id          = Column(Integer, ForeignKey("users.id"), nullable=False)

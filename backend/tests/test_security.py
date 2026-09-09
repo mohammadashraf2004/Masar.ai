@@ -21,6 +21,7 @@ from app.core.security import (
     create_access_token, get_password_hash, normalize_email, verify_password,
 )
 from app.models.user import User, UserRole
+from tests.conftest import verify_user
 
 STRONG_PASSWORD = "correct-horse-battery-staple-7"
 
@@ -1091,6 +1092,11 @@ def _boot_with(**env_overrides):
         # that needs updating) rather than as a mystery in the checks that
         # assert a *specific* misconfiguration is rejected.
         "METRICS_TOKEN": secrets.token_hex(16),
+        # Credit-spending now requires a verified email address, and
+        # resend_service fails soft when unconfigured — so without a mail
+        # provider every account would be permanently unable to spend.
+        # Required in production for that reason; see config.py.
+        "RESEND_API_KEY": "re_test_key_not_real",
         "DATABASE_URL": "postgresql://appuser:realpw@db.internal:5432/app",
         "FRONTEND_URL": "https://app.example.com",
         "EXTRA_CORS_ORIGINS": "",
@@ -1115,6 +1121,17 @@ def test_production_refuses_to_start_with_proxy_count_but_no_proxy_allowlist():
     code, err = _boot_with(REDIS_URL="redis://localhost:6379/0", TRUSTED_PROXY_COUNT="1")
     assert code != 0, "booted trusting X-Forwarded-For from any peer"
     assert "TRUSTED_PROXY_IPS" in err
+
+
+def test_production_refuses_to_start_without_an_email_provider():
+    """Billable features are gated on a verified email address, and
+    resend_service returns False rather than raising when RESEND_API_KEY is
+    absent. Booting without it would hand every new user an account that
+    can never verify and therefore can never spend a credit, with only a
+    log warning to show for it."""
+    code, err = _boot_with(REDIS_URL="redis://localhost:6379/0", RESEND_API_KEY="")
+    assert code != 0, "booted in production with no way to send verification email"
+    assert "RESEND_API_KEY" in err
 
 
 def test_production_starts_with_a_complete_configuration():
@@ -1303,6 +1320,7 @@ def test_spending_draws_down_promo_credits_first(client, db, monkeypatch):
 
     _promo_open(monkeypatch, credits=500)
     _, _, user_id = _register(client)
+    verify_user(db, user_id)   # deduct_credits refuses unverified accounts
     add_credits(user_id, 200, db, description="purchased")
 
     deduct_credits(user_id, "mentor_chat", db)   # costs 2
@@ -1321,6 +1339,7 @@ def test_expired_promo_credits_are_not_spendable(client, db, monkeypatch):
 
     _promo_open(monkeypatch, credits=500)
     _, _, user_id = _register(client)
+    verify_user(db, user_id)   # deduct_credits refuses unverified accounts
     wallet = db.query(UserWallet).filter(UserWallet.user_id == user_id).one()
     wallet.promo_expires_at = datetime.now(timezone.utc) - timedelta(days=1)
     db.commit()

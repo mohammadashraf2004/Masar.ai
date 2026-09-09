@@ -17,6 +17,7 @@ from app.views.learning import (
     ProjectHintRequest, ProjectHintResponse,
     TopicResponse,
 )
+from app.core.authz import require_verified_user
 from app.core.security import get_current_user
 from app.services.content.track_availability import require_track_available
 from app.core.limiter import limiter
@@ -327,16 +328,20 @@ def my_quiz_attempts(
 # ─── Project Submission ──────────────────────────────────────────────────
 
 @router.post("/projects/{project_id}/submit", response_model=ProjectSubmissionResponse)
-# The only LLM-backed endpoint in the app that isn't metered by the credit
-# wallet, so a rate limit is the sole thing standing between one account
-# and unbounded inference spend. See the security report — metering this
-# through deduct_credits() the way /mentor/* does is the durable fix.
+# LLM-backed but NOT metered by the credit wallet, so the two controls that
+# bound inference spend here are both on this decorator stack: the rate
+# limit, and require_verified_user. The verification gate lives in
+# deduct_credits() for every metered endpoint; this one never calls it, so
+# the dependency has to be attached explicitly or an unverified throwaway
+# account would reach the provider for free. Metering this through
+# deduct_credits() the way /mentor/* does remains the durable fix, but it
+# changes what the feature costs a student and is a pricing decision.
 @limiter.limit("10/hour")
 def submit_project(
     request: Request,
     project_id: int,
     payload: ProjectSubmit,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_user),
     db: Session = Depends(get_db),
 ):
     project = db.query(Project).filter(Project.id == project_id).first()

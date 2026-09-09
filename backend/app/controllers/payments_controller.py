@@ -33,12 +33,12 @@ from app.models.wallet import UserWallet, WalletTransaction, TransactionStatus, 
 from app.models.challenge import ExamPayment
 from app.models.exam import Exam
 from app.core.security import get_current_user
-from app.services.wallet.wallet_service import get_or_create_wallet
+from app.services.wallet.wallet_service import confirm_pending_topup, get_or_create_wallet
 from app.services.payments import paymob_service
 
-router = APIRouter()
+from app.controllers.exam_payment_controller import EXAM_PRICE_EGP
 
-EXAM_PRICE_EGP = 150.0  # kept in sync with exam_payment_controller.EXAM_PRICE_EGP
+router = APIRouter()
 
 
 class InitPaymentRequest(BaseModel):
@@ -233,15 +233,16 @@ async def paymob_webhook(request: Request, db: Session = Depends(get_db)):
         .first()
     )
     if tx:
-        wallet = db.query(UserWallet).filter(UserWallet.id == tx.wallet_id).with_for_update().one()
         if success:
-            wallet.credit_balance += tx.credits
-            wallet.lifetime_purchased += tx.credits
-            tx.status = TransactionStatus.confirmed
-            tx.balance_after = wallet.credit_balance
+            # One authoritative payout path, shared with the admin/manual
+            # confirmation in wallet_controller. It takes the wallet row
+            # lock itself and is a no-op on an already-confirmed row, so a
+            # Paymob webhook retry cannot pay the same top-up out twice.
+            wallet = confirm_pending_topup(tx, db)
         else:
+            wallet = db.query(UserWallet).filter(UserWallet.id == tx.wallet_id).one()
             tx.status = TransactionStatus.failed
-        db.commit()
+            db.commit()
         security_log.payment_event(
             kind="wallet_topup", ref=merchant_order_id, success=success, user_id=wallet.user_id,
         )

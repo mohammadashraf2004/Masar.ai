@@ -16,6 +16,14 @@ counter_*.db
 gauge_livesum_*.db
 histogram_*.db
 
+# A Windows-absolute PROMETHEUS_MULTIPROC_DIR reaching a POSIX-style path
+# join gets treated as RELATIVE, which once created a literal `backend/C:/…`
+# tree inside the repo. The metric files themselves already match the
+# patterns above, but the stray directory could carry anything, so ignore
+# the whole shape. Nothing legitimate is ever named this.
+backend/C:/
+**/[A-Za-z]:/
+
 # Python bytecode — was tracked by mistake; removed from the index
 # (files kept on disk) so runs stop dirtying the working tree.
 __pycache__/

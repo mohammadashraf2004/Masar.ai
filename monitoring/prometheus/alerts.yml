@@ -1,9 +1,13 @@
 # Alert rules — the things worth being woken up for at launch.
 #
-# There is no Alertmanager wired up: these fire in Prometheus' own Alerts
-# page and show on the Grafana dashboard. Point them at Alertmanager (or
-# Grafana alerting) with real routes before you rely on being told rather
-# than looking.
+# Delivery: prometheus.yml now has an `alerting:` block pointing at
+# alertmanager:9093, and docker-compose.prod.yml runs that Alertmanager with
+# the routing in deploy/alertmanager.yml. A firing alert therefore reaches
+# whatever ALERT_RECEIVER_URL points at — set it, or alerts still only
+# appear on Prometheus' own Alerts page and nobody is told.
+#
+# A base/dev run has no Alertmanager service; Prometheus logs a notifier
+# warning and everything else works normally.
 #
 # Deliberately few. An alert that fires on a normal Tuesday teaches everyone
 # to ignore the channel, and at launch the signal-to-noise ratio matters more
@@ -113,6 +117,31 @@ groups:
           severity: warning
         annotations:
           summary: "More than half of login attempts are failing"
+
+  - name: backups
+    rules:
+      - alert: DatabaseBackupStale
+        # Written so it produces NO samples until the metric actually
+        # exists — same reasoning as RedisMemoryHigh below. A backup alert
+        # that fires on a stack with no backup collector configured is
+        # noise, and noise is how alert channels get muted.
+        #
+        # The metric comes from deploy/backup/pg-backup.sh, which writes it
+        # only after a dump has been taken, encrypted AND verified by
+        # decrypting it and reading the archive listing. So a stale value
+        # means "no usable backup", not merely "the job did not run".
+        expr: |
+          time() - masar_backup_last_success_timestamp_seconds > 172800
+        for: 30m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No verified database backup in over 48 hours"
+          description: >-
+            The last backup that was successfully written, encrypted and
+            verified was {{ $value | humanizeDuration }} ago. Check the
+            db-backup container's logs — a failing backup is silent until
+            the day you need it.
 
   - name: infrastructure
     rules:

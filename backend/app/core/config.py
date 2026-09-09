@@ -262,6 +262,20 @@ if settings.is_production:
             "METRICS_TOKEN must be set when METRICS_ENABLED is true, "
             "otherwise /metrics is public"
         )
+    if not settings.RESEND_API_KEY:
+        # Newly load-bearing. Billable features now require a verified
+        # email address (app.core.authz + wallet_service.deduct_credits),
+        # and resend_service fails SOFT when unconfigured — it logs and
+        # returns False rather than raising. Those two together mean a
+        # production deploy without an email provider would hand every new
+        # user an account that can never verify and therefore can never
+        # spend a credit, with nothing in the logs but a warning. Fail at
+        # boot instead of discovering it from support tickets.
+        _problems.append(
+            "RESEND_API_KEY must be set in production: credit-spending "
+            "features require a verified email address, and without an "
+            "email provider no user can ever verify"
+        )
     if settings.TRUSTED_PROXY_COUNT < 0:
         _problems.append("TRUSTED_PROXY_COUNT cannot be negative")
     if settings.TRUSTED_PROXY_COUNT > 0 and not settings.trusted_proxy_networks:

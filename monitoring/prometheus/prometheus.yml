@@ -15,6 +15,16 @@ global:
   external_labels:
     platform: careertrack
 
+# Where firing alerts are DELIVERED. Without this block Prometheus
+# evaluates every rule correctly and then tells nobody — the alert appears
+# on its own /alerts page and nowhere else. Alertmanager is defined in
+# docker-compose.prod.yml; in a base/dev run the target simply does not
+# resolve and Prometheus logs a notifier warning, which is harmless.
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
 rule_files:
   - /etc/prometheus/alerts.yml
 

@@ -1,0 +1,58 @@
+# VERIFICATION ONLY — never deploy this file.
+#
+# A local HTTP sink that stands in for the team's real alert channel
+# (Slack / Discord / email) so the Prometheus -> Alertmanager -> receiver
+# chain can be exercised end to end without a webhook credential.
+#
+# It proves everything up to the last hop: that Alertmanager accepts the
+# alert, applies routing and grouping, and successfully POSTs a payload to
+# the configured receiver. The final hop — a human seeing it in a channel —
+# still has to be tested once with the real ALERT_RECEIVER_URL, because a
+# sink that always returns 200 cannot tell you that Slack was going to
+# reject your webhook.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#     -f deploy/docker-compose.alerttest.yml up -d
+
+services:
+  alert-sink:
+    image: python:3.11-slim
+    restart: unless-stopped
+    expose:
+      - "8080"
+    command:
+      - python
+      - -c
+      - |
+        import http.server, json, datetime, sys
+
+        class H(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):
+                raw = self.rfile.read(int(self.headers.get("content-length", 0)))
+                try:
+                    body = json.loads(raw)
+                except Exception:
+                    body = {"unparsed": raw.decode("utf-8", "replace")}
+                ts = datetime.datetime.now(datetime.timezone.utc).isoformat()
+                for a in body.get("alerts", [{}]):
+                    print(
+                        "ALERT_RECEIVED %s status=%s alertname=%s severity=%s job=%s summary=%s"
+                        % (
+                            ts,
+                            body.get("status"),
+                            a.get("labels", {}).get("alertname"),
+                            a.get("labels", {}).get("severity"),
+                            a.get("labels", {}).get("job"),
+                            a.get("annotations", {}).get("summary"),
+                        ),
+                        flush=True,
+                    )
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"ok")
+
+            def log_message(self, *a):
+                pass
+
+        print("alert-sink listening on :8080", flush=True)
+        http.server.HTTPServer(("0.0.0.0", 8080), H).serve_forever()

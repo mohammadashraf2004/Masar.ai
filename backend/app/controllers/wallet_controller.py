@@ -17,7 +17,8 @@ from app.core.security import get_current_user
 from app.models.user import User
 from app.models.wallet import UserWallet, WalletTransaction, CreditPackage, PaymentMethod
 from app.services.wallet.wallet_service import (
-    get_or_create_wallet, add_credits, expire_promo_credits_if_due, CREDIT_COSTS,
+    get_or_create_wallet, add_credits, confirm_pending_topup,
+    expire_promo_credits_if_due, CREDIT_COSTS,
 )
 
 router = APIRouter()
@@ -220,13 +221,10 @@ def confirm_payment(
     if not tx:
         raise HTTPException(status_code=404, detail="Pending transaction not found")
 
-    wallet = db.query(UserWallet).filter(UserWallet.id == tx.wallet_id).with_for_update().one()
-    wallet.credit_balance     += tx.credits
-    wallet.lifetime_purchased += tx.credits
-    tx.status = "confirmed"
-    tx.balance_after = wallet.credit_balance
-
-    db.commit()
+    # Same authoritative payout path as the Paymob webhook — see
+    # wallet_service.confirm_pending_topup. It takes the wallet row lock
+    # and is idempotent on a row that is no longer pending.
+    wallet = confirm_pending_topup(tx, db)
     security_log.admin_action(
         admin_id=current_user.id, action="wallet.confirm_payment", target=payment_ref,
     )

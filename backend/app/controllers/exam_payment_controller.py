@@ -6,7 +6,7 @@ Register in main.py:
     from app.controllers.exam_payment_controller import router as exam_payment_router
     app.include_router(exam_payment_router, prefix="/api/v1/exam-payments", tags=["Exam Payments"])
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import Optional
 from pydantic import BaseModel, Field
@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from app.db.session import get_db
 from app.core import security_log
 from app.core.authz import require_admin
+from app.core.limiter import limiter
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.challenge import ExamPayment
@@ -22,7 +23,12 @@ from app.models.exam import Exam
 
 router = APIRouter()
 
-# EGP price per exam (can be moved to DB later)
+# EGP price per exam (can be moved to DB later).
+#
+# THE authoritative value. payments_controller imports this rather than
+# keeping its own copy — the two were previously separate literals held in
+# sync by a comment, which is one edit away from charging a different
+# amount through Paymob than the manual-reference flow quotes.
 EXAM_PRICE_EGP = 150.0
 
 PAYMENT_LABELS = {
@@ -72,7 +78,13 @@ def get_payment_status(
 
 
 @router.post("/submit")
+# Submitting a reference is cheap for the caller and creates a row keyed on
+# an attacker-chosen string, so it is worth a tighter limit than the
+# 120/minute default ceiling: it bounds how fast someone can spray
+# candidate references at the adjudication queue.
+@limiter.limit("10/minute")
 def submit_exam_payment(
+    request: Request,
     payload: ExamPaymentRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -94,10 +106,40 @@ def submit_exam_payment(
     if existing:
         raise HTTPException(status_code=400, detail="You already have confirmed payment for this exam")
 
-    # Check duplicate ref
-    dup = db.query(ExamPayment).filter(ExamPayment.payment_ref == payload.payment_ref).first()
-    if dup:
-        raise HTTPException(status_code=400, detail="This payment reference has already been submitted")
+    # ── Reference reuse ───────────────────────────────────────────────────
+    # Deliberately NOT "has anyone ever typed this string". `payment_ref`
+    # is supplied by the user after paying offline, so rejecting every
+    # reference that already exists in any state let anybody permanently
+    # squat a reference and lock its real payer out of the exam they had
+    # already paid for. See migration 008.
+    #
+    # What genuinely has to be unique is a CONFIRMED payment: one real
+    # payment, one exam access. A pending claim by somebody else is only
+    # an unverified assertion, and must not block the actual payer from
+    # making their own claim — the admin adjudicates between them against
+    # the provider's records.
+    confirmed_elsewhere = db.query(ExamPayment.id).filter(
+        ExamPayment.payment_ref == payload.payment_ref,
+        ExamPayment.status == "confirmed",
+    ).first()
+    if confirmed_elsewhere:
+        raise HTTPException(
+            status_code=400,
+            detail="This payment reference has already been used to confirm an exam payment",
+        )
+
+    # Idempotency for the honest retry: a user double-submitting their own
+    # reference (double-clicked the button, lost the response) should get a
+    # clear answer rather than a second pending row for the same payment.
+    own = db.query(ExamPayment).filter(
+        ExamPayment.payment_ref == payload.payment_ref,
+        ExamPayment.user_id == current_user.id,
+    ).first()
+    if own:
+        raise HTTPException(
+            status_code=400,
+            detail="You have already submitted this payment reference; it is awaiting confirmation",
+        )
 
     payment = ExamPayment(
         user_id=current_user.id,
@@ -125,6 +167,15 @@ def submit_exam_payment(
 @router.post("/admin/confirm/{payment_ref}")
 def confirm_exam_payment(
     payment_ref: str,
+    payment_id: Optional[int] = Query(
+        None,
+        gt=0,
+        description=(
+            "Which pending claim to confirm, when more than one user has "
+            "claimed this reference. Ids come from the 409 body or from "
+            "/admin/pending."
+        ),
+    ),
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -133,13 +184,68 @@ def confirm_exam_payment(
     This is the only thing standing between "submitted a reference
     number" and "may sit a paid certification exam", so it is both
     admin-gated and audit-logged.
+
+    Pending claims on a reference are no longer unique (see the submit
+    handler and migration 008: enforcing that was what let a reference be
+    squatted). So this can find more than one row, and picking one
+    arbitrarily would be worse than the DoS it replaced — a squatter who
+    claimed first would be handed the exam access the real payer bought.
+    Contested references therefore stop here with a 409 listing the
+    candidates, and the admin re-calls with ?payment_id= once they have
+    checked the provider's records. The single-claim case — effectively
+    all of them — is unchanged.
     """
-    payment = db.query(ExamPayment).filter(
+    q = db.query(ExamPayment).filter(
         ExamPayment.payment_ref == payment_ref,
         ExamPayment.status == "pending",
-    ).first()
-    if not payment:
+    )
+    if payment_id is not None:
+        q = q.filter(ExamPayment.id == payment_id)
+
+    # Locked because confirming is a read-then-write, and two admins
+    # working the same queue must not both pass the check below.
+    candidates = q.order_by(ExamPayment.created_at.asc()).with_for_update().all()
+
+    if not candidates:
         raise HTTPException(status_code=404, detail="Pending payment not found")
+
+    if len(candidates) > 1:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": "ambiguous_payment_reference",
+                "message": (
+                    "More than one user has claimed this payment reference. "
+                    "Check the provider's records for who actually paid, then "
+                    "re-send this request with ?payment_id=<id>."
+                ),
+                "candidates": [
+                    {
+                        "payment_id": p.id,
+                        "user_id": p.user_id,
+                        "exam_id": p.exam_id,
+                        "submitted_at": p.created_at.isoformat() if p.created_at else None,
+                    }
+                    for p in candidates
+                ],
+            },
+        )
+
+    payment = candidates[0]
+
+    # The reference may have been confirmed since this claim was filed —
+    # by the other side of a contested pair, or by a concurrent admin. The
+    # partial unique index from migration 008 is the real guarantee; this
+    # check turns what would be a 409 IntegrityError into a clear message.
+    already = db.query(ExamPayment.id).filter(
+        ExamPayment.payment_ref == payment_ref,
+        ExamPayment.status == "confirmed",
+    ).first()
+    if already:
+        raise HTTPException(
+            status_code=409,
+            detail="This payment reference has already been confirmed for another claim",
+        )
 
     payment.status       = "confirmed"
     payment.confirmed_by = "admin"

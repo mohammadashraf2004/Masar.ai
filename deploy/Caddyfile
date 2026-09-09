@@ -1,0 +1,102 @@
+# deploy/Caddyfile
+#
+# The public entry point. Caddy is the ONLY thing that should be reachable
+# from the internet; everything else talks over the Compose network.
+#
+# Caddy is used rather than nginx because it obtains and renews Let's
+# Encrypt certificates by itself with no certbot, no cron, and no renewal
+# hook to forget — the "auto-renewing TLS certificate" line in
+# DEPLOYMENT.md §1 is satisfied by running it, not by extra scripting.
+#
+# It also redirects :80 → :443 automatically for every site defined here,
+# which is the other TLS checklist item.
+#
+# ── X-Forwarded-For ──────────────────────────────────────────────────────
+# Caddy APPENDS the real client IP to X-Forwarded-For (it does not trust or
+# pass through what the client sent). That is exactly the contract
+# app/core/limiter.py expects: with TRUSTED_PROXY_COUNT=1 the API reads the
+# last entry, which is the one Caddy wrote. Set TRUSTED_PROXY_IPS to the
+# Compose subnet so the API only honours the header when the TCP peer is
+# actually this proxy.
+#
+# ── Local verification ───────────────────────────────────────────────────
+# With DOMAIN=localhost, Caddy issues a certificate from its own internal
+# CA instead of talking to Let's Encrypt, so the whole topology — TLS, the
+# :80 redirect, and the fact that :8000/:3000 are not published — can be
+# exercised on a laptop with no domain and no DNS. That is how this file
+# was verified; see LAUNCH_CHECKLIST.md Phase 3.
+
+{
+	# Contact address for Let's Encrypt expiry notices.
+	#
+	# The `:default` suffix is load-bearing, not decoration: a bare
+	# `{$ACME_EMAIL}` with the variable unset expands to nothing and Caddy
+	# refuses to start with "wrong argument count ... for 'email'", which
+	# takes the whole public entry point down. Verified the hard way.
+	#
+	# Production MUST override this with a real address — the placeholder
+	# will be rejected by Let's Encrypt. For local runs the domains are
+	# *.localhost, so Caddy uses its internal CA and never contacts ACME at
+	# all, and the value is unused.
+	email {$ACME_EMAIL:ops@localhost}
+
+	# Caddy's own admin API. Bound to loopback inside the container and
+	# never published to the host.
+	admin localhost:2019
+}
+
+# ── Frontend ────────────────────────────────────────────────────────────
+{$DOMAIN} {
+	encode zstd gzip
+
+	reverse_proxy frontend:3000 {
+		header_up X-Real-IP {remote_host}
+	}
+
+	# The frontend sets its own CSP/HSTS/etc in next.config.js. Nothing is
+	# added here so there is exactly one place those headers are defined.
+	# The one thing worth removing is the upstream server banner.
+	header {
+		-Server
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}
+
+# ── API ─────────────────────────────────────────────────────────────────
+{$API_DOMAIN} {
+	encode zstd gzip
+
+	# /metrics is served by the application on the same port as the API and
+	# is already bearer-token gated (a wrong token gets 404, not 401). It
+	# still has no business being reachable from the internet: Prometheus
+	# scrapes it over the Compose network as api:8000. Blocking it here
+	# means a leaked token is not enough on its own.
+	@metrics path /metrics
+	respond @metrics 404
+
+	# Interactive docs are already disabled in production by
+	# APP_ENV=production (docs_url=None in main.py). Blocked here as well so
+	# that an accidental APP_ENV change does not silently publish them.
+	@docs path /docs /docs/* /redoc /redoc/* /openapi.json
+	respond @docs 404
+
+	reverse_proxy api:8000 {
+		header_up X-Real-IP {remote_host}
+	}
+
+	header {
+		# See F-5: uvicorn writes `Server: uvicorn` at the transport layer,
+		# after the application's middleware runs, so the app cannot strip
+		# it. The proxy can, and this is the documented fix.
+		-Server
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

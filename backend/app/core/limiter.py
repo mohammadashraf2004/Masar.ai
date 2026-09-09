@@ -111,9 +111,40 @@ def _storage_uri() -> str:
     return "memory://"
 
 
+# Backstop for every route that does NOT carry an explicit
+# @limiter.limit(...). Before this, an endpoint without a decorator was
+# simply unlimited — which covered every write endpoint in the community,
+# exam, wallet, exam-payment and tool-course controllers, so post/comment
+# spam had no ceiling at all.
+#
+# Two properties of slowapi 0.1.9 decide what this number can safely be,
+# both verified against the installed source rather than assumed:
+#
+#   1. The bucket is per (client, endpoint), not global. __evaluate_limits
+#      scopes each hit to `lim.scope or endpoint`, and the endpoint key is
+#      the view function. So this is "120/minute to each individual route",
+#      not "120/minute across the whole API" — one busy screen cannot
+#      exhaust another screen's budget.
+#   2. Defaults STACK with route decorators rather than being replaced by
+#      them. In the middleware pass _check_request_limit leaves route_limits
+#      empty, so `combined_defaults` is vacuously True and the default is
+#      always appended. The effective limit on a decorated route is
+#      therefore min(default, decorated).
+#
+# (2) is why this is 120 and not something tighter: 120/minute is the
+# loosest explicit limit in the app (the Paymob webhook), so this value
+# leaves every existing deliberate limit exactly as it was. Lowering it
+# would silently tighten that webhook and start dropping payment
+# confirmations under retry bursts.
+#
+# It is a ceiling, not a policy. Anything that needs a real limit should
+# still say so explicitly on the route.
+DEFAULT_LIMITS = ["120/minute"]
+
 limiter = Limiter(
     key_func=client_key,
     storage_uri=_storage_uri(),
+    default_limits=DEFAULT_LIMITS,
     # Fail closed if Redis goes away mid-flight: better to reject a
     # request than to silently stop rate-limiting the login endpoint.
     swallow_errors=False,

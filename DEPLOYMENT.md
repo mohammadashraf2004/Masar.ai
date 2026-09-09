@@ -10,6 +10,13 @@ environment) that is noted — but support is not provisioning.
 
 Status legend: ☐ not done · ☑ done and verified
 
+> **Start here instead:** [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md) turns
+> everything below into an ordered runbook, records what has since been
+> verified (backup/restore round trip, Prometheus scraping and a controlled
+> alert test, production Compose config, a 16-point smoke test) and lists
+> the findings from that pass. This file remains the reference for *why*
+> each requirement exists; the checklist is the sequence to execute.
+
 ---
 
 ## 1. Network topology (blocker B-2)
@@ -51,9 +58,9 @@ Checklist:
 - ☐ **Backend :8000 not reachable from the public internet** — only via
       the proxy. This is load-bearing: see §1.1.
 - ☐ **PostgreSQL :5432 not publicly reachable.** `docker-compose.yml`
-      already declines to publish it (only `docker-compose.override.yml`
-      does, for local development), but a host firewall / security group
-      must enforce it too.
+      already declines to publish it (only the opt-in
+      `docker-compose.dev.yml` overlay does), but a host firewall /
+      security group must enforce it too.
 - ☐ **Redis :6379 not publicly reachable.** Same — `expose:` only.
       Redis has no authentication configured; if it is ever reachable
       off-host, add `requirepass` and use `rediss://`.
@@ -94,6 +101,43 @@ rotate it to defeat the login rate limit and the account lockout.
 - ☐ `NEXT_PUBLIC_API_URL=https://api.<your-domain>/api/v1` — this is a
       **build argument**, baked into the client bundle at build time
       (see `frontend/Dockerfile`). Rebuild the image to change it.
+
+---
+
+## 1.3 The deploy command
+
+Deploy with exactly this, from the repository root:
+
+```bash
+docker compose up -d --build
+```
+
+`docker-compose.yml` is the only Compose file loaded by default and it is
+production-configured: `APP_ENV=production`, Gunicorn with 4 workers, no
+`--reload`, no source bind-mount, Postgres and Redis `expose:`-only.
+
+Local development is a separate, explicitly-named overlay:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+```
+
+- ☐ Confirm before every deploy that no auto-loading override exists on the
+      server. Compose auto-loads any file named `docker-compose.override.yml`
+      / `compose.override.yml` / `compose.override.yaml`; this repository
+      deliberately contains none. Verify with:
+
+      ```bash
+      docker compose config | grep -E 'APP_ENV|--reload|5432:5432'
+      ```
+
+      The output must show `APP_ENV: production` and neither `--reload` nor
+      a published `5432:5432`. This is a real footgun, not a hypothetical:
+      the dev overlay was named `docker-compose.override.yml` until
+      pre-launch, which meant a plain `docker compose up` on a server set
+      `APP_ENV=development` and thereby **disabled every fail-fast guard in
+      §2** — default `SECRET_KEY`, no Redis, public `/docs`, and
+      `http://localhost:3000` accepted as a CORS origin with credentials.
 
 ---
 

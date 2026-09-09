@@ -21,6 +21,7 @@ from app.models.learning import (
 )
 from app.models.wallet import TransactionType, UserWallet, WalletTransaction
 from app.services.wallet.wallet_service import CREDIT_COSTS
+from tests.conftest import verify_registered
 
 STRONG_PASSWORD = "correct-horse-battery-staple-7"
 COST = CREDIT_COSTS["exercise_feedback"]
@@ -42,6 +43,9 @@ def _register(client):
     })
     assert resp.status_code == 201, resp.text
     body = resp.json()
+    # Billable endpoints refuse unverified accounts; these tests are
+    # about credits/refunds/limits, not about the verification gate.
+    verify_registered(client, body["user"]["id"])
     return body["access_token"], body["user"]["id"]
 
 

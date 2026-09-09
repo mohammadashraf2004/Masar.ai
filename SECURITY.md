@@ -306,7 +306,8 @@ limits on `/mentor/*` (6–20/min), `/challenges/{slug}/submit` (10/h),
 `docker-compose.yml` published `5432:5432`, binding Postgres to every
 host interface with a default password of `password`. **Fixed:** the base
 compose file only `expose`s the port on the compose network; the
-port publish moved to `docker-compose.override.yml` (development only).
+port publish moved to `docker-compose.dev.yml` (development only, and
+opt-in — see DEPLOYMENT.md §1.3).
 A `:?required` interpolation was *not* used for the password/secret,
 because Compose interpolates each file before merging — that would break
 `docker compose up` locally. The real production guard is

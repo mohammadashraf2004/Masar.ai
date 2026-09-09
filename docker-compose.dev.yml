@@ -1,14 +1,23 @@
-# Auto-loaded by `docker compose up` alongside docker-compose.yml.
-# Local development only — adds hot-reload and relaxes prod-only requirements
-# (docker-compose.yml's SECRET_KEY requirement, gunicorn multi-worker, etc).
-# For a prod-like run, ignore this file explicitly:
-#   docker compose -f docker-compose.yml up
+# Local development overlay. NOT auto-loaded — must be named explicitly.
+#
+# This file was called docker-compose.override.yml until that was found to be
+# a production footgun: Compose auto-loads `docker-compose.override.yml`, so a
+# plain `docker compose up` on a server silently merged everything below —
+# APP_ENV=development, --reload, a source bind-mount and a published Postgres
+# port. Worst of all, APP_ENV=development switches OFF every fail-fast guard
+# in app/core/config.py, so the stack would boot happily with the default
+# SECRET_KEY, no Redis, public /docs and localhost CORS origins allowed with
+# credentials. Renaming it is what makes `docker compose up -d` production-safe
+# by default.
+#
+# Local development therefore asks for it explicitly:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 services:
   # Development-only: expose Postgres on the host so psql / a GUI client /
   # a natively-run backend can reach it. docker-compose.yml deliberately
-  # does not publish this port, so a prod-like run
-  # (`docker compose -f docker-compose.yml up`) keeps the database off the
-  # host's network interfaces entirely.
+  # does not publish this port, so the default production run
+  # (`docker compose up -d`) keeps the database off the host's network
+  # interfaces entirely.
   db:
     ports:
       - "5432:5432"

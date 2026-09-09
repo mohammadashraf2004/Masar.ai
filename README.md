@@ -55,13 +55,31 @@ Register a new account in the app to get started — new accounts receive starte
 ### Everyday use
 
 ```bash
-docker compose up -d          # start (no rebuild)
+docker compose up -d          # start the PRODUCTION-safe stack (no rebuild)
 docker compose logs -f api    # tail backend logs
 docker compose logs -f frontend
 docker compose down           # stop (keeps the postgres_data volume)
 ```
 
-The backend runs with `--reload` in local dev (auto-loaded via `docker-compose.override.yml`), and `backend/` is volume-mounted — edit backend code and it picks it up live, no rebuild needed. The frontend does **not** hot-reload (it always runs the production standalone build) — after a frontend change, run `docker compose up -d --build frontend`.
+`docker compose up -d` runs the **production** configuration: Gunicorn with 4
+workers, no reload, no source mount, and Postgres unpublished. Local
+development is an explicit opt-in overlay:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+```
+
+That overlay is what adds `--reload`, the `backend/` volume mount and a
+published Postgres port. It is **not** auto-loaded — it used to be called
+`docker-compose.override.yml`, which meant a plain `docker compose up` on a
+server silently switched the app into development mode and disabled every
+production fail-fast guard. Naming it `docker-compose.dev.yml` is what makes
+the default safe.
+
+With the overlay on, edit backend code and it picks it up live, no rebuild
+needed. The frontend does **not** hot-reload (it always runs the production
+standalone build) — after a frontend change, run
+`docker compose up -d --build frontend`.
 
 ---
 
@@ -171,7 +189,7 @@ Full reference lives in `backend/.env.example` and `frontend/.env.local.example`
 │   └── .env.local.example
 │
 ├── docker-compose.yml           # Base stack (Postgres + API + frontend)
-├── docker-compose.override.yml  # Auto-loaded for local dev (hot-reload backend)
+├── docker-compose.dev.yml       # Local dev overlay, opt-in only (hot-reload backend)
 └── README.md
 ```
 
@@ -292,17 +310,22 @@ they go red when an authorization check or a validator is removed. See
 
 ---
 
-## Production-style Run
+## Production Run
 
-`docker-compose.override.yml` is auto-loaded by `docker compose up` and is dev-only (hot-reload, relaxed config checks). To run the base stack as it would run in production (Gunicorn, no reload):
+`docker compose up -d` **is** the production run. `docker-compose.yml` is the
+only file Compose loads by default, so nothing has to be excluded to get a
+safe stack:
 
 ```bash
-docker compose -f docker-compose.yml up -d --build
+docker compose up -d --build
 ```
+
+The dev overlay (`docker-compose.dev.yml`) is merged only when you name it
+explicitly, so it can never leak into a deploy.
 
 This enforces the production safety checks — you'll need a real `SECRET_KEY` (32+ random chars, e.g. `openssl rand -hex 32`), a non-default `DATABASE_URL`, and an `https://` `FRONTEND_URL`, or the API refuses to boot. Note that "production" here means *any* `APP_ENV` that isn't `development`/`dev`/`local`/`test`/`testing` — a typo fails safe rather than silently disabling the checks.
 
-The base file also does **not** publish Postgres on the host (only the dev override does), so the database is reachable on the Compose network and nowhere else.
+The base file also does **not** publish Postgres on the host (only the opt-in `docker-compose.dev.yml` overlay does), so the database is reachable on the Compose network and nowhere else.
 
 ---
 

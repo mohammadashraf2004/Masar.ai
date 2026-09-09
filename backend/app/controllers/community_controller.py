@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, desc
 from typing import Optional, List
@@ -11,6 +11,7 @@ from app.views.community import (
     CommentCreate, CommentResponse,
     FollowResponse, LeaderboardResponse, LeaderboardEntry, AuthorMini,
 )
+from app.core.limiter import limiter
 from app.core.security import get_current_user
 
 router = APIRouter(prefix="/community", tags=["Community"])
@@ -75,7 +76,12 @@ def get_feed(
 # ─── Create post ─────────────────────────────────────────────────────────────
 
 @router.post("/posts", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
+# The default 120/minute ceiling in app.core.limiter stops this being
+# literally unbounded, but 120 posts a minute is not spam protection. A
+# human writing a post is nowhere near this; a script flooding the feed is.
+@limiter.limit("10/minute")
 def create_post(
+    request: Request,
     payload: PostCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -193,7 +199,11 @@ def toggle_like(
 # ─── Comments ────────────────────────────────────────────────────────────────
 
 @router.post("/posts/{post_id}/comments", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
+# Looser than posting — commenting is a faster, more conversational action
+# — but still far below the 120/minute default ceiling.
+@limiter.limit("30/minute")
 def add_comment(
+    request: Request,
     post_id: int,
     payload: CommentCreate,
     current_user: User = Depends(get_current_user),

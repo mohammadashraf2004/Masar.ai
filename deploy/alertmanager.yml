@@ -1,0 +1,77 @@
+# deploy/alertmanager.yml
+#
+# Template, not the live config. docker-compose.prod.yml substitutes
+# __ALERT_RECEIVER_URL__ from $ALERT_RECEIVER_URL at container start, so the
+# webhook URL — which is itself a credential — never sits in Git. Same
+# pattern the base compose file already uses for METRICS_TOKEN.
+#
+# Prometheus decides an alert is firing. Alertmanager is what turns that
+# into something a person sees: it groups, deduplicates, silences, and
+# routes. Without it, `ServiceDown` fires into the Prometheus web UI and
+# nobody is told.
+#
+# ── Choosing a receiver ─────────────────────────────────────────────────
+# `webhook_configs` is used below because it works with Slack and Discord
+# incoming webhooks and with any HTTP sink, so a team can start receiving
+# alerts by setting one environment variable and nothing else.
+#
+#   Slack:   https://hooks.slack.com/services/T000/B000/XXXX
+#   Discord: https://discord.com/api/webhooks/000/XXXX   (append /slack)
+#
+# For native Slack formatting, replace the webhook_configs block with
+# slack_configs and set `slack_api_url_file`. For email, uncomment the
+# email_configs block and provide SMTP settings. All three are equally
+# valid — the launch requirement is that a human is actually reached.
+
+global:
+  resolve_timeout: 5m
+
+route:
+  # Group by alert name and job so a Postgres outage that trips three rules
+  # arrives as one notification thread rather than three pages.
+  group_by: ["alertname", "job"]
+  # Wait briefly before sending the first notification for a new group, so
+  # related alerts that fire within seconds of each other batch together.
+  group_wait: 30s
+  # How long before sending an update about new alerts added to a group.
+  group_interval: 5m
+  # How long before re-sending a notification that is still firing. Four
+  # hours is deliberately not shorter: a re-notify every few minutes for an
+  # ongoing incident is how people learn to mute the channel.
+  repeat_interval: 4h
+  receiver: default
+
+  routes:
+    # Critical alerts skip the batching delay. ServiceDown, HighServerErrorRate
+    # and LLMErrorRate all mean the product is broken for real users.
+    - matchers:
+        - severity = "critical"
+      receiver: default
+      group_wait: 10s
+      repeat_interval: 1h
+
+receivers:
+  - name: default
+    webhook_configs:
+      - url: "__ALERT_RECEIVER_URL__"
+        send_resolved: true
+
+    # ── Email alternative ───────────────────────────────────────────────
+    # email_configs:
+    #   - to: "oncall@example.com"
+    #     from: "alerts@example.com"
+    #     smarthost: "smtp.example.com:587"
+    #     auth_username: "alerts@example.com"
+    #     auth_password_file: /run/secrets/smtp_password
+    #     send_resolved: true
+
+inhibit_rules:
+  # When a target is down, every other alert about that same job is a
+  # consequence of it, not independent news. Suppress the noise so the page
+  # says "redis is down", not "redis is down AND redis memory is unknown AND
+  # latency is up".
+  - source_matchers:
+      - alertname = "ServiceDown"
+    target_matchers:
+      - severity =~ "warning|critical"
+    equal: ["job"]

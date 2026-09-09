@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       # Compose interpolates each file independently and BEFORE merging,
       # so a `:?required` here would break plain `docker compose up` in
-      # development (the override file can't satisfy it). The real
+      # development (the dev overlay can't satisfy it). The real
       # production guard is app/core/config.py, which refuses to boot with
       # APP_ENV=production while DATABASE_URL still carries these dev
       # credentials. Set POSTGRES_PASSWORD in the environment before any
@@ -21,8 +21,9 @@ services:
     # is directly reachable from the internet, protected only by the
     # POSTGRES_PASSWORD (which defaults to "password"). The api service
     # reaches it over the compose network as `db:5432` and needs no
-    # published port at all. docker-compose.override.yml publishes it for
-    # local development only.
+    # published port at all. docker-compose.dev.yml publishes it for local
+    # development, and is only merged when named explicitly:
+    #   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
     expose:
       - "5432"
     healthcheck:

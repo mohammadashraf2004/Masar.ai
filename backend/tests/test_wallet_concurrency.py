@@ -20,6 +20,9 @@ def test_concurrent_deducts_never_go_negative(db):
         email=f"race-{uuid.uuid4().hex[:12]}@example.com",
         full_name="Race Test",
         hashed_password=get_password_hash("x"),
+        # deduct_credits refuses unverified accounts; this test is about the
+        # row lock, not the verification gate.
+        is_verified=True,
     )
     setup.add(user)
     setup.commit()

@@ -1,0 +1,70 @@
+# Build context exclusions for the API image.
+#
+# WHY THIS FILE EXISTS — this was a real, verified defect, not hygiene.
+#
+# backend/Dockerfile does `COPY . .`. With no .dockerignore that copied
+# `backend/.env` — a developer's real local environment file — into the
+# image. A pre-launch deployment check found the built image carrying a
+# live OPENAI_API_KEY, plus a SECRET_KEY and a DATABASE_URL, in its
+# layers. Anyone able to pull or inspect the image could read them
+# (`docker history`, or just extracting the layer).
+#
+# It was not merely disclosed, it was in USE. docker-compose.yml passes
+# OPENAI_API_KEY as a bare passthrough, deliberately, so that an unset
+# host variable does not shadow a developer's local config. That means an
+# unset variable in production fell through to the value baked into the
+# image: a production deployment would have quietly run inference on a
+# developer's personal key. A smoke test against a production-configured
+# stack with no OPENAI_API_KEY on the host returned a real model
+# completion, which is how this was found.
+#
+# It also contradicted the project's own rule, DEPLOYMENT.md §2:
+# "Secrets must never appear in source, Git, the Docker image, the
+# frontend bundle, documentation, or logs."
+#
+# frontend/.dockerignore already excluded .env.local; the backend simply
+# never got the equivalent.
+#
+# Local development is unaffected: docker-compose.dev.yml bind-mounts
+# ./backend over /app, so backend/.env is present at runtime from the
+# host. Production now has no fallback, which is the point — a missing
+# key fails visibly instead of silently using the wrong one.
+
+# ─── Secrets ──────────────────────────────────────────────────────────
+# The actual defect. .env.example is a template with no real values and
+# is safe, but there is no reason to ship it either.
+.env
+.env.*
+!.env.example
+
+# ─── Python build artefacts ───────────────────────────────────────────
+# Bytecode compiled on a developer's machine has no business in the
+# image; Python regenerates it. These were tracked by mistake once
+# already (see .gitignore).
+# Note the `**/` prefixes: .dockerignore is NOT .gitignore. Docker matches
+# with Go's filepath rules, where a bare `__pycache__/` matches only the
+# context root, not nested directories. Without `**/` these patterns
+# silently did nothing and the bytecode shipped anyway.
+**/__pycache__
+**/*.py[cod]
+**/*.egg-info
+**/.pytest_cache
+
+# ─── Local runtime state ──────────────────────────────────────────────
+# prometheus_client multiprocess files. In production these live in the
+# tmpfs at PROMETHEUS_MULTIPROC_DIR and are created at boot; a stale one
+# copied in from a developer's machine would be counted as a live worker.
+counter_*.db
+gauge_livesum_*.db
+histogram_*.db
+
+# A Windows-absolute PROMETHEUS_MULTIPROC_DIR hitting a POSIX path join
+# once created a literal `C:/...` tree inside backend/. Same rule as
+# .gitignore — nothing legitimate is ever named this.
+[A-Za-z]:/
+
+# ─── Version control / editor noise ───────────────────────────────────
+.git
+.gitignore
+.venv/
+venv/

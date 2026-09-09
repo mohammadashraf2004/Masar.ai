@@ -229,6 +229,12 @@ app.include_router(admin_analytics_router,        prefix=API_PREFIX)
 if settings.METRICS_ENABLED:
 
     @app.get("/metrics", include_in_schema=False)
+    # Exempt from the default rate limit: Prometheus scrapes this on a fixed
+    # interval and must not be throttled, and — because the limiter fails
+    # closed when Redis is unreachable — a limited /metrics would go dark at
+    # exactly the moment the monitoring is most needed. Access is controlled
+    # by the bearer token below, not by a rate limit.
+    @limiter.exempt
     def metrics(request: Request):
         """Prometheus exposition, aggregated across all gunicorn workers.
 
@@ -251,6 +257,12 @@ if settings.METRICS_ENABLED:
 
 # ─── Health ───────────────────────────────────────────────────────────────────
 @app.get("/health", tags=["Health"])
+# Exempt from the default rate limit for the same reason as /metrics, and
+# one more: the limiter fails closed on an unreachable Redis, so a limited
+# /health would return 500 during a Redis outage instead of reporting the
+# degradation it exists to report — and container orchestrators would kill
+# a process that is otherwise serving fine.
+@limiter.exempt
 def health_check():
     """Deliberately minimal in production. A health endpoint is reachable
     by anyone who can reach the service at all, so it should confirm
@@ -299,6 +311,7 @@ def health_check():
 
 
 @app.get("/", tags=["Root"])
+@limiter.exempt
 def root():
     body = {"message": f"Welcome to {settings.APP_NAME} API", "health": "/health"}
     if not settings.is_production:

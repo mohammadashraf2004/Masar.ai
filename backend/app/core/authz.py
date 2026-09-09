@@ -64,6 +64,66 @@ def require_admin(current_user: User = Depends(get_current_user)) -> User:
     return require_roles(UserRole.admin)(current_user)
 
 
+# ─── Email verification ─────────────────────────────────────────────────────
+# Registration hands back a working access token immediately, which is the
+# right call for signup UX — but `is_verified` was then stored and never
+# read, so a throwaway address could spend the signup credit grant on real
+# inference. With LAUNCH_PROMO_CREDITS=500 and mentor_chat at 2 credits
+# that is 250 provider calls per disposable mailbox, billed to us.
+#
+# The gate is therefore drawn around *billable* work only, and it is
+# enforced in two places rather than pasted into every controller:
+#
+#   1. wallet_service.deduct_credits() — the choke point every credit
+#      spend already funnels through. Enforcing there means a new billable
+#      endpoint is covered the day it is written, with nothing to remember.
+#   2. require_verified_user, below — for the two LLM-backed endpoints that
+#      are NOT metered by the wallet (project submit, challenge submit), so
+#      the guard has to be attached explicitly.
+#
+# Deliberately NOT gated: login, the verification and password-reset flows
+# themselves, profile reads, catalogue browsing, wallet top-ups. Anything a
+# user needs in order to *become* verified, or to pay us, has to keep
+# working while unverified.
+
+EMAIL_VERIFICATION_REQUIRED = "email_verification_required"
+
+
+def email_verification_error() -> HTTPException:
+    """The single canonical response for "verify your email first".
+
+    403, not 401: the credentials are valid and re-authenticating will not
+    help, so a client must not treat this as an expired session and bounce
+    the user to the login screen. The machine-readable `error` field is
+    what the frontend should branch on; `message` is safe to show as-is.
+    """
+    return HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail={
+            "error": EMAIL_VERIFICATION_REQUIRED,
+            "message": (
+                "Please verify your email address to use this feature. "
+                "Check your inbox for the verification link, or request a "
+                "new one from your profile."
+            ),
+        },
+    )
+
+
+def is_email_verified(user: User) -> bool:
+    return bool(getattr(user, "is_verified", False))
+
+
+def require_verified_user(current_user: User = Depends(get_current_user)) -> User:
+    """Dependency for billable endpoints that do NOT go through
+    deduct_credits() — currently the two LLM calls covered by a flat fee
+    rather than per-call metering. Everything metered by the wallet is
+    covered by deduct_credits() itself and must not repeat this check."""
+    if not is_email_verified(current_user):
+        raise email_verification_error()
+    return current_user
+
+
 def is_admin(user: User) -> bool:
     return _role_of(user) is UserRole.admin
 

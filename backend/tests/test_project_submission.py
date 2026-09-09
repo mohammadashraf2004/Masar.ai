@@ -16,6 +16,7 @@ from app.models.learning import CareerTrack, Project, Topic, TrackLevel
 from app.models.progress import ProjectSubmission
 from app.models.wallet import TransactionType, UserWallet, WalletTransaction
 from app.services import code_review_service
+from tests.conftest import verify_registered
 
 STRONG_PASSWORD = "correct-horse-battery-staple-7"
 
@@ -44,6 +45,9 @@ def _register(client):
     })
     assert resp.status_code == 201, resp.text
     body = resp.json()
+    # Billable endpoints refuse unverified accounts; these tests are
+    # about credits/refunds/limits, not about the verification gate.
+    verify_registered(client, body["user"]["id"])
     return body["access_token"], body["user"]["id"]
 
 

@@ -9,8 +9,10 @@ from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.authz import email_verification_error
 from app.core.config import settings
 from app.core.metrics import record_credit_denial, record_credits_spent
+from app.models.user import User
 from app.models.wallet import UserWallet, WalletTransaction, TransactionType, TransactionStatus, PaymentMethod
 
 
@@ -122,6 +124,32 @@ def expire_promo_credits_if_due(wallet: UserWallet, db: Session, commit: bool = 
     return removed
 
 
+def _require_verified_email(user_id: int, db: Session) -> None:
+    """Refuse to spend credits for an account that has not confirmed its
+    email address.
+
+    This lives here, rather than as a dependency on each billable route,
+    because deduct_credits() is the one function every credit spend in the
+    app already passes through. A guard here cannot be forgotten when the
+    next billable endpoint is added, and it is structurally guaranteed to
+    run BEFORE the balance is touched and before the caller reaches its
+    provider call (every billable controller deducts first, then invokes
+    the LLM, then refunds on failure).
+
+    Reads the User row rather than trusting anything on the request: the
+    caller passes a bare user_id, and verification status must reflect the
+    database now, not whenever a token was minted.
+    """
+    verified = db.query(User.is_verified).filter(User.id == user_id).scalar()
+    # `None` means no such user — that is not this function's error to
+    # report, so leave it to the existing flow rather than masking a
+    # missing account as an unverified one.
+    if verified is None:
+        return
+    if not verified:
+        raise email_verification_error()
+
+
 def deduct_credits(
     user_id: int,
     action_type: str,
@@ -154,6 +182,12 @@ def deduct_credits(
     """
     if cost is None:
         cost = CREDIT_COSTS.get(action_type, 1)
+
+    # Before anything is read or written on the wallet: an unverified
+    # account may not spend. Raising here guarantees no balance change and
+    # no provider call, so a rejected request costs the user nothing and
+    # costs us nothing.
+    _require_verified_email(user_id, db)
 
     # Cheap, rare path: make sure a wallet row exists at all.
     get_or_create_wallet(user_id, db)
@@ -273,6 +307,50 @@ def refund_credits(
     db.add(tx)
     db.commit()
     db.refresh(wallet)
+    return wallet
+
+
+def confirm_pending_topup(tx: WalletTransaction, db: Session, *, commit: bool = True) -> UserWallet:
+    """Release the credits recorded on an already-pending top-up row.
+
+    This is the second half of the top-up state machine. `add_credits(...,
+    status="pending")` writes the row without touching the balance; this
+    moves it to confirmed and pays the credits out. It is NOT the same
+    operation as add_credits and cannot be expressed with it — add_credits
+    would insert a *second* transaction row, double-counting the purchase
+    in the wallet history.
+
+    It exists because both confirmation paths — the Paymob webhook and the
+    admin/manual confirmation — had this logic pasted inline, and a credit
+    payout duplicated in two places is a payout that can drift in one of
+    them. Now there is exactly one.
+
+    Locking: takes SELECT ... FOR UPDATE on the wallet row itself rather
+    than trusting the caller to have done it. Both callers already lock the
+    transaction row before getting here, which is what serialises two
+    concurrent confirmations of the SAME payment; this lock is what
+    serialises a confirmation against an unrelated concurrent spend on the
+    same wallet, so that neither read-modify-write loses the other.
+
+    Idempotent by design: a row that is not pending is left exactly as it
+    is and no credits are paid out. Paymob retries webhooks, and a retry
+    that arrives after the first one committed must not top the user up
+    twice. The caller's own `status == pending` filter is the fast path;
+    this is the one that holds under a race.
+    """
+    if tx.status != TransactionStatus.pending:
+        return db.query(UserWallet).filter(UserWallet.id == tx.wallet_id).one()
+
+    wallet = db.query(UserWallet).filter(UserWallet.id == tx.wallet_id).with_for_update().one()
+    wallet.credit_balance     += tx.credits
+    wallet.lifetime_purchased += tx.credits
+    tx.status = TransactionStatus.confirmed
+    tx.balance_after = wallet.credit_balance
+
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     return wallet
 
 

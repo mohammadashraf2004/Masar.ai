@@ -23,6 +23,7 @@ from app.models.wallet import TransactionType, UserWallet, WalletTransaction
 from app.services import roadmap_service
 from app.services.roadmap.roadmap_service import _extract_weeks, generate_roadmap
 from app.services.wallet.wallet_service import CREDIT_COSTS
+from tests.conftest import verify_registered
 
 ROADMAP = "/api/v1/mentor/roadmap"
 STRONG_PASSWORD = "correct-horse-battery-staple-7"
@@ -50,6 +51,9 @@ def _register(client):
     })
     assert resp.status_code == 201, resp.text
     body = resp.json()
+    # Billable endpoints refuse unverified accounts; these tests are
+    # about credits/refunds/limits, not about the verification gate.
+    verify_registered(client, body["user"]["id"])
     return body["access_token"], body["user"]["id"]
 
 

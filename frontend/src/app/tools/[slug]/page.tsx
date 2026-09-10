@@ -91,9 +91,9 @@ export default function ToolCoursePage() {
         }
       />
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden min-w-0">
         {/* ── Topics sidebar (flat — no levels) ── */}
-        <div className="w-72 shrink-0 border-e border-border overflow-y-auto bg-ink py-4">
+        <div className="w-full lg:w-72 shrink-0 max-h-[40vh] lg:max-h-none overflow-y-auto border-b lg:border-b-0 lg:border-e border-border bg-ink py-4">
           {course.topics.length === 0 ? (
             <div className="px-4 py-8 text-center">
               <Layers size={24} className="text-muted mx-auto mb-2" />
@@ -135,11 +135,11 @@ export default function ToolCoursePage() {
 
         {/* ── Topic content ── */}
         {activeTopic ? (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="px-8 py-5 border-b border-border shrink-0">
-              <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0 flex flex-col lg:overflow-hidden">
+            <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-border shrink-0">
+              <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-display font-bold text-white text-lg mb-2">
+                  <h2 className="font-display font-bold text-white text-base sm:text-lg mb-2">
                     {localizedTitle(activeTopic, language)}
                   </h2>
                   <div className="flex items-center gap-2 flex-wrap">
@@ -182,7 +182,7 @@ export default function ToolCoursePage() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-8 py-6">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
               {activeTab === 'lesson' && (
                 <div className="space-y-4 max-w-3xl">
                   {activeTopic.lessons.length === 0 ? (

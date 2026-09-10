@@ -127,7 +127,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                 <p className="text-xs text-ghost truncate max-w-48">{examTitle}</p>
               </div>
             </div>
-            <button onClick={onClose} className="w-7 h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
+            <button onClick={onClose} className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
               <X size={15} />
             </button>
           </div>
@@ -196,7 +196,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                   </Button>
                   <div className="flex gap-2">
                     <input
-                      className="flex-1 bg-surface border border-border rounded-lg px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
+                      className="flex-1 bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
                       placeholder="01XXXXXXXXX"
                       value={walletPhone}
                       onChange={e => setWalletPhone(e.target.value)}
@@ -222,7 +222,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                   <>
                     <div>
                       <p className="text-xs text-ghost uppercase tracking-widest font-medium mb-2">Payment method</p>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {Object.entries(PAYMENT_LABELS).map(([key, label]) => (
                           <button
                             key={key}
@@ -261,7 +261,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                         Payment reference / transaction ID
                       </label>
                       <input
-                        className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
+                        className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
                         placeholder="e.g. FWR-123456789"
                         value={ref}
                         onChange={e => setRef(e.target.value)}

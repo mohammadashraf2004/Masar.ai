@@ -236,7 +236,9 @@ export interface QuizAttempt {
   score: number
   passed: boolean
   feedback: Record<string,
-    | { correct: boolean; your_answer: number | null; correct_answer: number; explanation: string }
+    // No `correct_answer`: the API deliberately withholds the key after a
+    // submission, so a blank attempt can't be used to dump it.
+    | { correct: boolean; your_answer: number | null; explanation: string }
     | { skipped: true; reason: string }
   >
   attempted_at: string

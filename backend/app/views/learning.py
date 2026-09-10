@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List, Any
+from typing import Annotated, Optional, List, Any
 from datetime import datetime
 from app.models.learning import DifficultyLevel
 
@@ -7,6 +7,12 @@ from app.models.learning import DifficultyLevel
 # Stripped from every response that carries questions, because the same
 # `questions` blob is used both to render the quiz and to grade it.
 _ANSWER_KEY_FIELDS = ("correct", "correct_answer", "answer", "explanation", "solution")
+
+# The same, for a graded attempt's per-question feedback blob. Narrower on
+# purpose: inside feedback, "correct" is the boolean "were you right" and
+# "explanation" is the teaching text the post-submission policy
+# deliberately keeps, so neither of those is an answer key here.
+_FEEDBACK_KEY_FIELDS = ("correct_answer", "answer", "solution")
 
 
 def list_or_empty(value):
@@ -222,11 +228,47 @@ class ProgressResponse(BaseModel):
 
 
 # ─── Quiz Attempt ──────────────────────────────────────────
+# One entry of the answers map, typed to what the API contract actually is:
+# a question index as a string key, a chosen option index as a number.
+#
+# `max_length=200` on the map itself only ever bounded the number of KEYS.
+# Both halves of an entry were free-form, so a single request could carry
+# 200 multi-megabyte keys or values — and the map is persisted verbatim on
+# the attempt row, which made this a write-amplification primitive against
+# the database rather than a merely untidy schema.
+#
+# `strict=True` is deliberate: the frontend sends real JSON numbers
+# (Record<string, number>), so nothing legitimate relies on lax coercion,
+# and without it a numeric string would still be accepted here.
+_AnswerKey = Annotated[str, Field(max_length=16)]
+_AnswerIndex = Annotated[int, Field(strict=True, ge=0, le=1000)]
+
+
 class QuizSubmit(BaseModel):
-    # {question_index: selected_option_index}. Bounded: the answers dict
-    # is persisted verbatim on the attempt row, so an unbounded map is a
-    # free write-amplification primitive against the database.
-    answers: dict = Field(..., max_length=200)
+    # {question_index: selected_option_index}, bounded on every axis:
+    # how many entries, how long a key, and what a value may be.
+    answers: dict[_AnswerKey, _AnswerIndex] = Field(..., max_length=200)
+
+
+def _strip_feedback_answer_key(feedback):
+    """Remove the answer key from a stored attempt's feedback blob.
+
+    submit_quiz no longer writes `correct_answer`, so this is not what
+    keeps new attempts clean — it is what keeps rows written BEFORE that
+    change from replaying the key through GET /quizzes/{id}/attempts,
+    without rewriting anyone's history. It also means a future edit to the
+    controller cannot quietly re-open the leak, which is the same reason
+    the question stripping lives on QuizResponse rather than in a handler.
+    """
+    if not isinstance(feedback, dict):
+        return feedback
+    return {
+        key: (
+            {k: v for k, v in entry.items() if k not in _FEEDBACK_KEY_FIELDS}
+            if isinstance(entry, dict) else entry
+        )
+        for key, entry in feedback.items()
+    }
 
 
 class QuizAttemptResponse(BaseModel):
@@ -235,6 +277,11 @@ class QuizAttemptResponse(BaseModel):
     passed: bool
     feedback: dict
     attempted_at: datetime
+
+    @field_validator("feedback", mode="before")
+    @classmethod
+    def _strip_key(cls, feedback):
+        return _strip_feedback_answer_key(feedback)
 
     class Config:
         from_attributes = True

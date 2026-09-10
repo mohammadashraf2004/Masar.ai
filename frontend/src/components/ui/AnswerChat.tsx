@@ -197,7 +197,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
         )}
       </div>
 
-      <div className="max-h-96 overflow-y-auto px-4 py-4 space-y-3">
+      <div className="max-h-[50dvh] sm:max-h-96 overflow-y-auto px-4 py-4 space-y-3">
         {messages.length === 0 && (
           <p className="text-xs text-ghost text-center py-4">
             {isCode
@@ -240,7 +240,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
         <div className="p-3 border-t border-border">
           <div className="flex items-end gap-2">
             <textarea
-              className="flex-1 bg-void border border-border rounded-lg px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none min-h-[44px] max-h-40"
+              className="flex-1 bg-void border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none min-h-[44px] max-h-40"
               placeholder={placeholder ?? 'Write your answer… (⌘/Ctrl+Enter to send)'}
               value={draft}
               onChange={e => setDraft(e.target.value)}

@@ -155,7 +155,7 @@ function SubmitModal({ challenge, onClose, onSuccess }: {
             <div>
               <label className="text-xs font-medium text-soft uppercase tracking-widest block mb-1.5">Solution Code *</label>
               <textarea
-                className="w-full bg-void border border-border rounded-lg text-sky-300 font-mono text-xs p-3 outline-none focus:border-amber/40 resize-none leading-relaxed"
+                className="w-full bg-void border border-border rounded-lg text-sky-300 font-mono text-base md:text-xs p-3 outline-none focus:border-amber/40 resize-none leading-relaxed"
                 rows={14}
                 placeholder="Paste your complete cleaning pipeline code here..."
                 value={code}
@@ -166,7 +166,7 @@ function SubmitModal({ challenge, onClose, onSuccess }: {
             <div>
               <label className="text-xs font-medium text-soft uppercase tracking-widest block mb-1.5">Explanation / Notes</label>
               <textarea
-                className="w-full bg-surface border border-border rounded-lg text-soft text-sm p-3 outline-none focus:border-amber/40 resize-none"
+                className="w-full bg-surface border border-border rounded-lg text-soft text-base md:text-sm p-3 outline-none focus:border-amber/40 resize-none"
                 rows={3}
                 placeholder="Explain your approach, design decisions, and any trade-offs..."
                 value={notes}
@@ -176,7 +176,7 @@ function SubmitModal({ challenge, onClose, onSuccess }: {
             <div>
               <label className="text-xs font-medium text-soft uppercase tracking-widest block mb-1.5">GitHub URL (optional)</label>
               <input
-                className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+                className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
                 placeholder="https://github.com/you/solution"
                 value={github}
                 onChange={e => setGithub(e.target.value)}
@@ -333,7 +333,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
   const canRetry  = ch.is_enrolled && (ch.status === 'failed') && (ch.attempts_used < ch.max_attempts)
 
   return (
-    <div className="flex-1 overflow-y-auto px-8 py-6">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
       {showEnroll && <EnrollModal challenge={ch} onClose={() => setShowEnroll(false)} onSuccess={load} />}
       {showSubmit && <SubmitModal challenge={ch} onClose={() => setShowSubmit(false)} onSuccess={r => { setResult(r); load() }} />}
 
@@ -399,11 +399,11 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
             <p className="text-xs text-ghost leading-relaxed mb-4">{result.overall_feedback}</p>
             <div className="space-y-2">
               {result.feedback?.map((f: any) => (
-                <div key={f.criterion} className="flex items-center gap-3 text-xs">
+                <div key={f.criterion} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                   <span className={`w-2 h-2 rounded-full flex-shrink-0 ${f.passed ? 'bg-emerald' : 'bg-rose'}`} />
-                  <span className="text-soft w-40 flex-shrink-0">{f.criterion}</span>
+                  <span className="text-soft w-auto sm:w-40 sm:flex-shrink-0">{f.criterion}</span>
                   <span className="font-mono text-amber w-12">{f.score}%</span>
-                  <span className="text-ghost flex-1">{f.feedback}</span>
+                  <span className="text-ghost flex-1 min-w-0 basis-full sm:basis-auto">{f.feedback}</span>
                 </div>
               ))}
             </div>
@@ -505,7 +505,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                     Describe what you&apos;re stuck on. The AI will guide you toward the answer without revealing the solution.
                   </p>
                   <textarea
-                    className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none mb-3"
+                    className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none mb-3"
                     rows={3}
                     placeholder="e.g. I'm not sure how to handle Arabic month names in the date column..."
                     value={hintQuestion}
@@ -604,7 +604,7 @@ export default function ChallengesPage() {
         title="Challenge Projects"
         subtitle="Unlock real-world dirty data challenges. Pay with credits, submit your pipeline, get AI-graded feedback."
       />
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
 
         {/* Filter tabs */}
         <div className="flex items-center gap-2 mb-6 flex-wrap">
@@ -632,7 +632,7 @@ export default function ChallengesPage() {
             <p className="text-xs text-ghost">Try a different filter.</p>
           </Card>
         ) : (
-          <div className="grid grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {filtered.map(ch => (
               <ChallengeCard key={ch.id} ch={ch} onSelect={() => setSelectedSlug(ch.slug)} />
             ))}

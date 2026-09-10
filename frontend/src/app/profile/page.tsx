@@ -218,7 +218,7 @@ export default function ProfilePage() {
     <AppShell>
       <PageHeader title="Profile" subtitle="Your account, preferences, and verified engineer scorecard." />
 
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-4xl space-y-6">
 
           {/* ── Top: avatar + grade badge ── */}
@@ -257,7 +257,7 @@ export default function ProfilePage() {
                   ) : null}
                 </div>
               </div>
-              <div className="text-right shrink-0">
+              <div className="text-end shrink-0">
                 <div className="text-3xl font-display font-bold text-amber">
                   {user.overall_readiness_score.toFixed(0)}%
                 </div>
@@ -266,9 +266,9 @@ export default function ProfilePage() {
             </div>
           </Card>
 
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* ── Left: edit form ── */}
-            <div className="col-span-1 space-y-4">
+            <div className="lg:col-span-1 space-y-4">
               <Card className="p-5">
                 <h3 className="font-medium text-bright mb-4 flex items-center gap-2 text-sm">
                   <User size={14} className="text-ghost" />
@@ -283,7 +283,7 @@ export default function ProfilePage() {
                   <div>
                     <label className="text-xs font-medium text-soft tracking-wide uppercase block mb-1.5">Bio</label>
                     <textarea
-                      className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-20 resize-none"
+                      className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-20 resize-none"
                       placeholder="Your goals and background…"
                       value={form.bio}
                       onChange={e => setForm(p => ({ ...p, bio: e.target.value }))}
@@ -291,7 +291,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-soft tracking-wide uppercase block mb-1.5">Level</label>
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
                       {(['beginner', 'intermediate', 'advanced'] as const).map(level => (
                         <button
                           key={level}
@@ -456,7 +456,7 @@ export default function ProfilePage() {
                   {/* Certification */}
                   <div>
                     <SectionHeader icon={Trophy} label="Certification" color="text-amber" />
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <MetricCard
                         icon={Award}
                         label="Certs earned"
@@ -487,7 +487,7 @@ export default function ProfilePage() {
                   {/* Performance */}
                   <div>
                     <SectionHeader icon={Zap} label="Performance" color="text-sky" />
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <MetricCard
                         icon={Clock}
                         label="Avg latency"
@@ -518,7 +518,7 @@ export default function ProfilePage() {
                   {/* Quality */}
                   <div>
                     <SectionHeader icon={ShieldCheck} label="Quality" color="text-emerald" />
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Card className="p-4">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs text-ghost">Hallucination rate</span>
@@ -623,14 +623,14 @@ export default function ProfilePage() {
                   <div>
                     <SectionHeader icon={BookOpen} label="Activity" color="text-violet" />
                     <Card className="p-4">
-                      <div className="grid grid-cols-4 gap-4 divide-x divide-border">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 divide-x-0 lg:divide-x divide-border">
                         {[
                           { icon: Brain,    label: 'Mentor sessions', value: `${sc!.mentor_sessions_count}` },
                           { icon: BookOpen, label: 'Quizzes passed',  value: `${sc!.quizzes_passed}` },
                           { icon: Code2,    label: 'Projects done',   value: `${sc!.projects_submitted}` },
                           { icon: Clock,    label: 'Study time',      value: fmtMinutes(sc!.total_study_minutes) },
                         ].map(({ icon: Icon, label, value }) => (
-                          <div key={label} className="pl-4 first:pl-0">
+                          <div key={label} className="lg:ps-4 lg:first:ps-0">
                             <div className="flex items-center gap-1.5 mb-1">
                               <Icon size={11} className="text-ghost" />
                               <span className="text-xs text-ghost">{label}</span>

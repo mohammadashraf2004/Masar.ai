@@ -594,9 +594,13 @@ def test_user_cannot_edit_or_delete_another_users_post(client):
 
 @pytest.fixture()
 def seeded_topic(db):
-    """A minimal track → level → topic → lesson chain to exercise the
-    progress endpoints against."""
-    from app.models.learning import CareerTrack, TrackLevel, Topic, Lesson
+    """A minimal track → level → topic → lesson/exercise chain to exercise
+    the progress endpoints against.
+
+    Carries an exercise alongside the lesson, and a foreign one on a second
+    topic, because _validate_progress_targets guards both ids the same way
+    and both branches need covering."""
+    from app.models.learning import CareerTrack, TrackLevel, Topic, Lesson, Exercise
 
     suffix = uuid.uuid4().hex[:8]
     track = CareerTrack(slug=f"sec-track-{suffix}", title="Sec Track", estimated_weeks=1)
@@ -609,13 +613,21 @@ def seeded_topic(db):
     db.add(topic)
     db.flush()
     lesson = Lesson(topic_id=topic.id, title="Lesson 1", content="body", order=1)
+    exercise = Exercise(topic_id=topic.id, title="Exercise 1", description="do the thing")
     other_topic = Topic(level_id=level.id, slug=f"sec-other-{suffix}", title="T2", order=2)
-    db.add_all([lesson, other_topic])
+    db.add_all([lesson, exercise, other_topic])
     db.flush()
     foreign_lesson = Lesson(topic_id=other_topic.id, title="Elsewhere", content="body", order=1)
-    db.add(foreign_lesson)
+    foreign_exercise = Exercise(topic_id=other_topic.id, title="Elsewhere", description="other topic")
+    db.add_all([foreign_lesson, foreign_exercise])
     db.commit()
-    return {"topic_id": topic.id, "lesson_id": lesson.id, "foreign_lesson_id": foreign_lesson.id}
+    return {
+        "topic_id": topic.id,
+        "lesson_id": lesson.id,
+        "foreign_lesson_id": foreign_lesson.id,
+        "exercise_id": exercise.id,
+        "foreign_exercise_id": foreign_exercise.id,
+    }
 
 
 def test_progress_is_scoped_to_the_caller(client, seeded_topic):
@@ -649,6 +661,36 @@ def test_progress_rejects_nonexistent_lesson_id(client, seeded_topic):
     _, token, _ = _register(client)
     resp = client.post(f"/api/v1/tracks/topics/{seeded_topic['topic_id']}/progress",
                        headers=_auth(token), json={"lesson_id": 99_999_999})
+    assert resp.status_code == 400
+
+
+def test_progress_accepts_an_exercise_from_this_topic(client, seeded_topic):
+    """The guard must not reject the legitimate case — this is what stops
+    the two rejection tests below from passing against a broken endpoint
+    that refuses everything."""
+    _, token, _ = _register(client)
+    resp = client.post(f"/api/v1/tracks/topics/{seeded_topic['topic_id']}/progress",
+                       headers=_auth(token),
+                       json={"exercise_id": seeded_topic["exercise_id"]})
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["exercises_completed"] == [seeded_topic["exercise_id"]]
+
+
+def test_progress_rejects_an_exercise_from_a_different_topic(client, seeded_topic):
+    """Same reasoning as the lesson case: exercise ids are numbers the
+    client picks, so one from another topic must not count towards this
+    topic's completion."""
+    _, token, _ = _register(client)
+    resp = client.post(f"/api/v1/tracks/topics/{seeded_topic['topic_id']}/progress",
+                       headers=_auth(token),
+                       json={"exercise_id": seeded_topic["foreign_exercise_id"]})
+    assert resp.status_code == 400
+
+
+def test_progress_rejects_nonexistent_exercise_id(client, seeded_topic):
+    _, token, _ = _register(client)
+    resp = client.post(f"/api/v1/tracks/topics/{seeded_topic['topic_id']}/progress",
+                       headers=_auth(token), json={"exercise_id": 99_999_999})
     assert resp.status_code == 400
 
 
@@ -801,6 +843,76 @@ def test_quiz_answer_key_is_not_exposed_to_the_taker(client, db):
 
     track_resp = client.get(f"/api/v1/tracks/quiz-track-{suffix}", headers=_auth(token))
     assert "It is Paris." not in track_resp.text
+
+
+@pytest.fixture()
+def topic_in_track(db):
+    """A factory for a track → level → topic chain whose track's is_active
+    flag the test chooses, with real content hanging off the topic so a
+    leak has something recognisable to leak."""
+    from app.models.learning import CareerTrack, TrackLevel, Topic, Lesson, Quiz
+
+    def _make(is_active: bool, marker: str):
+        suffix = uuid.uuid4().hex[:8]
+        track = CareerTrack(slug=f"vis-track-{suffix}", title="Visibility Track",
+                            estimated_weeks=1, is_active=is_active)
+        db.add(track)
+        db.flush()
+        level = TrackLevel(track_id=track.id, title="L1", order=1)
+        db.add(level)
+        db.flush()
+        topic = Topic(level_id=level.id, slug=f"vis-topic-{suffix}", title="T1", order=1)
+        db.add(topic)
+        db.flush()
+        db.add(Lesson(topic_id=topic.id, title="Lesson 1", content=marker, order=1))
+        db.add(Quiz(topic_id=topic.id, title="Q", passing_score=70, questions=[{
+            "question": "Q?", "options": ["a", "b"], "correct": 0,
+        }]))
+        db.commit()
+        return {"track_slug": track.slug, "topic_id": topic.id, "marker": marker}
+
+    return _make
+
+
+def test_topic_in_an_active_track_is_readable(client, topic_in_track):
+    """The control case. Without it, the two tests below would also pass
+    against an endpoint that 404s unconditionally."""
+    seeded = topic_in_track(True, "active-track-lesson-body")
+    _, token, _ = _register(client)
+
+    resp = client.get(f"/api/v1/tracks/topics/{seeded['topic_id']}", headers=_auth(token))
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["id"] == seeded["topic_id"]
+    assert seeded["marker"] in resp.text
+
+
+def test_topic_in_an_inactive_track_is_not_readable_by_id(client, topic_in_track):
+    """Deactivating a track has to take its content offline everywhere.
+    GET /tracks/{slug} already filtered on is_active, but topic ids are
+    small sequential integers, so this endpoint was an enumerable way back
+    in to a retired or unpublished curriculum."""
+    seeded = topic_in_track(False, "inactive-track-lesson-body")
+    _, token, _ = _register(client)
+
+    resp = client.get(f"/api/v1/tracks/topics/{seeded['topic_id']}", headers=_auth(token))
+    assert resp.status_code == 404
+    # The same wording a genuinely missing topic gets: the response must
+    # not tell a prober that this id exists behind an inactive track.
+    assert resp.json()["detail"] == "Topic not found"
+
+
+def test_no_content_from_an_inactive_track_reaches_the_client(client, topic_in_track):
+    """Belt and braces on the test above: assert against the raw body, so
+    a future response model that leaks content under a 404 is caught."""
+    seeded = topic_in_track(False, "secret-unpublished-lesson-body")
+    _, token, _ = _register(client)
+
+    resp = client.get(f"/api/v1/tracks/topics/{seeded['topic_id']}", headers=_auth(token))
+    assert seeded["marker"] not in resp.text
+    # And the track read path agrees, as it always did.
+    track_resp = client.get(f"/api/v1/tracks/{seeded['track_slug']}", headers=_auth(token))
+    assert track_resp.status_code == 404
+    assert seeded["marker"] not in track_resp.text
 
 
 # ─────────────────────────────────────────────────────────────────────────

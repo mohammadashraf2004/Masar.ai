@@ -179,7 +179,7 @@ function PostCard({ post, onUpdate }: { post: Post; onUpdate: (p: Post) => void 
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-medium text-bright">{post.author.full_name}</span>
             <span className={cn('text-xs px-2 py-0.5 rounded border', meta.bg)}>
-              <Icon size={10} className={cn('inline mr-1', meta.color)} />
+              <Icon size={10} className={cn('inline me-1', meta.color)} />
               <span className={meta.color}>{meta.label}</span>
             </span>
             <span className="text-xs text-ghost">{formatRelative(post.created_at)}</span>
@@ -261,7 +261,7 @@ function PostCard({ post, onUpdate }: { post: Post; onUpdate: (p: Post) => void 
       {commenting && (
         <form onSubmit={handleComment} className="mt-3 flex gap-2">
           <input
-            className="flex-1 bg-surface border border-border rounded px-3 py-2 text-xs text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+            className="flex-1 bg-surface border border-border rounded px-3 py-2 text-base md:text-xs text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
             placeholder="Write a comment…"
             value={commentText}
             onChange={e => setCommentText(e.target.value)}
@@ -343,7 +343,7 @@ function CreatePostModal({
           {/* Type selector */}
           <div>
             <label className="text-xs text-ghost uppercase tracking-wide block mb-2">Type</label>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
               {(Object.entries(POST_TYPES) as [PostType, typeof POST_TYPES[PostType]][]).map(
                 ([key, meta]) => {
                   const Icon = meta.icon
@@ -371,7 +371,7 @@ function CreatePostModal({
           <div>
             <label className="text-xs text-ghost uppercase tracking-wide block mb-1.5">Title</label>
             <input
-              className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+              className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
               placeholder="What's on your mind?"
               value={form.title}
               onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
@@ -382,7 +382,7 @@ function CreatePostModal({
           <div>
             <label className="text-xs text-ghost uppercase tracking-wide block mb-1.5">Content</label>
             <textarea
-              className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-32 resize-none"
+              className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-32 resize-none"
               placeholder="Share your problem, project, or achievement in detail…"
               value={form.content}
               onChange={e => setForm(p => ({ ...p, content: e.target.value }))}
@@ -390,13 +390,13 @@ function CreatePostModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-ghost uppercase tracking-wide block mb-1.5">
                 GitHub URL (optional)
               </label>
               <input
-                className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+                className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
                 placeholder="https://github.com/..."
                 value={form.github_url}
                 onChange={e => setForm(p => ({ ...p, github_url: e.target.value }))}
@@ -407,7 +407,7 @@ function CreatePostModal({
                 Tags (comma separated)
               </label>
               <input
-                className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+                className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
                 placeholder="python, pytorch, rag"
                 value={form.tags}
                 onChange={e => setForm(p => ({ ...p, tags: e.target.value }))}
@@ -485,7 +485,7 @@ export default function CommunityPage() {
   }
 
   if (authLoading) return (
-    <div className="min-h-screen bg-void flex items-center justify-center">
+    <div className="min-h-dvh bg-void flex items-center justify-center">
       <Spinner className="w-6 h-6" />
     </div>
   )
@@ -507,11 +507,11 @@ export default function CommunityPage() {
       )}
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-8 py-6">
-          <div className="grid grid-cols-3 gap-6">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {/* ── Main feed ── */}
-            <div className="col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-4">
 
               {/* Tabs */}
               <div className="flex items-center gap-3">
@@ -528,7 +528,7 @@ export default function CommunityPage() {
                       )}
                     >
                       {tab === 'leaderboard'
-                        ? <><Trophy size={13} className="inline mr-1.5" />Leaderboard</>
+                        ? <><Trophy size={13} className="inline me-1.5" />Leaderboard</>
                         : 'Feed'}
                     </button>
                   ))}

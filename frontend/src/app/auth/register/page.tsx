@@ -43,7 +43,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-void flex items-center justify-center px-6 py-12">
+    <div className="min-h-dvh bg-void flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
         <Logo size={28} className="mb-8" wordmarkClassName="text-sm" />
 
@@ -82,7 +82,7 @@ export default function RegisterPage() {
             <label className="text-xs font-medium text-soft tracking-wide uppercase block mb-2">
               Experience level
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {LEVELS.map(({ value, label, desc }) => {
                 const active = form.experience_level === value
                 return (
@@ -91,7 +91,7 @@ export default function RegisterPage() {
                     type="button"
                     onClick={() => setForm(p => ({ ...p, experience_level: value }))}
                     className={`
-                      relative text-left p-3 rounded border transition-all
+                      relative text-start p-3 rounded border transition-all
                       ${active
                         ? 'bg-amber/10 border-amber/40 text-amber'
                         : 'bg-surface border-border text-ghost hover:border-muted hover:text-soft'
@@ -99,7 +99,7 @@ export default function RegisterPage() {
                     `}
                   >
                     {active && (
-                      <Check size={10} className="absolute top-2 right-2 text-amber" />
+                      <Check size={10} className="absolute top-2 end-2 text-amber" />
                     )}
                     <div className="text-xs font-medium">{label}</div>
                     <div className="text-xs mt-0.5 opacity-70">{desc}</div>

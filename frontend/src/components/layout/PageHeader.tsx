@@ -5,7 +5,34 @@ import { cn } from '@/lib/utils'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/lib/store'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
-import { Zap, AlertTriangle, User, LogOut, Settings } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
+import { useMobileNav } from '@/components/layout/MobileNavContext'
+import { Zap, AlertTriangle, User, LogOut, Settings, Menu } from 'lucide-react'
+
+// ── Mobile drawer toggle ──────────────────────────────────────────────────────
+/**
+ * The only entry point to navigation below `lg`, where AppShell's sidebar is
+ * hidden. Renders nothing when no AppShell wraps the page — the exam runner
+ * builds its own shell and has no drawer to open.
+ */
+function MobileNavToggle() {
+  const { open, setOpen, available } = useMobileNav()
+  const { t } = useI18n()
+
+  if (!available) return null
+
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen(!open)}
+      aria-label={t('nav.openMenu')}
+      aria-expanded={open}
+      className="lg:hidden -ms-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border text-soft hover:text-bright hover:border-amber/30 transition-colors"
+    >
+      <Menu size={18} />
+    </button>
+  )
+}
 
 interface PageHeaderProps {
   title: string
@@ -41,7 +68,10 @@ function CreditsBadge() {
         ? <AlertTriangle size={11} className="flex-shrink-0" />
         : <Zap size={11} className="flex-shrink-0" />
       }
-      {balance} credits
+      {/* The word costs ~45px the mobile header does not have. The number and
+          the icon still say what this is, and the title needs the room. */}
+      <span>{balance}</span>
+      <span className="hidden sm:inline">credits</span>
     </Link>
   )
 }
@@ -87,7 +117,7 @@ function ProfileMenu() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute end-0 top-full mt-2 w-52 bg-ink border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
+        <div className="absolute end-0 top-full mt-2 w-52 max-w-[calc(100vw-2rem)] bg-ink border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
           {/* User info */}
           <div className="px-4 py-3 border-b border-border">
             <p className="text-xs font-semibold text-bright truncate">{user.full_name}</p>
@@ -134,21 +164,35 @@ function ProfileMenu() {
 export function PageHeader({ title, subtitle, action, className }: PageHeaderProps) {
   return (
     <div className={cn(
-      'flex items-center justify-between px-8 pt-5 pb-5 border-b border-border shrink-0 gap-4',
+      'flex flex-wrap items-center gap-x-3 gap-y-2.5 border-b border-border shrink-0',
+      'px-4 sm:px-6 lg:px-8 py-4 sm:py-5',
       className
     )}>
-      {/* Left: title + subtitle */}
-      <div className="min-w-0">
-        <h1 className="font-display font-bold text-xl text-white tracking-tight truncate">{title}</h1>
-        {subtitle && <p className="text-sm text-ghost mt-0.5 truncate">{subtitle}</p>}
+      <MobileNavToggle />
+
+      {/* Left: title + subtitle. `min-w-0` lets it shrink instead of forcing
+          the controls off the edge; the subtitle wraps to two lines on a
+          phone rather than being cut off at the first word. */}
+      <div className="min-w-0 flex-1">
+        <h1 className="font-display font-bold text-lg sm:text-xl text-white tracking-tight truncate">{title}</h1>
+        {subtitle && (
+          <p className="text-xs sm:text-sm text-ghost mt-0.5 line-clamp-2 sm:truncate">{subtitle}</p>
+        )}
       </div>
 
-      {/* Right: action + language + credits + profile.
+      {/* Page action. Below sm it wraps to its own row rather than competing
+          with the title for a share of ~150px; `order-last` puts it after the
+          controls on that second row, and DOM order takes over again from sm
+          so the desktop arrangement is unchanged. */}
+      {action && (
+        <div className="order-last sm:order-none w-full sm:w-auto shrink-0">{action}</div>
+      )}
+
+      {/* Right: language + credits + profile.
           The language control sits in the header rather than buried in
           settings: switching between Arabic explanations and industry
           terminology is something a student does mid-lesson, not once. */}
-      <div className="flex items-center gap-3 flex-shrink-0">
-        {action && <div>{action}</div>}
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ms-auto sm:ms-0">
         <LanguageSwitcher />
         <CreditsBadge />
         <ProfileMenu />

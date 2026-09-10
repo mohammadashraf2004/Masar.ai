@@ -163,7 +163,7 @@ export default function TracksPage() {
   const apexComingSoon = apexTrack?.status === 'coming_soon'
 
   if (authLoading || loading) return (
-    <div className="min-h-screen bg-void flex items-center justify-center">
+    <div className="min-h-dvh bg-void flex items-center justify-center">
       <Spinner className="w-6 h-6" />
     </div>
   )
@@ -177,7 +177,7 @@ export default function TracksPage() {
         subtitle="Choose your specialisation path. Complete available tracks to progress toward Full Stack AI Engineer."
       />
 
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-4xl mx-auto space-y-8">
 
           {/* ── Flowchart section ─────────────────────────────────────── */}
@@ -187,7 +187,7 @@ export default function TracksPage() {
               Choose your specialisation
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {tracks.map(track => {
                 const m = TRACK_META[track.slug] ?? {}
                 const Icon = m.icon ?? BookOpen
@@ -200,7 +200,7 @@ export default function TracksPage() {
                     key={track.id}
                     onClick={() => setSelected(track)}
                     className={cn(
-                      'text-left p-4 rounded-lg border transition-all duration-150',
+                      'text-start p-4 rounded-lg border transition-all duration-150',
                       isSelected
                         ? `${m.bgColor ?? 'bg-surface'} ${m.borderColor ?? 'border-border'} ring-1 ring-offset-1 ring-offset-void ${m.borderColor ?? ''}`
                         : 'bg-panel border-border hover:border-muted',
@@ -261,8 +261,13 @@ export default function TracksPage() {
               })}
             </div>
 
-            {/* Connector lines */}
-            <div className="flex justify-center my-2">
+            {/* Connector lines.
+                Purely decorative, and its four x-coordinates are hard-coded
+                to where the cards sit in a 580px-wide four-column row. Once
+                the grid drops to two columns the lines point at nothing, so
+                they are drawn only at the width they were measured for. The
+                cards below still say which tracks feed the apex. */}
+            <div className="hidden lg:flex justify-center my-2">
               <svg width="580" height="24" viewBox="0 0 580 24">
                 {[72, 217, 362, 508].map((x, i) => (
                   <line
@@ -340,7 +345,7 @@ export default function TracksPage() {
                               : 'bg-surface border-border text-ghost'
                           )}
                         >
-                          {t.status === 'completed' && <CheckCircle size={10} className="inline mr-1" />}
+                          {t.status === 'completed' && <CheckCircle size={10} className="inline me-1" />}
                           {t.title}
                         </span>
                       ))}
@@ -379,7 +384,7 @@ export default function TracksPage() {
                     <h2 className="font-display font-bold text-white text-lg">{selected.title}</h2>
                     <div className="flex items-center gap-2 mt-0.5">
                       <Badge variant="ghost">
-                        <Clock size={10} className="mr-1" />
+                        <Clock size={10} className="me-1" />
                         {selected.estimated_weeks} weeks
                       </Badge>
                       {selected.status === 'enrolled' && (
@@ -390,7 +395,7 @@ export default function TracksPage() {
                       )}
                       {selected.status === 'coming_soon' && (
                         <Badge variant="ghost">
-                          <Clock size={10} className="mr-1" />
+                          <Clock size={10} className="me-1" />
                           Coming soon
                         </Badge>
                       )}
@@ -452,7 +457,7 @@ export default function TracksPage() {
                 <div className="text-xs font-medium text-ghost uppercase tracking-widest mb-3">
                   What you&apos;ll learn
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {meta.topics.map((topic, i) => {
                     const pct = selected.enrollment?.completion_percentage ?? 0
                     const topicsDone = Math.floor(meta.topics.length * pct / 100)

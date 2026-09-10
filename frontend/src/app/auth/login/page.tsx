@@ -100,9 +100,9 @@ function LoginPageInner() {
   }
 
   return (
-    <div className="min-h-screen bg-void flex">
+    <div className="min-h-dvh bg-void flex">
       {/* Left decorative panel */}
-      <div className="hidden lg:flex w-1/2 bg-ink border-r border-border flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex w-1/2 bg-ink border-e border-border flex-col justify-between p-12 relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-30"
           style={{
@@ -140,7 +140,7 @@ function LoginPageInner() {
       </div>
 
       {/* Right: form */}
-      <div className="flex-1 flex items-center justify-center px-8">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-8">
         <div className="w-full max-w-sm">
           <div className="mb-8">
             <Logo size={28} className="mb-6 lg:hidden" wordmarkClassName="text-sm" />

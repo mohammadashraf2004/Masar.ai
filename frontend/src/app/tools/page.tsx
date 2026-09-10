@@ -73,7 +73,7 @@ export default function ToolsPage() {
   }
 
   if (authLoading || loading) return (
-    <div className="min-h-screen bg-void flex items-center justify-center">
+    <div className="min-h-dvh bg-void flex items-center justify-center">
       <Spinner className="w-6 h-6" />
     </div>
   )
@@ -100,7 +100,7 @@ export default function ToolsPage() {
         subtitle="No prerequisites, no tracks — pick any tool and start. Great alongside or independent of a career track."
       />
 
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-5xl mx-auto space-y-10">
           {/* ── Bilingual search ── */}
           <div>
@@ -113,7 +113,7 @@ export default function ToolsPage() {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder={t('course.search')}
-                className="w-full bg-surface border border-border rounded-lg ps-9 pe-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:border-amber/40 outline-none transition-colors"
+                className="w-full bg-surface border border-border rounded-lg ps-9 pe-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:border-amber/40 outline-none transition-colors"
               />
             </div>
             <p className="text-xs text-ghost mt-1.5">{t('course.searchHint')}</p>
@@ -176,7 +176,7 @@ export default function ToolsPage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                   {byCategory.get(category)!.map(course => {
                     const enr = enrMap.get(course.id)
                     const comingSoon = course.topic_count === 0 && !enr

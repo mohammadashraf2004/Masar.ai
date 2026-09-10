@@ -144,15 +144,15 @@ export default function MentorPage() {
     <AppShell>
       <PageHeader title="AI Mentor" subtitle="Your personal AI career coach." />
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden min-w-0">
         {/* ── Tool selector sidebar ── */}
-        <div className="w-56 shrink-0 border-r border-border bg-ink py-4 space-y-1 px-3">
+        <div className="w-full lg:w-56 shrink-0 flex lg:block gap-2 lg:gap-0 lg:space-y-1 overflow-x-auto lg:overflow-x-visible border-b lg:border-b-0 lg:border-e border-border bg-ink px-3 py-3 lg:py-4">
           {TOOLS.map(({ key, icon: Icon, label, desc }) => (
             <button
               key={key}
               onClick={() => setTool(key)}
               className={cn(
-                'w-full text-left p-3 rounded border transition-all',
+                'w-40 shrink-0 lg:w-full text-start p-3 rounded border transition-all',
                 tool === key
                   ? 'bg-amber/10 border-amber/20 text-amber'
                   : 'border-transparent text-dim hover:text-bright hover:bg-surface'
@@ -162,27 +162,27 @@ export default function MentorPage() {
                 <Icon size={13} className={tool === key ? 'text-amber' : 'text-ghost'} />
                 <span className="text-sm font-medium">{label}</span>
               </div>
-              <p className="text-xs leading-snug opacity-70">{desc}</p>
+              <p className="text-xs leading-snug opacity-70 hidden lg:block">{desc}</p>
             </button>
           ))}
         </div>
 
         {/* ── Tool content ── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col lg:overflow-hidden">
 
           {/* CHAT */}
           {tool === 'chat' && (
             <>
-              <div ref={chatRef} className="flex-1 overflow-y-auto px-8 py-6 space-y-4">
+              <div ref={chatRef} className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
                 {messages.map((msg, i) => (
-                  <div key={i} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                  <div key={i} className={cn('flex gap-2.5', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
                     {msg.role === 'assistant' && (
-                      <div className="w-6 h-6 rounded-full bg-amber/10 border border-amber/20 flex items-center justify-center mr-2.5 mt-1 shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-amber/10 border border-amber/20 flex items-center justify-center mt-1 shrink-0">
                         <Brain size={11} className="text-amber" />
                       </div>
                     )}
                     <div className={cn(
-                      'max-w-[70%] px-4 py-3 rounded-xl text-sm',
+                      'max-w-[85%] lg:max-w-[70%] min-w-0 [overflow-wrap:anywhere] px-4 py-3 rounded-xl text-sm',
                       msg.role === 'user'
                         ? 'bg-amber/10 border border-amber/20 text-bright rounded-br-sm'
                         : 'bg-surface border border-border text-soft rounded-bl-sm'
@@ -220,7 +220,7 @@ export default function MentorPage() {
 
               {/* Suggestions */}
               {suggestions.length > 0 && (
-                <div className="px-8 pb-3 flex gap-2 flex-wrap">
+                <div className="px-4 sm:px-6 lg:px-8 pb-3 flex gap-2 flex-wrap">
                   {suggestions.map(s => (
                     <button key={s} onClick={() => setInput(s)}
                       className="px-3 py-1.5 rounded-full text-xs bg-surface border border-border text-dim hover:text-bright hover:border-amber/30 transition-colors">
@@ -231,7 +231,7 @@ export default function MentorPage() {
               )}
 
               {/* Quick prompts */}
-              <div className="px-8 pb-3 flex gap-2 flex-wrap">
+              <div className="px-4 sm:px-6 lg:px-8 pb-3 flex gap-2 flex-wrap">
                 {[
                   'Quiz me on PyTorch',
                   'Explain RAG simply',
@@ -246,9 +246,9 @@ export default function MentorPage() {
               </div>
 
               {/* Input */}
-              <div className="px-8 pb-6 flex gap-3">
+              <div className="px-4 sm:px-6 lg:px-8 pb-6 flex gap-3">
                 <input
-                  className="flex-1 bg-surface border border-border rounded-lg px-4 py-3 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 transition-colors"
+                  className="flex-1 bg-surface border border-border rounded-lg px-4 py-3 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 transition-colors"
                   placeholder="Ask your mentor anything…"
                   value={input}
                   onChange={e => setInput(e.target.value)}
@@ -263,13 +263,13 @@ export default function MentorPage() {
 
           {/* CODE REVIEW */}
           {tool === 'code-review' && (
-            <div className="flex-1 overflow-y-auto px-8 py-6">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
               <form onSubmit={runCodeReview} className="space-y-4 max-w-3xl">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs text-ghost uppercase tracking-wide mb-1.5 block">Language</label>
                     <select
-                      className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright focus:outline-none focus:border-amber/50"
+                      className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright focus:outline-none focus:border-amber/50"
                       value={language}
                       onChange={e => setLanguage(e.target.value)}
                     >
@@ -281,7 +281,7 @@ export default function MentorPage() {
                   <div>
                     <label className="text-xs text-ghost uppercase tracking-wide mb-1.5 block">Context (optional)</label>
                     <input
-                      className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+                      className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
                       placeholder="What should this code do?"
                       value={codeCtx}
                       onChange={e => setCodeCtx(e.target.value)}
@@ -291,7 +291,7 @@ export default function MentorPage() {
                 <div>
                   <label className="text-xs text-ghost uppercase tracking-wide mb-1.5 block">Your code</label>
                   <textarea
-                    className="w-full bg-ink border border-border rounded px-4 py-3 text-sm font-mono text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none"
+                    className="w-full bg-ink border border-border rounded px-4 py-3 text-base md:text-sm font-mono text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none"
                     rows={14}
                     placeholder="Paste your code here…"
                     value={code}
@@ -367,12 +367,12 @@ export default function MentorPage() {
 
           {/* SKILL GAP */}
           {tool === 'skill-gap' && (
-            <div className="flex-1 overflow-y-auto px-8 py-6">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
               <form onSubmit={runSkillGap} className="space-y-4 max-w-2xl">
                 <div>
                   <label className="text-xs text-ghost uppercase tracking-wide mb-1.5 block">Target role</label>
                   <input
-                    className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright focus:outline-none focus:border-amber/50"
+                    className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright focus:outline-none focus:border-amber/50"
                     value={targetRole}
                     onChange={e => setTargetRole(e.target.value)}
                   />
@@ -382,7 +382,7 @@ export default function MentorPage() {
                     Current skills (comma-separated)
                   </label>
                   <input
-                    className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+                    className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
                     placeholder="Python, NumPy, basic ML…"
                     value={currentSkills}
                     onChange={e => setCurrentSkills(e.target.value)}
@@ -393,7 +393,7 @@ export default function MentorPage() {
                     CV / resume text (optional)
                   </label>
                   <textarea
-                    className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-28 resize-none"
+                    className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-28 resize-none"
                     placeholder="Paste your CV or LinkedIn summary…"
                     value={cvText}
                     onChange={e => setCvText(e.target.value)}
@@ -455,12 +455,12 @@ export default function MentorPage() {
 
           {/* MOCK INTERVIEW */}
           {tool === 'interview' && (
-            <div className="flex-1 overflow-y-auto px-8 py-6 max-w-2xl">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 max-w-2xl">
               <div className="flex gap-4 mb-6">
                 <div className="flex-1">
                   <label className="text-xs text-ghost uppercase tracking-wide mb-1.5 block">Topic</label>
                   <select
-                    className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright focus:outline-none focus:border-amber/50"
+                    className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright focus:outline-none focus:border-amber/50"
                     value={interviewTopic}
                     onChange={e => setInterviewTopic(e.target.value)}
                   >
@@ -472,7 +472,7 @@ export default function MentorPage() {
                 <div>
                   <label className="text-xs text-ghost uppercase tracking-wide mb-1.5 block">Difficulty</label>
                   <select
-                    className="bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright focus:outline-none focus:border-amber/50"
+                    className="bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright focus:outline-none focus:border-amber/50"
                     value={interviewDiff}
                     onChange={e => setInterviewDiff(e.target.value)}
                   >
@@ -499,7 +499,7 @@ export default function MentorPage() {
                     {question.hints.length > 0 && (
                       <details className="text-sm">
                         <summary className="text-ghost cursor-pointer hover:text-soft">Show hints</summary>
-                        <ul className="mt-2 space-y-1 pl-3">
+                        <ul className="mt-2 space-y-1 ps-3">
                           {question.hints.map((h, i) => (
                             <li key={i} className="text-dim text-xs">→ {h}</li>
                           ))}
@@ -511,7 +511,7 @@ export default function MentorPage() {
                   <div>
                     <label className="text-xs text-ghost uppercase tracking-wide mb-1.5 block">Your answer</label>
                     <textarea
-                      className="w-full bg-surface border border-border rounded px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-28 resize-none"
+                      className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-28 resize-none"
                       placeholder="Type your answer…"
                       value={answer}
                       onChange={e => setAnswer(e.target.value)}
@@ -536,7 +536,7 @@ export default function MentorPage() {
                         {qa.map((item, i) => (
                           <div key={i} className="text-xs">
                             <p className="text-soft font-medium mb-0.5">Q{i + 1}: {item.question}</p>
-                            <p className="text-ghost pl-3 border-l border-border">{item.answer || '(no answer)'}</p>
+                            <p className="text-ghost ps-3 border-s border-border">{item.answer || '(no answer)'}</p>
                           </div>
                         ))}
                       </div>

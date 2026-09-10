@@ -76,7 +76,7 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
         </div>
         {!loadingHistory && bestPast && (
           <Badge variant={bestPast.passed ? 'emerald' : 'ghost'}>
-            {bestPast.passed ? <CheckCircle size={11} className="mr-1" /> : null}
+            {bestPast.passed ? <CheckCircle size={11} className="me-1" /> : null}
             Best: {Math.round(bestPast.score)}%
           </Badge>
         )}
@@ -95,15 +95,21 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
             <div className="space-y-2">
               {(q.options ?? []).map((opt, oi) => {
                 const selected = answers[i] === oi
-                const showCorrectness = resolved && 'correct_answer' in fb
-                const isCorrectOption = showCorrectness && fb.correct_answer === oi
+                // Keyed off `correct` (were you right), not `correct_answer`
+                // (what the right answer was) — the API no longer returns the
+                // latter, so that the answer key can't be dumped by submitting
+                // a blank attempt. The marking therefore lands on the option
+                // the student actually chose: green when they were right, red
+                // when they weren't. The correct option is no longer revealed.
+                const showCorrectness = resolved && 'correct' in fb
+                const isCorrectOption = showCorrectness && selected && fb.correct
                 const isWrongSelected = showCorrectness && selected && !fb.correct
                 return (
                   <button
                     key={oi}
                     disabled={!!result}
                     onClick={() => setAnswers(prev => ({ ...prev, [i]: oi }))}
-                    className={`w-full text-left flex items-center gap-3 px-4 py-2.5 rounded-lg border text-sm transition-all ${
+                    className={`w-full text-start flex items-center gap-3 px-4 py-2.5 rounded-lg border text-sm transition-all ${
                       isCorrectOption
                         ? 'bg-emerald/10 border-emerald/40 text-emerald'
                         : isWrongSelected
@@ -118,9 +124,9 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
                     }`}>
                       {(selected || isCorrectOption) && <span className="w-2 h-2 rounded-full bg-current" />}
                     </span>
-                    {opt}
-                    {isCorrectOption && <CheckCircle size={13} className="ml-auto shrink-0" />}
-                    {isWrongSelected && <XCircle size={13} className="ml-auto shrink-0" />}
+                    <span className="flex-1 min-w-0">{opt}</span>
+                    {isCorrectOption && <CheckCircle size={13} className="ms-auto shrink-0" />}
+                    {isWrongSelected && <XCircle size={13} className="ms-auto shrink-0" />}
                   </button>
                 )
               })}

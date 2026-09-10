@@ -112,7 +112,7 @@ export function ProjectSubmit({ project }: { project: Project }) {
 
           <div className="flex items-start gap-2">
             <input
-              className="flex-1 bg-surface border border-border rounded px-3 py-2 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+              className="flex-1 bg-surface border border-border rounded px-3 py-2 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
               placeholder="e.g. my merge produces duplicate rows"
               value={stuckOn}
               onChange={(e) => setStuckOn(e.target.value)}
@@ -178,7 +178,7 @@ export function ProjectSubmit({ project }: { project: Project }) {
           </div>
 
           <textarea
-            className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-16 resize-none"
+            className="w-full bg-surface border border-border rounded px-3 py-2 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-16 resize-none"
             placeholder="Optional: notes on your approach and key decisions."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

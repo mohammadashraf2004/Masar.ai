@@ -9,6 +9,7 @@ import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Spinner } from '@/components/ui/index'
 import { LogoMark, Wordmark } from '@/components/layout/Logo'
+import { MobileNavProvider, useMobileNav } from '@/components/layout/MobileNavContext'
 import {
   LayoutDashboard, BookOpen, Brain,
   LogOut, ChevronRight, Zap, Users,
@@ -137,7 +138,7 @@ function ExamPickerModal({ onClose }: { onClose: () => void }) {
             </div>
             <button
               onClick={onClose}
-              className="w-7 h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors"
+              className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors"
             >
               <X size={15} />
             </button>
@@ -248,7 +249,7 @@ function ExamPickerModal({ onClose }: { onClose: () => void }) {
                         )}
                       />
                     ))}
-                    <span className="text-xs text-ghost ml-1">
+                    <span className="text-xs text-ghost ms-1">
                       {(exam.max_attempts ?? 3) - (exam.attempts_used ?? 0)} attempt{(exam.max_attempts ?? 3) - (exam.attempts_used ?? 0) !== 1 ? 's' : ''} left
                     </span>
                   </div>
@@ -284,110 +285,198 @@ function ExamPickerModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ─── AppShell ─────────────────────────────────────────────────────────────────
-export function AppShell({ children }: { children: React.ReactNode }) {
+// ─── Sidebar body ─────────────────────────────────────────────────────────────
+/**
+ * The navigation itself, rendered in two places: the persistent desktop
+ * sidebar and the mobile drawer. Sharing one definition is the point — the
+ * two must never drift into offering different destinations.
+ *
+ * `onNavigate` closes the drawer once a link has been followed. The desktop
+ * sidebar passes nothing, because nothing needs closing.
+ */
+function SidebarBody({
+  onGetVerified,
+  onNavigate,
+}: {
+  onGetVerified: () => void
+  onNavigate?: () => void
+}) {
   const pathname = usePathname()
   const { user, logout } = useAuthStore()
   const { t } = useI18n()
-  const [showExamPicker, setShowExamPicker] = useState(false)
 
   return (
-    <div className="flex h-screen bg-void overflow-hidden">
+    <>
+      {/* Brand */}
+      <Link
+        href="/dashboard"
+        onClick={onNavigate}
+        className="px-5 py-5 flex items-center gap-2.5 border-b border-border shrink-0"
+      >
+        <LogoMark size={28} label={null} />
+        <Wordmark className="text-sm" />
+      </Link>
+
+      {/* Readiness pill */}
+      {user && (
+        <div className="mx-3 mt-4 px-3 py-2 rounded bg-surface border border-border shrink-0">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs text-ghost">{t('nav.readiness')}</span>
+            <span className="text-xs font-mono text-amber">
+              {user.overall_readiness_score.toFixed(0)}%
+            </span>
+          </div>
+          <div className="h-1 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-amber to-amber2 rounded-full transition-all duration-700"
+              style={{ width: `${user.overall_readiness_score}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Nav — scrolls on its own. Without `min-h-0` a flex child refuses to
+          shrink below its content, so on a short viewport the controls below
+          it (Get Verified, Sign out) were pushed out of the clipped shell. */}
+      <nav className="flex-1 min-h-0 overflow-y-auto px-3 mt-4 space-y-0.5">
+        {NAV.map(({ href, icon: Icon, label }) => {
+          const active = pathname === href || pathname.startsWith(href + '/')
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onNavigate}
+              aria-current={active ? 'page' : undefined}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-all duration-150 group',
+                'min-h-[44px] lg:min-h-0',
+                active
+                  ? 'bg-amber/10 text-amber border border-amber/20'
+                  : 'text-dim hover:text-bright hover:bg-surface border border-transparent'
+              )}
+            >
+              <Icon size={15} className={cn('shrink-0', active ? 'text-amber' : 'text-ghost group-hover:text-soft')} />
+              <span className="flex-1 min-w-0">{t(label)}</span>
+              {active && <ChevronRight size={12} className="text-amber/60 rtl:rotate-180 shrink-0" />}
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* Quick actions */}
+      <div className="mx-3 mb-3 mt-3 px-3 py-2.5 rounded bg-surface border border-border shrink-0">
+        <div className="flex items-center gap-2 mb-1">
+          <Zap size={12} className="text-amber shrink-0" />
+          <span className="text-xs text-amber font-medium">{t('nav.quickAction')}</span>
+        </div>
+        <Link
+          href="/mentor"
+          onClick={onNavigate}
+          className="text-xs text-ghost hover:text-soft transition-colors"
+        >
+          {t('nav.askMentor')} →
+        </Link>
+      </div>
+
+      {/* ── Get Verified button ── */}
+      <div className="mx-3 mb-3 shrink-0">
+        <button
+          onClick={onGetVerified}
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded bg-amber/10 border border-amber/20 text-amber text-sm font-medium hover:bg-amber/20 hover:border-amber/40 transition-all duration-150 group min-h-[44px] lg:min-h-0"
+        >
+          <ShieldCheck size={15} className="flex-shrink-0" />
+          <span className="flex-1 text-start min-w-0">{t('nav.getVerified')}</span>
+          <ChevronRight size={12} className="text-amber/50 group-hover:text-amber/80 transition-colors rtl:rotate-180 shrink-0" />
+        </button>
+      </div>
+
+      {/* Sign out */}
+      {user && (
+        <div className="px-3 pb-4 border-t border-border pt-3 shrink-0">
+          <button
+            onClick={logout}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded text-xs text-ghost hover:text-rose hover:bg-rose/5 transition-colors min-h-[44px] lg:min-h-0"
+          >
+            <LogOut size={12} className="shrink-0" />
+            {t('nav.signOut')}
+          </button>
+        </div>
+      )}
+    </>
+  )
+}
+
+// ─── AppShell ─────────────────────────────────────────────────────────────────
+export function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <MobileNavProvider>
+      <AppShellFrame>{children}</AppShellFrame>
+    </MobileNavProvider>
+  )
+}
+
+function AppShellFrame({ children }: { children: React.ReactNode }) {
+  const { t } = useI18n()
+  const { open, setOpen } = useMobileNav()
+  const [showExamPicker, setShowExamPicker] = useState(false)
+
+  // Opening the picker from inside the drawer has to close the drawer first,
+  // or the modal opens behind it.
+  const openExamPicker = () => {
+    setOpen(false)
+    setShowExamPicker(true)
+  }
+
+  return (
+    // Below lg the document scrolls normally: a locked `h-screen` shell stops
+    // mobile browsers retracting their URL bar and buries whatever sits at the
+    // bottom of the page behind it. `dvh` rather than `vh` for the same
+    // reason — `100vh` is the *largest* viewport height on iOS, not the
+    // current one. From lg up the fixed-pane desktop layout is unchanged.
+    <div className="flex min-h-dvh lg:h-dvh bg-void lg:overflow-hidden">
 
       {showExamPicker && <ExamPickerModal onClose={() => setShowExamPicker(false)} />}
 
-      {/* ── Sidebar ── */}
-      <aside className="w-56 shrink-0 flex flex-col bg-ink border-e border-border">
-
-        {/* Brand */}
-        <Link
-          href="/dashboard"
-          className="px-5 py-5 flex items-center gap-2.5 border-b border-border"
-        >
-          <LogoMark size={28} label={null} />
-          <Wordmark className="text-sm" />
-        </Link>
-
-        {/* Readiness pill */}
-        {user && (
-          <div className="mx-3 mt-4 px-3 py-2 rounded bg-surface border border-border">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-ghost">{t('nav.readiness')}</span>
-              <span className="text-xs font-mono text-amber">
-                {user.overall_readiness_score.toFixed(0)}%
-              </span>
-            </div>
-            <div className="h-1 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-amber to-amber2 rounded-full transition-all duration-700"
-                style={{ width: `${user.overall_readiness_score}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Nav */}
-        <nav className="flex-1 px-3 mt-4 space-y-0.5">
-          {NAV.map(({ href, icon: Icon, label }) => {
-            const active = pathname === href || pathname.startsWith(href + '/')
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-all duration-150 group',
-                  active
-                    ? 'bg-amber/10 text-amber border border-amber/20'
-                    : 'text-dim hover:text-bright hover:bg-surface border border-transparent'
-                )}
-              >
-                <Icon size={15} className={cn(active ? 'text-amber' : 'text-ghost group-hover:text-soft')} />
-                <span className="flex-1">{t(label)}</span>
-                {active && <ChevronRight size={12} className="text-amber/60 rtl:rotate-180" />}
-              </Link>
-            )
-          })}
-        </nav>
-
-        {/* Quick actions */}
-        <div className="mx-3 mb-3 px-3 py-2.5 rounded bg-surface border border-border">
-          <div className="flex items-center gap-2 mb-1">
-            <Zap size={12} className="text-amber" />
-            <span className="text-xs text-amber font-medium">{t('nav.quickAction')}</span>
-          </div>
-          <Link href="/mentor" className="text-xs text-ghost hover:text-soft transition-colors">
-            {t('nav.askMentor')} →
-          </Link>
-        </div>
-
-        {/* ── Get Verified button ── */}
-        <div className="mx-3 mb-3">
-          <button
-            onClick={() => setShowExamPicker(true)}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded bg-amber/10 border border-amber/20 text-amber text-sm font-medium hover:bg-amber/20 hover:border-amber/40 transition-all duration-150 group"
-          >
-            <ShieldCheck size={15} className="flex-shrink-0" />
-            <span className="flex-1 text-start">{t('nav.getVerified')}</span>
-            <ChevronRight size={12} className="text-amber/50 group-hover:text-amber/80 transition-colors rtl:rotate-180" />
-          </button>
-        </div>
-
-        {/* Sign out */}
-        {user && (
-          <div className="px-3 pb-4 border-t border-border pt-3">
-            <button
-              onClick={logout}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded text-xs text-ghost hover:text-rose hover:bg-rose/5 transition-colors"
-            >
-              <LogOut size={12} />
-              {t('nav.signOut')}
-            </button>
-          </div>
-        )}
+      {/* ── Desktop sidebar ── */}
+      <aside className="hidden lg:flex w-56 shrink-0 flex-col bg-ink border-e border-border">
+        <SidebarBody onGetVerified={openExamPicker} />
       </aside>
 
-      {/* ── Main content ── */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      {/* ── Mobile drawer ──
+          Same backdrop-plus-panel pattern the modals already use, so the app
+          keeps one overlay convention. The width is capped against the
+          viewport so the drawer can never itself be what overflows. */}
+      {open && (
+        <>
+          <div
+            className="fixed inset-0 bg-void/80 backdrop-blur-sm z-40 lg:hidden"
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('nav.menu')}
+            className="fixed inset-y-0 start-0 z-50 flex w-[17.5rem] max-w-[85vw] flex-col bg-ink border-e border-border shadow-2xl lg:hidden"
+          >
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label={t('common.close')}
+              className="absolute end-2 top-3 z-10 flex h-11 w-11 items-center justify-center rounded text-ghost hover:text-bright hover:bg-surface transition-colors"
+            >
+              <X size={18} />
+            </button>
+            <SidebarBody onGetVerified={openExamPicker} onNavigate={() => setOpen(false)} />
+          </div>
+        </>
+      )}
+
+      {/* ── Main content ──
+          `min-w-0` is what lets this column actually shrink: without it a flex
+          child floors at its content's intrinsic width, and any wide child (a
+          table, a code block, a long title) pushes the whole page sideways. */}
+      <main className="flex-1 min-w-0 flex flex-col lg:overflow-hidden">
         {children}
       </main>
     </div>

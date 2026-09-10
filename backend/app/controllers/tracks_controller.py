@@ -176,15 +176,33 @@ def get_topic(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # Joined up to the track and filtered on is_active, the same rule GET
+    # /tracks/{slug} applies. Without it this was the one read path where
+    # deactivating a track did not take content offline: topic ids are
+    # small sequential integers, so a caller could enumerate them and pull
+    # the full body — lessons, exercises, projects and quizzes — of a track
+    # that had been retired or was not published yet.
+    #
+    # The miss is reported as the ordinary "Topic not found", identical to
+    # a topic id that does not exist, so the response does not tell a
+    # prober which inactive tracks are real.
+    #
+    # Enrollment is deliberately NOT checked here. In this product,
+    # authentication is the access boundary and enrolment records intent
+    # and progress; the track page renders the whole curriculum for any
+    # signed-in user. See track_availability.require_track_available,
+    # which gates enrolment only.
     topic = (
         db.query(Topic)
+        .join(TrackLevel, Topic.level_id == TrackLevel.id)
+        .join(CareerTrack, TrackLevel.track_id == CareerTrack.id)
         .options(
             joinedload(Topic.lessons),
             joinedload(Topic.exercises),
             joinedload(Topic.projects),
             joinedload(Topic.quizzes),
         )
-        .filter(Topic.id == topic_id)
+        .filter(Topic.id == topic_id, CareerTrack.is_active == True)
         .first()
     )
     if not topic:
@@ -266,7 +284,11 @@ def submit_quiz(
     if not quiz:
         raise HTTPException(status_code=404, detail="Quiz not found")
 
-    questions = quiz.questions
+    # Authored content, so a bad shape here is a content bug rather than
+    # attacker input — but it must not turn a student's submission into a
+    # 500 with an opaque error id and a lost attempt. Anything that isn't a
+    # list of questions grades as an empty quiz.
+    questions = quiz.questions if isinstance(quiz.questions, list) else []
     correct_count = 0
     feedback = {}
     # Open-ended questions ("type": "open") aren't graded here at all —
@@ -277,6 +299,17 @@ def submit_quiz(
     mcq_count = 0
 
     for i, question in enumerate(questions):
+        # A malformed entry (a bare string, a null) used to reach
+        # question.get() and raise AttributeError. Excluded from the
+        # denominator rather than awarded — an ungradable question must
+        # never become a free mark, and must never cost one either.
+        if not isinstance(question, dict):
+            feedback[str(i)] = {
+                "skipped": True,
+                "reason": "this question could not be graded",
+            }
+            continue
+
         if question.get("type", "mcq") == "open":
             feedback[str(i)] = {"skipped": True, "reason": "open-ended — graded via AI chat, not this submission"}
             continue
@@ -287,10 +320,16 @@ def submit_quiz(
         is_correct = user_answer == correct
         if is_correct:
             correct_count += 1
+        # `correct_answer` is deliberately absent. The taker learns whether
+        # they were right and reads the explanation, but the key itself
+        # stays server-side: returning it made one throwaway submission
+        # (POST with `{}`) a complete answer-key dump, which is exactly
+        # what QuizResponse strips from every read path, and the attempt
+        # row then replayed it through GET /quizzes/{id}/attempts forever.
+        # Nothing is stored here that isn't safe to hand back.
         feedback[str(i)] = {
             "correct": is_correct,
             "your_answer": user_answer,
-            "correct_answer": correct,
             "explanation": question.get("explanation", ""),
         }
 
@@ -336,6 +375,16 @@ def my_quiz_attempts(
 # account would reach the provider for free. Metering this through
 # deduct_credits() the way /mentor/* does remains the durable fix, but it
 # changes what the feature costs a student and is a pricing decision.
+#
+# TODO(security, needs product decision): the rate limit below is keyed on
+# the client address, not the account — see limiter.client_key, and the
+# test that pins that behaviour deliberately
+# (test_rate_limit_defaults.py::test_authenticated_endpoint_is_limited_by_client_not_account).
+# One verified account across rotating source addresses therefore reaches
+# the provider without a per-account ceiling, at up to 20k characters of
+# prompt per call. Closing that needs either metering (a price change) or
+# an account-level submission cap; both are product calls, so neither is
+# done here.
 @limiter.limit("10/hour")
 def submit_project(
     request: Request,

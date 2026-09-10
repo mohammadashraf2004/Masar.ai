@@ -66,7 +66,7 @@ export default function DashboardPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center">
+      <div className="min-h-dvh bg-void flex items-center justify-center">
         <Spinner className="w-6 h-6" />
       </div>
     )
@@ -81,13 +81,13 @@ export default function DashboardPage() {
         subtitle="Here's your learning snapshot today."
       />
 
-      <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         <Suspense fallback={null}>
           <PaymentResultBanner />
         </Suspense>
 
         {/* Metrics */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: 'Readiness score', value: `${readiness.toFixed(0)}%`, sub: 'AI Engineer path', icon: Target, color: scoreColor(readiness) },
             { label: 'Tracks enrolled', value: enrollments.length, sub: dataLoading ? '…' : 'Active', icon: BookOpen, color: 'text-sky' },
@@ -105,9 +105,9 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tracks + roadmap */}
-          <div className="col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4">
             <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">Your tracks</h2>
 
             {dataLoading ? (

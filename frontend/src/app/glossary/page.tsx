@@ -51,7 +51,7 @@ export default function GlossaryPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center">
+      <div className="min-h-dvh bg-void flex items-center justify-center">
         <Spinner className="w-6 h-6" />
       </div>
     )
@@ -63,7 +63,7 @@ export default function GlossaryPage() {
 
       {selected && <TermDetailModal term={selected} onClose={() => setSelected(null)} />}
 
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-5xl mx-auto space-y-6">
           {/* ── Progress ── */}
           <Card className="p-5">
@@ -87,7 +87,7 @@ export default function GlossaryPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('term.searchPlaceholder')}
-                className="w-full bg-surface border border-border rounded-lg ps-9 pe-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:border-amber/40 outline-none transition-colors"
+                className="w-full bg-surface border border-border rounded-lg ps-9 pe-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:border-amber/40 outline-none transition-colors"
               />
             </div>
 

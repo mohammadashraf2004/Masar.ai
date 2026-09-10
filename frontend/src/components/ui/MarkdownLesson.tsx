@@ -196,6 +196,20 @@ function MarkdownBody({
               </pre>
             )
           },
+          // GFM tables get the same treatment the code renderer above already
+          // gives fenced blocks: the overflow is the table's own problem to
+          // solve, inside its own scroll container, instead of the whole page
+          // scrolling sideways to accommodate one wide row.
+          //
+          // The wrapper, not `table { width: 100% }`, is what fixes this —
+          // a percentage width never stops content forcing a min-content
+          // width wider than the viewport. Desktop is unaffected: the
+          // container only scrolls when there is something to scroll.
+          table: ({ children }) => (
+            <div className="overflow-x-auto">
+              <table>{children}</table>
+            </div>
+          ),
         }}
       >
         {content}

@@ -120,6 +120,27 @@ html[lang="ar"] .brand-ar {
   padding: 0;
   border: none;
 }
+/* Mentor-chat tables. MarkdownLesson wraps its tables in a scroll container
+   (see its `table` renderer); the chat renderer has no such hook, so the
+   table scrolls itself. `width: max-content` keeps the columns at their
+   natural size instead of crushing them, and `max-width: 100%` is what stops
+   the bubble — and the page — growing to match. */
+.prose-dark table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+}
+.prose-dark th, .prose-dark td {
+  border: 1px solid #1E2535;
+  padding: 0.4rem 0.65rem;
+  text-align: start;
+}
+.prose-dark th { background: #111620; color: #E2E8F0; font-weight: 600; }
+
 .prose-dark strong { color: #E2E8F0; font-weight: 600; }
 .prose-dark blockquote {
   border-left: 2px solid #F59E0B;

@@ -191,7 +191,7 @@ export function TechnicalTerm({
         <span
           id={panelId}
           role="dialog"
-          className="absolute z-50 top-full mt-2 start-0 w-72 p-3.5 rounded-lg bg-ink border border-border shadow-2xl block text-start"
+          className="absolute z-50 top-full mt-2 start-0 w-72 max-w-[calc(100vw-2rem)] p-3.5 rounded-lg bg-ink border border-border shadow-2xl block text-start"
         >
           <TermDefinition entry={entry} arabicOverride={arabic} categoryOverride={category} />
         </span>
@@ -331,7 +331,7 @@ export function TermDetailModal({ term, onClose }: { term: string; onClose: () =
             <button
               onClick={onClose}
               aria-label={t('common.close')}
-              className="w-7 h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors shrink-0"
+              className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors shrink-0"
             >
               <X size={15} />
             </button>

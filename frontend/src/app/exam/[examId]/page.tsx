@@ -105,7 +105,7 @@ function MCQ({ q, value, onChange }: { q: Question; value: string; onChange: (v:
         <button
           key={opt}
           onClick={() => onChange(opt)}
-          className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg border text-sm transition-all duration-150 ${
+          className={`w-full text-start flex items-center gap-3 px-4 py-3 rounded-lg border text-sm transition-all duration-150 ${
             value === opt
               ? "bg-amber/10 border-amber/40 text-amber"
               : "bg-surface border-border text-soft hover:border-amber/20 hover:text-bright"
@@ -136,7 +136,7 @@ function MultiChoice({ q, value, onChange }: { q: Question; value: string[]; onC
           <button
             key={opt}
             onClick={() => toggle(opt)}
-            className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg border text-sm transition-all duration-150 ${
+            className={`w-full text-start flex items-center gap-3 px-4 py-3 rounded-lg border text-sm transition-all duration-150 ${
               selected
                 ? "bg-emerald/10 border-emerald/40 text-emerald"
                 : "bg-surface border-border text-soft hover:border-emerald/20 hover:text-bright"
@@ -194,7 +194,7 @@ function CodeEditor({ q, value, onChange }: { q: Question; value: string; onChan
         </div>
       </div>
       <textarea
-        className="w-full min-h-[280px] bg-void text-sky-300 font-mono text-sm p-4 outline-none resize-y leading-relaxed"
+        className="w-full min-h-[160px] sm:min-h-[280px] bg-void text-sky-300 font-mono text-base md:text-sm p-4 outline-none resize-y leading-relaxed"
         value={value || init}
         onChange={(e) => onChange(e.target.value)}
         spellCheck={false}
@@ -295,7 +295,7 @@ function Ordering({ q, value, onChange }: { q: Question; value: string[]; onChan
 function ShortAnswer({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <textarea
-      className="w-full bg-surface border border-border rounded-lg text-sm text-soft p-4 outline-none focus:border-amber/40 resize-none leading-relaxed transition-colors placeholder:text-ghost"
+      className="w-full bg-surface border border-border rounded-lg text-base md:text-sm text-soft p-4 outline-none focus:border-amber/40 resize-none leading-relaxed transition-colors placeholder:text-ghost"
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value)}
       placeholder="Write your answer here (2–4 sentences recommended)…"
@@ -533,7 +533,7 @@ export default function ExamPage() {
   // ─────────────────────────────────────────────────────────────────────────
   if (phase === "loading") {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center">
+      <div className="min-h-dvh bg-void flex items-center justify-center">
         <div className="text-center">
           <Spinner className="w-6 h-6 mx-auto mb-3" />
           <p className="text-xs text-ghost">Preparing exam…</p>
@@ -548,7 +548,7 @@ export default function ExamPage() {
   if (phase === "error") {
     if (error === "exam_payment_required") {
       return (
-        <div className="min-h-screen bg-void flex items-center justify-center p-6">
+        <div className="min-h-dvh bg-void flex items-center justify-center p-6">
           {showPaymentGate && (
             <ExamPaymentGate
               examId={parseInt(examId)}
@@ -572,7 +572,7 @@ export default function ExamPage() {
       );
     }
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center p-6">
+      <div className="min-h-dvh bg-void flex items-center justify-center p-6">
         <Card className="p-8 max-w-md w-full text-center">
           <XCircle size={36} className="text-rose mx-auto mb-4" />
           <h2 className="font-display font-bold text-bright text-lg mb-2">Something went wrong</h2>
@@ -590,7 +590,7 @@ export default function ExamPage() {
     const passed = result.passed;
     const pct = result.percentage ?? 0;
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center p-6">
+      <div className="min-h-dvh bg-void flex items-center justify-center p-6">
         <Card className={`p-10 max-w-lg w-full text-center ${passed ? "border-emerald/20" : "border-rose/20"}`}>
           <div className={`w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center ${passed ? "bg-emerald/10 border border-emerald/20" : "bg-rose/10 border border-rose/20"}`}>
             {passed ? <Trophy size={28} className="text-emerald" /> : <RotateCcw size={28} className="text-rose" />}
@@ -600,7 +600,7 @@ export default function ExamPage() {
           </h1>
           <p className="text-sm text-ghost mb-8">{exam?.title}</p>
 
-          <div className="grid grid-cols-4 gap-3 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             {[
               { label: "Score", value: result.score },
               { label: "Total", value: result.total_points },
@@ -648,7 +648,7 @@ export default function ExamPage() {
   // ─────────────────────────────────────────────────────────────────────────
   if (phase === "setup" && exam) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center p-6">
+      <div className="min-h-dvh bg-void flex items-center justify-center p-6">
         <div className="max-w-xl w-full space-y-4">
           <div className="text-center mb-6">
             <h1 className="font-display font-bold text-bright text-2xl mb-2">{exam.title}</h1>
@@ -714,7 +714,7 @@ export default function ExamPage() {
                   </div>
                 )}
                 {webcamOk && (
-                  <div className="absolute top-1.5 right-1.5 flex items-center gap-1 bg-void/80 px-1.5 py-0.5 rounded">
+                  <div className="absolute top-1.5 end-1.5 flex items-center gap-1 bg-void/80 px-1.5 py-0.5 rounded">
                     <span className="w-1.5 h-1.5 rounded-full bg-rose animate-pulse" />
                     <span className="text-xs font-mono text-rose">REC</span>
                   </div>
@@ -760,7 +760,7 @@ export default function ExamPage() {
     const TypeIcon = meta.icon;
 
     return (
-      <div className="flex h-screen bg-void overflow-hidden" style={{ userSelect: "none" }}>
+      <div className="flex flex-col lg:flex-row min-h-dvh lg:h-dvh bg-void lg:overflow-hidden" style={{ userSelect: "none" }}>
 
         {/* Violation toast */}
         {violationMsg && (
@@ -771,7 +771,7 @@ export default function ExamPage() {
         )}
 
         {/* ── Sidebar ── */}
-        <aside className="w-52 shrink-0 flex flex-col bg-ink border-r border-border overflow-y-auto">
+        <aside className="w-full lg:w-52 shrink-0 flex flex-col bg-ink border-b lg:border-b-0 lg:border-e border-border lg:overflow-y-auto">
           {/* Brand */}
           <div className="px-4 py-4 border-b border-border">
             <p className="text-xs font-medium text-bright truncate">{exam.title}</p>
@@ -786,7 +786,7 @@ export default function ExamPage() {
           {/* Q grid */}
           <div className="p-3 flex-1">
             <p className="text-xs text-ghost uppercase tracking-widest mb-2 font-medium">Questions</p>
-            <div className="grid grid-cols-4 gap-1.5">
+            <div className="grid grid-cols-8 sm:grid-cols-12 lg:grid-cols-4 gap-1.5">
               {exam.questions.map((sq, i) => {
                 const a = answers[sq.id];
                 const done = Array.isArray(a) ? a.length > 0 : !!(a);
@@ -811,10 +811,10 @@ export default function ExamPage() {
           </div>
 
           {/* Webcam */}
-          <div className="p-3 border-t border-border">
+          <div className="p-3 border-t border-border max-w-[180px] lg:max-w-none">
             <div className="relative rounded-lg overflow-hidden border border-border bg-void">
               <video ref={videoRef} autoPlay playsInline muted className="w-full block" />
-              <div className="absolute top-1.5 right-1.5 flex items-center gap-1 bg-void/80 px-1.5 py-0.5 rounded">
+              <div className="absolute top-1.5 end-1.5 flex items-center gap-1 bg-void/80 px-1.5 py-0.5 rounded">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose animate-pulse" />
                 <span className="text-xs font-mono text-rose">REC</span>
               </div>
@@ -823,14 +823,14 @@ export default function ExamPage() {
         </aside>
 
         {/* ── Main ── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col lg:overflow-hidden">
 
           {/* Top bar */}
-          <header className="h-14 flex items-center justify-between px-6 bg-ink border-b border-border flex-shrink-0">
+          <header className="min-h-14 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 sm:px-6 py-2 bg-ink border-b border-border flex-shrink-0">
             <div className="flex items-center gap-2">
               <TypeIcon size={14} className="text-ghost" />
               <Badge variant={meta.variant as any}>{meta.label}</Badge>
-              <span className="text-xs text-ghost font-mono ml-1">{q.points} pts</span>
+              <span className="text-xs text-ghost font-mono ms-1">{q.points} pts</span>
             </div>
             <div className="flex items-center gap-3">
               {violations > 0 && (
@@ -854,7 +854,7 @@ export default function ExamPage() {
           </header>
 
           {/* Question */}
-          <main className="flex-1 overflow-y-auto px-8 py-8 max-w-3xl w-full mx-auto">
+          <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-8 max-w-3xl w-full mx-auto">
             <div className="mb-2">
               <span className="text-xs font-mono text-ghost">Q{current + 1} of {exam.questions.length}</span>
             </div>

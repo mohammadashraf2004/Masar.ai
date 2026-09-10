@@ -68,7 +68,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       </button>
 
       {open && (
-        <div className="absolute end-0 top-full mt-2 w-72 bg-ink border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
+        <div className="absolute end-0 top-full mt-2 w-72 max-w-[calc(100vw-2rem)] bg-ink border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
           {/* ── Explanation language ── */}
           <div className="px-4 pt-3.5 pb-3 border-b border-border">
             <p className="text-[11px] text-ghost mb-2">{t('lang.uiLanguage')}</p>

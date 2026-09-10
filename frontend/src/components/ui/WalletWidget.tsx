@@ -135,7 +135,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                 <p className="text-xs text-ghost">Pay in EGP via local payment methods</p>
               </div>
             </div>
-            <button onClick={onClose} className="w-7 h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
+            <button onClick={onClose} className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
               <X size={15} />
             </button>
           </div>
@@ -162,7 +162,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                         <button
                           key={pkg.id}
                           onClick={() => setSelected(pkg)}
-                          className={`w-full text-left p-3 rounded-lg border transition-all ${
+                          className={`w-full text-start p-3 rounded-lg border transition-all ${
                             isSelected
                               ? 'bg-amber/10 border-amber/40'
                               : 'bg-surface border-border hover:border-amber/20'
@@ -210,7 +210,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                   </button>
                   <div className="flex gap-2">
                     <input
-                      className="flex-1 bg-surface border border-border rounded-lg px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
+                      className="flex-1 bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
                       placeholder="01XXXXXXXXX"
                       value={walletPhone}
                       onChange={e => setWalletPhone(e.target.value)}
@@ -239,7 +239,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                   <>
                     <div>
                       <p className="text-xs text-ghost uppercase tracking-widest font-medium mb-2">Payment method</p>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {Object.entries(PAYMENT_LABELS).map(([key, label]) => (
                           <button
                             key={key}
@@ -290,7 +290,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                         Payment reference / transaction ID
                       </label>
                       <input
-                        className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
+                        className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
                         placeholder="e.g. FWR-123456789"
                         value={ref}
                         onChange={e => setRef(e.target.value)}
@@ -341,7 +341,7 @@ function TransactionModal({ onClose }: { onClose: () => void }) {
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-md pointer-events-auto flex flex-col max-h-[80vh]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
             <h2 className="text-sm font-semibold text-bright">Transaction History</h2>
-            <button onClick={onClose} className="w-7 h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
+            <button onClick={onClose} className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
               <X size={15} />
             </button>
           </div>
@@ -361,7 +361,7 @@ function TransactionModal({ onClose }: { onClose: () => void }) {
                       <p className="text-xs font-medium text-bright truncate">{tx.description}</p>
                       <p className="text-xs text-ghost">{new Date(tx.created_at).toLocaleDateString('en-EG')}</p>
                     </div>
-                    <div className="text-right flex-shrink-0">
+                    <div className="text-end flex-shrink-0">
                       <p className={`text-sm font-mono font-bold ${tx.credits > 0 ? 'text-emerald' : 'text-rose'}`}>
                         {tx.credits > 0 ? '+' : ''}{tx.credits}
                       </p>

@@ -48,11 +48,11 @@ function FunnelRow({ label, value, total, note }: {
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-sm text-soft">
           {label}
-          {note && <span className="ml-2 text-xs text-ghost">{note}</span>}
+          {note && <span className="ms-2 text-xs text-ghost">{note}</span>}
         </span>
         <span className="font-mono text-sm text-bright">
           {value}
-          <span className="ml-2 text-xs text-dim">{pct.toFixed(0)}%</span>
+          <span className="ms-2 text-xs text-dim">{pct.toFixed(0)}%</span>
         </span>
       </div>
       <div className="progress-track h-1 mt-1.5">
@@ -70,16 +70,16 @@ function TopicTable({ title, rows }: { title: string; rows: TopicCount[] }) {
       {rows.length === 0 ? (
         <div className="text-sm text-ghost py-2">No data yet.</div>
       ) : (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto"><table className="w-full text-sm min-w-[20rem]">
           <tbody>
             {rows.map((row) => (
               <tr key={row.topic} className="border-b border-border last:border-0">
-                <td className="py-1.5 pr-3 text-soft truncate">{row.topic}</td>
+                <td className="py-1.5 pe-3 text-soft truncate">{row.topic}</td>
                 <td className="py-1.5 text-right font-mono text-bright w-16">{row.count}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
     </Card>
   )
@@ -145,11 +145,11 @@ export default function AdminAnalyticsPage() {
         subtitle={`Product metrics · generated ${new Date(data.generated_at).toLocaleString()}`}
       />
 
-      {/* AppShell is h-screen with an overflow-hidden <main>, so the page
+      {/* AppShell pins its panes only from lg up, so the page
           owns its own scroll container — without `flex-1 overflow-y-auto`
           everything below the fold is simply clipped. Same structure the
           dashboard and community pages use. */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-5xl space-y-8">
           {/* ── Users ─────────────────────────────────────────────────── */}
           <section className="space-y-3">
@@ -169,7 +169,7 @@ export default function AdminAnalyticsPage() {
                 <div className="flex-1 flex items-start gap-2 text-xs text-dim">
                   <Info size={14} className="text-amber flex-shrink-0 mt-0.5" />
                   <span>
-                    <Badge variant="amber" className="mr-2">unreliable</Badge>
+                    <Badge variant="amber" className="me-2">unreliable</Badge>
                     {users.verification_note}
                   </span>
                 </div>
@@ -200,7 +200,7 @@ export default function AdminAnalyticsPage() {
           {/* ── Learning ──────────────────────────────────────────────── */}
           <section className="space-y-3">
             <SectionTitle icon={BookOpen}>Learning activity</SectionTitle>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Stat label="Lessons completed" value={learning.lessons_completed} />
               <Stat label="Exercises completed" value={learning.exercises_completed} />
             </div>
@@ -220,16 +220,16 @@ export default function AdminAnalyticsPage() {
                 {features.length === 0 ? (
                   <div className="text-sm text-ghost py-2">No AI spend recorded yet.</div>
                 ) : (
-                  <table className="w-full text-sm">
+                  <div className="overflow-x-auto"><table className="w-full text-sm min-w-[20rem]">
                     <tbody>
                       {features.map(([feature, credits]) => (
                         <tr key={feature} className="border-b border-border last:border-0">
-                          <td className="py-1.5 pr-3 text-soft">{feature.replace(/_/g, ' ')}</td>
+                          <td className="py-1.5 pe-3 text-soft">{feature.replace(/_/g, ' ')}</td>
                           <td className="py-1.5 text-right font-mono text-bright w-20">{credits}</td>
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </table></div>
                 )}
               </Card>
             </div>
@@ -240,7 +240,7 @@ export default function AdminAnalyticsPage() {
             <SectionTitle icon={TrendingUp}>Retention</SectionTitle>
             <Card className="p-4">
               {retention.available ? (
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <Stat label="D1" value={`${retention.d1?.toFixed(1)}%`} />
                   <Stat label="D7" value={`${retention.d7?.toFixed(1)}%`} />
                   <Stat label="D30" value={`${retention.d30?.toFixed(1)}%`} />
@@ -251,7 +251,7 @@ export default function AdminAnalyticsPage() {
                 <div className="flex items-start gap-2">
                   <Info size={14} className="text-amber flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-dim">
-                    <Badge variant="ghost" className="mr-2">unavailable</Badge>
+                    <Badge variant="ghost" className="me-2">unavailable</Badge>
                     {retention.reason}
                   </div>
                 </div>

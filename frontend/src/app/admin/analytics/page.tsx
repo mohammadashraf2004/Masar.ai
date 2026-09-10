@@ -5,9 +5,11 @@ import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Badge, Spinner } from '@/components/ui/index'
+import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
-import type { AdminAnalyticsOverview, TopicCount } from '@/types'
-import { Users, Zap, BookOpen, TrendingUp, Info } from 'lucide-react'
+import type { AdminAnalyticsOverview, TopicCount, AdminUserLookup, AdminGrantResult } from '@/types'
+import { getErrorMessage } from '@/lib/utils'
+import { Users, Zap, BookOpen, TrendingUp, Info, Gift, Search, AlertTriangle, CheckCircle } from 'lucide-react'
 
 /**
  * Admin analytics — read-only, aggregates only.
@@ -85,6 +87,215 @@ function TopicTable({ title, rows }: { title: string; rows: TopicCount[] }) {
   )
 }
 
+/**
+ * Grant credits to an account, by email.
+ *
+ * Deliberately one screen and one confirmation: the operator types the
+ * address they already have from a support thread, sees whose account it is
+ * and what they currently hold, then commits. Looking the user up first is
+ * what makes the amount safe to type — a grant cannot be undone from here,
+ * and the wrong recipient is the expensive mistake, not the wrong number.
+ *
+ * Authorization is `require_admin` on both endpoints. Nothing here is a
+ * control; the page-level role check only avoids showing a form that would
+ * only ever 403.
+ */
+function GrantCredits() {
+  const [email, setEmail] = useState('')
+  const [credits, setCredits] = useState('')
+  const [reason, setReason] = useState('')
+
+  const [found, setFound] = useState<AdminUserLookup | null>(null)
+  const [looking, setLooking] = useState(false)
+  const [granting, setGranting] = useState(false)
+  const [result, setResult] = useState<AdminGrantResult | null>(null)
+  const [error, setError] = useState('')
+
+  // Any edit to the address invalidates the account shown beside it.
+  function onEmailChange(next: string) {
+    setEmail(next)
+    setFound(null)
+    setResult(null)
+    setError('')
+  }
+
+  async function lookup() {
+    const target = email.trim()
+    if (!target || looking) return
+    setLooking(true)
+    setError('')
+    setResult(null)
+    try {
+      setFound(await api.adminLookupUser(target))
+    } catch (err) {
+      setFound(null)
+      setError(getErrorMessage(err))
+    } finally {
+      setLooking(false)
+    }
+  }
+
+  async function grant() {
+    const amount = Number(credits)
+    if (!found || granting) return
+    if (!Number.isInteger(amount) || amount <= 0) {
+      setError('Enter a whole number of credits above zero.')
+      return
+    }
+    setGranting(true)
+    setError('')
+    try {
+      const res = await api.adminGrantCredits(
+        found.email,
+        amount,
+        reason.trim() || 'Admin grant',
+      )
+      setResult(res)
+      // Reset the amount but keep the account on screen, so granting twice
+      // by accident takes a deliberate retype.
+      setCredits('')
+      setReason('')
+      setFound({ ...found, credit_balance: res.new_balance })
+    } catch (err) {
+      setError(getErrorMessage(err))
+    } finally {
+      setGranting(false)
+    }
+  }
+
+  return (
+    <section className="space-y-3">
+      <SectionTitle icon={Gift}>Grant credits</SectionTitle>
+
+      <Card className="p-4 sm:p-5 space-y-4">
+        {/* Step 1 — who */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
+          <div className="flex-1 min-w-0">
+            <label htmlFor="grant-email" className="text-xs font-medium text-soft tracking-wide uppercase block mb-1.5">
+              Account email
+            </label>
+            <input
+              id="grant-email"
+              type="email"
+              autoComplete="off"
+              className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+              placeholder="student@example.com"
+              value={email}
+              onChange={e => onEmailChange(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); void lookup() } }}
+            />
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => void lookup()}
+            loading={looking}
+            disabled={!email.trim()}
+            className="sm:w-auto w-full"
+          >
+            <Search size={13} /> Find
+          </Button>
+        </div>
+
+        {/* Step 2 — confirm the account, then the amount */}
+        {found && (
+          <div className="space-y-4 border-t border-border pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm text-bright truncate">{found.full_name}</p>
+                <p className="text-xs text-ghost truncate">{found.email} · id {found.user_id}</p>
+              </div>
+              <div className="text-end shrink-0">
+                <p className="font-mono text-lg text-amber">{found.credit_balance}</p>
+                <p className="text-xs text-ghost">current balance</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label htmlFor="grant-credits" className="text-xs font-medium text-soft tracking-wide uppercase block mb-1.5">
+                  Credits
+                </label>
+                <input
+                  id="grant-credits"
+                  type="number"
+                  min={1}
+                  max={100000}
+                  inputMode="numeric"
+                  className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm font-mono text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+                  placeholder="500"
+                  value={credits}
+                  onChange={e => { setCredits(e.target.value); setError(''); setResult(null) }}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="grant-reason" className="text-xs font-medium text-soft tracking-wide uppercase block mb-1.5">
+                  Reason <span className="text-ghost normal-case">— shown on their statement</span>
+                </label>
+                <input
+                  id="grant-reason"
+                  className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+                  placeholder="Admin grant"
+                  maxLength={200}
+                  value={reason}
+                  onChange={e => setReason(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Quick amounts — the three that come up most in support. */}
+            <div className="flex flex-wrap gap-2">
+              {[100, 250, 500, 1000].map(n => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => { setCredits(String(n)); setError(''); setResult(null) }}
+                  className="px-3 py-1.5 rounded-full text-xs font-mono border border-border text-dim hover:text-bright hover:border-amber/30 transition-colors min-h-[36px]"
+                >
+                  +{n}
+                </button>
+              ))}
+            </div>
+
+            <Button
+              type="button"
+              onClick={() => void grant()}
+              loading={granting}
+              disabled={!credits.trim()}
+              className="w-full sm:w-auto"
+            >
+              <Gift size={13} />
+              Grant {credits.trim() ? `${credits} credits` : 'credits'} to {found.full_name.split(' ')[0]}
+            </Button>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-rose/10 border border-rose/20 text-xs text-rose">
+            <AlertTriangle size={13} className="shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {result && (
+          <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-emerald/10 border border-emerald/20 text-xs text-emerald">
+            <CheckCircle size={13} className="shrink-0 mt-0.5" />
+            <span>
+              Granted {result.credits_granted} credits to {result.full_name} ({result.email}).
+              New balance {result.new_balance}.
+            </span>
+          </div>
+        )}
+
+        <p className="text-xs text-ghost leading-relaxed">
+          Recorded as a bonus transaction on the account&apos;s statement and written to
+          the admin audit log. Grants cannot be reversed from this screen.
+        </p>
+      </Card>
+    </section>
+  )
+}
+
 export default function AdminAnalyticsPage() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
@@ -151,6 +362,10 @@ export default function AdminAnalyticsPage() {
           dashboard and community pages use. */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-5xl space-y-8">
+          {/* Operations first: this is the one thing on the page you come
+              here to *do*, rather than read. */}
+          <GrantCredits />
+
           {/* ── Users ─────────────────────────────────────────────────── */}
           <section className="space-y-3">
             <SectionTitle icon={Users}>Users</SectionTitle>

@@ -6,9 +6,10 @@ Register in main.py:
     app.include_router(wallet_router, prefix="/api/v1/wallet", tags=["Wallet"])
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 from app.db.session import get_db
 from app.core import security_log
@@ -91,12 +92,53 @@ class TopUpRequest(BaseModel):
 
 
 class AdminGrantRequest(BaseModel):
-    user_id: int = Field(..., gt=0)
+    """Identify the recipient by email or by id — exactly one.
+
+    Email is what an operator actually has in front of them: a support
+    thread, a receipt, a message. Requiring the internal id meant looking it
+    up in the database first, which is how a one-step action became three.
+    The id path stays for callers that already resolved it.
+    """
+    user_id: Optional[int] = Field(None, gt=0)
+    email: Optional[EmailStr] = None
     # Bounded on both ends: a grant is a credit *issue*, not an arbitrary
     # balance write, so a negative value (a silent debit) and an absurd
     # positive one are both rejected rather than trusted.
     credits: int = Field(..., gt=0, le=100_000)
     description: str = Field("Admin grant", max_length=200)
+
+    @model_validator(mode="after")
+    def exactly_one_identifier(self) -> "AdminGrantRequest":
+        if (self.user_id is None) == (self.email is None):
+            raise ValueError("Provide exactly one of user_id or email")
+        return self
+
+
+class AdminUserLookupResponse(BaseModel):
+    """The minimum needed to confirm you are crediting the right person."""
+    user_id: int
+    email: str
+    full_name: str
+    credit_balance: int
+
+
+def _resolve_grant_target(payload: AdminGrantRequest, db: Session) -> User:
+    """Find the recipient, by whichever identifier was supplied.
+
+    Email is matched case-insensitively: addresses are stored as the user
+    typed them at registration, and an operator copying one out of a support
+    thread should not have to reproduce its capitalisation.
+    """
+    if payload.user_id is not None:
+        user = db.query(User).filter(User.id == payload.user_id).first()
+    else:
+        user = db.query(User).filter(
+            func.lower(User.email) == payload.email.lower()
+        ).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
@@ -235,26 +277,60 @@ def confirm_payment(
     }
 
 
+@router.get("/admin/user-lookup", response_model=AdminUserLookupResponse)
+def admin_user_lookup(
+    email: EmailStr = Query(..., description="The account's sign-in address"),
+    _admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Admin: resolve an email to a user and their current balance.
+
+    Read-only, and its purpose is to make the grant below safe: an operator
+    sees the name and current balance of the person they are about to credit
+    before committing, instead of discovering the typo afterwards.
+    """
+    user = db.query(User).filter(func.lower(User.email) == email.lower()).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    wallet = get_or_create_wallet(user.id, db)
+    return AdminUserLookupResponse(
+        user_id=user.id,
+        email=user.email,
+        full_name=user.full_name,
+        credit_balance=wallet.credit_balance,
+    )
+
+
 @router.post("/admin/grant")
 def admin_grant(
     payload: AdminGrantRequest,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    """Admin: grant free credits to any user."""
-    if not db.query(User.id).filter(User.id == payload.user_id).first():
-        raise HTTPException(status_code=404, detail="User not found")
+    """Admin: grant free credits to any user, by email or by id."""
+    user = _resolve_grant_target(payload, db)
 
     wallet = add_credits(
-        user_id=payload.user_id,
+        user_id=user.id,
         credits=payload.credits,
         db=db,
         payment_method="admin",
         description=payload.description,
         transaction_type="bonus",
     )
+    # The resolved id is what goes in the audit line, never the email the
+    # caller happened to type — the log has to name the account that was
+    # actually credited.
     security_log.admin_action(
         admin_id=current_user.id, action="wallet.grant_credits",
-        target=f"user={payload.user_id} credits={payload.credits}",
+        target=f"user={user.id} credits={payload.credits}",
     )
-    return {"message": "Credits granted.", "new_balance": wallet.credit_balance}
+    return {
+        "message": "Credits granted.",
+        "user_id": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "credits_granted": payload.credits,
+        "new_balance": wallet.credit_balance,
+    }

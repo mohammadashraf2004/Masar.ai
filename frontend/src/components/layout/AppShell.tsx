@@ -14,7 +14,7 @@ import {
   LayoutDashboard, BookOpen, Brain,
   LogOut, ChevronRight, Zap, Users,
   ShieldCheck, X, Trophy, Clock, Star,
-  CheckCircle, Lock, Flame, Wrench, BookMarked
+  CheckCircle, Lock, Flame, Wrench, BookMarked, BarChart3
 } from 'lucide-react'
 
 // Labels are i18n keys, not strings: the sidebar is the one piece of chrome
@@ -28,6 +28,17 @@ const NAV: Array<{ href: string; icon: React.ElementType; label: StringKey }> = 
   { href: '/mentor',     icon: Brain,           label: 'nav.mentor' },
   { href: '/community',  icon: Users,           label: 'nav.community' },
   { href: '/challenges', icon: Flame,           label: 'nav.challenges' },
+]
+
+// Appended for admins only. Kept separate from NAV rather than filtered out
+// of it, so the ordinary list stays the thing every student sees and an
+// admin's extra destination is visibly an addition to it.
+//
+// This is navigation, not authorization: /admin/analytics checks the role
+// itself and every endpoint behind it is guarded by require_admin. Hiding
+// the link only avoids offering a student a page that would refuse them.
+const ADMIN_NAV: Array<{ href: string; icon: React.ElementType; label: StringKey }> = [
+  { href: '/admin/analytics', icon: BarChart3, label: 'nav.admin' },
 ]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -339,7 +350,7 @@ function SidebarBody({
           shrink below its content, so on a short viewport the controls below
           it (Get Verified, Sign out) were pushed out of the clipped shell. */}
       <nav className="flex-1 min-h-0 overflow-y-auto px-3 mt-4 space-y-0.5">
-        {NAV.map(({ href, icon: Icon, label }) => {
+        {(user?.role === 'admin' ? [...NAV, ...ADMIN_NAV] : NAV).map(({ href, icon: Icon, label }) => {
           const active = pathname === href || pathname.startsWith(href + '/')
           return (
             <Link

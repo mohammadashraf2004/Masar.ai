@@ -9,7 +9,7 @@ import type {
   AnswerSubmission,
   TerminologyDictionary, VocabularyProgress, TerminologyLintResult,
   SearchResults, LanguagePrefs,
-  AdminAnalyticsOverview,
+  AdminAnalyticsOverview, AdminUserLookup, AdminGrantResult,
   ProjectHint,
 } from '@/types'
 import { useAuthStore } from '@/lib/store'
@@ -559,6 +559,26 @@ class ApiClient {
    *  a broken screen to someone who was never going to be allowed in. */
   async getAnalyticsOverview() {
     const res = await this.http.get<AdminAnalyticsOverview>('/admin/analytics/overview')
+    return res.data
+  }
+
+  // ─── Admin credit grants ──────────────────────────────────────────────
+
+  /** Resolve an email to the account behind it and its current balance, so
+   *  a grant can be confirmed against a name rather than a typed address. */
+  async adminLookupUser(email: string) {
+    const res = await this.http.get<AdminUserLookup>('/wallet/admin/user-lookup', {
+      params: { email },
+    })
+    return res.data
+  }
+
+  /** Grant credits to an account by email. Admin-only and audited on the
+   *  server; the amount is bounded there, not here. */
+  async adminGrantCredits(email: string, credits: number, description: string) {
+    const res = await this.http.post<AdminGrantResult>('/wallet/admin/grant', {
+      email, credits, description,
+    })
     return res.data
   }
 }

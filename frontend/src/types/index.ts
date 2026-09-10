@@ -454,3 +454,21 @@ export interface AdminAnalyticsOverview {
     d30?: number | null
   }
 }
+
+// ─── Admin credit grants ────────────────────────────────────────────────
+
+export interface AdminUserLookup {
+  user_id: number
+  email: string
+  full_name: string
+  credit_balance: number
+}
+
+export interface AdminGrantResult {
+  message: string
+  user_id: number
+  email: string
+  full_name: string
+  credits_granted: number
+  new_balance: number
+}

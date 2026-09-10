@@ -7,7 +7,7 @@ import { useAuthStore } from '@/lib/store'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { useI18n } from '@/lib/i18n'
 import { useMobileNav } from '@/components/layout/MobileNavContext'
-import { Zap, AlertTriangle, User, LogOut, Settings, Menu } from 'lucide-react'
+import { Zap, AlertTriangle, User, LogOut, Settings, Menu, BarChart3 } from 'lucide-react'
 
 // ── Mobile drawer toggle ──────────────────────────────────────────────────────
 /**
@@ -142,6 +142,20 @@ function ProfileMenu() {
               <Zap size={13} className="text-ghost" />
               Buy Credits
             </Link>
+
+            {/* Admins only. The account menu is where someone looks for
+                "the things I can do because of who I am", which is why the
+                link lives here as well as in the sidebar. */}
+            {user.role === 'admin' && (
+              <Link
+                href="/admin/analytics"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2 text-xs text-soft hover:text-bright hover:bg-surface transition-colors"
+              >
+                <BarChart3 size={13} className="text-amber" />
+                Admin analytics
+              </Link>
+            )}
           </div>
 
           {/* Sign out */}

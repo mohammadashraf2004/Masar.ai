@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.core import security_log
@@ -164,8 +165,34 @@ def start_exam(
             started_at=datetime.now(timezone.utc),
         )
         db.add(attempt)
-        db.commit()
-        db.refresh(attempt)
+        try:
+            db.commit()
+        except IntegrityError:
+            # A concurrent /start for this same user+exam won the race —
+            # `uq_exam_attempts_one_in_progress` (migration 010) is what
+            # actually stops two IN_PROGRESS rows existing at once; this
+            # is just turning that into the same "resume" outcome the
+            # sequential path already gives, instead of a bare 409. Two
+            # simultaneous requests both wanting to start the same exam
+            # should both land in the one attempt that won, not one of
+            # them erroring.
+            db.rollback()
+            attempt = db.query(ExamAttempt).filter(
+                ExamAttempt.exam_id == exam_id,
+                ExamAttempt.user_id == current_user.id,
+                ExamAttempt.status == ExamStatus.in_progress,
+            ).first()
+            if attempt is None:
+                # The winner's attempt was already resolved (finished or
+                # expired) between our failed insert and this re-read —
+                # vanishingly unlikely, but fail closed with a message the
+                # caller can act on rather than a raw 500.
+                raise HTTPException(
+                    status_code=409,
+                    detail="Could not start this exam right now — please try again.",
+                )
+        else:
+            db.refresh(attempt)
 
     # Strip correct answers before sending to client
     questions = [

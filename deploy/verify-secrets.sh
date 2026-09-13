@@ -162,6 +162,26 @@ present ALERT_RECEIVER_URL   "alert sink"    optional "Slack/Discord webhook, if
 present BACKUP_ENCRYPTION_PASSPHRASE "backup encryption" required "deploy/backup/pg-backup.sh"
 
 echo
+echo "── Off-host backup (S3) ─────────────────────────────────────────────"
+# BACKUP_REMOTE_ENABLED itself has no default in docker-compose.prod.yml —
+# `docker compose config` already refuses to boot without it, which is a
+# stronger check than this script can do (it can't tell "unset" from
+# "false" the way a required compose interpolation can). What this CAN
+# catch ahead of a deploy: the flag says true but the rest of the S3
+# configuration was never filled in.
+remote_enabled="${BACKUP_REMOTE_ENABLED:-false}"
+printf '  %-28s %-22s %s\n' "BACKUP_REMOTE_ENABLED" "${remote_enabled}" "no default — compose requires it set"
+if [[ "$remote_enabled" == "true" ]]; then
+    present BACKUP_S3_BUCKET         "S3 bucket"     required
+    present AWS_ACCESS_KEY_ID        "S3 credential" required "least-privilege — see DEPLOYMENT.md §3"
+    present AWS_SECRET_ACCESS_KEY    "S3 credential" required
+    present BACKUP_S3_REGION         "S3 region"     optional "required by most (non-S3-compatible) real AWS buckets"
+    present BACKUP_S3_ENDPOINT_URL   "S3 endpoint"   optional "only for a non-AWS S3-compatible target (MinIO, R2, a DR drill)"
+else
+    printf '  %-28s %-22s %s\n' "(S3 settings)" "n/a" "BACKUP_REMOTE_ENABLED is not true — local-only backup"
+fi
+
+echo
 echo "── Build arguments (baked into the image, not runtime) ──────────────"
 present NEXT_PUBLIC_API_URL  "frontend->API" required "rebuild required to change"
 check_https NEXT_PUBLIC_API_URL

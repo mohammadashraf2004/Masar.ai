@@ -29,11 +29,23 @@
 # (DEPLOYMENT.md §1, LAUNCH_CHECKLIST Phase 2): Docker writes its own
 # iptables rules and a future compose change could republish a port.
 
+# Same reasoning as the x-logging anchor in docker-compose.yml — YAML
+# anchors don't cross files, so the services defined only in THIS file
+# need their own. Caddy in particular logs every request as JSON (see
+# deploy/Caddyfile's `log { output stdout, format json }`), making it the
+# highest-volume logger in the stack under real traffic.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   # ─── The only public entry point ──────────────────────────────────
   caddy:
     image: caddy:2.8-alpine
     restart: unless-stopped
+    logging: *logging
     ports:
       - "80:80"
       - "443:443"
@@ -88,6 +100,7 @@ services:
   alertmanager:
     image: prom/alertmanager:v0.27.0
     restart: unless-stopped
+    logging: *logging
     entrypoint:
       - /bin/sh
       - -c
@@ -114,18 +127,21 @@ services:
 
   # ─── Scheduled, encrypted database backups ────────────────────────
   # See deploy/backup/pg-backup.sh. Runs pg_dump -Fc, encrypts with
-  # AES-256, prunes by retention, and writes a heartbeat file that
-  # Prometheus can alert on when it goes stale.
+  # AES-256, prunes by retention, writes a heartbeat file Prometheus can
+  # alert on when it goes stale, and — when BACKUP_REMOTE_ENABLED=true —
+  # ships the already-encrypted artifact to S3 (or an S3-compatible
+  # endpoint) and verifies it landed intact.
   db-backup:
-    # Debian, NOT -alpine. The alpine postgres image ships libssl but not
-    # the `openssl` command-line tool, so every backup failed at the
-    # encryption step with "sh: openssl: not found". Caught by running it:
-    # the dump succeeded, encryption failed, and the script correctly
-    # refused to leave an unencrypted or half-written artifact behind.
-    # Installing openssl at container start instead would put an apk fetch
-    # on the critical path of every restart.
-    image: postgres:16
+    # Own Dockerfile now (was the bare postgres:16 image): the AWS CLI the
+    # off-host upload needs has to live somewhere, and it belongs isolated
+    # to this one service, not installed into the api or frontend images
+    # that never touch backup storage or its credentials. Still Debian, not
+    # -alpine, for the reason the Dockerfile itself documents (openssl CLI).
+    build:
+      context: ./deploy/backup
+      dockerfile: Dockerfile
     restart: unless-stopped
+    logging: *logging
     environment:
       - PGHOST=db
       - PGUSER=${POSTGRES_USER:-postgres}
@@ -136,18 +152,50 @@ services:
       - BACKUP_RETENTION_DAILY=${BACKUP_RETENTION_DAILY:-7}
       - BACKUP_RETENTION_WEEKLY=${BACKUP_RETENTION_WEEKLY:-4}
       - BACKUP_RETENTION_MONTHLY=${BACKUP_RETENTION_MONTHLY:-6}
+      # ── Off-host copy ──────────────────────────────────────────────
+      # No default: a production deploy must say explicitly whether
+      # off-host backup is on, so its absence is a decision on record
+      # rather than a silent gap nobody chose. Set to "false" is a valid,
+      # honest answer if S3 genuinely is not configured yet; an unset
+      # value is not, and this line refuses to boot rather than accept one.
+      - BACKUP_REMOTE_ENABLED=${BACKUP_REMOTE_ENABLED:?set to true to enable off-host backup, or false to explicitly accept local-only backup until it is configured}
+      # Everything below is read by pg-backup.sh only when the flag above
+      # is "true"; each one is itself required at that point (see
+      # upload_remote() in the script) — left as plain passthroughs here
+      # (no :- default) so an unset value surfaces as the script's own
+      # named error rather than an empty string silently reaching `aws`.
+      - BACKUP_S3_BUCKET
+      - BACKUP_S3_PREFIX=${BACKUP_S3_PREFIX:-masar/postgres}
+      - BACKUP_S3_REGION
+      # Only for an S3-compatible endpoint that is not AWS itself (MinIO,
+      # R2, a disaster-recovery drill against a local emulator). Leave
+      # unset for real AWS S3 — the AWS CLI's own default endpoint applies.
+      - BACKUP_S3_ENDPOINT_URL
+      # AES256 (SSE-S3) needs no further configuration and is the default
+      # inside the script once remote backup is on; set to aws:kms (with
+      # BACKUP_S3_KMS_KEY_ID) only if a KMS key already exists for this,
+      # or to "none" to rely solely on the existing client-side AES-256.
+      - BACKUP_S3_SSE
+      - BACKUP_S3_KMS_KEY_ID
+      # Scoped to this container ONLY — see the compose file's own
+      # comment block at the top: no other service in this file receives
+      # these. A least-privilege IAM user/role limited to PutObject/
+      # GetObject/HeadObject/ListBucket on this one bucket+prefix; never
+      # the account's admin credentials. See DEPLOYMENT.md §3 for the
+      # exact policy.
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
     volumes:
-      - ./deploy/backup/pg-backup.sh:/usr/local/bin/pg-backup.sh:ro
       # Deliberately a named volume, NOT a bind mount into the repo: a
       # backup written into the source tree would end up in the build
       # context and, one careless `git add -f` later, in Git.
       #
-      # This volume is on the same host as the database, which is NOT
-      # sufficient on its own — see LAUNCH_CHECKLIST Phase 5. Replicate it
-      # off-host (restic/rclone to object storage) and only then is the
-      # off-host requirement met.
+      # This volume alone is still on the same host as the database — see
+      # DEPLOYMENT.md §3. BACKUP_REMOTE_ENABLED above is what closes that
+      # gap; this volume remains the fast local-restore path (a dropped
+      # table doesn't need a round trip to S3) and the source the upload
+      # step reads from.
       - backup_data:/backups
-    entrypoint: ["/bin/sh", "/usr/local/bin/pg-backup.sh"]
     depends_on:
       db:
         condition: service_healthy

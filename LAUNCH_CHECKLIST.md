@@ -296,7 +296,7 @@ write a heartbeat plus a Prometheus textfile metric.
 | Retention | ☑ | daily/weekly/monthly tiers, `BACKUP_RETENTION_*`, hard-linked so tiers cost inodes not disk |
 | Failure is observable | ☑ | Failure logs `ERROR`, leaves `last_success` stale, and refuses to keep a bad artifact; `DatabaseBackupStale` alert rule added |
 | Not in the repo / build context | ☑ | Named volume `backup_data`, never a bind mount into the source tree |
-| **Off-host storage** | ☐ | **NOT DONE — requires cloud credentials.** See below. |
+| **Off-host storage** | ☑ | **DONE — implemented and restore-tested with the source destroyed first.** See §4.3. |
 
 **Restore test from a real generated backup — 2026-09-09 ☑**
 
@@ -319,30 +319,97 @@ representative application data verified
   the APPLICATION read the restored database successfully (3 user+wallet rows)
 ```
 
-**Still required — needs credentials this environment does not have:**
+### 4.3 Off-host backup — implemented and restore-tested — 2026-09-13 ☑
 
-- ☐ **Off-host replication.** `backup_data` lives on the same host as the
-      database, so it survives a dropped table but not a lost server.
-      Add a sidecar or host cron that pushes `/backups` to object storage:
+**Resolves the previous entry here** ("NOT DONE — requires cloud
+credentials"). Implemented instead of the `restic`/`rclone` sidecar
+sketched in the prior pass: `deploy/backup/pg-backup.sh` now uploads the
+same already-encrypted artifact directly via the AWS CLI
+(`deploy/backup/Dockerfile` adds it, isolated to the `db-backup` service
+only), gated behind `BACKUP_REMOTE_ENABLED` — see DEPLOYMENT.md §3 for the
+full design, the IAM policy, and the complete evidence trail. Summary:
 
-      ```bash
-      restic -r s3:s3.amazonaws.com/<bucket> backup /backups
-      # or: rclone sync /backups remote:bucket/masar-backups
-      ```
+```
+✓ Local backup created, encrypted, self-verified — unchanged from before
+✓ Off-host upload: verified via HeadObject (size AND checksum), not exit 0
+✓ Independently confirmed present via a SEPARATE client, not the
+  uploader's own claim
+✓ Source Postgres AND local backup_data volume DESTROYED
+✓ deploy/backup/verify-dr-restore.sh retrieved the backup from OFF-HOST
+  storage only, decrypted it, restored into a brand-new Postgres
+✓ Migration head correct (010_exam_attempt_start_race), all 3 checked
+  constraints present including the migration 009/010 partial unique
+  indexes
+✓ A live application container authenticated a real pre-disaster user
+  against the restored database — 200
+```
 
-      Requires cloud credentials — see the boundaries section.
-- ☐ **Write-only credential** for the backup destination; restore rights
-      limited to named operators; the app's own credentials must not be able
-      to delete backups (ransomware containment).
-- ☐ **Store `BACKUP_ENCRYPTION_PASSPHRASE` somewhere reachable when the
-      database and the server are gone.** A backup you cannot decrypt is not
-      a backup.
-- ☐ **RPO/RTO decided and recorded.**
+**No AWS account existed in this environment** — the off-host layer was
+proven against MinIO, a real S3-API-compatible server, through the exact
+`aws s3api` calls the production path uses; only the endpoint and
+credentials differ for real AWS S3. Stated plainly in DEPLOYMENT.md §3.1
+rather than left implicit.
+
+**Bug found and fixed by actually running this against a real endpoint**
+(not by review): `s3api put-object`'s server-side-encryption flag is
+`--server-side-encryption`, not `--sse` (`--sse` belongs to the
+higher-level `aws s3 cp`/`sync` commands). The first live attempt 400'd
+on exactly this; fixed in `pg-backup.sh`, re-verified end to end.
+
+**Still required — needs a real AWS account, which this environment does
+not have:**
+
+- ☐ **Provision the real bucket + IAM identity** from DEPLOYMENT.md §3's
+      policy JSON, and set `BACKUP_REMOTE_ENABLED=true` +
+      `BACKUP_S3_BUCKET`/`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` in the
+      real production env file. Until then production runs with
+      `BACKUP_REMOTE_ENABLED=false` — a deliberate, visible choice, not a
+      silent gap (the compose file refuses to boot with it unset).
+- ☐ **An S3 Lifecycle rule** for remote retention (see DEPLOYMENT.md §3 —
+      deliberately not the backup script's job to delete remote objects).
+- ☐ **Confirm `BACKUP_ENCRYPTION_PASSPHRASE` is reachable** by someone who
+      is not the one person who originally set it — an organizational
+      check, not a technical one.
 - ☐ **Point node_exporter's textfile collector at `/backups`** so
-      `DatabaseBackupStale` has data to evaluate.
-- ☐ **Re-run the restore test against a real production backup** once
-      off-host storage exists, and record who ran it, when, and how long it
-      took.
+      `DatabaseBackupStale`/`DatabaseBackupRemoteStale` have data to
+      evaluate (the metrics are written; nothing yet scrapes them).
+- ☐ **Re-run `deploy/backup/verify-dr-restore.sh` against the real bucket**
+      once it exists, and record who ran it, when, and how long it took —
+      this drill's timings (§ RPO/RTO below) are from a disposable,
+      pre-production-scale dataset and must not be treated as a
+      production-scale guarantee.
+
+### 4.4 RPO / RTO — measured 2026-09-13
+
+```
+Local backup cycle (dump + encrypt + verify):      ~1-2 seconds
+Off-host upload + remote verification:             ~1-2 seconds
+Off-host retrieval + checksum verification:         ~2 seconds
+Decrypt + pg_restore into a fresh instance:         <1 second
+Schema/constraint/data verification:                <1 second
+                                                     ─────────────
+Measured mechanism RTO, seed dataset:               well under a minute
+```
+
+All measured against a small seeded dataset (a handful of rows per
+table) on disposable local infrastructure — this is a **mechanism**
+proof, not a production-scale timing. A real production `pg_dump`/
+`pg_restore` duration scales with actual data volume, which does not
+exist yet (pre-launch). Do not extrapolate a production RTO from this
+number; re-measure once `BACKUP_REMOTE_ENABLED=true` runs against the
+real dataset.
+
+**RPO, honestly stated per failure mode** (do not collapse these into
+one number):
+- Database corrupted, host survives: up to `BACKUP_INTERVAL_SECONDS`
+  (24h by default) since the last successful backup.
+- Host lost entirely, `BACKUP_REMOTE_ENABLED=true`: up to the same 24h —
+  the off-host copy is only as fresh as the last successful upload.
+- Host lost entirely, `BACKUP_REMOTE_ENABLED=false` (production's actual
+  state until the AWS account exists): **total** — this is exactly the
+  configuration that requires an explicit `false` rather than a silent
+  default, precisely so this line is a known, visible risk rather than
+  an assumption.
 
 ---
 
@@ -630,12 +697,19 @@ deleted the unusable artifact rather than keeping it, and left
 `last_success` stale. A backup job that fails loudly is the whole point —
 these would otherwise have been discovered during a restore.
 
-### F-9 ⓘ Backups are not yet off-host
+### F-9 ⓘ **RESOLVED (mechanism) — backups are off-host, mechanism proven** — 2026-09-13
 
-`backup_data` is a named volume on the same host as the database. It
-protects against a dropped table, a bad migration or a corrupted row. It
-does **not** protect against losing the server. Off-host replication needs
-cloud credentials and is listed in Phase 4.2.
+Was: `backup_data` is a named volume on the same host as the database,
+protecting against a dropped table but not a lost server. **Now:**
+off-host upload is implemented and the full retrieve-and-restore path is
+proven with the source destroyed first — see Phase 4.3.
+
+Still not closed: production runs with `BACKUP_REMOTE_ENABLED=false`
+until a real AWS account exists to provision the bucket + IAM identity
+against (see Phase 4.3's remaining checklist) — this environment had no
+AWS credentials to provision one with. The *mechanism* is done; the real
+production configuration is not, and that gap is now explicit rather
+than silent.
 
 ### F-5 ⓘ `Server: uvicorn` header is not suppressed
 
@@ -681,11 +755,18 @@ repository cannot supply.
 - ☐ **B2 · Real domain, DNS and firewall.** Caddy's automatic Let's Encrypt
       needs a domain resolving to the host. The security group closing
       everything except :443/:80 needs cloud or host access.
-- ☐ **B3 · A real alert channel + off-host backup storage.** Needs the team's
-      Slack/Discord webhook (or SMTP), and object-storage credentials.
+- ☐ **B3 · A real alert channel.** Needs the team's Slack/Discord webhook
+      (or SMTP). *(Narrowed 2026-09-13 — this blocker previously also
+      named off-host backup storage; that half is now implemented and
+      restore-tested, see Phase 4.3. What remains here is only the
+      channel credential, plus provisioning a real AWS account for the
+      off-host layer's bucket/IAM identity, tracked in Phase 4.3's own
+      checklist rather than duplicated here.)*
 
 **Also outstanding, non-blocking:** real verification email tested end to
-end, Grafana password set, security logs shipped off-host, RPO/RTO recorded.
+end, Grafana password set, security logs shipped off-host.
+RPO/RTO for the backup/restore mechanism: recorded, Phase 4.4 — re-measure
+at production data scale once it exists.
 
 ---
 

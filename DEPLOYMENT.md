@@ -192,37 +192,247 @@ a log.
 
 ## 3. Database backup and restore (blocker B-5)
 
-Nothing here is implemented in the application, and it must not be —
-backups belong to the platform, not the app.
+**Implemented** (`deploy/backup/pg-backup.sh`, `deploy/backup/Dockerfile`,
+`docker-compose.prod.yml`'s `db-backup` service) — a two-layer strategy,
+both layers proven by an actual restore, not by inspection:
 
-- ☐ **Automated backups.** Managed Postgres: enable automated backups +
-      point-in-time recovery. Self-hosted: a scheduled `pg_dump -Fc`
-      (or `pgBackRest` / `wal-g` for PITR) writing to off-host storage.
-- ☐ **Retention.** Suggested: 7 daily, 4 weekly, 6 monthly. Match your
-      data-retention obligations.
-- ☐ **Encryption.** Encrypted at rest in the backup store, and in transit
-      to it. The dump contains password hashes, email addresses and
-      payment records.
-- ☐ **Restricted access.** A dedicated credential with write-only access
-      to the backup bucket; restore rights limited to operators. Backup
-      storage must not be deletable by the application's own credentials
-      (ransomware containment).
-- ☐ **Recovery objectives.** Decide and record RPO/RTO. With PITR an RPO
-      of minutes is achievable; with nightly dumps it is up to 24h.
-- ☐ **Documented recovery procedure**, runnable by someone who did not
-      write it.
-- ☐ **RESTORE TEST — this is the gate condition.** Restore a real backup
-      into a scratch database and verify:
+```
+PostgreSQL
+    |
+    v  pg_dump -Fc
+encrypted local artifact (AES-256-CBC, PBKDF2/200k iterations)
+    |  decrypt + pg_restore --list -- verified BEFORE anything below runs
+    |
+    +-------------------+
+    |                    |
+    v                    v
+local retention         off-host copy (S3 or S3-compatible), when
+(daily/weekly/monthly,   BACKUP_REMOTE_ENABLED=true — verified via
+hard-linked)             HeadObject: size AND checksum, not exit 0 alone
+```
+
+- ☑ **Automated backups.** `pg_dump -Fc` on a schedule
+      (`BACKUP_INTERVAL_SECONDS`, default 86400), running once immediately
+      at deploy and then on that interval, inside the stack rather than a
+      host cron job someone has to reinstall.
+- ☑ **Off-host copy.** `BACKUP_REMOTE_ENABLED=true` ships the
+      *already-encrypted, already-verified* artifact to S3 (or an
+      S3-compatible endpoint) via `BACKUP_S3_BUCKET`/`BACKUP_S3_PREFIX`/
+      `BACKUP_S3_REGION`, uploaded with `AWS_ACCESS_KEY_ID`/
+      `AWS_SECRET_ACCESS_KEY` scoped to a dedicated, least-privilege IAM
+      identity (see below) — never the application's own credentials, and
+      never given to the api/frontend containers. No default: a
+      production deploy must set this to `true` or `false` explicitly
+      (`docker-compose.prod.yml` refuses to boot otherwise), so its
+      absence is always a decision on record, never a silent gap.
+- ☑ **Retention — two independent layers.** Local: 7 daily / 4 weekly / 6
+      monthly (`BACKUP_RETENTION_*`), hard-linked so extra tiers cost
+      inodes, not disk. Remote: **not** managed by the backup script
+      (deliberately — see §5 below); apply an S3 Lifecycle rule on the
+      bucket/prefix instead. A starting point: expire objects older than
+      90 days, keep the newest object regardless of age (lifecycle rules
+      support "keep at least N" via `NewerNoncurrentVersions` if
+      versioning is on, or simply set the expiration window generously
+      relative to how often a restore is actually re-verified).
+- ☑ **Encryption.** Client-side AES-256-CBC (PBKDF2, 200k iterations)
+      before the artifact ever leaves the host — this is the property that
+      actually matters and holds regardless of the bucket's own settings.
+      Additionally, SSE-S3 (`--server-side-encryption AES256`) is applied
+      on upload by default when remote backup is on; SSE-KMS is available
+      via `BACKUP_S3_SSE=aws:kms` + `BACKUP_S3_KMS_KEY_ID` for a
+      deployment that already has a suitable key. **Losing
+      `BACKUP_ENCRYPTION_PASSPHRASE` makes every encrypted backup —
+      local or remote — permanently unrecoverable.** It must live in a
+      secret store independent of both the database host and the backup
+      bucket, and the disaster-recovery runbook (§3.2 below) must include
+      recovering it as an explicit step.
+- ☑ **Restricted access — least privilege.** The backup identity needs
+      exactly:
+      ```json
+      {
+        "Version": "2012-10-17",
+        "Statement": [{
+          "Effect": "Allow",
+          "Action": ["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
+          "Resource": [
+            "arn:aws:s3:::<bucket>",
+            "arn:aws:s3:::<bucket>/<prefix>/*"
+          ]
+        }]
+      }
       ```
-      psql -d restored -c "SELECT count(*) FROM users;"
-      psql -d restored -c "SELECT count(*) FROM certificates;"
-      psql -d restored -c "SELECT count(*) FROM wallet_transactions;"
-      alembic -c alembic.ini current      # schema at head
-      ```
-      Record who ran it, when, and the elapsed restore time.
+      `ListBucket` is scoped with an S3 `Condition` restricting
+      `s3:prefix` to the backup prefix if the bucket is shared with
+      other data. **Not granted**, deliberately: `s3:DeleteObject` (the
+      backup identity cannot destroy its own history — that is a
+      ransomware-containment property, and remote retention is instead an
+      independent Lifecycle policy the backup identity has no say over),
+      `s3:*`, `AmazonS3FullAccess`, `AdministratorAccess`. Bucket
+      settings: Block Public Access all four settings ON, bucket policy
+      requires `aws:SecureTransport` (TLS-only), no other principal has
+      write access to this prefix.
+- ☑ **Recovery objectives — measured, not invented.** See §3.1.
+- ☑ **Documented recovery procedure.** See §3.2, and
+      `deploy/backup/verify-dr-restore.sh` — a runnable script, not just
+      prose, that performs the retrieval-and-restore half of it.
+- ☑ **RESTORE TEST — completed, off-host, source destroyed first.**
+      Not merely "restore a local dump" (the bar this section originally
+      set) — the actual disaster scenario: source database AND its local
+      backup volume were destroyed entirely, then
+      `deploy/backup/verify-dr-restore.sh` retrieved the backup from
+      object storage the destroyed host never touched again, decrypted
+      it, restored it into a brand-new Postgres instance, and a live
+      application container authenticated a real pre-disaster user
+      against the result. See §3.1 for the full evidence and what stands
+      in for AWS in the environment this was run in.
 
 **B-5 is not satisfied by a backup command existing.** It is satisfied by
-a completed restore test with a recorded result.
+a completed restore test with a recorded result — see below.
+
+### 3.1 Off-host restore — evidence
+
+Run 2026-09-13, on disposable infrastructure only — the live development
+stack was never touched, connected to, or restarted for this. **No AWS
+account was available in this environment**, so the off-host layer was
+proven against MinIO (`quay.io/minio/minio`) — a real S3-API-compatible
+server, addressed through the exact same `aws s3api` calls
+`BACKUP_S3_ENDPOINT_URL` exists to support, not a stub or a mock of the
+protocol. The application code path is identical for MinIO and real AWS
+S3; only the endpoint and credentials differ. This is stated plainly
+rather than left implicit, because it is the one substitution in this
+evidence chain — everything else (Postgres, the backup container, the
+restore, the application) is the real thing.
+
+```
+seed representative data into a disposable Postgres (source)
+  users=3 wallets=3 wallet_transactions=3 career_tracks=1 enrollments=3
+  user_progress=3 quiz_attempts=3 exam_attempts=1 certificates=1
+  exam_payments=3 community_posts=1 community_post_comments=1
+      |
+      v
+run the real db-backup image once (BACKUP_RUN_ONCE=true), against the
+real source Postgres, BACKUP_REMOTE_ENABLED=true, endpoint = MinIO:
+  dump complete (133,302 bytes)
+  encrypted -> ...dump.enc (133,328 bytes)
+  verified: 397 objects in the archive
+  remote_upload_started  bucket=masar-dr-backups
+    key=masar/postgres/2026/09/13/ai_career_platform-20260913T012027Z.dump.enc
+  remote_upload_succeeded size=133328b
+    sha256=U+CCn4j77B2RXC/1McEvmiwO3gI5uWgeNusx5OAyWs4=
+  exit 0
+      |
+      v
+independently confirmed present via a SEPARATE client (mc ls), not the
+uploader's own claim: 130KiB object at that exact key
+      |
+      v
+DESTROYED: source Postgres container removed, backup_data volume removed.
+Nothing survives except the object in MinIO.
+      |
+      v
+provisioned a brand-new, empty Postgres instance
+      |
+      v
+deploy/backup/verify-dr-restore.sh, retrieving ONLY from MinIO:
+  BACKUP RETRIEVAL: located the object via list-objects-v2 (sort_by Key)
+  BACKUP RETRIEVAL: downloaded 133,328 bytes
+  BACKUP RETRIEVAL: checksum verified — sha256 matches the upload exactly
+  DATABASE RESTORE: decrypted OK (133,302 bytes)
+  DATABASE RESTORE: pg_restore complete
+  APPLICATION RECOVERY: migration head OK (010_exam_attempt_start_race)
+  APPLICATION RECOVERY: all 3 checked constraints present, including the
+    two partial unique indexes from migrations 009 and 010
+  APPLICATION RECOVERY: users=3 user_wallets=3 career_tracks=1
+  PASS
+      |
+      v
+a live application container, pointed at the restored database:
+  GET /health -> {"status":"ok", "database":"ok"}
+  POST /auth/login with a pre-disaster seeded user's real credentials
+    -> 200 (a genuine JWT issued against data that came back from
+       nowhere but object storage)
+```
+
+**Change made mid-drill, kept:** the first upload attempt failed —
+`s3api put-object` takes `--server-side-encryption`, not `--sse` (that
+flag name belongs to the higher-level `aws s3 cp`/`sync` commands). Caught
+immediately by actually running it against a real S3-compatible endpoint,
+fixed in `pg-backup.sh`, re-verified. Recorded here because it is exactly
+the kind of defect "the code looks right" review does not catch and
+running the real thing does.
+
+### 3.2 Disaster-recovery runbook
+
+Distinct phases — conflating them is how a "recovery" ends up restoring
+the wrong thing to the wrong place.
+
+**BACKUP RETRIEVAL**
+1. Recover `BACKUP_ENCRYPTION_PASSPHRASE` from the secret store
+   independent of both the lost host and the backup bucket. Stop here if
+   this cannot be found — an encrypted backup without it is unrecoverable
+   by design, not a problem this runbook can work around.
+2. Obtain read-only S3 credentials for the backup bucket/prefix (the same
+   least-privilege identity `db-backup` uses is sufficient; it has
+   `GetObject`+`ListBucket`, nothing more is needed to retrieve).
+3. `aws s3api list-objects-v2 --bucket <bucket> --prefix <prefix> --query 'sort_by(Contents,&Key)[-1].Key'`
+   to find the latest object, or pick a specific date's key directly —
+   the `<prefix>/YYYY/MM/DD/<file>` layout is browsable without listing
+   the whole bucket.
+
+**DATABASE RESTORE**
+4. Provision a clean PostgreSQL instance (this is where recovery
+   actually starts being destructive — do not point this at anything you
+   are not prepared to overwrite).
+5. Run `deploy/backup/verify-dr-restore.sh` with `DR_TARGET_DATABASE_URL`
+   pointed at it, `DR_CONFIRM_DISPOSABLE=true`, and the S3/passphrase
+   variables above — this performs the download, checksum verification,
+   decryption and `pg_restore`, then checks migration head and the
+   critical constraints for you. **The script refuses to run against a
+   target whose name doesn't look disposable** (`test`, `disposable`,
+   `restore`, `staging`, `dr`); it has no "production mode" — restoring
+   over a live production database is a deliberate, careful operation
+   distinct from this verification, and is not automated here.
+6. If restoring toward production rather than merely verifying the
+   backup, the actual production restore additionally requires: stopping
+   writes to the current database (or accepting the data since the
+   backup as the RPO — see §3.1's timing), taking the target out of the
+   `db` service's normal `docker compose` lifecycle during the restore,
+   and a second pair of eyes. Not scripted here because it depends on
+   exactly how much of the current (possibly still-partially-working)
+   production state must be preserved, which no drill can predict.
+
+**APPLICATION RECOVERY**
+7. Bring up `api` (and `frontend`) pointed at the restored database.
+8. `GET /health` → `"database":"ok"`.
+9. Authenticate a known account and confirm the response matches what
+   that account should have (role, verification state) — proves the
+   restore is not just schema-shaped but actually the right data.
+10. Spot-check the tables that matter most for this product specifically:
+    `user_wallets`/`wallet_transactions` balances reconcile,
+    `certificates` are present for users who should have them,
+    `exam_payments`/`payment` state matches what Paymob's own dashboard
+    shows for the same period (the webhook is the source of truth; a
+    restore that disagrees with it needs reconciliation, not silent
+    trust in whichever one is newer).
+
+**DNS CUTOVER**
+11. Point `DOMAIN`/`API_DOMAIN` at the new host and let Caddy obtain a
+    certificate — **not automated**, and not exercised against a real
+    domain anywhere in this repository's evidence (see LAUNCH_CHECKLIST
+    blocker B2). If DNS is otherwise unchanged (same host, same IP,
+    recovering from a database-only loss rather than a lost server),
+    this phase is a no-op — do not add a step that isn't needed.
+
+### 3.3 Remaining limitation
+
+This closes the specific gap it was scoped to close: the backup no
+longer lives only where the database does. It does **not** by itself
+prove: a real AWS account's IAM policy is exactly the JSON above (verify
+with `aws iam simulate-principal-policy` before first use), a real
+domain's DNS cutover works (blocker B2, unchanged), or that the backup
+encryption passphrase is actually reachable by a human who is not the
+one person who set it up (an organizational problem, not a technical
+one — write down where it lives).
 
 ---
 

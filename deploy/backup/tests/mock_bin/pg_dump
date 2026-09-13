@@ -1,0 +1,27 @@
+#!/bin/sh
+# Mock pg_dump for deploy/backup/tests/test_pg_backup.py.
+#
+# Real pg_dump/pg_restore aren't assumed to be on the test runner's PATH —
+# this is a unit test of the SHELL SCRIPT's control flow (dump -> encrypt
+# -> verify -> upload -> retention), not an integration test of Postgres
+# itself; that integration proof lives in the actual restore drill
+# documented in DEPLOYMENT.md/LAUNCH_CHECKLIST.md, run against a real
+# disposable Postgres.
+#
+# pg-backup.sh calls: pg_dump -Fc -f "$plain"
+# Parses just the -f argument and writes fixed, recognizable content there.
+set -eu
+out=""
+prev=""
+for arg in "$@"; do
+    if [ "$prev" = "-f" ]; then
+        out="$arg"
+    fi
+    prev="$arg"
+done
+if [ -n "${MOCK_PG_DUMP_FAIL:-}" ]; then
+    echo "mock pg_dump: simulated failure" >&2
+    exit 1
+fi
+printf 'FAKE_PG_DUMP_CONTENT_%s\n' "${MOCK_DUMP_MARKER:-default}" > "$out"
+exit 0

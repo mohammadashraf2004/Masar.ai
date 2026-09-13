@@ -1,0 +1,20 @@
+#!/bin/sh
+# Mock pg_restore for deploy/backup/tests/test_pg_backup.py. See pg_dump's
+# mock for why real Postgres tooling isn't assumed here.
+#
+# pg-backup.sh calls: pg_restore --list   (reads the decrypted dump from
+# stdin — real openssl runs for real in this test, so this only ever sees
+# genuinely-decrypted content; a wrong passphrase produces genuine garbage,
+# which is exactly what should NOT start with the marker below).
+set -eu
+body="$(cat)"
+case "$body" in
+    FAKE_PG_DUMP_CONTENT_*)
+        echo "1; 0 0 TABLE public fake_table postgres"
+        exit 0
+        ;;
+    *)
+        echo "mock pg_restore: input does not look like a dump" >&2
+        exit 1
+        ;;
+esac

@@ -60,6 +60,21 @@ class ChallengeProject(Base):
 class ChallengeAttempt(Base):
     """A user's enrollment and submission for a challenge project."""
     __tablename__ = "challenge_attempts"
+    __table_args__ = (
+        # At most one ENROLLED (active) attempt per user per challenge.
+        # Closes the enroll_challenge TOCTOU where concurrent requests
+        # could all pass the "not already enrolled" check, all charge the
+        # wallet, and all insert a row — see migration
+        # 009_challenge_enrollment_race. Partial, not table-wide: a new
+        # attempt after a previous one is submitted/graded/passed/failed
+        # must stay legal (the multi-attempt flow).
+        Index(
+            "uq_challenge_attempts_active_enrollment",
+            "user_id", "challenge_id",
+            unique=True,
+            postgresql_where=text("status = 'enrolled'::challengestatus"),
+        ),
+    )
 
     id               = Column(Integer, primary_key=True, index=True)
     user_id          = Column(Integer, ForeignKey("users.id"), nullable=False)

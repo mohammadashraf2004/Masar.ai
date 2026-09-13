@@ -143,6 +143,37 @@ groups:
             db-backup container's logs — a failing backup is silent until
             the day you need it.
 
+      - alert: DatabaseBackupRemoteStale
+        # Same "no samples until the metric exists" reasoning as
+        # DatabaseBackupStale above, and deliberately a SEPARATE alert
+        # rather than folding this into it: a stack with
+        # BACKUP_REMOTE_ENABLED=false will legitimately never produce
+        # masar_backup_remote_last_success_timestamp_seconds at all, and
+        # that must stay silent forever, not fire once and get muted. On a
+        # stack where remote backup IS on, this is the one that actually
+        # matters for surviving a lost host — the local-only alert above
+        # can be green while every backup for two days failed to leave
+        # the building.
+        #
+        # Longer window than the local alert (72h vs 48h): a transient S3
+        # outage/misconfiguration should not page on the same clock as a
+        # broken pg_dump, since the local backup (and local restore path)
+        # is still intact for that whole window regardless.
+        expr: |
+          time() - masar_backup_remote_last_success_timestamp_seconds > 259200
+        for: 30m
+        labels:
+          severity: high
+        annotations:
+          summary: "No verified OFF-HOST database backup in over 72 hours"
+          description: >-
+            The last backup confirmed present in object storage (size and
+            checksum verified via HeadObject) was
+            {{ $value | humanizeDuration }} ago. If the host is lost right
+            now, this is how much data does not come back. Check the
+            db-backup container's logs for remote_upload_failed /
+            remote_verify_failed events.
+
   - name: infrastructure
     rules:
       - alert: PostgresConnectionsHigh

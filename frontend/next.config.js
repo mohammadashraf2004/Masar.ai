@@ -14,10 +14,31 @@ const API_ORIGIN = (() => {
 const isProd = process.env.NODE_ENV === 'production'
 
 // Notes on the two loose directives:
+//  - 'unsafe-inline' in script-src: tried and reverted a nonce-based
+//    replacement during the 2026-09 security audit (see SECURITY.md). The
+//    per-request nonce a middleware/proxy hook mints DOES reach Next's own
+//    inline hydration/RSC-bootstrap scripts (`self.__next_f.push(...)`) —
+//    but ONLY on a route that renders dynamically, because that HTML has
+//    to be generated per-request for a per-request nonce to land in it at
+//    all. Verified empirically: on a build where every page stayed
+//    statically prerendered (the current architecture — most routes below
+//    show as `○ Static` in `next build`'s output), zero inline scripts
+//    carried the nonce and a strict CSP would have blocked Next's own
+//    hydration on every one of them, i.e. broken the app for every visitor.
+//    Making it work required forcing the root layout to read
+//    `headers()`, which converts EVERY route in the app from static to
+//    dynamically rendered (confirmed: `next build`'s route list flips from
+//    mostly `○` to all `ƒ`) — trading away edge caching and static TTFB
+//    app-wide to remove one CSP directive. That trade is a product/infra
+//    call, not a "clearly safe" security fix, so it was not made
+//    unilaterally; see SECURITY.md for the recommendation left for a
+//    deliberate decision (nonce + force-dynamic, a hash-based CSP for the
+//    static bundle's scripts, or keep this as documented residual risk).
 //  - 'unsafe-inline' in style-src: Next.js injects inline <style> tags for
 //    its CSS, and Tailwind's runtime-generated styles land the same way.
-//    Removing it needs a nonce-based setup (a custom Document + middleware),
-//    which is the documented next step, not something to switch on blind.
+//    Nonce'ing style tags has the same static-vs-dynamic problem as above,
+//    plus React inline `style` props and styled-jsx don't carry a nonce at
+//    all today — not attempted.
 //  - 'unsafe-eval' in dev only: the dev-mode React refresh runtime needs it.
 //    It is absent from production builds.
 const csp = [

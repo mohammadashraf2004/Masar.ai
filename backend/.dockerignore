@@ -66,5 +66,18 @@ histogram_*.db
 # ─── Version control / editor noise ───────────────────────────────────
 .git
 .gitignore
-.venv/
-venv/
+# Glob, not a literal name — and `**/`-prefixed for the same reason the
+# __pycache__ patterns above are: Docker matches with Go's filepath
+# rules, where a bare `venv/` matches only the context root, not a
+# nested directory. A differently-named local virtualenv (e.g. one an
+# ad-hoc audit/tooling session creates) is not excluded by a literal
+# `.venv/` either. Verified the hard way during the 2026-09 security
+# gate — a throwaway `.venv-audit/` used to run the test suite outside
+# Docker got copied into a real `docker build` of this image, because
+# only `.venv/` and `venv/` were listed. Same class of defect as the
+# `.env`-in-image incident this file already exists to prevent — see the
+# header above — just for build tooling instead of secrets.
+**/.venv/
+**/.venv*/
+**/venv/
+**/*venv/

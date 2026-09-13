@@ -1,0 +1,108 @@
+#!/bin/sh
+# Mock AWS CLI for deploy/backup/tests/test_pg_backup.py.
+#
+# Covers exactly the two calls upload_remote() makes in pg-backup.sh:
+#   aws [--endpoint-url ...] s3api put-object  --bucket B --key K --body PATH
+#       --checksum-algorithm SHA256 [--sse ...]
+#   aws [--endpoint-url ...] s3api head-object --bucket B --key K
+#       --checksum-mode ENABLED --query Q --output text
+#
+# State (what was "uploaded") is kept in $MOCK_AWS_STATE_DIR so a later
+# head-object call in the SAME test can report back a real, self-consistent
+# size/checksum — not a hardcoded one — which is what makes the mismatch
+# tests (MOCK_AWS_CORRUPT_ON_HEAD) meaningfully different from the happy
+# path rather than two copies of the same assertion.
+#
+# Every invocation's arguments are appended to $MOCK_AWS_CALL_LOG (if set)
+# so tests can assert on exactly what was sent — e.g. that the object key
+# is date-partitioned, or that --sse was passed when expected.
+set -eu
+
+log_call() {
+    if [ -n "${MOCK_AWS_CALL_LOG:-}" ]; then
+        printf '%s\n' "$*" >> "$MOCK_AWS_CALL_LOG"
+    fi
+}
+log_call "$@"
+
+state_dir="${MOCK_AWS_STATE_DIR:-/tmp/mock-aws-state}"
+mkdir -p "$state_dir"
+
+# Strip a leading --endpoint-url <url> if present; not otherwise used by
+# the mock (there's nothing to actually dial).
+if [ "${1:-}" = "--endpoint-url" ]; then
+    shift 2
+fi
+
+subcommand="${1:-}"; action="${2:-}"
+shift 2 2>/dev/null || true
+
+bucket=""; key=""; body=""; query=""
+prev=""
+for arg in "$@"; do
+    case "$prev" in
+        --bucket) bucket="$arg" ;;
+        --key) key="$arg" ;;
+        --body) body="$arg" ;;
+        --query) query="$arg" ;;
+    esac
+    prev="$arg"
+done
+
+state_key=$(printf '%s/%s' "$bucket" "$key" | tr '/' '_')
+
+if [ "$subcommand" != "s3api" ]; then
+    echo "mock aws: unsupported subcommand '$subcommand'" >&2
+    exit 2
+fi
+
+case "$action" in
+    put-object)
+        if [ -n "${MOCK_AWS_FAIL_PUT:-}" ]; then
+            echo "mock aws: simulated network error on put-object" >&2
+            exit 1
+        fi
+        [ -f "$body" ] || { echo "mock aws: --body file not found: $body" >&2; exit 2; }
+        size=$(wc -c < "$body")
+        sha256_b64=$(openssl dgst -sha256 -binary "$body" | openssl base64 -A)
+        printf '%s\n' "$size" > "$state_dir/$state_key.size"
+        printf '%s\n' "$sha256_b64" > "$state_dir/$state_key.sha256"
+        echo '{"ETag": "\"mock-etag\""}'
+        exit 0
+        ;;
+    head-object)
+        if [ -n "${MOCK_AWS_FAIL_HEAD:-}" ]; then
+            echo "mock aws: simulated error on head-object (object not found)" >&2
+            exit 254
+        fi
+        if [ ! -f "$state_dir/$state_key.size" ]; then
+            echo "mock aws: no such key (never uploaded): $key" >&2
+            exit 254
+        fi
+        case "$query" in
+            ContentLength)
+                if [ -n "${MOCK_AWS_SIZE_MISMATCH:-}" ]; then
+                    echo "999999999"
+                else
+                    cat "$state_dir/$state_key.size"
+                fi
+                ;;
+            ChecksumSHA256)
+                if [ -n "${MOCK_AWS_CHECKSUM_MISMATCH:-}" ]; then
+                    echo "bm90LXRoZS1yZWFsLWNoZWNrc3Vt"
+                else
+                    cat "$state_dir/$state_key.sha256"
+                fi
+                ;;
+            *)
+                echo "mock aws: unsupported --query '$query'" >&2
+                exit 2
+                ;;
+        esac
+        exit 0
+        ;;
+    *)
+        echo "mock aws: unsupported s3api action '$action'" >&2
+        exit 2
+        ;;
+esac

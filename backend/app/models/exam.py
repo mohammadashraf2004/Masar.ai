@@ -1,6 +1,6 @@
 from sqlalchemy import (
     Column, Integer, String, Boolean, DateTime,
-    Text, ForeignKey, Enum, Float, JSON, UniqueConstraint,
+    Text, ForeignKey, Enum, Float, JSON, UniqueConstraint, Index, text,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -51,6 +51,21 @@ class Exam(Base):
 class ExamAttempt(Base):
     """One attempt = one sitting of an exam by a student."""
     __tablename__ = "exam_attempts"
+    __table_args__ = (
+        # At most one IN_PROGRESS attempt per user per exam. Closes the
+        # start_exam TOCTOU where concurrent /start requests could each
+        # pass the "no existing in-progress attempt" check and each
+        # insert one — see migration 010_exam_attempt_start_race, and the
+        # concurrency test that reproduced it. Partial, not table-wide: a
+        # new attempt after a previous one is submitted/passed/failed/
+        # flagged must stay legal (the ordinary multi-attempt flow).
+        Index(
+            "uq_exam_attempts_one_in_progress",
+            "user_id", "exam_id",
+            unique=True,
+            postgresql_where=text("status = 'in_progress'::examstatus"),
+        ),
+    )
 
     id          = Column(Integer, primary_key=True, index=True)
     exam_id     = Column(Integer, ForeignKey("exams.id"), nullable=False)

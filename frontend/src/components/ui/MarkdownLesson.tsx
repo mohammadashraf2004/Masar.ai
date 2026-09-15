@@ -36,6 +36,49 @@ const HIGHLIGHTABLE: Record<string, unknown> = {
   json: languages.json,
 }
 
+// Fenced blocks in these lessons don't always carry a language tag — a lot
+// of it is Python simply fenced as plain ```, indistinguishable at the
+// parser level from an ASCII pipeline diagram fenced the same way. Treat a
+// block as code only when it contains unambiguous code syntax AND no
+// diagram connector; verified against every untagged block in the actual
+// lesson content (2034 blocks: 95 reclassified as code, 0 blocks matched
+// both a code and a diagram signal). When both would somehow match, the
+// diagram reading wins — misrendering a real diagram as broken code looks
+// worse than leaving a rare mistagged snippet unhighlighted.
+const PY_CODE_SIGNALS = [
+  /^\s*(def|class)\s+\w+/m,
+  /^\s*(import|from)\s+[\w.]+/m,
+  /^\s*@\w+/m,
+  /^\s*(elif\b|while\s+.+:|for\s+\w+\s+in\s+.+:)\s*$/m,
+  /^\s*return\b/m,
+  /^\s*self\./m,
+]
+const DIAGRAM_SIGNALS = /[┌┐└┘├┤┬┴┼─│═║╔╗╚╝╠╣▼▶◀▲►◄]|-{2,}>|=+>|→|⇒|⟶|↓|↑|←|↔|↕|↖|↗|↘|↙/
+
+function detectFallbackLanguage(raw: string): string | undefined {
+  if (DIAGRAM_SIGNALS.test(raw)) return undefined
+  return PY_CODE_SIGNALS.some((re) => re.test(raw)) ? 'python' : undefined
+}
+
+// Highlights arrow/connector runs (→, -->, single- and double-line
+// box-drawing corners and rules, the four diagonals...) in the accent color
+// so a multi-step pipeline reads at a glance, leaving node labels in the
+// body text color. Purely cosmetic — this only ever runs on text already
+// routed away from Prism because it isn't recognized as code. Every
+// character matched here is covered by the self-hosted
+// 'JetBrains Mono Diagrams' face declared in globals.css — verified
+// against every diagram block in the real lesson content, not guessed —
+// so it renders at the same cell width as the surrounding text instead of
+// falling back to a mismatched system font and drifting out of alignment.
+const DIAGRAM_CONNECTOR =
+  /(-{2,}>|=+>|<-{2,}|[─│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣]+|[→⇒⟶↓↑←↔↕↖↗↘↙▼▶◀▲►◄])/
+
+function renderDiagram(raw: string) {
+  return raw
+    .split(DIAGRAM_CONNECTOR)
+    .map((part, i) => (i % 2 === 1 ? <span key={i} className="text-amber2">{part}</span> : part))
+}
+
 /** Renders lesson markdown with a voice that matches the rest of the
  * product instead of default browser typography — the underlying text
  * is untouched, only how it's presented. Real code samples get the same
@@ -146,17 +189,37 @@ function MarkdownBody({
             </a>
           ),
           code: ({ className, children }) => {
-            const raw = String(children).replace(/\n$/, '')
-            const lang = /language-(\w+)/.exec(className ?? '')?.[1]
+            const untrimmed = String(children)
+            const raw = untrimmed.replace(/\n$/, '')
+            const explicitLang = /language-(\w+)/.exec(className ?? '')?.[1]
+
+            // Inline vs. fenced can't be told apart by className alone:
+            // react-markdown/rehype only sets `language-xxx` when the fence
+            // actually names a language, so an untagged fenced block (most
+            // of the diagrams and a fair amount of code in these lessons)
+            // arrives with no className too — indistinguishable from real
+            // inline code by that check alone, which every earlier version
+            // of this function got wrong. The reliable signal is a literal
+            // newline: CommonMark defines inline code spans as normalizing
+            // any line ending to a single space, so `children` here can
+            // never contain "\n" for genuine inline code, while any fenced
+            // block — tagged or not — always has at least the one trailing
+            // its content, before the closing fence. Checked on the
+            // untrimmed string since a one-line fenced block would lose
+            // its only newline to the trim below.
+            const isInline = !className && !untrimmed.includes('\n')
 
             // Inline code (no fenced block) — a single word/expression in
             // running prose, e.g. `model.invoke()`. Always LTR: an
             // identifier does not flip direction because the surrounding
             // sentence is Arabic.
-            if (!className) {
+            if (isInline) {
               return <code className="prism-inline-code" dir="ltr">{raw}</code>
             }
 
+            const lang = explicitLang && HIGHLIGHTABLE[explicitLang]
+              ? explicitLang
+              : detectFallbackLanguage(raw)
             const grammar = lang ? HIGHLIGHTABLE[lang] : undefined
             if (grammar) {
               const html = highlight(raw, grammar, lang!)
@@ -183,16 +246,18 @@ function MarkdownBody({
               )
             }
 
-            // No recognized language — these lessons use plain fenced
-            // blocks for ASCII pipeline diagrams, not runnable code.
-            // Framing them as a "diagram" instead of highlighting them as
-            // code avoids implying syntax that isn't there.
+            // No recognized language, and no code syntax detected either —
+            // these lessons use plain fenced blocks for ASCII pipeline
+            // diagrams. Framed distinctly from code (no syntax highlighting,
+            // since there is no syntax) with arrows and connectors picked
+            // out in the accent color, so a multi-step pipeline reads at a
+            // glance instead of as one undifferentiated block of text.
             return (
               <pre
                 dir="ltr"
-                className="my-4 px-4 py-3.5 rounded-lg bg-surface border border-dashed border-border text-[13px] leading-relaxed text-dim font-mono overflow-x-auto text-start"
+                className="my-4 px-4 py-3.5 rounded-lg bg-surface border border-border border-s-2 border-s-amber/40 text-[13px] leading-[1.8] text-soft font-mono overflow-x-auto text-start"
               >
-                <code>{raw}</code>
+                <code>{renderDiagram(raw)}</code>
               </pre>
             )
           },

@@ -34,7 +34,22 @@ const config: Config = {
       },
       fontFamily: {
         sans:  ['var(--font-dm-sans)', 'sans-serif'],
-        mono:  ['var(--font-jetbrains)', 'monospace'],
+        // 'JetBrains Mono Diagrams' goes FIRST, not after var(--font-jetbrains)
+        // — its own unicode-range (see globals.css) means the browser skips
+        // it instantly for every character outside that set, so it's safe
+        // to lead with. It has to lead: var(--font-jetbrains) doesn't just
+        // expand to JetBrains Mono, next/font/local appends its own
+        // auto-generated metric-matched fallback ("jetbrainsMono Fallback",
+        // local Arial, no unicode-range) right after it. Arial happens to
+        // carry box-drawing glyphs too, at Arial's own width, and CSS font
+        // fallback stops at the first face with ANY glyph for a character —
+        // not the best-matched one — so with this face listed third, Arial
+        // silently won every box-drawing/arrow character before this face
+        // was ever consulted, which is exactly what the reported diagram
+        // misalignment turned out to be (confirmed: the two self-hosted
+        // JetBrains Mono files share identical glyph metrics — the bug was
+        // never reaching them, not a metrics mismatch between them).
+        mono:  ['JetBrains Mono Diagrams', 'var(--font-jetbrains)', 'monospace'],
         display: ['var(--font-syne)', 'sans-serif'],
       },
       backgroundImage: {

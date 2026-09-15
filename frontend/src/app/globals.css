@@ -14,6 +14,50 @@
   --font-arabic: var(--font-dm-sans), var(--font-plex-arabic), sans-serif;
 }
 
+/* Supplemental JetBrains Mono glyphs for lesson diagrams (box-drawing rules
+   and corners, arrows) — self-hosted from fonts.gstatic.com's own per-glyph
+   subsetting (the exact codepoints below, requested via the `text=`
+   parameter on Google's css2 API against every non-ASCII character actually
+   found inside a diagram-classified lesson block, not guessed), not routed
+   through next/font/local like the rest of src/fonts/: that loader has no
+   per-file unicode-range option in the Next.js version this app is on, and
+   a second face registered without one would apply to every character, not
+   just these.
+
+   Root cause this fixes: src/fonts/jetbrains-mono-latin.woff2 only carries
+   Google's "latin" subset, which excludes the box-drawing block and most
+   arrows (it keeps only U+2191/U+2193). A lesson diagram using — for
+   example — U+2500 (─) or U+2192 (→) fell back one full font, generic
+   `monospace`, for just that glyph. Two fonts never share cell width, so
+   every line after the first mismatched character drifted out of the grid
+   the diagram depends on — the exact misalignment reported against the
+   "AI APPLICATION" box diagram.
+
+   unicode-range scopes this face to only the glyphs it actually contains
+   (Google's own response for this exact text), so it can only ever supply
+   a glyph the primary face was missing — never shadow it. ✅ (U+2705), ❌
+   (U+274C) and ⏸ (U+23F8) are included too, on top of the pure box-drawing
+   and arrow set — they show up in lesson content without a variation
+   selector often enough that whether they render as color emoji or plain
+   glyphs is platform-dependent, and a correctly-metriced fallback for the
+   plain-glyph case costs three more tiny characters. Genuine emoji (🚀🧠📚…)
+   and Arabic letters that also turned up inside a few diagram blocks are
+   deliberately left out: real emoji already render from the system's
+   native color font regardless of this stack, and Arabic prose has its own
+   dedicated face (--font-arabic) — neither belongs in a monospace subset. */
+@font-face {
+  font-family: 'JetBrains Mono Diagrams';
+  src: url('/fonts/jetbrains-mono-diagrams.woff2') format('woff2');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+3D, U+338, U+2080-2089, U+2190-219B, U+21AE, U+21CF,
+    U+21D2, U+2248-2249, U+2260, U+23F8, U+2500, U+2502, U+250C, U+2510,
+    U+2514, U+2518, U+251C, U+2524, U+252C, U+2534, U+253C, U+2550-2551,
+    U+2554, U+2557, U+255A, U+255D, U+2560, U+2563, U+2588, U+25B2, U+25B6,
+    U+25BA, U+25BC, U+25C0, U+25C4, U+25CF, U+2705, U+2713, U+274C, U+27F6;
+}
+
 * { box-sizing: border-box; }
 
 html {

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "terminology:export": "node scripts/export-terminology.mjs"
+    "terminology:export": "node scripts/export-terminology.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "next": "16.3.4",
@@ -36,7 +38,13 @@
     "postcss": "^8.5.28",
     "autoprefixer": "^10",
     "eslint": "^9.39.0",
-    "eslint-config-next": "16.3.4"
+    "eslint-config-next": "16.3.4",
+    "vitest": "^3.2.7",
+    "jsdom": "^26.1.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/user-event": "^14.6.7"
   },
   "overrides": {
     "prismjs": "^1.30.0",

@@ -86,6 +86,10 @@ jobs:
         working-directory: frontend
         run: npm run lint
 
+      - name: Unit and component tests
+        working-directory: frontend
+        run: npm test
+
       - name: Build (also runs the TypeScript type check)
         working-directory: frontend
         run: npm run build

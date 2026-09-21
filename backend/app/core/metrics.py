@@ -221,6 +221,55 @@ rate_limit_hits_total = Counter(
     ["path"],
 )
 
+# ─── Learning paths ──────────────────────────────────────────────────────
+# Labels are fixed vocabularies (outcome / issue), never a slug or an id, so a
+# catalogue that grows cannot grow the series count.
+
+learning_profile_events_total = Counter(
+    "learning_profile_events_total",
+    "Learning profile saves, by outcome (created, updated, rejected).",
+    ["outcome"],
+)
+
+learning_path_generations_total = Counter(
+    "learning_path_generations_total",
+    "Learning path generations, by outcome (ok, empty, rejected, error).",
+    ["outcome"],
+)
+
+learning_path_generation_seconds = Histogram(
+    "learning_path_generation_seconds",
+    "Time to load the catalogue and generate one path.",
+    buckets=(0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5),
+)
+
+learning_events_total = Counter(
+    "learning_events_total",
+    "Product events in the personalised-roadmap flow (learning_onboarding_started, "
+    "career_goal_selected, field_selected, known_skills_selected, roadmap_generated, "
+    "roadmap_updated). Event name only - never an answer, a slug or an id.",
+    ["event"],
+)
+
+learning_roadmap_known_skills = Histogram(
+    "learning_roadmap_known_skills",
+    "How many skills a learner had declared when a roadmap was generated.",
+    buckets=(0, 1, 2, 3, 5, 8, 12, 20, 40),
+)
+
+learning_roadmap_waived_courses = Histogram(
+    "learning_roadmap_waived_courses",
+    "How many courses a generated roadmap waived because of declared skills.",
+    buckets=(0, 1, 2, 3, 5, 8, 12, 20),
+)
+
+learning_catalog_issues_total = Counter(
+    "learning_catalog_issues_total",
+    "Catalogue configuration problems met while generating a path "
+    "(prerequisite_cycle, prerequisite_out_of_order, no_template).",
+    ["issue"],
+)
+
 
 # ─── Recording helpers ───────────────────────────────────────────────────
 # Thin wrappers so call sites never import prometheus_client directly, and
@@ -300,6 +349,44 @@ def record_rate_limit_hit(path: str) -> None:
         rate_limit_hits_total.labels(path).inc()
     except Exception:  # noqa: BLE001
         pass
+
+def record_learning_profile(outcome: str) -> None:
+    try:
+        learning_profile_events_total.labels(outcome).inc()
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def record_learning_path_generation(outcome: str, seconds: Optional[float] = None) -> None:
+    try:
+        learning_path_generations_total.labels(outcome).inc()
+        if seconds is not None:
+            learning_path_generation_seconds.observe(seconds)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def record_learning_event(event: str) -> None:
+    try:
+        learning_events_total.labels(event).inc()
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def record_learning_roadmap_shape(known_skills: int, waived_courses: int) -> None:
+    try:
+        learning_roadmap_known_skills.observe(known_skills)
+        learning_roadmap_waived_courses.observe(waived_courses)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def record_learning_catalog_issue(issue: str) -> None:
+    try:
+        learning_catalog_issues_total.labels(issue).inc()
+    except Exception:  # noqa: BLE001
+        pass
+
 
 
 # ─── Middleware ──────────────────────────────────────────────────────────

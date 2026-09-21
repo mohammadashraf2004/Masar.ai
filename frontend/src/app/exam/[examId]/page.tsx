@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { ExamPaymentGate } from "@/components/ui/ExamPaymentGate";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, Badge, Spinner, ProgressBar } from "@/components/ui/index";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonStyles } from "@/components/ui/Button";
 import {
   Clock, Shield, ChevronRight, ChevronLeft,
   CheckCircle, XCircle, AlertTriangle, Camera,
@@ -534,7 +535,7 @@ export default function ExamPage() {
   if (phase === "loading") {
     return (
       <div className="min-h-dvh bg-void flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center" role="status">
           <Spinner className="w-6 h-6 mx-auto mb-3" />
           <p className="text-xs text-ghost">Preparing exam…</p>
         </div>
@@ -564,7 +565,7 @@ export default function ExamPage() {
               <p className="text-sm text-ghost mb-6">This certification exam requires an EGP payment to access.</p>
               <div className="flex gap-3 justify-center">
                 <Button onClick={() => setShowPaymentGate(true)}>Pay to Access Exam</Button>
-                <Button variant="outline" onClick={() => router.push("/dashboard")}>Go Back</Button>
+                <Link href="/dashboard" className={buttonStyles({ variant: "outline" })}>Go Back</Link>
               </div>
             </Card>
           )}
@@ -577,7 +578,7 @@ export default function ExamPage() {
           <XCircle size={36} className="text-rose mx-auto mb-4" />
           <h2 className="font-display font-bold text-bright text-lg mb-2">Something went wrong</h2>
           <p className="text-sm text-ghost mb-6">{error}</p>
-          <Button onClick={() => router.push("/dashboard")}>Back to Dashboard</Button>
+          <Link href="/dashboard" className={buttonStyles()}>Back to Dashboard</Link>
         </Card>
       </div>
     );
@@ -631,7 +632,7 @@ export default function ExamPage() {
           )}
 
           <div className="flex gap-3 justify-center">
-            <Button onClick={() => router.push("/dashboard")}>Dashboard</Button>
+            <Link href="/dashboard" className={buttonStyles()}>Dashboard</Link>
             {!passed && (
               <Button variant="outline" onClick={() => { setPhase("loading"); startExam(); }}>
                 Retry Exam
@@ -848,7 +849,7 @@ export default function ExamPage() {
                 {fmtTime(timeLeft)}
               </div>
               <Button size="sm" variant="outline" onClick={handleSubmit} disabled={submitting}>
-                {submitting ? <Spinner className="w-3 h-3" /> : "Submit"}
+                {submitting ? <Spinner announce className="w-3 h-3" /> : "Submit"}
               </Button>
             </div>
           </header>
@@ -908,7 +909,7 @@ export default function ExamPage() {
                   disabled={submitting}
                   className="bg-emerald text-void hover:bg-emerald/90"
                 >
-                  {submitting ? <Spinner className="w-3 h-3" /> : <><CheckCircle size={14} /> Submit Exam</>}
+                  {submitting ? <Spinner announce className="w-3 h-3" /> : <><CheckCircle size={14} /> Submit Exam</>}
                 </Button>
               )}
             </div>

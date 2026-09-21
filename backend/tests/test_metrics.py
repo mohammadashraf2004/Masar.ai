@@ -123,7 +123,7 @@ def test_health_endpoint_is_measured(client, metrics_token):
 def test_auth_events_are_counted(client, metrics_token):
     """security_log is the choke point every auth outcome passes through,
     so registering must move the counter without the controller knowing."""
-    client.post("/api/v1/auth/register", json={
+    client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": f"metrics-{uuid.uuid4().hex[:12]}@example.com",
         "full_name": "Metrics Probe",
         "password": "correcthorsebatterystaple",
@@ -138,7 +138,7 @@ def test_metrics_carry_no_identifying_labels(client, metrics_token):
     anything that identifies a user, unlike the security log they sit next
     to."""
     email = f"metrics-{uuid.uuid4().hex[:12]}@example.com"
-    client.post("/api/v1/auth/register", json={
+    client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Metrics Probe", "password": "correcthorsebatterystaple",
     })
 

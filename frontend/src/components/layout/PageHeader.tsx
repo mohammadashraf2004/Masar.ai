@@ -39,6 +39,10 @@ interface PageHeaderProps {
   subtitle?: string
   action?: React.ReactNode
   className?: string
+  /** Keep a sentence-length title - a greeting - on up to two lines at every
+   *  width. Any title already wraps on a phone; this also stops it being cut
+   *  to one line from `sm` up. */
+  wrapTitle?: boolean
 }
 
 // ── Credits badge ─────────────────────────────────────────────────────────────
@@ -57,7 +61,7 @@ function CreditsBadge() {
     <Link
       href="/profile"
       className={cn(
-        'flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-semibold transition-all',
+        'flex min-h-[44px] items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-semibold transition-all lg:min-h-0',
         low
           ? 'bg-rose/10 border-rose/30 text-rose hover:bg-rose/20'
           : 'bg-amber/10 border-amber/20 text-amber hover:bg-amber/20'
@@ -79,17 +83,29 @@ function CreditsBadge() {
 // ── Profile avatar + dropdown ─────────────────────────────────────────────────
 function ProfileMenu() {
   const { user, logout } = useAuthStore()
+  const { t }            = useI18n()
   const [open, setOpen]  = useState(false)
   const ref              = useRef<HTMLDivElement>(null)
+  const trigger          = useRef<HTMLButtonElement>(null)
 
-  // Close on outside click
+  // Close on outside click, or on Escape (handing focus back to the avatar)
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    if (!open) return
+    const onMouseDown = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setOpen(false)
+      trigger.current?.focus()
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onMouseDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open])
 
   if (!user) return null
 
@@ -97,9 +113,15 @@ function ProfileMenu() {
     <div className="relative" ref={ref}>
       {/* Avatar button */}
       <button
+        ref={trigger}
+        type="button"
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 group"
-        title="Profile menu"
+        // The 32px avatar keeps its size; the minimum size gives a 44px target on a
+        // phone and the negative margin cancels the extra width, so the header
+        // spends no more room than before.
+        className="group -mx-1.5 flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 sm:mx-0 lg:min-h-0 lg:min-w-0"
+        aria-expanded={open}
+        aria-label={`${t('nav.profileMenu')}: ${user.full_name}`}
       >
         <div className={cn(
           'w-8 h-8 rounded-full bg-amber/20 border flex items-center justify-center transition-colors',
@@ -175,7 +197,7 @@ function ProfileMenu() {
 }
 
 // ── PageHeader ────────────────────────────────────────────────────────────────
-export function PageHeader({ title, subtitle, action, className }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, action, className, wrapTitle }: PageHeaderProps) {
   return (
     <div className={cn(
       'flex flex-wrap items-center gap-x-3 gap-y-2.5 border-b border-border shrink-0',
@@ -184,13 +206,16 @@ export function PageHeader({ title, subtitle, action, className }: PageHeaderPro
     )}>
       <MobileNavToggle />
 
-      {/* Left: title + subtitle. `min-w-0` lets it shrink instead of forcing
-          the controls off the edge; the subtitle wraps to two lines on a
-          phone rather than being cut off at the first word. */}
-      <div className="min-w-0 flex-1">
-        <h1 className="font-display font-bold text-lg sm:text-xl text-white tracking-tight truncate">{title}</h1>
+      {/* Left: title + subtitle. Below `sm` it is guaranteed 10rem, which the
+          language / credits / avatar controls (~170px) cannot share a 320px
+          row with, so they drop to their own row and the title wraps instead
+          of being cut to "Care…". From `sm` up `min-w-0` lets it shrink and the
+          title is a single truncated line, as it always was. The subtitle wraps
+          to two lines rather than being cut off at the first word. */}
+      <div className="min-w-[10rem] flex-1 sm:min-w-0">
+        <h1 className={cn('font-display font-bold text-lg sm:text-xl text-white tracking-tight break-words', wrapTitle ? 'line-clamp-2' : 'sm:truncate')}>{title}</h1>
         {subtitle && (
-          <p className="text-xs sm:text-sm text-ghost mt-0.5 line-clamp-2 sm:truncate">{subtitle}</p>
+          <p className="text-xs sm:text-sm text-ghost mt-0.5 line-clamp-2">{subtitle}</p>
         )}
       </div>
 

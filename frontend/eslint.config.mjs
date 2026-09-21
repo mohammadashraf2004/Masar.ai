@@ -8,7 +8,7 @@
 // in directly — no FlatCompat shim required.
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals'
 
-export default [
+const config = [
   {
     ignores: [
       '.next/**',
@@ -40,3 +40,5 @@ export default [
     },
   },
 ]
+
+export default config

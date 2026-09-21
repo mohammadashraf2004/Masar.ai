@@ -1,13 +1,15 @@
 'use client'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/lib/store'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Badge, ProgressBar, Spinner } from '@/components/ui/index'
-import { Button } from '@/components/ui/Button'
+import { Button, buttonStyles } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { api } from '@/lib/api'
+import { useI18n } from '@/lib/i18n'
 import { getErrorMessage, scoreColor } from '@/lib/utils'
 import {
   User, Save, CheckCircle, ShieldCheck, Trophy,
@@ -118,6 +120,7 @@ function SectionHeader({ icon: Icon, label, color = 'text-amber' }: {
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const { user } = useAuth()
+  const { t } = useI18n()
   const { token, logout } = useAuthStore()
 
   const [resendingVerification, setResendingVerification] = useState(false)
@@ -289,24 +292,18 @@ export default function ProfilePage() {
                       onChange={e => setForm(p => ({ ...p, bio: e.target.value }))}
                     />
                   </div>
+                  {/* Level moved to the learning profile, where it sits beside the
+                      interests and career goal it belongs with. Editing it in two
+                      places would let the two answers drift apart, so there is one:
+                      saving the learning profile keeps this account field in step. */}
                   <div>
-                    <label className="text-xs font-medium text-soft tracking-wide uppercase block mb-1.5">Level</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
-                      {(['beginner', 'intermediate', 'advanced'] as const).map(level => (
-                        <button
-                          key={level}
-                          type="button"
-                          onClick={() => setForm(p => ({ ...p, experience_level: level }))}
-                          className={`py-1.5 rounded border text-xs transition-all capitalize ${
-                            form.experience_level === level
-                              ? 'bg-amber/10 border-amber/40 text-amber'
-                              : 'bg-surface border-border text-ghost hover:text-soft'
-                          }`}
-                        >
-                          {level}
-                        </button>
-                      ))}
-                    </div>
+                    <label className="text-xs font-medium text-soft tracking-wide uppercase block mb-1.5">
+                      {t('plp.linkTitle')}
+                    </label>
+                    <p className="text-xs text-ghost mb-2">{t('plp.linkBody')}</p>
+                    <Link href="/profile/learning" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
+                      {t('plp.open')}
+                    </Link>
                   </div>
                   <Input
                     label="GitHub"
@@ -321,7 +318,7 @@ export default function ProfilePage() {
                     onChange={e => setForm(p => ({ ...p, linkedin_url: e.target.value }))}
                   />
                   {formError && (
-                    <div className="px-3 py-2 rounded bg-rose/10 border border-rose/20 text-xs text-rose">{formError}</div>
+                    <div role="alert" className="px-3 py-2 rounded bg-rose/10 border border-rose/20 text-xs text-rose">{formError}</div>
                   )}
                   <Button type="submit" loading={saving} variant={saved ? 'ghost' : 'amber'} className="w-full">
                     {saved ? <><CheckCircle size={13} className="text-emerald" /> Saved</> : <><Save size={13} /> Save changes</>}
@@ -355,7 +352,7 @@ export default function ProfilePage() {
                       <button
                         onClick={handleResendVerification}
                         disabled={resendingVerification}
-                        className="text-xs text-amber hover:text-amber2 flex items-center gap-1.5 disabled:opacity-50"
+                        className="text-xs text-amber hover:text-amber2 flex min-h-[44px] items-center gap-1.5 disabled:opacity-50 lg:min-h-0"
                       >
                         <Mail size={12} /> Email not verified — resend verification link
                       </button>
@@ -375,7 +372,7 @@ export default function ProfilePage() {
                   {!confirmingDelete ? (
                     <button
                       onClick={() => setConfirmingDelete(true)}
-                      className="w-full flex items-center gap-2 text-xs text-rose hover:text-rose/80 py-2"
+                      className="w-full flex min-h-[44px] lg:min-h-0 items-center gap-2 text-xs text-rose hover:text-rose/80 py-2"
                     >
                       <Trash2 size={13} /> Delete account
                     </button>
@@ -415,7 +412,7 @@ export default function ProfilePage() {
                 <button
                   onClick={refreshScorecard}
                   disabled={refreshing}
-                  className="flex items-center gap-1.5 text-xs text-ghost hover:text-soft transition-colors"
+                  className="flex min-h-[44px] items-center gap-1.5 text-xs text-ghost hover:text-soft transition-colors lg:min-h-0"
                 >
                   <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
                   {sc?.last_computed_at
@@ -426,7 +423,7 @@ export default function ProfilePage() {
 
               {scorecardLoading ? (
                 <Card className="p-12 flex items-center justify-center">
-                  <Spinner className="w-5 h-5" />
+                  <Spinner announce className="w-5 h-5" />
                 </Card>
               ) : !hasActivity ? (
                 <Card className="p-10 text-center">

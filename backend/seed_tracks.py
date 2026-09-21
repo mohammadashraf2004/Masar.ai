@@ -5,9 +5,10 @@ Seed all career tracks — run from backend/ directory:
 import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 
-from app.db.session import SessionLocal, engine, Base
+from app.db.session import SessionLocal
+from app.db.schema_guard import require_migrated_schema
 
-# ── Import ALL models before create_all ──
+# ── Import ALL models so every relationship() resolves ──
 import app.models.user         # noqa: F401
 import app.models.learning     # noqa: F401
 import app.models.progress     # noqa: F401
@@ -19,7 +20,7 @@ import app.models.challenge    # noqa: F401
 import app.models.exam         # noqa: F401
 import app.models.tool_course  # noqa: F401
 
-Base.metadata.create_all(bind=engine)
+require_migrated_schema()
 
 from seeds.tracks_all import seed_all_tracks
 

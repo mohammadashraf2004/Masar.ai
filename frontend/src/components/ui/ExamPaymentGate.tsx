@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
+import { useI18n } from '@/lib/i18n'
 import { Spinner } from '@/components/ui/index'
 import {
   ShieldCheck, X, CheckCircle, AlertTriangle,
@@ -47,6 +48,7 @@ const PAYMENT_INSTRUCTIONS: Record<string, (price: number) => string[]> = {
 }
 
 export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaymentGateProps) {
+  const { t } = useI18n()
   const [price, setPrice]       = useState<number | null>(null)
   const [method, setMethod]     = useState('')
   const [ref, setRef]           = useState('')
@@ -127,14 +129,19 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                 <p className="text-xs text-ghost truncate max-w-48">{examTitle}</p>
               </div>
             </div>
-            <button onClick={onClose} className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={t('common.close')}
+              className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors"
+            >
               <X size={15} />
             </button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-5 space-y-5">
             {loading ? (
-              <div className="flex justify-center py-8"><Spinner className="w-5 h-5" /></div>
+              <div className="flex justify-center py-8"><Spinner announce className="w-5 h-5" /></div>
 
             ) : alreadyPaid ? (
               /* Already paid — can start */
@@ -185,7 +192,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                 {error && (
                   <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-rose/10 border border-rose/20">
                     <AlertTriangle size={12} className="text-rose flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-rose">{error}</p>
+                    <p role="alert" className="text-xs text-rose">{error}</p>
                   </div>
                 )}
 
@@ -194,14 +201,14 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                   <Button className="w-full" onClick={() => handlePayNow('card')} loading={payingVia === 'card'} disabled={!!payingVia}>
                     💳 Pay {price} EGP by Card
                   </Button>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <input
-                      className="flex-1 bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
+                      className="w-full min-w-0 sm:flex-1 bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
                       placeholder="01XXXXXXXXX"
                       value={walletPhone}
                       onChange={e => setWalletPhone(e.target.value)}
                     />
-                    <Button variant="outline" onClick={() => handlePayNow('wallet')} loading={payingVia === 'wallet'} disabled={!!payingVia}>
+                    <Button variant="outline" className="w-full sm:w-auto" onClick={() => handlePayNow('wallet')} loading={payingVia === 'wallet'} disabled={!!payingVia}>
                       📱 Pay by Wallet
                     </Button>
                   </div>
@@ -213,7 +220,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                 {/* Manual fallback (Fawry / InstaPay / bank transfer) */}
                 <button
                   onClick={() => setShowManual(s => !s)}
-                  className="text-xs text-ghost hover:text-soft underline decoration-dotted underline-offset-2 w-full text-center"
+                  className="min-h-[44px] w-full text-center text-xs text-ghost hover:text-soft underline decoration-dotted underline-offset-2 lg:min-h-0"
                 >
                   {showManual ? 'Hide manual payment options' : 'Already paid via Fawry / InstaPay? Submit manually'}
                 </button>

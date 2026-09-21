@@ -30,7 +30,7 @@ STRONG_PASSWORD = "correcthorsebatterystaple"
 
 def _register(client, prefix="rl"):
     email = f"{prefix}-{uuid.uuid4().hex[:12]}@example.com"
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Limit Tester", "password": STRONG_PASSWORD,
     })
     assert resp.status_code == 201, resp.text
@@ -109,7 +109,7 @@ def test_endpoint_specific_limit_still_applies(client, db):
     codes = []
     for _ in range(7):
         email = f"burst-{uuid.uuid4().hex[:12]}@example.com"
-        resp = client.post("/api/v1/auth/register", json={
+        resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
             "email": email, "full_name": "Burst", "password": STRONG_PASSWORD,
         })
         codes.append(resp.status_code)

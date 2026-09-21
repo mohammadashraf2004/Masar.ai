@@ -30,7 +30,7 @@ const UNDO_COALESCE_MS = 600
 const UNDO_LIMIT = 100
 
 export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerChatProps) {
-  const { language, mode } = useI18n()
+  const { language, mode, t } = useI18n()
   const [messages, setMessages] = useState<AnswerChatMessage[]>([])
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
   const [draft, setDraft] = useState('')
@@ -174,7 +174,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
   }
 
   if (loading) {
-    return <div className="flex justify-center py-6"><Spinner className="w-4 h-4" /></div>
+    return <div className="flex justify-center py-6"><Spinner announce className="w-4 h-4" /></div>
   }
 
   // ── The conversation, as its own panel ─────────────────────────────────
@@ -230,7 +230,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
       </div>
 
       {error && (
-        <div className="mx-4 mb-2 px-3 py-2 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
+        <div role="alert" className="mx-4 mb-2 px-3 py-2 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
           {error}
         </div>
       )}
@@ -240,14 +240,14 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
         <div className="p-3 border-t border-border">
           <div className="flex items-end gap-2">
             <textarea
-              className="flex-1 bg-void border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none min-h-[44px] max-h-40"
+              className="flex-1 min-w-0 bg-void border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none min-h-[44px] max-h-40"
               placeholder={placeholder ?? 'Write your answer… (⌘/Ctrl+Enter to send)'}
               value={draft}
               onChange={e => setDraft(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={2}
             />
-            <Button size="sm" onClick={send} loading={sending} disabled={!draft.trim()}>
+            <Button size="sm" onClick={send} loading={sending} disabled={!draft.trim()} aria-label={t('common.send')}>
               <Send size={13} />
             </Button>
           </div>

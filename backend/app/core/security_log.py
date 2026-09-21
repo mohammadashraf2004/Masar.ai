@@ -72,6 +72,15 @@ def registration(*, user_id: int, email: str, ip: Optional[str]) -> None:
     record_auth_event("register")
 
 
+def legal_accepted(*, user_id: int, terms_version: str, privacy_version: str, via: str) -> None:
+    """One event per document, so each acceptance is countable and auditable
+    on its own (`via` is register | reaccept)."""
+    _emit(EVENT_INFO, "legal_terms_accepted", user_id=user_id, version=terms_version, via=via)
+    record_auth_event("legal_terms_accepted")
+    _emit(EVENT_INFO, "privacy_policy_accepted", user_id=user_id, version=privacy_version, via=via)
+    record_auth_event("privacy_policy_accepted")
+
+
 def password_reset_requested(*, email: str, ip: Optional[str], account_exists: bool) -> None:
     # account_exists stays server-side only — the HTTP response is
     # identical either way (see forgot_password).

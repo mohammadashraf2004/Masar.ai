@@ -271,7 +271,7 @@ function GrantCredits() {
         )}
 
         {error && (
-          <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-rose/10 border border-rose/20 text-xs text-rose">
+          <div role="alert" className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-rose/10 border border-rose/20 text-xs text-rose">
             <AlertTriangle size={13} className="shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -322,7 +322,7 @@ export default function AdminAnalyticsPage() {
     return (
       <AppShell>
         <PageHeader title="Analytics" />
-        <div className="p-6"><Spinner /></div>
+        <div className="p-6"><Spinner announce /></div>
       </AppShell>
     )
   }
@@ -340,7 +340,7 @@ export default function AdminAnalyticsPage() {
     return (
       <AppShell>
         <PageHeader title="Analytics" />
-        <div className="p-6 text-sm text-rose">{error || 'No data.'}</div>
+        <div role="alert" className="p-6 text-sm text-rose">{error || 'No data.'}</div>
       </AppShell>
     )
   }

@@ -23,6 +23,7 @@ Run from backend/:
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from app.db.schema_guard import require_migrated_schema
 from app.db.session import SessionLocal
 import app.models.user, app.models.learning, app.models.progress      # noqa: F401
 import app.models.community, app.models.wallet, app.models.auth_token  # noqa: F401
@@ -176,6 +177,7 @@ retrieval، memory)، وطريقة قياسية لتركيبها، بدل إعا
 
 
 def main() -> None:
+    require_migrated_schema()
     db = SessionLocal()
     try:
         course = db.query(ToolCourse).filter(ToolCourse.slug == TOOL_SLUG).first()

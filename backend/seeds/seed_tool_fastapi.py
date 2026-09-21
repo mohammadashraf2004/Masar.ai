@@ -12,14 +12,15 @@ Run from backend/:
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app.db.session import SessionLocal, engine, Base
+from app.db.session import SessionLocal
+from app.db.schema_guard import require_migrated_schema
 import app.models.user, app.models.learning, app.models.progress    # noqa: F401
 import app.models.community, app.models.wallet, app.models.auth_token  # noqa: F401
 import app.models.challenge, app.models.exam                         # noqa: F401
 from app.models.learning import Lesson, Exercise, Quiz, Project, DifficultyLevel
 from app.models.tool_course import ToolCourse, ToolTopic
 
-Base.metadata.create_all(bind=engine)
+require_migrated_schema()
 
 TOOL_SLUG = "fastapi-serving"  # must already exist — created by seed_tool_courses.py
 

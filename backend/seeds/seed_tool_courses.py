@@ -13,7 +13,8 @@ Run from backend/:
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app.db.session import SessionLocal, engine, Base
+from app.db.session import SessionLocal
+from app.db.schema_guard import require_migrated_schema
 import app.models.user         # noqa: F401
 import app.models.learning     # noqa: F401
 import app.models.progress     # noqa: F401
@@ -25,7 +26,7 @@ import app.models.exam         # noqa: F401
 from app.models.tool_course import ToolCourse
 from app.models.learning import DifficultyLevel
 
-Base.metadata.create_all(bind=engine)
+require_migrated_schema()
 
 # related_track_ids reference career_tracks.id seeded by seed_tracks.py:
 #   1 data-analyst, 2 ml-engineer, 3 ai-developer, 4 mlops-engineer, 5 ai-engineer

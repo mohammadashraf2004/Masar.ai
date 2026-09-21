@@ -37,9 +37,12 @@ docker compose exec api python seeds/seed_tool_llamaindex.py
 docker compose exec api python seeds/seed_tool_qdrant.py
 docker compose exec api python seeds/seed_tool_fastapi.py
 docker compose exec api python seeds/seed_arabic_first_demo.py   # Arabic-first reference lesson
+docker compose exec api python seeds/seed_learning_paths.py       # levels/fields/career-goal relationships, stages, path templates
 ```
 
 All seed scripts are idempotent — safe to re-run any time (e.g. after adding more content to a seed file).
+
+Seed scripts only insert/update rows; Alembic owns the schema. Run `alembic upgrade head` first — a seed script run against a database that is not at head stops with a message telling you so, and never creates tables itself.
 
 **You're up:**
 
@@ -124,6 +127,7 @@ python seeds/seed_tool_llamaindex.py
 python seeds/seed_tool_qdrant.py
 python seeds/seed_tool_fastapi.py
 python seeds/seed_arabic_first_demo.py
+python seeds/seed_learning_paths.py
 
 uvicorn app.main:app --reload --port 8000
 ```

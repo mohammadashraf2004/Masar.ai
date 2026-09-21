@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Badge, Spinner, ProgressBar } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
+import { useI18n } from '@/lib/i18n'
 import {
   Zap, Lock, CheckCircle, Code2, Download,
   ChevronRight, AlertTriangle, Trophy, Star,
@@ -61,6 +62,7 @@ function DiffBadge({ diff }: { diff: string }) {
 function EnrollModal({ challenge, onClose, onSuccess }: {
   challenge: Challenge; onClose: () => void; onSuccess: () => void
 }) {
+  const { t } = useI18n()
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
 
@@ -89,7 +91,7 @@ function EnrollModal({ challenge, onClose, onSuccess }: {
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-sm pointer-events-auto p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-bright">Unlock Challenge</h2>
-            <button onClick={onClose} className="text-ghost hover:text-bright"><X size={15} /></button>
+            <button type="button" onClick={onClose} aria-label={t('common.close')} className="-me-2 flex h-11 w-11 items-center justify-center rounded text-ghost transition-colors hover:bg-surface hover:text-bright lg:me-0 lg:h-8 lg:w-8"><X size={15} /></button>
           </div>
           <p className="text-sm text-soft mb-4 leading-relaxed">{challenge.title}</p>
           <div className="flex items-center justify-between py-3 px-4 bg-surface border border-border rounded-lg mb-4">
@@ -106,7 +108,7 @@ function EnrollModal({ challenge, onClose, onSuccess }: {
           {error && (
             <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-rose/10 border border-rose/20 mb-4">
               <AlertTriangle size={12} className="text-rose flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-rose">{error}</p>
+              <p role="alert" className="text-xs text-rose">{error}</p>
             </div>
           )}
           <Button className="w-full" onClick={handleEnroll} loading={loading}>
@@ -122,6 +124,7 @@ function EnrollModal({ challenge, onClose, onSuccess }: {
 function SubmitModal({ challenge, onClose, onSuccess }: {
   challenge: ChallengeDetail; onClose: () => void; onSuccess: (result: any) => void
 }) {
+  const { t } = useI18n()
   const [code, setCode]       = useState('')
   const [notes, setNotes]     = useState('')
   const [github, setGithub]   = useState('')
@@ -149,7 +152,7 @@ function SubmitModal({ challenge, onClose, onSuccess }: {
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-2xl pointer-events-auto flex flex-col max-h-[90vh]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
             <h2 className="text-sm font-semibold text-bright">Submit Solution — {challenge.title}</h2>
-            <button onClick={onClose} className="text-ghost hover:text-bright"><X size={15} /></button>
+            <button type="button" onClick={onClose} aria-label={t('common.close')} className="-me-2 flex h-11 w-11 items-center justify-center rounded text-ghost transition-colors hover:bg-surface hover:text-bright lg:me-0 lg:h-8 lg:w-8"><X size={15} /></button>
           </div>
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             <div>
@@ -185,7 +188,7 @@ function SubmitModal({ challenge, onClose, onSuccess }: {
             {error && (
               <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-rose/10 border border-rose/20">
                 <AlertTriangle size={12} className="text-rose flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-rose">{error}</p>
+                <p role="alert" className="text-xs text-rose">{error}</p>
               </div>
             )}
           </div>
@@ -326,7 +329,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
     URL.revokeObjectURL(url)
   }
 
-  if (loading) return <div className="flex-1 flex items-center justify-center"><Spinner className="w-6 h-6" /></div>
+  if (loading) return <div className="flex-1 flex items-center justify-center"><Spinner announce className="w-6 h-6" /></div>
   if (!ch) return null
 
   const canSubmit = ch.is_enrolled && ch.status === 'enrolled'
@@ -514,7 +517,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                   {hintError && (
                     <div className="flex items-center gap-2 px-3 py-2 rounded bg-rose/10 border border-rose/20 mb-3">
                       <AlertTriangle size={12} className="text-rose" />
-                      <p className="text-xs text-rose">{hintError}</p>
+                      <p role="alert" className="text-xs text-rose">{hintError}</p>
                     </div>
                   )}
                   <Button size="sm" variant="outline" onClick={askForHint} disabled={hintLoading || !hintQuestion.trim()} className="w-full">
@@ -612,7 +615,7 @@ export default function ChallengesPage() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
+              className={`min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
                 filter === f
                   ? 'bg-amber/10 border border-amber/30 text-amber'
                   : 'bg-surface border border-border text-ghost hover:text-soft'
@@ -624,7 +627,7 @@ export default function ChallengesPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16"><Spinner className="w-6 h-6" /></div>
+          <div className="flex justify-center py-16"><Spinner announce className="w-6 h-6" /></div>
         ) : filtered.length === 0 ? (
           <Card className="p-12 text-center">
             <Code2 size={32} className="text-ghost mx-auto mb-3" />

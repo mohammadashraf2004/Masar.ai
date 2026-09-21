@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '@/lib/api'
+import { useI18n } from '@/lib/i18n'
 import { Spinner } from '@/components/ui/index'
 import {
   Zap, Plus, X, CheckCircle, Clock,
@@ -60,6 +61,7 @@ function balanceColor(balance: number): string {
 
 // ─── Top-up Modal ─────────────────────────────────────────────────────────────
 function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+  const { t } = useI18n()
   const [packages, setPackages]     = useState<Package[]>([])
   const [selected, setSelected]     = useState<Package | null>(null)
   const [method, setMethod]         = useState<string>('')
@@ -135,7 +137,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                 <p className="text-xs text-ghost">Pay in EGP via local payment methods</p>
               </div>
             </div>
-            <button onClick={onClose} className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
+            <button type="button" onClick={onClose} aria-label={t('common.close')} className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
               <X size={15} />
             </button>
           </div>
@@ -321,6 +323,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
 
 // ─── Transaction History Modal ────────────────────────────────────────────────
 function TransactionModal({ onClose }: { onClose: () => void }) {
+  const { t } = useI18n()
   const [txs, setTxs]       = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -341,7 +344,7 @@ function TransactionModal({ onClose }: { onClose: () => void }) {
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-md pointer-events-auto flex flex-col max-h-[80vh]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
             <h2 className="text-sm font-semibold text-bright">Transaction History</h2>
-            <button onClick={onClose} className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
+            <button type="button" onClick={onClose} aria-label={t('common.close')} className="w-11 h-11 lg:w-7 lg:h-7 rounded flex items-center justify-center text-ghost hover:text-bright hover:bg-surface transition-colors">
               <X size={15} />
             </button>
           </div>

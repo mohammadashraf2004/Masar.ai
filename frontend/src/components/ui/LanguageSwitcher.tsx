@@ -55,7 +55,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         aria-expanded={open}
         title={t('lang.title')}
         className={cn(
-          'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all',
+          'flex min-h-[44px] items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all lg:min-h-0',
           open
             ? 'border-amber/40 bg-amber/10 text-amber'
             : 'border-border text-dim hover:text-bright hover:border-amber/20'

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input'
 import { getErrorMessage } from '@/lib/utils'
 import { ArrowRight, CheckCircle, XCircle, BookOpen, Brain, ShieldCheck } from 'lucide-react'
 import { Logo } from '@/components/layout/Logo'
+import { LegalLinks } from '@/components/legal/LegalLinks'
 
 // What the panel promises has to be something the product actually does —
 // each of these maps to a shipped feature, not a projected number.
@@ -153,7 +154,7 @@ function LoginPageInner() {
           </div>
 
           {verifyStatus && (
-            <div className={`mb-5 flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs ${
+            <div role={verifyStatus === 'failed' ? 'alert' : 'status'} className={`mb-5 flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs ${
               verifyStatus === 'ok' ? 'bg-emerald/10 border-emerald/20 text-emerald' :
               verifyStatus === 'failed' ? 'bg-rose/10 border-rose/20 text-rose' :
               'bg-amber/10 border-amber/20 text-amber'
@@ -193,18 +194,18 @@ function LoginPageInner() {
                 />
 
                 {error && (
-                  <div className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
+                  <div role="alert" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
                     {error}
                   </div>
                 )}
 
                 <Button type="submit" className="w-full" size="lg" loading={loading}>
-                  Sign in <ArrowRight size={14} />
+                  Sign in <ArrowRight size={14} className="rtl:rotate-180" />
                 </Button>
               </form>
 
               <p className="text-center text-sm text-ghost mt-4">
-                <button onClick={() => { setMode('forgot'); setError(''); setMessage('') }} className="text-ghost hover:text-soft underline decoration-dotted underline-offset-2">
+                <button onClick={() => { setMode('forgot'); setError(''); setMessage('') }} className="inline-flex min-h-[44px] items-center text-ghost hover:text-soft underline decoration-dotted underline-offset-2 lg:min-h-0">
                   Forgot your password?
                 </button>
               </p>
@@ -215,6 +216,7 @@ function LoginPageInner() {
                   Create one
                 </Link>
               </p>
+              <LegalLinks className="mt-4 justify-center" />
             </>
           )}
 
@@ -231,7 +233,7 @@ function LoginPageInner() {
                   required
                 />
                 {error && (
-                  <div className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
+                  <div role="alert" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
                     {error}
                   </div>
                 )}
@@ -240,7 +242,7 @@ function LoginPageInner() {
                 </Button>
               </form>
               <p className="text-center text-sm text-ghost mt-4">
-                <button onClick={() => { setMode('login'); setError(''); setMessage('') }} className="text-ghost hover:text-soft underline decoration-dotted underline-offset-2">
+                <button onClick={() => { setMode('login'); setError(''); setMessage('') }} className="inline-flex min-h-[44px] items-center text-ghost hover:text-soft underline decoration-dotted underline-offset-2 lg:min-h-0">
                   Back to sign in
                 </button>
               </p>
@@ -261,7 +263,7 @@ function LoginPageInner() {
                   required
                 />
                 {error && (
-                  <div className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
+                  <div role="alert" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
                     {error}
                   </div>
                 )}

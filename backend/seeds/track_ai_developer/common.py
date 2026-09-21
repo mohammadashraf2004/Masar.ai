@@ -30,13 +30,14 @@ import re
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))  # backend/
 
-from app.db.session import SessionLocal, engine, Base
+from app.db.session import SessionLocal
+from app.db.schema_guard import require_migrated_schema
 import app.models.user, app.models.progress, app.models.community          # noqa: F401
 import app.models.wallet, app.models.auth_token, app.models.challenge, app.models.exam  # noqa: F401
 import app.models.tool_course                                              # noqa: F401
 from app.models.learning import CareerTrack, TrackLevel, Topic, Lesson, Exercise, Quiz, Project, DifficultyLevel
 
-Base.metadata.create_all(bind=engine)
+require_migrated_schema()
 
 TRACK_SLUG = "ai-developer"  # must already exist -- created by seeds/tracks_all.py
 

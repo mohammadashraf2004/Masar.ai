@@ -6,15 +6,18 @@ import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { VocabularyProgress } from '@/components/ui/VocabularyProgress'
 import { Card, ProgressBar, Badge, Spinner } from '@/components/ui/index'
-import { Button } from '@/components/ui/Button'
+import { Button, buttonStyles } from '@/components/ui/Button'
 import { PaymentResultBanner } from '@/components/ui/PaymentResultBanner'
+import { YourMasarCard } from '@/components/learning/YourMasarCard'
 import { api } from '@/lib/api'
+import { useI18n, type StringKey } from '@/lib/i18n'
 import type { Enrollment, SkillScore, RoadmapWeek } from '@/types'
 import { Brain, BookOpen, ArrowRight, Zap, Target, TrendingUp, Clock } from 'lucide-react'
 import { scoreColor, getErrorMessage } from '@/lib/utils'
 
 export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth()
+  const { t, tf } = useI18n()
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [skills, setSkills] = useState<SkillScore[]>([])
   const [roadmap, setRoadmap] = useState<RoadmapWeek[]>([])
@@ -67,18 +70,20 @@ export default function DashboardPage() {
   if (authLoading) {
     return (
       <div className="min-h-dvh bg-void flex items-center justify-center">
-        <Spinner className="w-6 h-6" />
+        <Spinner announce className="w-6 h-6" />
       </div>
     )
   }
 
   const readiness = user?.overall_readiness_score ?? 0
+  const first = user?.full_name?.split(' ')[0]
 
   return (
     <AppShell>
       <PageHeader
-        title={`Good ${getGreeting()}, ${user?.full_name?.split(' ')[0] ?? 'Engineer'}`}
-        subtitle="Here's your learning snapshot today."
+        title={first ? tf(`dash.greeting.${getGreeting()}` as StringKey, { name: first }) : t('nav.dashboard')}
+        subtitle={t('dash.subtitle')}
+        wrapTitle
       />
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -86,10 +91,14 @@ export default function DashboardPage() {
           <PaymentResultBanner />
         </Suspense>
 
+        {/* The new path-based experience; an account that has not answered the
+            new onboarding is prompted here rather than redirected. */}
+        <YourMasarCard />
+
         {/* Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Readiness score', value: `${readiness.toFixed(0)}%`, sub: 'AI Engineer path', icon: Target, color: scoreColor(readiness) },
+            { label: 'Readiness score', value: `${readiness.toFixed(0)}%`, sub: 'Overall', icon: Target, color: scoreColor(readiness) },
             { label: 'Tracks enrolled', value: enrollments.length, sub: dataLoading ? '…' : 'Active', icon: BookOpen, color: 'text-sky' },
             { label: 'Skills tracked', value: skills.length, sub: dataLoading ? '…' : 'Assessed', icon: TrendingUp, color: 'text-emerald' },
             { label: 'This week', value: roadmap[0]?.theme ?? '—', sub: roadmap[0] ? 'Current focus' : 'Generate roadmap', icon: Clock, color: 'text-violet' },
@@ -112,15 +121,15 @@ export default function DashboardPage() {
 
             {dataLoading ? (
               <Card className="p-8 flex items-center justify-center">
-                <Spinner />
+                <Spinner announce />
               </Card>
             ) : enrollments.length === 0 ? (
               <Card className="p-8 text-center">
                 <BookOpen size={28} className="text-ghost mx-auto mb-3" />
                 <p className="text-bright font-medium mb-1">No tracks yet</p>
-                <p className="text-sm text-ghost mb-4">Start the AI Engineer path to begin.</p>
-                <Link href="/tracks">
-                  <Button size="sm">Browse tracks</Button>
+                <p className="text-sm text-ghost mb-4">Build your Masar, or browse the curriculum libraries.</p>
+                <Link href="/tracks" className={buttonStyles({ size: 'sm' })}>
+                  Browse tracks
                 </Link>
               </Card>
             ) : (
@@ -139,8 +148,8 @@ export default function DashboardPage() {
                   <ProgressBar value={en.completion_percentage} className="mb-4" />
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-ghost">{en.track.estimated_weeks}w program</span>
-                    <Link href={`/tracks/${en.track.slug}`}>
-                      <Button variant="ghost" size="sm">Continue <ArrowRight size={12} /></Button>
+                    <Link href={`/tracks/${en.track.slug}`} className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
+                      Continue <ArrowRight size={12} className="rtl:rotate-180" />
                     </Link>
                   </div>
                 </Card>
@@ -163,7 +172,7 @@ export default function DashboardPage() {
                 </div>
 
                 {roadmapError && (
-                  <p className="mb-3 text-xs text-rose leading-relaxed">{roadmapError}</p>
+                  <p role="alert" className="mb-3 text-xs text-rose leading-relaxed">{roadmapError}</p>
                 )}
 
                 {roadmap.length === 0 && !roadmapLoading && !roadmapError && (
@@ -203,12 +212,12 @@ export default function DashboardPage() {
             <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">Skill scores</h2>
             <Card className="p-4">
               {dataLoading ? (
-                <div className="flex justify-center py-4"><Spinner /></div>
+                <div className="flex justify-center py-4"><Spinner announce /></div>
               ) : skills.length === 0 ? (
                 <div className="text-center py-4">
                   <p className="text-xs text-ghost mb-3">No scores yet</p>
-                  <Link href="/mentor">
-                    <Button variant="ghost" size="sm">Run skill gap analysis</Button>
+                  <Link href="/mentor" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
+                    Run skill gap analysis
                   </Link>
                 </div>
               ) : (
@@ -237,10 +246,8 @@ export default function DashboardPage() {
               <p className="text-xs text-dim mb-4 leading-relaxed">
                 Ready to explain concepts, quiz you, or review your code.
               </p>
-              <Link href="/mentor">
-                <Button variant="outline" size="sm" className="w-full">
-                  <Zap size={12} /> Open mentor
-                </Button>
+              <Link href="/mentor" className={buttonStyles({ variant: 'outline', size: 'sm', className: 'w-full' })}>
+                <Zap size={12} /> Open mentor
               </Link>
             </Card>
           </div>

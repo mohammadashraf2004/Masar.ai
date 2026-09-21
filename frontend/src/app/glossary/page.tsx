@@ -52,7 +52,7 @@ export default function GlossaryPage() {
   if (isLoading) {
     return (
       <div className="min-h-dvh bg-void flex items-center justify-center">
-        <Spinner className="w-6 h-6" />
+        <Spinner announce className="w-6 h-6" />
       </div>
     )
   }
@@ -87,7 +87,7 @@ export default function GlossaryPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('term.searchPlaceholder')}
-                className="w-full bg-surface border border-border rounded-lg ps-9 pe-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:border-amber/40 outline-none transition-colors"
+                className="w-full min-h-[44px] lg:min-h-0 bg-surface border border-border rounded-lg ps-9 pe-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:border-amber/40 outline-none transition-colors"
               />
             </div>
 
@@ -97,7 +97,7 @@ export default function GlossaryPage() {
                   key={value}
                   onClick={() => setCategory(value as TermCategory | 'all')}
                   className={cn(
-                    'px-2.5 py-1 rounded-full border text-xs transition-colors',
+                    'min-h-[44px] lg:min-h-0 px-2.5 py-1 rounded-full border text-xs transition-colors',
                     category === value
                       ? 'border-amber/30 bg-amber/10 text-amber'
                       : 'border-border text-ghost hover:text-soft'
@@ -160,7 +160,7 @@ export default function GlossaryPage() {
                       }}
                       disabled={isLearned}
                       className={cn(
-                        'mt-3 inline-flex items-center gap-1.5 text-[11px] px-2 py-1 rounded border transition-colors',
+                        'mt-3 inline-flex min-h-[44px] lg:min-h-0 items-center gap-1.5 text-[11px] px-2 py-1 rounded border transition-colors',
                         isLearned
                           ? 'border-emerald/25 bg-emerald/10 text-emerald cursor-default'
                           : 'border-border text-ghost hover:text-amber hover:border-amber/30'

@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Card } from '@/components/ui/index'
+import { Card, Spinner } from '@/components/ui/index'
 import { Badge } from '@/components/ui/index'
 import { ProgressBar } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
@@ -70,7 +70,7 @@ export default function TrackPage() {
   if (loading) return (
     <AppShell>
       <div className="flex-1 flex items-center justify-center">
-        <div className="w-6 h-6 border border-amber border-t-transparent rounded-full animate-spin" />
+        <Spinner announce className="w-6 h-6" />
       </div>
     </AppShell>
   )

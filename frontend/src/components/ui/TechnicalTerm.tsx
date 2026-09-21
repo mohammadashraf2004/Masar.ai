@@ -255,7 +255,7 @@ export function TermCard({ term, arabic, category, className, actionable = true 
           onClick={() => markLearned(entry.id)}
           disabled={learned}
           className={cn(
-            'mt-3 inline-flex items-center gap-1.5 text-[11px] px-2 py-1 rounded border transition-colors',
+            'mt-3 inline-flex min-h-[44px] lg:min-h-0 items-center gap-1.5 text-[11px] px-2 py-1 rounded border transition-colors',
             learned
               ? 'border-emerald/25 bg-emerald/10 text-emerald cursor-default'
               : 'border-border text-ghost hover:text-amber hover:border-amber/30'

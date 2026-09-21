@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { api } from '@/lib/api'
+import { useI18n } from '@/lib/i18n'
 import { CheckCircle, XCircle, Clock, X } from 'lucide-react'
 
 // Mounted on the dashboard — where Paymob's checkout redirect now lands
@@ -13,6 +14,7 @@ export function PaymentResultBanner() {
   const params = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
+  const { t } = useI18n()
   const ref = params.get('payment_ref') ?? ''
   const [status, setStatus] = useState<'pending' | 'confirmed' | 'failed' | null>(ref ? 'pending' : null)
   const [kind, setKind] = useState<'wallet_topup' | 'exam_payment' | null>(null)
@@ -73,7 +75,12 @@ export function PaymentResultBanner() {
         {status === 'confirmed' && (kind === 'wallet_topup' ? 'Payment confirmed — your credits have been added.' : 'Payment confirmed — you now have access to the exam.')}
         {status === 'failed' && "Payment wasn't completed. No charge should apply — please try again."}
       </p>
-      <button onClick={dismiss} className="text-ghost hover:text-soft flex-shrink-0">
+      <button
+        type="button"
+        onClick={dismiss}
+        aria-label={t('common.close')}
+        className="-me-2 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded text-ghost transition-colors hover:text-soft lg:me-0 lg:h-8 lg:w-8"
+      >
         <X size={14} />
       </button>
     </div>

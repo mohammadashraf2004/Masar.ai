@@ -37,7 +37,7 @@ FAKE_HINT = {
 
 def _register(client):
     email = f"chal-{uuid.uuid4().hex[:12]}@example.com"
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Challenge Tester", "password": STRONG_PASSWORD,
     })
     assert resp.status_code == 201, resp.text

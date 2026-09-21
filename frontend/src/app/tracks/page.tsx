@@ -6,15 +6,15 @@ import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, ProgressBar, Badge, Spinner } from '@/components/ui/index'
-import { Button } from '@/components/ui/Button'
+import { Button, buttonStyles } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import type { CareerTrackSummary, Enrollment } from '@/types'
 import { cn } from '@/lib/utils'
 import { isTrackComingSoon } from '@/lib/tracks'
 import {
   BarChart2, Brain, Code2, Server, Layers,
-  CheckCircle, Lock, ArrowRight, ChevronRight,
-  Clock, BookOpen, Target, Star
+  CheckCircle, ArrowRight, ChevronRight,
+  Clock, BookOpen
 } from 'lucide-react'
 
 // ─── Track metadata (visual config, not from API) ─────────────────────
@@ -26,7 +26,6 @@ const TRACK_META: Record<string, {
   textColor: string
   topics: string[]
   outcome: string
-  contributesToApex: boolean
 }> = {
   'data-analyst': {
     icon: BarChart2,
@@ -36,7 +35,6 @@ const TRACK_META: Record<string, {
     textColor: 'text-sky',
     topics: ['Python & SQL', 'Pandas & NumPy', 'Data visualisation', 'Statistics', 'BI dashboards'],
     outcome: 'Analyse datasets, build dashboards, derive insights',
-    contributesToApex: true,
   },
   'ml-engineer': {
     icon: Brain,
@@ -46,7 +44,6 @@ const TRACK_META: Record<string, {
     textColor: 'text-violet',
     topics: ['Supervised learning', 'Deep learning', 'PyTorch', 'Model evaluation', 'Feature engineering'],
     outcome: 'Train and evaluate machine learning models',
-    contributesToApex: true,
   },
   'ai-developer': {
     icon: Code2,
@@ -56,7 +53,6 @@ const TRACK_META: Record<string, {
     textColor: 'text-amber',
     topics: ['LLM integration', 'RAG systems', 'Vector databases', 'FastAPI', 'Prompt engineering'],
     outcome: 'Build production AI apps with LLMs and APIs',
-    contributesToApex: true,
   },
   'mlops-engineer': {
     icon: Server,
@@ -66,7 +62,6 @@ const TRACK_META: Record<string, {
     textColor: 'text-emerald',
     topics: ['Docker & K8s', 'CI/CD pipelines', 'Model monitoring', 'Cloud deployment', 'Experiment tracking'],
     outcome: 'Deploy and maintain ML systems at scale',
-    contributesToApex: true,
   },
   'ai-engineer': {
     icon: Layers,
@@ -74,14 +69,10 @@ const TRACK_META: Record<string, {
     borderColor: 'border-amber/40',
     bgColor: 'bg-amber/10',
     textColor: 'text-amber',
-    topics: ['All tracks combined', 'System architecture', 'Production AI', 'End-to-end pipelines'],
-    outcome: 'Build complete AI systems from data to production',
-    contributesToApex: false,
+    topics: ['System architecture', 'Production AI', 'End-to-end pipelines', 'NLP, Vision, Speech or Multimodal routes'],
+    outcome: 'Design and ship complete AI systems in the specialization you choose',
   },
 }
-
-const APEX_SLUG = 'ai-engineer'
-const APEX_REQUIRED_COUNT = 3
 
 type TrackStatus = 'locked' | 'available' | 'enrolled' | 'completed' | 'coming_soon'
 
@@ -95,7 +86,6 @@ export default function TracksPage() {
   const router = useRouter()
   const { isLoading: authLoading } = useAuth()
   const [tracks, setTracks] = useState<TrackWithStatus[]>([])
-  const [apexTrack, setApexTrack] = useState<TrackWithStatus | null>(null)
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [selected, setSelected] = useState<TrackWithStatus | null>(null)
   const [loading, setLoading] = useState(true)
@@ -122,11 +112,12 @@ export default function TracksPage() {
           return { ...t, status, enrollment: enr }
         })
 
-        const apex = withStatus.find(t => t.slug === APEX_SLUG)
-        const rest = withStatus.filter(t => t.slug !== APEX_SLUG)
+        // Every career track is shown alike. AI Engineer used to be a locked
+        // "apex" unlocked by finishing three others; it is now a career goal
+        // with its own routes (see /paths), so it is no longer set apart here.
+        const rest = withStatus
 
         setTracks(rest)
-        setApexTrack(apex ?? null)
         // Auto-select first enrolled, else the first track anyone can start —
         // opening on a coming-soon track shows a panel whose only action is
         // disabled.
@@ -154,17 +145,9 @@ export default function TracksPage() {
     setEnrolling(false)
   }
 
-  const completedCount = tracks.filter(t => t.status === 'completed').length
-  const enrolledCount  = tracks.filter(t => t.status === 'enrolled').length
-  const apexProgress   = Math.round((completedCount / APEX_REQUIRED_COUNT) * 100)
-  const apexUnlocked   = completedCount >= APEX_REQUIRED_COUNT
-  // The apex is gated on finishing other tracks, so it cannot be reachable
-  // while those tracks are themselves unpublished.
-  const apexComingSoon = apexTrack?.status === 'coming_soon'
-
   if (authLoading || loading) return (
     <div className="min-h-dvh bg-void flex items-center justify-center">
-      <Spinner className="w-6 h-6" />
+      <Spinner announce className="w-6 h-6" />
     </div>
   )
 
@@ -174,7 +157,7 @@ export default function TracksPage() {
     <AppShell>
       <PageHeader
         title="Career tracks"
-        subtitle="Choose your specialisation path. Complete available tracks to progress toward Full Stack AI Engineer."
+        subtitle="The curriculum libraries behind your Masar. Browse and enrol in the ones with published lessons."
       />
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -182,9 +165,21 @@ export default function TracksPage() {
 
           {/* ── Flowchart section ─────────────────────────────────────── */}
           <div>
-            {/* Specialisation tracks */}
+            {/* Where the personalised path lives. Tracks are the curriculum
+                libraries behind it; the path itself is built from level, field
+                and career goal. */}
+            <Card className="mb-6 flex flex-wrap items-center justify-between gap-3 border-amber/20 p-4">
+              <p className="max-w-xl text-sm text-soft">
+                Your learning path is built from your level, your interests and your career goal —
+                AI Engineer is a goal with several specialization routes, not the sum of other tracks.
+              </p>
+              <Link href="/learn" className={buttonStyles({ size: 'sm' })}>
+                Open your Masar <ArrowRight size={12} className="rtl:rotate-180" />
+              </Link>
+            </Card>
+
             <div className="text-xs font-medium text-ghost uppercase tracking-widest text-center mb-4">
-              Choose your specialisation
+              Curriculum libraries
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -204,7 +199,7 @@ export default function TracksPage() {
                       isSelected
                         ? `${m.bgColor ?? 'bg-surface'} ${m.borderColor ?? 'border-border'} ring-1 ring-offset-1 ring-offset-void ${m.borderColor ?? ''}`
                         : 'bg-panel border-border hover:border-muted',
-                      comingSoon && 'opacity-60'
+                      comingSoon && 'border-dashed'
                     )}
                   >
                     <Icon
@@ -261,115 +256,6 @@ export default function TracksPage() {
               })}
             </div>
 
-            {/* Connector lines.
-                Purely decorative, and its four x-coordinates are hard-coded
-                to where the cards sit in a 580px-wide four-column row. Once
-                the grid drops to two columns the lines point at nothing, so
-                they are drawn only at the width they were measured for. The
-                cards below still say which tracks feed the apex. */}
-            <div className="hidden lg:flex justify-center my-2">
-              <svg width="580" height="24" viewBox="0 0 580 24">
-                {[72, 217, 362, 508].map((x, i) => (
-                  <line
-                    key={i}
-                    x1={x} y1={0}
-                    x2={290} y2={24}
-                    stroke="currentColor"
-                    strokeWidth="0.5"
-                    strokeDasharray="4 3"
-                    className="text-border"
-                  />
-                ))}
-              </svg>
-            </div>
-
-            {/* Apex track */}
-            {apexTrack && (
-              <div className={cn(
-                'mx-auto max-w-sm rounded-lg border-2 p-5 text-center transition-all',
-                apexUnlocked
-                  ? 'border-amber/60 bg-amber/5'
-                  : 'border-border bg-panel opacity-80'
-              )}>
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  {apexComingSoon
-                    ? <Clock size={14} className="text-ghost" />
-                    : apexUnlocked
-                      ? <Star size={16} className="text-amber" />
-                      : <Lock size={14} className="text-ghost" />
-                  }
-                  <span className={cn(
-                    'text-xs font-medium uppercase tracking-widest',
-                    apexUnlocked && !apexComingSoon ? 'text-amber' : 'text-ghost'
-                  )}>
-                    {apexComingSoon ? 'Coming soon' : apexUnlocked ? 'Unlocked' : 'End goal'}
-                  </span>
-                </div>
-
-                <h3 className="font-display font-bold text-base text-bright mb-0.5">
-                  {apexTrack.title}
-                </h3>
-                <p className="text-xs text-ghost mb-4">
-                  {apexComingSoon
-                    ? 'Opens once the specialisation tracks are published'
-                    : `Complete any ${APEX_REQUIRED_COUNT} tracks to unlock`}
-                </p>
-
-                {/* The unlock counter only says something while there are
-                    tracks to complete. With the specialisations unpublished it
-                    would sit at 0 / 3 for everyone, forever. */}
-                {!apexComingSoon && (
-                  <>
-                    {/* Apex progress */}
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-amber rounded-full transition-all duration-700"
-                          style={{ width: `${apexProgress}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-mono text-amber shrink-0">
-                        {completedCount} / {APEX_REQUIRED_COUNT}
-                      </span>
-                    </div>
-
-                    {/* Requirement chips */}
-                    <div className="flex gap-2 flex-wrap justify-center mb-4">
-                      {tracks.map(t => (
-                        <span
-                          key={t.id}
-                          className={cn(
-                            'text-xs px-2.5 py-1 rounded-full border',
-                            t.status === 'completed'
-                              ? 'bg-emerald/10 border-emerald/30 text-emerald'
-                              : 'bg-surface border-border text-ghost'
-                          )}
-                        >
-                          {t.status === 'completed' && <CheckCircle size={10} className="inline me-1" />}
-                          {t.title}
-                        </span>
-                      ))}
-                    </div>
-                  </>
-                )}
-
-                {apexComingSoon ? (
-                  <Button variant="ghost" size="sm" className="w-full" disabled>
-                    Coming soon
-                  </Button>
-                ) : apexUnlocked ? (
-                  <Link href={`/tracks/${apexTrack.slug}`}>
-                    <Button variant="amber" size="sm" className="w-full">
-                      Start full stack path <ArrowRight size={12} />
-                    </Button>
-                  </Link>
-                ) : (
-                  <Button variant="ghost" size="sm" className="w-full" disabled>
-                    Complete {APEX_REQUIRED_COUNT - completedCount} more track{APEX_REQUIRED_COUNT - completedCount !== 1 ? 's' : ''} to unlock
-                  </Button>
-                )}
-              </div>
-            )}
           </div>
 
           {/* ── Selected track detail panel ───────────────────────────── */}
@@ -420,10 +306,11 @@ export default function TracksPage() {
                     </Button>
                   )}
                   {(selected.status === 'enrolled' || selected.status === 'completed') && (
-                    <Link href={`/tracks/${selected.slug}`}>
-                      <Button size="sm" variant={selected.status === 'completed' ? 'ghost' : 'amber'}>
-                        {selected.status === 'completed' ? 'Review track' : 'Continue'} <ArrowRight size={12} />
-                      </Button>
+                    <Link
+                      href={`/tracks/${selected.slug}`}
+                      className={buttonStyles({ size: 'sm', variant: selected.status === 'completed' ? 'ghost' : 'amber' })}
+                    >
+                      {selected.status === 'completed' ? 'Review track' : 'Continue'} <ArrowRight size={12} className="rtl:rotate-180" />
                     </Link>
                   )}
                 </div>
@@ -483,13 +370,6 @@ export default function TracksPage() {
                 </div>
               </div>
 
-              {/* Contributes to apex notice */}
-              {meta.contributesToApex && (
-                <div className="mt-4 flex items-center gap-2 text-xs text-ghost border-t border-border pt-4">
-                  <Target size={12} className="text-amber shrink-0" />
-                  <span>Completing this track contributes to the Full Stack AI Engineer goal</span>
-                </div>
-              )}
             </Card>
           )}
         </div>

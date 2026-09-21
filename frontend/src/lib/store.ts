@@ -88,6 +88,9 @@ export const useAuthStore = create<AuthState>()(
         // refreshUser() calls logout() on failure, so that reload can
         // repeat. Guarded the same way lib/api.ts guards its 401 redirect.
         if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth/')) {
+          // Full navigation on purpose: the store lives outside React (no
+          // router), and the reload discards whatever the session left in memory.
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination
           window.location.href = '/auth/login'
         }
       },

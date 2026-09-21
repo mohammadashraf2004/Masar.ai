@@ -7,7 +7,7 @@ def _unique_email() -> str:
 
 def test_register_grants_starter_credits(client):
     email = _unique_email()
-    reg = client.post("/api/v1/auth/register", json={
+    reg = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Test User", "password": "correcthorsebatterystaple",
     })
     token = reg.json()["access_token"]
@@ -18,7 +18,7 @@ def test_register_grants_starter_credits(client):
 
 def test_register_then_login(client):
     email = _unique_email()
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email,
         "full_name": "Test User",
         "password": "correcthorsebatterystaple",
@@ -38,7 +38,8 @@ def test_register_then_login(client):
 
 def test_register_duplicate_email_rejected(client):
     email = _unique_email()
-    payload = {"email": email, "full_name": "Test User", "password": "correcthorsebatterystaple"}
+    payload = {"email": email, "full_name": "Test User", "password": "correcthorsebatterystaple",
+               "accept_terms": True, "accept_privacy": True}
     assert client.post("/api/v1/auth/register", json=payload).status_code == 201
     resp = client.post("/api/v1/auth/register", json=payload)
     assert resp.status_code == 400
@@ -46,7 +47,7 @@ def test_register_duplicate_email_rejected(client):
 
 def test_login_wrong_password_rejected(client):
     email = _unique_email()
-    client.post("/api/v1/auth/register", json={
+    client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Test User", "password": "correcthorsebatterystaple",
     })
     resp = client.post("/api/v1/auth/login", json={"email": email, "password": "wrong-password"})
@@ -60,7 +61,7 @@ def test_me_requires_auth(client):
 
 def test_me_returns_current_user(client):
     email = _unique_email()
-    reg = client.post("/api/v1/auth/register", json={
+    reg = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Test User", "password": "correcthorsebatterystaple",
     })
     token = reg.json()["access_token"]

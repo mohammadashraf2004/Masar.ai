@@ -32,7 +32,7 @@ def _unique_email() -> str:
 
 def _register(client, email=None, password=STRONG_PASSWORD, full_name="Sec Tester"):
     email = email or _unique_email()
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": full_name, "password": password,
     })
     assert resp.status_code == 201, resp.text
@@ -96,6 +96,37 @@ def test_expired_token_rejected(client):
         data={"sub": str(user_id), "tv": 0}, expires_delta=timedelta(minutes=-5),
     )
     assert client.get("/api/v1/auth/me", headers=_auth(expired)).status_code == 401
+
+
+def _token_issued_at(user_id: int, issued: datetime) -> str:
+    """A validly signed access token whose iat/nbf are `issued`."""
+    return jwt.encode(
+        {
+            "sub": str(user_id), "tv": 0, "typ": "access",
+            "iss": settings.JWT_ISSUER, "aud": settings.JWT_AUDIENCE,
+            "iat": issued, "nbf": issued, "exp": issued + timedelta(hours=1),
+        },
+        settings.SECRET_KEY, algorithm=settings.ALGORITHM,
+    )
+
+
+def test_a_wall_clock_that_steps_back_does_not_invalidate_a_fresh_token(client):
+    """Regression: test_challenge_credits flaked with a 401 in the middle of a
+    run. The Docker VM's wall clock steps backwards by ~1s every 30s, so a
+    token minted just before a step had an `iat` ahead of "now" and was refused
+    as "not yet valid". A few seconds of skew must be tolerated..."""
+    _, _, user_id = _register(client)
+    just_ahead = _token_issued_at(user_id, datetime.now(timezone.utc) + timedelta(seconds=3))
+    assert client.get("/api/v1/auth/me", headers=_auth(just_ahead)).status_code == 200
+
+
+def test_a_token_issued_far_in_the_future_is_still_refused(client):
+    """...but only a few seconds: leeway is not a way to pre-mint tokens."""
+    _, _, user_id = _register(client)
+    far_ahead = _token_issued_at(
+        user_id, datetime.now(timezone.utc) + timedelta(seconds=settings.JWT_LEEWAY_SECONDS + 60),
+    )
+    assert client.get("/api/v1/auth/me", headers=_auth(far_ahead)).status_code == 401
 
 
 def test_token_signed_with_wrong_secret_rejected(client):
@@ -227,7 +258,7 @@ def test_password_hash_never_returned_by_any_auth_endpoint(client):
     "              ",      # whitespace only
 ])
 def test_weak_passwords_rejected_at_registration(client, weak):
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": _unique_email(), "full_name": "Weak", "password": weak,
     })
     assert resp.status_code == 422
@@ -237,7 +268,7 @@ def test_overlong_password_rejected_rather_than_silently_truncated(client):
     """bcrypt ignores everything past 72 bytes; without an explicit cap,
     two different 200-character passwords sharing a prefix would both
     authenticate."""
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": _unique_email(), "full_name": "Long", "password": "A1b2c3d4e5!" * 20,
     })
     assert resp.status_code == 422
@@ -276,7 +307,7 @@ def test_login_is_case_insensitive_on_email(client):
 
 def test_registration_rejects_case_variant_duplicate(client):
     email, _, _ = _register(client)
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email.upper(), "full_name": "Twin", "password": STRONG_PASSWORD,
     })
     assert resp.status_code == 400
@@ -1362,7 +1393,7 @@ def test_signup_falls_back_to_starter_credits_when_closed(client, monkeypatch):
 def test_promo_amount_cannot_be_influenced_by_the_request(client, monkeypatch):
     """The grant is server config, not something a signup body can ask for."""
     _promo_open(monkeypatch, credits=500)
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": _unique_email(), "full_name": "Greedy User", "password": STRONG_PASSWORD,
         "credit_balance": 999999, "promo_credits_remaining": 999999,
         "promo_expires_at": "2099-01-01T00:00:00Z",

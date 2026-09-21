@@ -29,7 +29,7 @@ export default function MentorPage() {
   useAuth()
   // Aliased: `language` on this page already means the code-review
   // language picker (python/js/...), which is a different axis entirely.
-  const { language: uiLanguage, mode } = useI18n()
+  const { language: uiLanguage, mode, t } = useI18n()
   const [tool, setTool] = useState<Tool>('chat')
   const [messages, setMessages] = useState<MentorMessage[]>([{
     role: 'assistant',
@@ -162,7 +162,7 @@ export default function MentorPage() {
                 <Icon size={13} className={tool === key ? 'text-amber' : 'text-ghost'} />
                 <span className="text-sm font-medium">{label}</span>
               </div>
-              <p className="text-xs leading-snug opacity-70 hidden lg:block">{desc}</p>
+              <p className="text-xs leading-snug opacity-90 hidden lg:block">{desc}</p>
             </button>
           ))}
         </div>
@@ -223,7 +223,7 @@ export default function MentorPage() {
                 <div className="px-4 sm:px-6 lg:px-8 pb-3 flex gap-2 flex-wrap">
                   {suggestions.map(s => (
                     <button key={s} onClick={() => setInput(s)}
-                      className="px-3 py-1.5 rounded-full text-xs bg-surface border border-border text-dim hover:text-bright hover:border-amber/30 transition-colors">
+                      className="min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded-full text-xs bg-surface border border-border text-dim hover:text-bright hover:border-amber/30 transition-colors">
                       {s}
                     </button>
                   ))}
@@ -239,7 +239,7 @@ export default function MentorPage() {
                   'Mock ML interview question',
                 ].map(p => (
                   <button key={p} onClick={() => setInput(p)}
-                    className="px-3 py-1.5 rounded-full text-xs bg-surface border border-border text-ghost hover:text-amber hover:border-amber/30 transition-colors">
+                    className="min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded-full text-xs bg-surface border border-border text-ghost hover:text-amber hover:border-amber/30 transition-colors">
                     {p}
                   </button>
                 ))}
@@ -248,13 +248,13 @@ export default function MentorPage() {
               {/* Input */}
               <div className="px-4 sm:px-6 lg:px-8 pb-6 flex gap-3">
                 <input
-                  className="flex-1 bg-surface border border-border rounded-lg px-4 py-3 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 transition-colors"
+                  className="flex-1 min-w-0 bg-surface border border-border rounded-lg px-4 py-3 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 transition-colors"
                   placeholder="Ask your mentor anything…"
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                 />
-                <Button onClick={sendMessage} loading={loading} className="px-4">
+                <Button onClick={sendMessage} loading={loading} aria-label={t('common.send')} className="px-4">
                   <Send size={14} />
                 </Button>
               </div>

@@ -13,6 +13,31 @@ export interface User {
   avatar_url?: string
   overall_readiness_score: number
   created_at: string
+  /** What the account accepted, and whether that is still current. The client
+   *  branches on `requires_legal_acceptance` and never compares versions. */
+  terms_version?: string | null
+  privacy_version?: string | null
+  requires_legal_acceptance?: boolean
+  /** Announcements the account has yet to see, in the order to show them. Empty
+   *  once they are all acknowledged; absent on a session that predates this field. */
+  pending_updates?: string[]
+}
+
+// ─── Legal documents ─────────────────────────────────────────────────────
+// Served by the API together with their version, so the site never holds a
+// copy of the wording (or of the version number).
+export interface LegalSection {
+  heading: string
+  body: string[]
+}
+
+export interface LegalDocument {
+  kind: 'terms' | 'privacy'
+  version: string
+  language: 'en' | 'ar'
+  title: string
+  intro: string
+  sections: LegalSection[]
 }
 
 export interface TokenResponse {
@@ -471,4 +496,341 @@ export interface AdminGrantResult {
   full_name: string
   credits_granted: number
   new_balance: number
+}
+
+// ─── Learning paths ──────────────────────────────────────────────────────
+// Mirrors backend/app/views/learning_path.py. Every display string is an
+// English field plus an optional `_ar` twin, exactly like the content types
+// above; pick between them with `pick()` in lib/content-language.ts. Nothing
+// here is translated by the server.
+
+export interface LevelRef {
+  slug: string
+  name: string
+  name_ar?: string | null
+  rank: number
+}
+
+export interface LearningLevel extends LevelRef {
+  description?: string | null
+  description_ar?: string | null
+}
+
+export interface FieldRef {
+  slug: string
+  name: string
+  name_ar?: string | null
+  /** A key resolved to an icon by lib/learning-icons.ts; never a component. */
+  icon?: string | null
+}
+
+export interface LearningField extends FieldRef {
+  description?: string | null
+  description_ar?: string | null
+  position: number
+  /** Lowest level offered without a prerequisite route; null = every level. */
+  min_level?: LevelRef | null
+  /** True when the field starts at the top level — what the UI badges "Advanced". */
+  is_advanced: boolean
+  prerequisites: FieldRef[]
+  prerequisite_min_required: number
+  prerequisite_recommended: number
+  course_count: number
+  /** Courses whose lessons are actually published. 0 = "coming soon". */
+  available_course_count: number
+}
+
+export interface Skill {
+  slug: string
+  name: string
+  name_ar?: string | null
+  /** A capability ("skill") or a named product used to apply one ("tool"). */
+  kind?: 'skill' | 'tool'
+}
+
+export interface RoleRef {
+  slug: string
+  title: string
+  title_ar?: string | null
+  icon?: string | null
+}
+
+export interface CareerGoal extends RoleRef {
+  description?: string | null
+  description_ar?: string | null
+  position: number
+  recommended_level?: LevelRef | null
+  required_fields: FieldRef[]
+  recommended_fields: FieldRef[]
+  required_skills: Skill[]
+  course_count: number
+  available_course_count: number
+}
+
+export interface CatalogCourse {
+  id: number
+  slug: string
+  title: string
+  title_ar?: string | null
+  description?: string | null
+  description_ar?: string | null
+  kind: 'tool_course' | 'track_level'
+  /** Where the underlying lessons live, e.g. /tools/langchain. */
+  href?: string | null
+  level: LevelRef
+  fields: FieldRef[]
+  roles: RoleRef[]
+  skills: Skill[]
+  estimated_hours: number
+  /** False for a catalogue entry whose lessons are not published yet. */
+  is_available: boolean
+}
+
+export interface CatalogCourseDetail extends CatalogCourse {
+  assumes: Skill[]
+  prerequisites: Array<Pick<CatalogCourse, 'id' | 'slug' | 'title' | 'title_ar'>>
+  learning_objectives: string[]
+  learning_objectives_ar: string[]
+}
+
+export type PathCourseState = 'required' | 'completed' | 'optional' | 'waived'
+export type PathStageStatus = 'completed' | 'current' | 'upcoming' | 'coming_soon' | 'skippable'
+
+/** Why a course is on a roadmap. Codes, not sentences: the wording is interface copy. */
+export type CourseReason =
+  | 'career_requirement' | 'field_requirement' | 'stage_requirement' | 'skill_gap' | 'prerequisite'
+
+export interface StageRef {
+  slug: string
+  title: string
+  title_ar?: string | null
+}
+
+/**
+ * The facts behind "Why this course?", all decided by the backend from the
+ * catalogue. `known_skills` and `skills_to_gain` partition `skills_taught`.
+ */
+export interface CourseWhy {
+  career_goal: RoleRef
+  /** The fields on the learner's route this course belongs to. */
+  fields: FieldRef[]
+  stage: StageRef
+  reasons: CourseReason[]
+  skills_taught: Skill[]
+  known_skills: Skill[]
+  skills_to_gain: Skill[]
+  /** Taught skills the career goal requires. */
+  goal_skills: Skill[]
+  /** Courses still to do that need this one first. */
+  prerequisite_for: Array<Pick<CatalogCourse, 'id' | 'slug' | 'title' | 'title_ar'>>
+  taught_count: number
+  known_count: number
+  to_gain_count: number
+}
+
+export interface PathCourse {
+  course: CatalogCourse
+  state: PathCourseState
+  /** prerequisite | below_level | known_skills */
+  reason?: string | null
+  completion_pct?: number | null
+  /** The skills this course teaches that the learner declared they know. */
+  known_skills: Skill[]
+  why?: CourseWhy | null
+}
+
+/** A course located in its stage: what "current" and "next" point at. */
+export interface RoadmapStep extends PathCourse {
+  stage_slug: string
+  stage_title: string
+  stage_title_ar?: string | null
+}
+
+export interface PathStage {
+  slug: string
+  position: number
+  title: string
+  title_ar?: string | null
+  description?: string | null
+  description_ar?: string | null
+  phase: string
+  kind: string
+  status: PathStageStatus
+  progress_pct?: number | null
+  upcoming_count: number
+  courses: PathCourse[]
+}
+
+/** A code plus parameters; the wording lives in lib/i18n.ts, in both languages. */
+export interface PathAdvisory {
+  code: string
+  severity: 'info' | 'warning'
+  params: Record<string, unknown>
+}
+
+export interface LearningProgress {
+  path_pct?: number | null
+  /** Required and completed courses (what `path_pct` is measured over)... */
+  path_total?: number | null
+  /** ...how many of those are done... */
+  path_completed?: number | null
+  /** ...and how many the learner already knows (shown, never counted). */
+  path_known?: number | null
+  overall_pct: number
+  by_role: Record<string, number>
+  by_field: Record<string, number>
+  by_skill: Record<string, number>
+}
+
+export interface LearningPath {
+  id?: number | null
+  is_saved: boolean
+  status: string
+  level: LevelRef
+  career_goal: RoleRef
+  fields: FieldRef[]
+  /** Requested fields plus any prerequisite routes the backend added. */
+  effective_fields: FieldRef[]
+  template_slug?: string | null
+  stages: PathStage[]
+  current_stage_slug?: string | null
+  /** Decided by the server: the course to work on now and the one after it. */
+  current_course?: RoadmapStep | null
+  next_course?: RoadmapStep | null
+  /** Every required course is done (decided by the server). */
+  is_complete?: boolean
+  advisories: PathAdvisory[]
+  estimated_hours: number
+  estimated_weeks: number
+  progress?: LearningProgress | null
+  generated_at?: string | null
+}
+
+export interface PathSummary {
+  slug: string
+  career_goal: RoleRef
+  field?: FieldRef | null
+  recommended_level?: LevelRef | null
+  stage_count: number
+  course_count: number
+  available_course_count: number
+  estimated_hours: number
+}
+
+export interface LearningProfile {
+  level?: LevelRef | null
+  career_goal?: RoleRef | null
+  fields: FieldRef[]
+  known_skills: Skill[]
+  onboarding_completed: boolean
+  /** The one flag the client branches on to send someone to onboarding. */
+  needs_onboarding: boolean
+  source: string
+  has_active_path: boolean
+}
+
+/** A skill offered in "Skills & Technologies I know". */
+export interface SkillOption extends Skill {
+  /** The field most of its courses belong to; null for tools and uncovered skills. */
+  group?: FieldRef | null
+  is_required: boolean
+  course_count: number
+}
+
+export type SkillStatus = 'known' | 'partially_covered' | 'missing'
+
+/** One relevant skill and where the learner stands on it (decided by the backend). */
+export interface SkillGapItem extends Skill {
+  status: SkillStatus
+  /** The field most of the roadmap courses teaching it belong to. */
+  group?: FieldRef | null
+  /** The earliest roadmap stage that teaches it. */
+  stage?: StageRef | null
+  is_goal_required: boolean
+  /** Taught by a required course in the current stage. */
+  is_immediate: boolean
+  /** 0 on a goal-required skill: no published course teaches it yet. */
+  course_count: number
+  /** Not declared, but a course teaching it is finished. */
+  covered_by_completed: boolean
+}
+
+export interface SkillGapGroup {
+  key: string
+  kind: 'field' | 'general' | 'tools'
+  field?: FieldRef | null
+  total: number
+  known_count: number
+  /** What is still to do here: partially covered, then missing. */
+  skills: SkillGapItem[]
+}
+
+export interface SkillGapCounts {
+  required: number
+  known: number
+  partial: number
+  missing: number
+  immediate: number
+  /** Declared share of the relevant skills; null when nothing is relevant. */
+  coverage_pct: number | null
+}
+
+export interface SkillGaps {
+  /** False when the learner has no roadmap yet. */
+  available: boolean
+  level?: LevelRef | null
+  career_goal?: RoleRef | null
+  fields: FieldRef[]
+  current_stage?: StageRef | null
+  summary: SkillGapCounts
+  known: SkillGapItem[]
+  partial: SkillGapItem[]
+  missing: SkillGapItem[]
+  groups: SkillGapGroup[]
+}
+
+export interface LearnerSkill {
+  skill: Skill
+  /** known | mastered */
+  status: string
+  /** self_declared | assessment | course_completion */
+  source: string
+}
+
+export interface MySkills {
+  known: LearnerSkill[]
+  learning: Skill[]
+}
+
+export interface SkillsSaved extends MySkills {
+  /** The rebuilt roadmap, or null when the learner has no complete profile yet. */
+  path?: LearningPath | null
+  roadmap_updated: boolean
+}
+
+export interface SkillOptionsQuery {
+  career_goal: string
+  level?: string | null
+  field?: string[]
+}
+
+export interface LearningProfileUpdate {
+  level?: string | null
+  career_goal?: string | null
+  fields?: string[]
+  known_skills?: string[]
+}
+
+export interface GeneratePathRequest {
+  level: string
+  career_goal: string
+  fields: string[]
+}
+
+export interface CourseFilters {
+  level?: string[]
+  field?: string[]
+  career_goal?: string[]
+  q?: string
+  available_only?: boolean
 }

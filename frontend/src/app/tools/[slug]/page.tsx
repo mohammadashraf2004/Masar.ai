@@ -61,7 +61,7 @@ export default function ToolCoursePage() {
   if (loading) return (
     <AppShell>
       <div className="flex-1 flex items-center justify-center">
-        <Spinner className="w-6 h-6" />
+        <Spinner announce className="w-6 h-6" />
       </div>
     </AppShell>
   )

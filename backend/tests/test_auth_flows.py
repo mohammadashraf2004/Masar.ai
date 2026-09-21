@@ -16,7 +16,7 @@ def _unique_email() -> str:
 
 def _register(client, email=None, password="correcthorsebatterystaple"):
     email = email or _unique_email()
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Test User", "password": password,
     })
     assert resp.status_code == 201
@@ -129,7 +129,7 @@ def test_delete_account_anonymizes_and_revokes(client, db):
     check.close()
 
     # The original email is free to re-register.
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "New Owner", "password": "another-password-789",
     })
     assert resp.status_code == 201

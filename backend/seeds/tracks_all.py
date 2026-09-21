@@ -1,5 +1,10 @@
 """
-Seeds all four specialisation tracks and the Full Stack AI Engineer apex track.
+Seeds the five career tracks: four role tracks and AI Engineer.
+
+These are the curriculum containers. The learning *path* a learner follows is
+built from their level, fields and career goal (see seed_learning_paths.py and
+docs/learning/ARCHITECTURE.md) — AI Engineer is a career goal with several
+specialization routes, not the unlock for completing the other tracks.
 Run this instead of (or after) the basic track seed.
 """
 from app.models.learning import CareerTrack, TrackLevel, Topic
@@ -65,7 +70,7 @@ TRACKS = [
     {
         "slug": "ai-engineer",
         "title": "AI Engineer",
-        "description": "The complete path. Combines data analysis, ML engineering, AI development, and MLOps into a full production AI engineering skillset.",
+        "description": "Design and ship complete AI systems end to end, in the specialization you choose: NLP, Computer Vision, Speech or Multimodal.",
         "icon": "🤖",
         "estimated_weeks": 24,
         "levels": [

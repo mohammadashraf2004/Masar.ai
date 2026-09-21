@@ -12,7 +12,8 @@ This script FETCHES them and only CREATES them if they genuinely don't exist.
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from app.db.session import SessionLocal, engine, Base
+from app.db.session import SessionLocal
+from app.db.schema_guard import require_migrated_schema
 from app.models.user import User
 from app.models.learning import CareerTrack, TrackLevel, Topic, Lesson, Exercise, Project, Quiz, DifficultyLevel
 from app.models.progress import Enrollment, UserProgress, QuizAttempt, ProjectSubmission, MentorSession, UserSkillScore, EngineerScorecard
@@ -21,7 +22,7 @@ from app.models.exam import Exam, ExamAttempt, ProctoringEvent, Certificate
 from app.models.wallet import UserWallet, WalletTransaction, CreditPackage
 from app.models.challenge import ChallengeProject, ChallengeAttempt, ExamPayment
 
-Base.metadata.create_all(bind=engine)
+require_migrated_schema()
 
 # ---------------------------------------------------------------------------
 # LESSON CONTENT

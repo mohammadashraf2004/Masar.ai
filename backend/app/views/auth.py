@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, StrictBool, field_validator
 
 from app.core.security import PASSWORD_MAX_BYTES, PASSWORD_MIN_LENGTH, normalize_email, validate_password_strength
 from app.models.user import ExperienceLevel, UserRole
@@ -48,6 +48,12 @@ class UserCreate(_EmailNormalizingModel):
     full_name: str = Field(..., min_length=2, max_length=100)
     password: str = Field(..., min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_BYTES)
     experience_level: ExperienceLevel = ExperienceLevel.beginner
+    # Both default to False so an omitted key is a *refusal*, reported by the
+    # controller with one clear error code rather than as "field required".
+    # Only "yes" is read from the client: which version of each document it
+    # was agreeing to is decided by the server (app.core.legal).
+    accept_terms: StrictBool = False
+    accept_privacy: StrictBool = False
 
     @field_validator("full_name", mode="after")
     @classmethod
@@ -64,6 +70,13 @@ class UserCreate(_EmailNormalizingModel):
             return validate_password_strength(v, email=info.data.get("email"))
         except ValueError as e:
             raise ValueError(str(e))
+
+
+class LegalAcceptance(BaseModel):
+    """Re-acceptance after a document changed. Like registration, it carries
+    only the agreement - never a version."""
+    accept_terms: StrictBool = False
+    accept_privacy: StrictBool = False
 
 
 class UserLogin(_EmailNormalizingModel):
@@ -143,6 +156,15 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str]
     overall_readiness_score: float
     created_at: datetime
+    # What the account has accepted, and whether that is still current. The
+    # client branches on `requires_legal_acceptance` only; it never compares
+    # version strings itself.
+    terms_version: Optional[str] = None
+    privacy_version: Optional[str] = None
+    requires_legal_acceptance: bool = False
+    # Announcements the account has yet to see (app.core.releases). Empty once
+    # they have all been acknowledged; the client shows the first, if any.
+    pending_updates: List[str] = Field(default_factory=list)
 
     class Config:
         from_attributes = True

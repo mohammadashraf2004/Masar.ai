@@ -27,7 +27,7 @@ from app.services.language.language_policy import build_policy
 
 def _register(client) -> str:
     email = f"term-{uuid.uuid4().hex[:12]}@example.com"
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Term Test", "password": "correcthorsebatterystaple",
     })
     assert resp.status_code == 201

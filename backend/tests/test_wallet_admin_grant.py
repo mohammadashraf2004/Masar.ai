@@ -27,7 +27,7 @@ STRONG_PASSWORD = "correct-horse-battery-staple-7"
 
 def _register(client, full_name="Grant Tester"):
     email = f"grant-{uuid.uuid4().hex[:12]}@example.com"
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": full_name, "password": STRONG_PASSWORD,
     })
     assert resp.status_code == 201, resp.text

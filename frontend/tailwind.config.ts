@@ -17,8 +17,12 @@ const config: Config = {
         border:  '#1E2535',
         muted:   '#2A3347',
         // Text
-        ghost:   '#4A5568',
-        dim:     '#718096',
+        // ghost and dim are secondary text, so they must clear 4.5:1 (WCAG AA)
+        // on every surface text sits on (void/ink/surface/panel); see
+        // src/lib/contrast.test.ts. They were #4A5568 (2.3:1) and #718096
+        // (4.25:1 on panel); the steps between them and soft are kept.
+        ghost:   '#7D8A9E',
+        dim:     '#8E9BB0',
         soft:    '#A0AEC0',
         bright:  '#E2E8F0',
         white:   '#F7FAFC',
@@ -28,7 +32,9 @@ const config: Config = {
         amberDim:'#92610A',
         // Status
         emerald: '#10B981',
-        rose:    '#F43F5E',
+        // Error text and the "advanced" badge sit on a rose/10 tint of a panel, where
+        // the old #F43F5E was 4.24:1. See src/lib/contrast.test.ts.
+        rose:    '#FB5B75',
         sky:     '#38BDF8',
         violet:  '#8B5CF6',
       },

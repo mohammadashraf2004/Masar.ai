@@ -22,6 +22,14 @@ class Settings(BaseSettings):
     # secret can't be replayed against this API.
     JWT_ISSUER: str = "ai-career-platform"
     JWT_AUDIENCE: str = "ai-career-platform-api"
+    # Clock-skew tolerance, in seconds, for the exp / nbf / iat checks.
+    # Tokens are issued and verified by different processes (and, behind a
+    # load balancer, different hosts), and a wall clock can step backwards
+    # when NTP or a VM time-sync corrects it. Without any tolerance a token
+    # issued a moment before such a step has an `iat` "in the future" and is
+    # refused with a 401 on a perfectly valid session. Kept to seconds so it
+    # does not meaningfully extend a token's 12-hour life.
+    JWT_LEEWAY_SECONDS: int = 10
 
     # Failed-login lockout (per email+IP pair, see app.core.login_guard).
     LOGIN_MAX_FAILURES: int = 8
@@ -125,6 +133,11 @@ class Settings(BaseSettings):
     # seed plus one entry here, not a code change; empty closes enrolment on
     # every track.
     AVAILABLE_TRACK_SLUGS: str = "ai-developer"
+
+    # Learners' weekly study time, used only to turn a path's remaining hours
+    # into a "weeks" estimate for display. An assumption, not a promise — it is
+    # a setting so the estimate can follow what learners actually do.
+    LEARNING_HOURS_PER_WEEK: int = 6
 
     # ─── CORS ─────────────────────────────────────────────────────────────
     FRONTEND_URL: str = "http://localhost:3000"

@@ -6,7 +6,8 @@ Run: python wallet_seed.py
 import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 
-from app.db.session import engine, Base, SessionLocal
+from app.db.session import SessionLocal
+from app.db.schema_guard import require_migrated_schema
 from app.models.user import User
 from app.models.wallet import UserWallet, WalletTransaction, CreditPackage
 # import all models so Base.metadata is complete
@@ -15,7 +16,7 @@ from app.models.progress import Enrollment, UserProgress, QuizAttempt, ProjectSu
 from app.models.community import Post, PostLike, PostComment, UserFollow
 from app.models.exam import Exam, ExamAttempt, ProctoringEvent, Certificate
 
-Base.metadata.create_all(bind=engine)
+require_migrated_schema()
 
 PACKAGES = [
     {

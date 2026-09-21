@@ -1,4 +1,6 @@
+'use client'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/lib/i18n'
 import { HTMLAttributes } from 'react'
 
 // ─── Card ────────────────────────────────────────────────────────────────────
@@ -31,7 +33,7 @@ const badgeStyles: Record<BadgeVariant, string> = {
   emerald:      'bg-emerald/10 text-emerald border-emerald/20',
   rose:         'bg-rose/10 text-rose border-rose/20',
   sky:          'bg-sky/10 text-sky border-sky/20',
-  ghost:        'bg-muted/40 text-dim border-border',
+  ghost:        'bg-muted/40 text-soft border-border',
 }
 export function Badge({ variant = 'ghost', className, ...props }: BadgeProps) {
   return (
@@ -71,14 +73,28 @@ export function ProgressBar({ value, className, color = 'amber', size = 'sm' }: 
 }
 
 // ─── Spinner ──────────────────────────────────────────────────────────────────
-export function Spinner({ className }: { className?: string }) {
+/**
+ * A spinner is decorative unless it is the *only* sign that something is loading.
+ * Pass `announce` then: it becomes a polite live region reading "Loading…" (in
+ * the reader's language), so a screen-reader user is told what is happening.
+ * Leave it off when the spinner sits inside a control or region that already
+ * says so (a button's own label, a wrapper with role="status"), otherwise the
+ * same state is announced twice.
+ */
+export function Spinner({ className, announce }: { className?: string; announce?: boolean }) {
+  const { t } = useI18n()
   return (
     <span
+      role={announce ? 'status' : undefined}
+      aria-hidden={announce ? undefined : true}
       className={cn(
         'inline-block w-4 h-4 border border-amber border-t-transparent rounded-full animate-spin',
+        announce && 'relative',
         className
       )}
-    />
+    >
+      {announce && <span className="sr-only">{t('common.loading')}</span>}
+    </span>
   )
 }
 

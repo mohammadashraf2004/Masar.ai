@@ -7,6 +7,7 @@ import { Card, Badge, Spinner } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { cn, formatRelative, safeUrl } from '@/lib/utils'
 import axios from 'axios'
+import { useI18n } from '@/lib/i18n'
 import {
   Heart, MessageCircle, Github, Trophy,
   Plus, X, ChevronDown, ChevronUp,
@@ -139,6 +140,7 @@ function Avatar({ user, size = 'sm' }: { user: Author; size?: 'sm' | 'md' | 'lg'
 
 // ─── Post card ────────────────────────────────────────────────────────────────
 function PostCard({ post, onUpdate }: { post: Post; onUpdate: (p: Post) => void }) {
+  const { t } = useI18n()
   const [expanded, setExpanded] = useState(false)
   const [commenting, setCommenting] = useState(false)
   const [commentText, setCommentText] = useState('')
@@ -261,13 +263,13 @@ function PostCard({ post, onUpdate }: { post: Post; onUpdate: (p: Post) => void 
       {commenting && (
         <form onSubmit={handleComment} className="mt-3 flex gap-2">
           <input
-            className="flex-1 bg-surface border border-border rounded px-3 py-2 text-base md:text-xs text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
+            className="flex-1 min-w-0 bg-surface border border-border rounded px-3 py-2 text-base md:text-xs text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50"
             placeholder="Write a comment…"
             value={commentText}
             onChange={e => setCommentText(e.target.value)}
             autoFocus
           />
-          <Button size="sm" type="submit" loading={submitting} className="px-3">
+          <Button size="sm" type="submit" loading={submitting} aria-label={t('common.send')} className="px-3">
             <Send size={12} />
           </Button>
         </form>
@@ -302,6 +304,7 @@ function CreatePostModal({
   onClose: () => void
   onCreated: (p: Post) => void
 }) {
+  const { t } = useI18n()
   const [form, setForm] = useState({
     post_type: 'discussion' as PostType,
     title: '', content: '', github_url: '', tags: '',
@@ -334,7 +337,7 @@ function CreatePostModal({
       <Card className="w-full max-w-xl p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-bold text-white">Share with the community</h2>
-          <button onClick={onClose} className="text-ghost hover:text-bright">
+          <button type="button" onClick={onClose} aria-label={t('common.close')} className="-me-2 flex h-11 w-11 items-center justify-center rounded text-ghost transition-colors hover:bg-surface hover:text-bright lg:me-0 lg:h-8 lg:w-8">
             <X size={18} />
           </button>
         </div>
@@ -415,7 +418,7 @@ function CreatePostModal({
             </div>
           </div>
 
-          {error && <p className="text-xs text-rose">{error}</p>}
+          {error && <p role="alert" className="text-xs text-rose">{error}</p>}
 
           <div className="flex gap-3 justify-end pt-2">
             <Button type="button" variant="ghost" size="sm" onClick={onClose}>
@@ -486,7 +489,7 @@ export default function CommunityPage() {
 
   if (authLoading) return (
     <div className="min-h-dvh bg-void flex items-center justify-center">
-      <Spinner className="w-6 h-6" />
+      <Spinner announce className="w-6 h-6" />
     </div>
   )
 
@@ -521,7 +524,7 @@ export default function CommunityPage() {
                       key={tab}
                       onClick={() => setActiveTab(tab)}
                       className={cn(
-                        'px-4 py-2 rounded text-sm transition-all capitalize',
+                        'min-h-[44px] lg:min-h-0 px-4 py-2 rounded text-sm transition-all capitalize',
                         activeTab === tab
                           ? 'bg-amber/10 text-amber border border-amber/20'
                           : 'text-ghost hover:text-bright border border-transparent'
@@ -542,7 +545,7 @@ export default function CommunityPage() {
                     <button
                       onClick={() => setFilter(undefined)}
                       className={cn(
-                        'px-3 py-1.5 rounded text-xs border transition-all',
+                        'min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded text-xs border transition-all',
                         !filter
                           ? 'bg-surface border-amber/30 text-bright'
                           : 'border-border text-ghost hover:border-muted'
@@ -558,7 +561,7 @@ export default function CommunityPage() {
                             key={key}
                             onClick={() => setFilter(filter === key ? undefined : key)}
                             className={cn(
-                              'px-3 py-1.5 rounded text-xs border transition-all flex items-center gap-1.5',
+                              'min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded text-xs border transition-all flex items-center gap-1.5',
                               filter === key ? meta.bg : 'border-border text-ghost hover:border-muted'
                             )}
                           >
@@ -572,7 +575,7 @@ export default function CommunityPage() {
 
                   {loading ? (
                     <div className="flex justify-center py-16">
-                      <Spinner className="w-6 h-6" />
+                      <Spinner announce className="w-6 h-6" />
                     </div>
                   ) : posts.length === 0 ? (
                     <Card className="p-12 text-center">
@@ -674,7 +677,7 @@ export default function CommunityPage() {
                     <h3 className="text-xs font-medium text-ghost uppercase tracking-widest">Top 3</h3>
                     <button
                       onClick={() => setActiveTab('leaderboard')}
-                      className="text-xs text-amber hover:text-amber2"
+                      className="min-h-[44px] px-2 text-xs text-amber hover:text-amber2 lg:min-h-0 lg:px-0"
                     >
                       See all
                     </button>

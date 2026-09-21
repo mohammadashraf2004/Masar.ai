@@ -33,18 +33,45 @@ TRACK_TITLES = {
 
 def _register(client) -> str:
     email = f"track-{uuid.uuid4().hex[:12]}@example.com"
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Track Test", "password": "correcthorsebatterystaple",
     })
     assert resp.status_code == 201
     return resp.json()["access_token"]
 
 
+# Ids of the tracks *this test* inserted. These tests commit for real (the
+# requests they make run in their own sessions), so anything left behind is
+# visible to every later test - a committed `ai-developer` row is enough to
+# make the catalogue tests fail with a unique violation on ix_career_tracks_slug
+# if they happen to run afterwards. The fixture below removes exactly these and
+# nothing else, so a track that already existed (seeded) is never touched.
+_created_track_ids: list = []
+
+
+@pytest.fixture(autouse=True)
+def _remove_tracks_this_test_created():
+    _created_track_ids.clear()
+    yield
+    ids = list(_created_track_ids)
+    _created_track_ids.clear()
+    if not ids:
+        return
+    cleanup = SessionLocal()
+    try:
+        cleanup.query(Enrollment).filter(Enrollment.track_id.in_(ids)).delete(synchronize_session=False)
+        cleanup.query(CareerTrack).filter(CareerTrack.id.in_(ids)).delete(synchronize_session=False)
+        cleanup.commit()
+    finally:
+        cleanup.close()
+
+
 def _ensure_track(slug: str) -> int:
     """Get-or-create the real track by slug, returning its id.
 
     Get-or-create rather than create: the seeds may or may not have run
-    against the test database, and `slug` is unique.
+    against the test database, and `slug` is unique. Only a track created
+    here is registered for removal after the test.
     """
     setup = SessionLocal()
     try:
@@ -58,6 +85,7 @@ def _ensure_track(slug: str) -> int:
             setup.add(track)
             setup.commit()
             setup.refresh(track)
+            _created_track_ids.append(track.id)
         return track.id
     finally:
         setup.close()

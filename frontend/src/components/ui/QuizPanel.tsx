@@ -143,7 +143,7 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
       {mcqIndices.length > 0 && (
         <>
           {error && (
-            <div className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">{error}</div>
+            <div role="alert" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">{error}</div>
           )}
           {result ? (
             <Card className={`p-5 flex items-center gap-4 ${result.passed ? 'border-emerald/30' : 'border-amber/30'}`}>
@@ -183,7 +183,7 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
       })}
 
       {loadingHistory && mcqIndices.length === 0 && openIndices.length === 0 && (
-        <div className="flex justify-center py-6"><Spinner className="w-5 h-5" /></div>
+        <div className="flex justify-center py-6"><Spinner announce className="w-5 h-5" /></div>
       )}
     </div>
   )

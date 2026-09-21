@@ -154,6 +154,9 @@ def decode_token(token: str) -> Optional[dict]:
             algorithms=[settings.ALGORITHM],
             issuer=settings.JWT_ISSUER,
             audience=settings.JWT_AUDIENCE,
+            # Tolerate small clock steps between issue and verification; see
+            # JWT_LEEWAY_SECONDS. A token expired by minutes is still refused.
+            leeway=settings.JWT_LEEWAY_SECONDS,
             options={
                 # A token missing any of these is rejected outright, so a
                 # stripped-claims token can't slip past a check that only

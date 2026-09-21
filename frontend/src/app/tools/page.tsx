@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Badge, Spinner, ProgressBar } from '@/components/ui/index'
-import { Button } from '@/components/ui/Button'
+import { Button, buttonStyles } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import type { ToolCourseSummary, ToolEnrollment, SearchResults } from '@/types'
 import { ArrowRight, CheckCircle, Layers, Boxes, Server, Database, Clock, Search } from 'lucide-react'
@@ -74,7 +74,7 @@ export default function ToolsPage() {
 
   if (authLoading || loading) return (
     <div className="min-h-dvh bg-void flex items-center justify-center">
-      <Spinner className="w-6 h-6" />
+      <Spinner announce className="w-6 h-6" />
     </div>
   )
 
@@ -113,7 +113,7 @@ export default function ToolsPage() {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder={t('course.search')}
-                className="w-full bg-surface border border-border rounded-lg ps-9 pe-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:border-amber/40 outline-none transition-colors"
+                className="w-full min-h-[44px] lg:min-h-0 bg-surface border border-border rounded-lg ps-9 pe-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:border-amber/40 outline-none transition-colors"
               />
             </div>
             <p className="text-xs text-ghost mt-1.5">{t('course.searchHint')}</p>
@@ -183,10 +183,12 @@ export default function ToolsPage() {
                     return (
                       <Card
                         key={course.id}
-                        className={cn('p-5 flex flex-col', comingSoon && 'opacity-60')}
+                        // A dashed edge marks a course that is not open yet. It used to fade the whole
+                        // card (opacity-60), which took the description below 3:1; the words stay legible.
+                        className={cn('p-5 flex flex-col', comingSoon && 'border-dashed')}
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <span className={cn('text-2xl', comingSoon && 'grayscale')}>{course.icon}</span>
+                          <span className={cn('text-2xl', comingSoon && 'grayscale opacity-60')}>{course.icon}</span>
                           {comingSoon ? (
                             <Badge variant="ghost">
                               <Clock size={10} className="me-1" /> {t('course.comingSoon')}
@@ -222,12 +224,13 @@ export default function ToolsPage() {
                         ) : null}
 
                         {enr ? (
-                          <Link href={`/tools/${course.slug}`}>
-                            <Button size="sm" variant={enr.progress_pct >= 100 ? 'ghost' : 'amber'} className="w-full">
-                              {enr.progress_pct >= 100
-                                ? <><CheckCircle size={12} /> {t('course.review')}</>
-                                : <>{t('course.continue')} <ArrowRight size={12} className="rtl:rotate-180" /></>}
-                            </Button>
+                          <Link
+                            href={`/tools/${course.slug}`}
+                            className={buttonStyles({ size: 'sm', variant: enr.progress_pct >= 100 ? 'ghost' : 'amber', className: 'w-full' })}
+                          >
+                            {enr.progress_pct >= 100
+                              ? <><CheckCircle size={12} /> {t('course.review')}</>
+                              : <>{t('course.continue')} <ArrowRight size={12} className="rtl:rotate-180" /></>}
                           </Link>
                         ) : comingSoon ? (
                           <Button size="sm" variant="outline" className="w-full" disabled>

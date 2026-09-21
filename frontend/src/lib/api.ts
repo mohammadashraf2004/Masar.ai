@@ -11,6 +11,10 @@ import type {
   SearchResults, LanguagePrefs,
   AdminAnalyticsOverview, AdminUserLookup, AdminGrantResult,
   ProjectHint,
+  LearningLevel, LearningField, CareerGoal, CatalogCourse, CatalogCourseDetail,
+  PathSummary, LearningPath, LearningProfile, LearningProfileUpdate, LearningProgress,
+  GeneratePathRequest, CourseFilters, SkillOption, SkillOptionsQuery, MySkills, SkillsSaved, SkillGaps,
+  LegalDocument,
 } from '@/types'
 import { useAuthStore } from '@/lib/store'
 
@@ -99,6 +103,10 @@ class ApiClient {
           // to the login page from the login page is how a redirect loop
           // starts.
           if (!window.location.pathname.startsWith('/auth/')) {
+            // A full navigation on purpose: this runs outside React (no router
+            // to call) and the reload is what drops every piece of in-memory
+            // session state along with the dead token.
+            // eslint-disable-next-line @next/next/no-location-assign-relative-destination
             window.location.href = '/auth/login'
           }
         }
@@ -109,8 +117,34 @@ class ApiClient {
 
   // ─── Auth ─────────────────────────────────────────────────────────────
 
-  async register(data: { email: string; full_name: string; password: string; experience_level: string }) {
+  /** `accept_terms` / `accept_privacy` are the learner's agreement only. Which
+   *  version of each document that means is decided by the server. */
+  async register(data: {
+    email: string
+    full_name: string
+    password: string
+    experience_level?: string
+    accept_terms: boolean
+    accept_privacy: boolean
+  }) {
     const res = await this.http.post<TokenResponse>('/auth/register', data)
+    return res.data
+  }
+
+  /** Accept the Terms and Privacy Policy as currently published. */
+  async acceptLegal() {
+    const res = await this.http.post<User>('/auth/accept-legal', { accept_terms: true, accept_privacy: true })
+    return res.data
+  }
+
+  /** Say the signed-in account has seen an announcement. Returns the account. */
+  async acknowledgeUpdate(releaseId: string) {
+    const res = await this.http.post<User>(`/auth/updates/${encodeURIComponent(releaseId)}/acknowledge`)
+    return res.data
+  }
+
+  async getLegalDocument(kind: 'terms' | 'privacy', lang: 'en' | 'ar') {
+    const res = await this.http.get<LegalDocument>(`/legal/${kind}`, { params: { lang } })
     return res.data
   }
 
@@ -548,6 +582,130 @@ class ApiClient {
    *  dictionary server-side. */
   async search(query: string) {
     const res = await this.http.get<SearchResults>('/search/', { params: { q: query } })
+    return res.data
+  }
+
+  // ─── Learning paths ───────────────────────────────────────────────────
+  // Level -> field(s) -> career goal -> path. Every rule about what a path
+  // contains lives on the server; these methods only carry the answers.
+
+  async getLearningLevels() {
+    const res = await this.http.get<LearningLevel[]>('/learning/levels')
+    return res.data
+  }
+
+  async getLearningFields() {
+    const res = await this.http.get<LearningField[]>('/learning/fields')
+    return res.data
+  }
+
+  async getCareerGoals() {
+    const res = await this.http.get<CareerGoal[]>('/learning/career-goals')
+    return res.data
+  }
+
+  /** Filters combine: any-of within a dimension, all-of across them. Arrays
+   *  go out as repeated keys (`field=nlp&field=speech`), which is what the API
+   *  reads — axios' default `field[]=` would be ignored. */
+  async listCatalogCourses(filters: CourseFilters = {}) {
+    const res = await this.http.get<CatalogCourse[]>('/learning/courses', {
+      params: {
+        level: filters.level,
+        field: filters.field,
+        career_goal: filters.career_goal,
+        q: filters.q || undefined,
+        available_only: filters.available_only || undefined,
+      },
+      paramsSerializer: { indexes: null },
+    })
+    return res.data
+  }
+
+  async getCatalogCourse(slug: string) {
+    const res = await this.http.get<CatalogCourseDetail>(`/learning/courses/${slug}`)
+    return res.data
+  }
+
+  async listLearningPaths() {
+    const res = await this.http.get<PathSummary[]>('/learning/paths')
+    return res.data
+  }
+
+  async getLearningPath(slug: string, level?: string) {
+    const res = await this.http.get<LearningPath>(`/learning/paths/${slug}`, { params: { level } })
+    return res.data
+  }
+
+  /** A what-if: generated for the caller (their progress applied) and not saved. */
+  async generateLearningPath(data: GeneratePathRequest) {
+    const res = await this.http.post<LearningPath>('/learning/paths/generate', data)
+    return res.data
+  }
+
+  async getMyLearningProfile() {
+    const res = await this.http.get<LearningProfile>('/learning/my-profile')
+    return res.data
+  }
+
+  /** Keys that are present replace that part of the profile; absent keys are
+   *  left alone (and `null` clears level / career goal). */
+  async saveMyLearningProfile(data: LearningProfileUpdate) {
+    const res = await this.http.put<LearningProfile>('/learning/my-profile', data)
+    return res.data
+  }
+
+  /** Resolves null (not a throw) when the learner has no path yet, so callers
+   *  branch on the value instead of catching a 404. */
+  async getMyLearningPath() {
+    try {
+      const res = await this.http.get<LearningPath>('/learning/my-path')
+      return res.data
+    } catch (err) {
+      if ((err as AxiosError).response?.status === 404) return null
+      throw err
+    }
+  }
+
+  /** Rebuild the path from the saved profile ("Build My Masar"), or change its
+   *  status. See PathUpdate in backend/app/views/learning_path.py. */
+  async saveMyLearningPath(data: {
+    regenerate?: boolean
+    status?: 'active' | 'paused' | 'archived'
+    waived_course_ids?: number[]
+  } = {}) {
+    const res = await this.http.put<LearningPath>('/learning/my-path', data)
+    return res.data
+  }
+
+  /** The skills worth asking about for a goal, route and level. Arrays go out
+   *  as repeated keys, like the course filters. */
+  async getSkillOptions(query: SkillOptionsQuery) {
+    const res = await this.http.get<SkillOption[]>('/learning/skills', {
+      params: { career_goal: query.career_goal, level: query.level || undefined, field: query.field },
+      paramsSerializer: { indexes: null },
+    })
+    return res.data
+  }
+
+  async getMySkills() {
+    const res = await this.http.get<MySkills>('/learning/my-skills')
+    return res.data
+  }
+
+  /** Replace the self-declared skills and rebuild the roadmap around them. */
+  async saveMySkills(skills: string[]) {
+    const res = await this.http.put<SkillsSaved>('/learning/my-skills', { skills })
+    return res.data
+  }
+
+  /** What the learner still lacks for their own roadmap, decided by the backend. */
+  async getMySkillGaps() {
+    const res = await this.http.get<SkillGaps>('/learning/my-skill-gaps')
+    return res.data
+  }
+
+  async getMyLearningProgress() {
+    const res = await this.http.get<LearningProgress>('/learning/my-progress')
     return res.data
   }
 

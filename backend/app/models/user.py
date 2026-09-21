@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
 
+from app.core.legal import acceptance_is_current
+from app.core.releases import pending_updates
 from app.db.session import Base
 
 
@@ -53,6 +55,14 @@ class User(Base):
     # predates one of those events and is rejected, even though JWTs are
     # otherwise stateless and can't be individually revoked.
     token_version           = Column(Integer, default=0, nullable=False)
+    # Which Terms of Service / Privacy Policy the account accepted, and when.
+    # Versions are written by the server from app.core.legal, never taken from
+    # a request. NULL means "never accepted" (every account that predates the
+    # feature) - not "accepted the current version".
+    terms_version           = Column(String, nullable=True)
+    terms_accepted_at       = Column(DateTime(timezone=True), nullable=True)
+    privacy_version         = Column(String, nullable=True)
+    privacy_accepted_at     = Column(DateTime(timezone=True), nullable=True)
     created_at              = Column(DateTime(timezone=True), server_default=func.now())
     updated_at              = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -76,3 +86,19 @@ class User(Base):
     tool_enrollments = relationship("ToolEnrollment",       back_populates="user")
     tool_completions = relationship("ToolCourseCompletion", back_populates="user")
     email_tokens      = relationship("EmailToken",          back_populates="user")
+    update_acknowledgements = relationship(
+        "UserUpdateAcknowledgement", back_populates="user", cascade="all, delete-orphan",
+    )
+
+    @property
+    def pending_updates(self) -> list:
+        """The product announcements this account has yet to see (app.core.releases)."""
+        return pending_updates(a.release_id for a in self.update_acknowledgements)
+
+    @property
+    def requires_legal_acceptance(self) -> bool:
+        """True until the account has accepted the versions in force now."""
+        return not acceptance_is_current(
+            self.terms_version, self.terms_accepted_at,
+            self.privacy_version, self.privacy_accepted_at,
+        )

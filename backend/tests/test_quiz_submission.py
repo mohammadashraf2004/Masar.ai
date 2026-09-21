@@ -16,7 +16,7 @@ from app.models.progress import QuizAttempt
 
 def _register(client) -> str:
     email = f"quiz-{uuid.uuid4().hex[:12]}@example.com"
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Quiz Test", "password": "correcthorsebatterystaple",
     })
     assert resp.status_code == 201
@@ -100,7 +100,7 @@ def _register_with_id(client):
     """Same registration as _register, but hands back the user id too —
     needed to assert which account an attempt row actually belongs to."""
     email = f"quiz-{uuid.uuid4().hex[:12]}@example.com"
-    resp = client.post("/api/v1/auth/register", json={
+    resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": email, "full_name": "Quiz Test", "password": "correcthorsebatterystaple",
     })
     assert resp.status_code == 201, resp.text

@@ -89,6 +89,14 @@ html[lang="ar"] body,
 html[lang="ar"] .lesson-content {
   font-family: var(--font-arabic);
 }
+/* Headings use Tailwind's `font-display`, which is Syne (a Latin-only face) with
+   a bare `sans-serif` behind it — so Arabic in a heading skipped the product's
+   Plex Arabic and rendered in whatever the OS offered, which on a machine with
+   thin Arabic coverage looks broken (wide, badly joined letters). Latin glyphs
+   still take Syne; only the Arabic falls through, and now to Plex Arabic. */
+html[lang="ar"] .font-display {
+  font-family: var(--font-syne), var(--font-plex-arabic), sans-serif;
+}
 html[lang="ar"] .lesson-content {
   /* Arabic script needs more vertical room than Latin at the same size. */
   line-height: 1.95;
@@ -129,8 +137,31 @@ html[lang="ar"] .brand-ar {
 /* Selection */
 ::selection { background: #F59E0B30; color: #FBBF24; }
 
-/* Focus rings */
-*:focus-visible { outline: 1px solid #F59E0B80; outline-offset: 2px; }
+/* Focus rings: solid and 2px so keyboard focus is visible on the dark panels
+   (a translucent 1px amber all but vanished against them). */
+*:focus-visible { outline: 2px solid #F59E0B; outline-offset: 2px; }
+
+/* Text fields. Nearly every one is written `focus:outline-none focus:border-amber/50`,
+   and that utility (0,2,0) outranks the rule above (0,1,0), so the only focus
+   cue was a 1px border colour change at ~3:1. This one out-ranks the utility
+   (0,2,1), so a shared 2px amber ring shows for every text input, textarea and
+   select without touching each field. Checkboxes, radios and buttons are left
+   to the rule above. offset 0 keeps it snug to the field's own border. */
+:is(
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"],
+            [type="button"], [type="submit"], [type="reset"], [type="image"], [type="color"]),
+  textarea,
+  select
+):focus-visible {
+  outline: 2px solid #F59E0B;
+  outline-offset: 0;
+}
+
+/* Letter-spacing has no place in Arabic: it pulls a joined word apart into
+   loose letters. The eyebrow labels use Tailwind's `tracking-*` for their
+   Latin look (and `uppercase`, which Arabic simply ignores); in Arabic the
+   spacing is dropped and the words join as they should. */
+html[lang="ar"] [class*="tracking-"] { letter-spacing: normal; }
 
 /* Prose for markdown */
 .prose-dark {
@@ -189,7 +220,7 @@ html[lang="ar"] .brand-ar {
 .prose-dark blockquote {
   border-left: 2px solid #F59E0B;
   padding-left: 1rem;
-  color: #718096;
+  color: #8E9BB0; /* dim */
   font-style: italic;
 }
 .prose-dark a { color: #F59E0B; text-decoration: none; }
@@ -277,7 +308,7 @@ html[lang="ar"] .brand-ar {
 .prism-code .token.prolog,
 .prism-code .token.doctype,
 .prism-code .token.cdata {
-  color: #4A5568; /* ghost */
+  color: #7D8A9E; /* ghost */
   font-style: italic;
 }
 .prism-code .token.keyword,
@@ -321,7 +352,7 @@ html[lang="ar"] .brand-ar {
   color: #A0AEC0; /* soft */
 }
 .lesson-content del {
-  color: #4A5568; /* ghost */
+  color: #7D8A9E; /* ghost */
 }
 .lesson-content input[type="checkbox"] {
   accent-color: #F59E0B;

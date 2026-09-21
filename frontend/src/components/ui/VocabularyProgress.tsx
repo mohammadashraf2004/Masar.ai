@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { Check, Circle } from 'lucide-react'
+import { ArrowRight, Check, Circle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
 import { ProgressBar } from '@/components/ui/index'
@@ -85,9 +85,9 @@ export function VocabularyProgress({
 
       <Link
         href="/glossary"
-        className="inline-block mt-3 text-xs text-amber hover:text-amber2 transition-colors"
+        className="mt-3 inline-flex min-h-[44px] items-center gap-1 text-xs text-amber hover:text-amber2 transition-colors lg:min-h-0"
       >
-        {t('nav.glossary')} →
+        {t('nav.glossary')} <ArrowRight size={12} className="rtl:rotate-180" aria-hidden="true" />
       </Link>
     </div>
   )

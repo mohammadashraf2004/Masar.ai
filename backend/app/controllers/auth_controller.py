@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core import login_guard, security_log
 from app.core.config import settings
+from app.core import legal, releases
 from app.core.limiter import limiter
 from app.core.security import (
     create_access_token_for_user,
@@ -19,11 +20,13 @@ from app.core.security import (
 )
 from app.db.session import get_db
 from app.models.auth_token import EmailToken, EmailTokenPurpose
+from app.models.update_ack import UserUpdateAcknowledgement
 from app.models.user import User
+from app.services import update_service
 from app.services.email.resend_service import send_password_reset_email, send_verification_email
 from app.services.wallet.wallet_service import add_credits, grant_launch_promo
 from app.views.auth import (
-    ForgotPasswordRequest, MessageResponse, ResetPasswordRequest, TokenResponse,
+    ForgotPasswordRequest, LegalAcceptance, MessageResponse, ResetPasswordRequest, TokenResponse,
     UserCreate, UserLogin, UserResponse, UserUpdate, VerifyEmailRequest,
 )
 
@@ -34,6 +37,18 @@ RESET_TOKEN_TTL = timedelta(hours=1)
 # Free credits granted on signup — enough for a handful of AI actions
 # (5 mentor chats, or 2-3 exercise/quiz chats) before hitting the paywall.
 STARTER_CREDITS = 10
+
+
+def _require_legal_acceptance(accept_terms: bool, accept_privacy: bool) -> None:
+    if accept_terms is True and accept_privacy is True:
+        return
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail={
+            "error": "legal_acceptance_required",
+            "message": "You must accept the Terms of Service and the Privacy Policy to continue.",
+        },
+    )
 
 
 def _client_ip(request: Request) -> Optional[str]:
@@ -108,6 +123,9 @@ def _consume_email_token(
 @limiter.limit("5/minute")
 def register(request: Request, payload: UserCreate, db: Session = Depends(get_db)):
     ip = _client_ip(request)
+    # Checked before anything else, and on the server: the checkbox in the
+    # browser is a convenience, not a control. Nothing is created without it.
+    _require_legal_acceptance(payload.accept_terms, payload.accept_privacy)
     existing = db.query(User).filter(User.email == payload.email).first()
     if existing:
         # Deliberate trade-off, documented in the security report: this
@@ -121,11 +139,21 @@ def register(request: Request, payload: UserCreate, db: Session = Depends(get_db
             detail="Email already registered",
         )
 
+    # Acceptance is written in the same INSERT as the account, so there is no
+    # window in which an account exists without its record. Versions come from
+    # server configuration; the request has no say in them.
+    accepted_at = datetime.now(timezone.utc)
     user = User(
         email=payload.email,
         full_name=payload.full_name,
         hashed_password=get_password_hash(payload.password),
         experience_level=payload.experience_level,
+        terms_version=legal.TERMS_VERSION, terms_accepted_at=accepted_at,
+        privacy_version=legal.PRIVACY_VERSION, privacy_accepted_at=accepted_at,
+        # An account created now has nothing to be told "is new": it starts with
+        # the skill-gap announcement seen, and meets the feature in its first
+        # roadmap instead. Written with the account, in the same transaction.
+        update_acknowledgements=[UserUpdateAcknowledgement(release_id=releases.WHATS_NEW)],
     )
     db.add(user)
     try:
@@ -158,6 +186,8 @@ def register(request: Request, payload: UserCreate, db: Session = Depends(get_db
     send_verification_email(user.email, user.full_name, raw)  # best-effort — see resend_service
 
     security_log.registration(user_id=user.id, email=user.email, ip=ip)
+    security_log.legal_accepted(user_id=user.id, terms_version=legal.TERMS_VERSION,
+                                privacy_version=legal.PRIVACY_VERSION, via="register")
     return _token_response(user)
 
 
@@ -212,6 +242,56 @@ def login(request: Request, payload: UserLogin, db: Session = Depends(get_db)):
 
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.post("/accept-legal", response_model=UserResponse)
+@limiter.limit("20/minute")
+def accept_legal(
+    request: Request,
+    payload: LegalAcceptance,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Accept the Terms and Privacy Policy as currently published - used by
+    accounts that predate them, or that last accepted an older version. The
+    versions recorded are the server's current ones, whatever the client
+    thinks it saw."""
+    _require_legal_acceptance(payload.accept_terms, payload.accept_privacy)
+    if not current_user.requires_legal_acceptance:
+        # Already on the current versions (a double click, a second tab, a
+        # retried request): there is nothing new to record, and rewriting the
+        # timestamps would replace the moment they really accepted.
+        return current_user
+    accepted_at = datetime.now(timezone.utc)
+    current_user.terms_version, current_user.terms_accepted_at = legal.TERMS_VERSION, accepted_at
+    current_user.privacy_version, current_user.privacy_accepted_at = legal.PRIVACY_VERSION, accepted_at
+    db.commit()
+    db.refresh(current_user)
+    security_log.legal_accepted(user_id=current_user.id, terms_version=legal.TERMS_VERSION,
+                                privacy_version=legal.PRIVACY_VERSION, via="reaccept")
+    return current_user
+
+
+@router.post("/updates/{release_id}/acknowledge", response_model=UserResponse)
+@limiter.limit("30/minute")
+def acknowledge_update(
+    request: Request,
+    release_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Say that the signed-in account has seen a product announcement.
+
+    Only announcements the server knows are accepted, so an account cannot
+    pre-dismiss one that has not shipped. Repeating it is harmless. Returns the
+    account, whose `pending_updates` no longer lists it.
+    """
+    if release_id not in releases.KNOWN_RELEASES:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown update")
+    update_service.acknowledge(db, current_user.id, release_id)
+    db.commit()
+    db.refresh(current_user)
     return current_user
 
 

@@ -14,7 +14,7 @@ Usage in controllers:
     reply, actions = mentor_service.get_mentor_reply(llm, history, message)
 """
 from app.core.config import settings
-from app.services.llm import LLMProviderFactory, LLMEnum, BaseLLMProvider
+from app.services.llm import LLMProviderFactory, BaseLLMProvider
 
 from app.services.mentor      import mentor_service       # noqa: F401
 from app.services.mentor      import answer_evaluator_service  # noqa: F401
@@ -32,24 +32,19 @@ def get_llm() -> BaseLLMProvider:
         anthropic  →  requires ANTHROPIC_API_KEY
         openai     →  requires OPENAI_API_KEY
     """
-    backend = settings.GENERATION_BACKEND
-
-    # Give a clear error if the key is missing
-    if backend == LLMEnum.ANTHROPIC.value and not settings.ANTHROPIC_API_KEY:
+    # A clear error if the key is missing, the backend is misspelt or the
+    # model id is blank. Names settings only — this text lands in the logs.
+    # Callers turn it into a user-safe message; it is never shown to users.
+    problems = settings.llm_config_problems()
+    if problems:
         raise RuntimeError(
-            "ANTHROPIC_API_KEY is missing from your .env file.\n"
-            "Get a key at https://console.anthropic.com and add:\n"
-            "  ANTHROPIC_API_KEY=sk-ant-..."
-        )
-    if backend == LLMEnum.OPENAI.value and not settings.OPENAI_API_KEY:
-        raise RuntimeError(
-            "OPENAI_API_KEY is missing from your .env file.\n"
-            "Get a key at https://platform.openai.com and add:\n"
-            "  OPENAI_API_KEY=sk-..."
+            "AI provider is not configured: " + "; ".join(problems)
+            + ". Set them in backend/.env (local) or the deployment environment;"
+            " see README.md, Environment variables."
         )
 
     factory = LLMProviderFactory(settings)
-    provider = factory.create(backend)
+    provider = factory.create(settings.GENERATION_BACKEND)
     return provider
 
 

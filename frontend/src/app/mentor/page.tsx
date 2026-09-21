@@ -9,6 +9,7 @@ import { api } from '@/lib/api'
 import { MentorMessage, CodeReviewResult, SkillGapResult, InterviewQuestion } from '@/types'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
+import { mentorErrorKey } from '@/lib/mentorErrors'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {
@@ -43,6 +44,9 @@ export default function MentorPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [suggestions, setSuggestions] = useState<string[]>([])
+  // Why the last code-review / skill-gap / interview request failed. One slot,
+  // because only one tool is on screen at a time.
+  const [toolError, setToolError] = useState('')
   const chatRef = useRef<HTMLDivElement>(null)
 
   // Code review state
@@ -90,29 +94,41 @@ export default function MentorPage() {
       })
       setMessages(p => [...p, { role: 'assistant', content: res.reply, timestamp: new Date().toISOString() }])
       setSuggestions(res.suggested_actions)
-    } catch {
+    } catch (err) {
+      // Say what actually went wrong — an unverified email, an empty wallet and
+      // a provider outage all used to read as "check your API configuration".
       setMessages(p => [...p, {
         role: 'assistant',
-        content: '⚠️ Could not reach the mentor. Check your API configuration.',
+        content: `⚠️ ${t(mentorErrorKey(err))}`,
         timestamp: new Date().toISOString(),
+        error: true,
       }])
+      // Put the question back so retrying is one click, not a retype — unless
+      // they have already started writing something else.
+      setInput(current => current || text)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   async function runCodeReview(e: React.FormEvent) {
     e.preventDefault()
     setReviewLoading(true)
+    setToolError('')
     try {
       const r = await api.reviewCode(code, language, codeCtx || undefined)
       setCodeReview(r)
-    } catch {}
-    setReviewLoading(false)
+    } catch (err) {
+      setToolError(t(mentorErrorKey(err)))
+    } finally {
+      setReviewLoading(false)
+    }
   }
 
   async function runSkillGap(e: React.FormEvent) {
     e.preventDefault()
     setGapLoading(true)
+    setToolError('')
     try {
       const r = await api.analyzeSkillGap({
         target_role: targetRole,
@@ -120,8 +136,11 @@ export default function MentorPage() {
         cv_text: cvText || undefined,
       })
       setSkillGap(r)
-    } catch {}
-    setGapLoading(false)
+    } catch (err) {
+      setToolError(t(mentorErrorKey(err)))
+    } finally {
+      setGapLoading(false)
+    }
   }
 
   async function nextQuestion() {
@@ -130,11 +149,15 @@ export default function MentorPage() {
       setAnswer('')
     }
     setInterviewLoading(true)
+    setToolError('')
     try {
       const q = await api.getMockInterviewQuestion(interviewTopic, interviewDiff, qa)
       setQuestion(q)
-    } catch {}
-    setInterviewLoading(false)
+    } catch (err) {
+      setToolError(t(mentorErrorKey(err)))
+    } finally {
+      setInterviewLoading(false)
+    }
   }
 
   const severityColor = { low: 'text-emerald', medium: 'text-amber', high: 'text-rose' }
@@ -150,7 +173,7 @@ export default function MentorPage() {
           {TOOLS.map(({ key, icon: Icon, label, desc }) => (
             <button
               key={key}
-              onClick={() => setTool(key)}
+              onClick={() => { setTool(key); setToolError('') }}
               className={cn(
                 'w-40 shrink-0 lg:w-full text-start p-3 rounded border transition-all',
                 tool === key
@@ -181,12 +204,17 @@ export default function MentorPage() {
                         <Brain size={11} className="text-amber" />
                       </div>
                     )}
-                    <div className={cn(
-                      'max-w-[85%] lg:max-w-[70%] min-w-0 [overflow-wrap:anywhere] px-4 py-3 rounded-xl text-sm',
-                      msg.role === 'user'
-                        ? 'bg-amber/10 border border-amber/20 text-bright rounded-br-sm'
-                        : 'bg-surface border border-border text-soft rounded-bl-sm'
-                    )}>
+                    <div
+                      role={msg.error ? 'alert' : undefined}
+                      className={cn(
+                        'max-w-[85%] lg:max-w-[70%] min-w-0 [overflow-wrap:anywhere] px-4 py-3 rounded-xl text-sm',
+                        msg.role === 'user'
+                          ? 'bg-amber/10 border border-amber/20 text-bright rounded-br-sm'
+                          : msg.error
+                            ? 'bg-surface border border-rose/40 text-soft rounded-bl-sm'
+                            : 'bg-surface border border-border text-soft rounded-bl-sm'
+                      )}
+                    >
                       {msg.role === 'assistant' ? (
                         <div
                           className="prose-dark text-sm leading-relaxed"
@@ -250,6 +278,7 @@ export default function MentorPage() {
                 <input
                   className="flex-1 min-w-0 bg-surface border border-border rounded-lg px-4 py-3 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 transition-colors"
                   placeholder="Ask your mentor anything…"
+                  aria-label={t('mentor.input.label')}
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
@@ -303,6 +332,8 @@ export default function MentorPage() {
                   <Code size={13} /> Review code
                 </Button>
               </form>
+
+              {toolError && <p role="alert" className="mt-4 max-w-3xl text-sm text-rose">{toolError}</p>}
 
               {codeReview && (
                 <div className="mt-6 max-w-3xl space-y-4">
@@ -404,6 +435,8 @@ export default function MentorPage() {
                 </Button>
               </form>
 
+              {toolError && <p role="alert" className="mt-4 max-w-2xl text-sm text-rose">{toolError}</p>}
+
               {skillGap && (
                 <div className="mt-6 max-w-2xl space-y-4">
                   <Card className="p-5">
@@ -482,6 +515,8 @@ export default function MentorPage() {
                   </select>
                 </div>
               </div>
+
+              {toolError && <p role="alert" className="mb-4 text-sm text-rose">{toolError}</p>}
 
               {!question ? (
                 <Button onClick={nextQuestion} loading={interviewLoading} size="lg">

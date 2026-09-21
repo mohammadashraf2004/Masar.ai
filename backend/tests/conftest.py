@@ -166,3 +166,23 @@ def client(db):
             yield c
     finally:
         app.dependency_overrides.pop(get_db, None)
+
+
+@pytest.fixture()
+def api(db):
+    """Like the shared `client`, but a server error comes back as the HTTP
+    500 a browser would actually receive instead of being re-raised into
+    the test — which is the behaviour these tests are about."""
+    from fastapi.testclient import TestClient
+    from app.db.session import get_db
+    from app.main import app
+
+    def _override():
+        yield db
+
+    app.dependency_overrides[get_db] = _override
+    try:
+        with TestClient(app, raise_server_exceptions=False) as c:
+            yield c
+    finally:
+        app.dependency_overrides.pop(get_db, None)

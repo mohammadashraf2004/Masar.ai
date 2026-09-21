@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import anthropic
 
 from app.core.metrics import observe_llm_call
@@ -14,17 +14,27 @@ class AnthropicProvider(BaseLLMProvider):
         default_max_tokens: int = 1000,
         default_temperature: float = 0.7,
         default_input_max_characters: int = 10000,
+        timeout: Optional[float] = None,
+        max_retries: Optional[int] = None,
     ):
         self.api_key = api_key
         self.model_id = model_id
         self.default_max_tokens = default_max_tokens
         self.default_temperature = default_temperature
         self.default_input_max_characters = default_input_max_characters
+        # None leaves the SDK default in place — see OpenAIProvider.
+        self.timeout = timeout
+        self.max_retries = max_retries
         self._client = None
 
     def _get_client(self) -> anthropic.Anthropic:
         if self._client is None:
-            self._client = anthropic.Anthropic(api_key=self.api_key)
+            kwargs = {"api_key": self.api_key}
+            if self.timeout is not None:
+                kwargs["timeout"] = self.timeout
+            if self.max_retries is not None:
+                kwargs["max_retries"] = self.max_retries
+            self._client = anthropic.Anthropic(**kwargs)
         return self._client
 
     def validate(self) -> bool:
@@ -46,4 +56,9 @@ class AnthropicProvider(BaseLLMProvider):
                 getattr(usage, "input_tokens", None),
                 getattr(usage, "output_tokens", None),
             )
-            return response.content[0].text
+            # Every text block, not just the first: `content` can be empty
+            # (a refusal) or lead with a non-text block, and indexing [0]
+            # raised IndexError/AttributeError for both.
+            return "".join(
+                block.text for block in response.content if getattr(block, "type", None) == "text"
+            )

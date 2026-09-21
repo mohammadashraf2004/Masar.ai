@@ -7,6 +7,7 @@ from datetime import datetime
 
 from app.db.session import get_db
 from app.models.user import User
+from app.models.learning import Topic
 from app.models.progress import MentorSession, UserSkillScore
 from app.views.mentor import (
     MentorMessage, MentorResponse,
@@ -31,6 +32,40 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/mentor", tags=["AI Mentor"])
 
+# Deliberately identical for every failure of a mentor request (chat, code
+# review, skill gap, mock interview): the client is told the mentor is
+# unavailable and that the credits came back, never why. The frontend maps the
+# 503 to a localized message; this string is the fallback.
+MENTOR_UNAVAILABLE = "The mentor is unavailable right now. Your credits were refunded."
+
+
+def _fail_ai_call(user_id: int, action: str, db: Session) -> None:
+    """End a billable mentor request whose provider call failed: log it,
+    reverse the charge, and answer 503. Call it from inside an `except`.
+
+    Every handler here deducts before it calls the provider, and the deduction
+    commits at once, so a failure from that point on leaves the student out of
+    pocket for nothing unless it is undone — the bargain get_roadmap documents.
+    Wrapping the provider call and the parsing of what comes back in the same
+    `try` covers both halves: a provider that raised, and one that answered
+    with something the response schema rejects.
+    """
+    logger.exception("%s failed; refunding the credits", action, extra={"user_id": user_id})
+    try:
+        # A failure while saving can leave the session mid-transaction, and a
+        # refund on top of that would fail for a reason unrelated to the money.
+        db.rollback()
+        refund_credits(user_id, action, db, reason=f"Refund: {action} failed")
+    except Exception:
+        # The charge stands and we could not reverse it. Loud, because this is
+        # the one path that leaves a user out of pocket and only the log says so.
+        logger.critical(
+            "%s refund FAILED; user is owed credits", action,
+            extra={"user_id": user_id, "action": action},
+        )
+    raise HTTPException(status_code=503, detail=MENTOR_UNAVAILABLE)
+
+
 # The credit wallet is the primary control on AI spend here (every handler
 # below calls deduct_credits first). These limits are the second one: they
 # bound *concurrency and burst*, which credits do not — a scripted client
@@ -46,6 +81,12 @@ def chat_with_mentor(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # context_topic_id is a foreign key. Checked here, before anything is
+    # charged: an id that does not exist used to fail at INSERT, after the
+    # deduction and after the provider had already been paid to answer.
+    if payload.topic_id is not None and not db.query(Topic.id).filter(Topic.id == payload.topic_id).first():
+        raise HTTPException(status_code=404, detail="Topic not found")
+
     # ── Deduct credits before calling LLM ─────────────────────────────────────
     deduct_credits(current_user.id, "mentor_chat", db)
 
@@ -55,6 +96,40 @@ def chat_with_mentor(
         .order_by(MentorSession.updated_at.desc())
         .first()
     )
+
+    history = [
+        {"role": msg["role"], "content": msg["content"]}
+        for msg in ((session.messages if session else None) or [])[-10:]
+    ]
+    user_context = {
+        "name": current_user.full_name,
+        "experience_level": current_user.experience_level,
+        "readiness_score": current_user.overall_readiness_score,
+    }
+
+    # The deduction has committed, so a failure from here on leaves the
+    # student out of pocket for nothing — the same bargain get_roadmap
+    # documents below, and the same answer: refund, and tell them only that
+    # the mentor is unavailable. Everything that can go wrong sits in this
+    # block: an unconfigured or unreachable provider, a timeout, and an
+    # answer with no text in it. Never why — an exception message is
+    # internal, and can carry key fragments.
+    try:
+        llm = get_llm()
+        reply, suggested_actions = mentor_service.get_mentor_reply(
+            llm=llm,
+            conversation_history=history,
+            user_message=payload.content,
+            user_context=user_context,
+            language=payload.language,
+            terminology_mode=payload.terminology_mode,
+        )
+    except Exception:
+        _fail_ai_call(current_user.id, "mentor_chat", db)
+
+    # Created only now that there is an answer to store, so a failed call
+    # leaves no empty session behind (and nothing pending for the refund's
+    # commit to write out).
     if not session:
         session = MentorSession(
             user_id=current_user.id,
@@ -64,26 +139,6 @@ def chat_with_mentor(
         )
         db.add(session)
         db.flush()
-
-    history = [
-        {"role": msg["role"], "content": msg["content"]}
-        for msg in (session.messages or [])[-10:]
-    ]
-    user_context = {
-        "name": current_user.full_name,
-        "experience_level": current_user.experience_level,
-        "readiness_score": current_user.overall_readiness_score,
-    }
-
-    llm = get_llm()
-    reply, suggested_actions = mentor_service.get_mentor_reply(
-        llm=llm,
-        conversation_history=history,
-        user_message=payload.content,
-        user_context=user_context,
-        language=payload.language,
-        terminology_mode=payload.terminology_mode,
-    )
 
     new_messages = list(session.messages or [])
     new_messages.append({"role": "user", "content": payload.content, "timestamp": datetime.utcnow().isoformat()})
@@ -136,10 +191,13 @@ def review_code(
     db: Session = Depends(get_db),
 ):
     deduct_credits(current_user.id, "code_review", db)
-    result = code_review_service.review_code(
-        llm=get_llm(), code=payload.code, language=payload.language, context=payload.context,
-    )
-    return CodeReviewResponse(**result)
+    try:
+        result = code_review_service.review_code(
+            llm=get_llm(), code=payload.code, language=payload.language, context=payload.context,
+        )
+        return CodeReviewResponse(**result)
+    except Exception:
+        _fail_ai_call(current_user.id, "code_review", db)
 
 
 @router.post("/skill-gap", response_model=SkillGapResponse)
@@ -151,17 +209,23 @@ def analyze_skill_gap(
     db: Session = Depends(get_db),
 ):
     deduct_credits(current_user.id, "skill_gap", db)
-    result = skill_gap_service.analyze_skill_gap(
-        llm=get_llm(),
-        target_role=payload.target_role,
-        current_skills=payload.current_skills,
-        cv_text=payload.cv_text,
-        github_url=payload.github_url,
-    )
-    if result.get("readiness_score") is not None:
-        current_user.overall_readiness_score = float(result["readiness_score"])
+    try:
+        result = skill_gap_service.analyze_skill_gap(
+            llm=get_llm(),
+            target_role=payload.target_role,
+            current_skills=payload.current_skills,
+            cv_text=payload.cv_text,
+            github_url=payload.github_url,
+        )
+        # Validated before the score is stored: a readiness the response schema
+        # rejects ("high", 7.5) must not be written to the student's profile
+        # by a request that then fails.
+        response = SkillGapResponse(**result)
+        current_user.overall_readiness_score = float(response.readiness_score)
         db.commit()
-    return SkillGapResponse(**result)
+        return response
+    except Exception:
+        _fail_ai_call(current_user.id, "skill_gap", db)
 
 
 @router.post("/mock-interview", response_model=MockInterviewResponse)
@@ -173,10 +237,13 @@ def mock_interview(
     db: Session = Depends(get_db),
 ):
     deduct_credits(current_user.id, "mock_interview", db)
-    result = interview_service.generate_question(
-        llm=get_llm(), topic=payload.topic, difficulty=payload.difficulty, previous_qa=payload.previous_qa,
-    )
-    return MockInterviewResponse(**result)
+    try:
+        result = interview_service.generate_question(
+            llm=get_llm(), topic=payload.topic, difficulty=payload.difficulty, previous_qa=payload.previous_qa,
+        )
+        return MockInterviewResponse(**result)
+    except Exception:
+        _fail_ai_call(current_user.id, "mock_interview", db)
 
 
 @router.get("/roadmap")

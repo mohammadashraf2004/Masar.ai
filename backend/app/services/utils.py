@@ -2,6 +2,24 @@ import json
 from typing import Any
 
 
+class EmptyProviderReply(RuntimeError):
+    """The provider answered, but with no text to show."""
+
+
+def require_text(raw: Any) -> str:
+    """The provider's answer, or EmptyProviderReply if there is none.
+
+    A model can return nothing at all (a refusal, a length cutoff before the
+    first token). Callers that carry on regardless turn that into a paid
+    blank — an empty review, a 0% readiness score, a blank interview question
+    — or crash in the JSON parser. Raising instead lets the controller
+    refund and tell the student to try again.
+    """
+    if not isinstance(raw, str) or not raw.strip():
+        raise EmptyProviderReply("the provider returned no text")
+    return raw
+
+
 def _iter_balanced_objects(text: str):
     """Yields each substring of `text` that is a balanced top-level
     {...} block, in the order they appear. Doesn't validate JSON —

@@ -1,7 +1,7 @@
 from typing import List
 
 from app.services.llm.providers.BaseLLMProvider import BaseLLMProvider
-from app.services.utils import parse_json_response
+from app.services.utils import parse_json_response, require_text
 
 SYSTEM_PROMPT = """You are an experienced technical interviewer at a top tech company.
 Conduct mock interviews for software and AI engineering roles.
@@ -38,6 +38,6 @@ def generate_question(
         )
         context += f"\n\nPrevious Q&A:\n{prev_str}\n\nAsk a different, progressively harder question."
 
-    raw = llm.chat(system=SYSTEM_PROMPT, messages=[{"role": "user", "content": context}], max_tokens=500)
+    raw = require_text(llm.chat(system=SYSTEM_PROMPT, messages=[{"role": "user", "content": context}], max_tokens=500))
     result = parse_json_response(raw, {**_FALLBACK, "question": raw[:300]})
     return result if isinstance(result, dict) else {**_FALLBACK, "question": raw[:300]}

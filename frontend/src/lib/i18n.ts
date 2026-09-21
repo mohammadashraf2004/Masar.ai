@@ -409,6 +409,16 @@ const EN = {
   'banner.onboard.carried': 'We kept your earlier career goal: {goal}.',
   'common.retry': 'Try again',
 
+  // AI mentor
+  'mentor.input.label': 'Message to your mentor',
+  // …and why a request failed, in terms the learner can act on
+  'mentor.error.unavailable': 'The mentor is unavailable right now. Any credits used were refunded. Please try again in a moment.',
+  'mentor.error.credits': "You don't have enough credits for this. Top up from your wallet and try again.",
+  'mentor.error.verify': 'Verify your email address to use the mentor. Check your inbox, or request a new link from your profile.',
+  'mentor.error.rateLimit': "You're going a little fast. Wait a moment and try again.",
+  'mentor.error.network': 'Could not reach the server. Check your connection and try again.',
+  'mentor.error.invalid': 'That input is too long or not valid. Shorten it and try again.',
+
   // Generic
   'common.close': 'Close',
   'common.send': 'Send',
@@ -801,6 +811,14 @@ const AR: Record<StringKey, string> = {
   'banner.onboard.cta': 'ابنِ مساري',
   'banner.onboard.carried': 'احتفظنا بهدفك المهني السابق: {goal}.',
   'common.retry': 'حاول مرة أخرى',
+
+  'mentor.input.label': 'رسالتك إلى المرشد',
+  'mentor.error.unavailable': 'المرشد غير متاح الآن. أُعيد أي رصيد تم خصمه. حاول مرة أخرى بعد قليل.',
+  'mentor.error.credits': 'رصيدك غير كافٍ لهذا الإجراء. اشحن رصيدك من المحفظة وحاول مرة أخرى.',
+  'mentor.error.verify': 'فعّل بريدك الإلكتروني لاستخدام المرشد. تحقق من صندوق الوارد أو اطلب رابطًا جديدًا من ملفك الشخصي.',
+  'mentor.error.rateLimit': 'أنت تُرسل بسرعة كبيرة. انتظر لحظة وحاول مرة أخرى.',
+  'mentor.error.network': 'تعذّر الوصول إلى الخادم. تحقق من اتصالك وحاول مرة أخرى.',
+  'mentor.error.invalid': 'المدخل طويل جدًا أو غير صالح. اختصره وحاول مرة أخرى.',
 
   'common.close': 'إغلاق',
   'common.send': 'إرسال',

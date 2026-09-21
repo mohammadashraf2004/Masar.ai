@@ -1,7 +1,7 @@
 from typing import Optional
 
 from app.services.llm.providers.BaseLLMProvider import BaseLLMProvider
-from app.services.utils import parse_json_response
+from app.services.utils import parse_json_response, require_text
 
 SYSTEM_PROMPT = """You are an expert software engineer and code reviewer specializing in Python,
 AI/ML, and backend development. Review code critically but constructively.
@@ -43,6 +43,6 @@ def review_code(
     context_str = f"\nContext: {context}" if context else ""
     message = f"Review this {language} code:{context_str}\n\n```{language}\n{code}\n```"
 
-    raw = llm.chat(system=SYSTEM_PROMPT, messages=[{"role": "user", "content": message}], max_tokens=1200)
+    raw = require_text(llm.chat(system=SYSTEM_PROMPT, messages=[{"role": "user", "content": message}], max_tokens=1200))
     result = parse_json_response(raw, {**_FALLBACK, "summary": raw[:500]})
     return result if isinstance(result, dict) else {**_FALLBACK, "summary": raw[:500]}

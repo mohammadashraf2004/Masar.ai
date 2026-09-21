@@ -611,7 +611,15 @@ image tarball, and the app still boots, migrates and serves.
 compromised — it existed in image layers, not just on a dev machine. Revoke,
 reissue, and provision only via the secret store.
 
-### F-2 ⚠ `POST /mentor/chat` charges for failed requests
+### F-2 ✅ IMPLEMENTED — `POST /mentor/chat` charges for failed requests
+
+> **Implemented in the release-prep pass (2026-09-21) and approved by the owner
+> for this release.** It changes billing behaviour, which this finding originally
+> reserved for a product decision. `/mentor/chat`, `/mentor/code-review`, `/mentor/skill-gap`
+> and `/mentor/mock-interview` now refund on any failure (provider error,
+> timeout, empty or malformed answer, missing configuration) and answer 503 with
+> one fixed sentence. Covered by `tests/test_mentor_chat.py` and
+> `tests/test_mentor_tools.py`. The original finding follows unchanged.
 
 Every other billable handler (roadmap, code review, project hint, challenge
 hint, answer evaluation) deducts credits, calls the provider inside a
@@ -787,4 +795,5 @@ Recorded, not implemented. Each needs explicit product direction.
    something that does not exist.
 
 3. **F-2: should `/mentor/chat` refund on provider failure?** Every sibling
-   endpoint does.
+   endpoint does. *Implemented 2026-09-21 for all four mentor endpoints and
+   approved by the owner for this release (see F-2).*

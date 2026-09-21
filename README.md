@@ -143,8 +143,9 @@ Full reference lives in `backend/.env.example` and `frontend/.env.local.example`
 | Variable | Required? | Notes |
 |---|---|---|
 | `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | Yes (at least one) | Powers the AI mentor, exercise/quiz grading, and content generation. |
-| `GENERATION_BACKEND` | Yes | `"openai"` or `"anthropic"` — picks which key above is used. |
-| `GENERATION_MODEL_ID` | Yes | e.g. `gpt-4o-mini` (cheap, default) or `claude-sonnet-4-20250514`. |
+| `GENERATION_BACKEND` | Yes | `"openai"` or `"anthropic"` — picks which key above is used. **Set it explicitly**: the code default is `anthropic`, so a deploy that sets only `OPENAI_API_KEY` is configured for a provider it has no key for. |
+| `GENERATION_MODEL_ID` | Yes | e.g. `gpt-4o-mini` (cheap, default) or `claude-sonnet-4-20250514`. **Must not be blank** — an empty variable overrides the default rather than falling back to it. In production the API refuses to boot if the backend is unknown, its key is unset or the model is blank. |
+| `GENERATION_TIMEOUT_SECONDS` / `GENERATION_MAX_RETRIES` | No | Budget for one provider call: 25 s and 0 retries by default, so a hung provider fails inside the browser's 30 s limit (and gunicorn's 60 s) and the student is refunded. Raise them only together with those limits. |
 | `SECRET_KEY` | Prod only | JWT signing key. The app refuses to boot with `APP_ENV=production` and a weak/default key — fine to leave as-is for local dev. |
 | `DATABASE_URL` | No | Ignored under Docker (`docker-compose.yml` always points it at the `db` service). Only matters running natively. |
 | `RESEND_API_KEY` | No | Email sending is best-effort — silently skipped if unset. |

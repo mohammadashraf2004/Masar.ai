@@ -3,6 +3,15 @@ from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+# GENERATION_BACKEND value -> the setting that holds that backend's API key.
+# Mirrors LLMEnum, which cannot be imported here: app.services imports this
+# module, so importing it back would be circular.
+_LLM_KEY_SETTING = {
+    "anthropic": "ANTHROPIC_API_KEY",
+    "openai": "OPENAI_API_KEY",
+}
+
+
 class Settings(BaseSettings):
     # ─── App ──────────────────────────────────────────────────────────────
     APP_NAME: str = "Masar"
@@ -103,6 +112,16 @@ class Settings(BaseSettings):
     GENERATION_DEFAULT_MAX_TOKENS: int = 1000
     GENERATION_DEFAULT_TEMPERATURE: float = 0.7
     INPUT_DEFAULT_MAX_CHARACTERS: int = 10000
+    # Wall-clock budget for one provider call, and how often the SDK may
+    # re-send it. Sized against the two limits on either side: the browser
+    # abandons any API call at 30 s (frontend/src/lib/api.ts) and gunicorn
+    # kills a worker at 60 s (--timeout in docker-compose.yml). The SDK
+    # defaults — 10 minutes, 2 retries — overshoot both, so a slow provider
+    # meant a student staring at a spinner for a request the server was
+    # still busy paying for. Applied by LLMProviderFactory (the web app);
+    # offline scripts that build a provider themselves keep their own.
+    GENERATION_TIMEOUT_SECONDS: float = 25.0
+    GENERATION_MAX_RETRIES: int = 0
 
     # ─── API keys ─────────────────────────────────────────────────────────
     ANTHROPIC_API_KEY: Optional[str] = None
@@ -172,6 +191,29 @@ class Settings(BaseSettings):
         production safeguard below, which is exactly the failure mode
         these checks exist to prevent."""
         return self.APP_ENV.strip().lower() not in {"development", "dev", "local", "test", "testing"}
+
+    def llm_config_problems(self) -> list[str]:
+        """What stops the AI provider from working, named by setting.
+
+        Returns names only, never values: the result ends up in logs and in
+        the production boot error. An empty list means a call can be made.
+
+        The blank-model case is not hypothetical. pydantic-settings takes an
+        empty environment variable over the default, so `GENERATION_MODEL_ID=`
+        — which deploy/production.env.example used to ship — resolves to ""
+        and every provider call is then rejected for having no model.
+        """
+        problems: list[str] = []
+        key_setting = _LLM_KEY_SETTING.get(self.GENERATION_BACKEND)
+        if key_setting is None:
+            problems.append(
+                "GENERATION_BACKEND must be one of: " + ", ".join(sorted(_LLM_KEY_SETTING))
+            )
+        elif not (getattr(self, key_setting) or "").strip():
+            problems.append(f"{key_setting} must be set when GENERATION_BACKEND={self.GENERATION_BACKEND}")
+        if not self.GENERATION_MODEL_ID.strip():
+            problems.append("GENERATION_MODEL_ID must not be blank")
+        return problems
 
     @property
     def launch_promo_until(self):
@@ -289,6 +331,11 @@ if settings.is_production:
             "features require a verified email address, and without an "
             "email provider no user can ever verify"
         )
+    # The AI mentor, exercise grading and hints all run on this. Every other
+    # check here stops a bad deploy from booting; without this one a deploy
+    # with no key (or a blank model id) boots cleanly, passes /health, and
+    # then fails every AI request with the first sign being user reports.
+    _problems.extend(settings.llm_config_problems())
     if settings.TRUSTED_PROXY_COUNT < 0:
         _problems.append("TRUSTED_PROXY_COUNT cannot be negative")
     if settings.TRUSTED_PROXY_COUNT > 0 and not settings.trusted_proxy_networks:

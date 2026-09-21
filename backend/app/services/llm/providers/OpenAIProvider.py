@@ -15,6 +15,8 @@ class OpenAIProvider(BaseLLMProvider):
         default_max_tokens: int = 1000,
         default_temperature: float = 0.7,
         default_input_max_characters: int = 10000,
+        timeout: Optional[float] = None,
+        max_retries: Optional[int] = None,
     ):
         self.api_key = api_key
         self.model_id = model_id
@@ -22,6 +24,11 @@ class OpenAIProvider(BaseLLMProvider):
         self.default_max_tokens = default_max_tokens
         self.default_temperature = default_temperature
         self.default_input_max_characters = default_input_max_characters
+        # None leaves the SDK's own default in place (10 min, 2 retries), which
+        # is what offline generation scripts that build this class directly
+        # rely on. The web app's factory always passes bounded values.
+        self.timeout = timeout
+        self.max_retries = max_retries
         self._client = None
 
     def _get_client(self) -> openai.OpenAI:
@@ -29,6 +36,10 @@ class OpenAIProvider(BaseLLMProvider):
             kwargs = {"api_key": self.api_key}
             if self.api_url:
                 kwargs["base_url"] = self.api_url
+            if self.timeout is not None:
+                kwargs["timeout"] = self.timeout
+            if self.max_retries is not None:
+                kwargs["max_retries"] = self.max_retries
             self._client = openai.OpenAI(**kwargs)
         return self._client
 
@@ -53,4 +64,8 @@ class OpenAIProvider(BaseLLMProvider):
                 getattr(usage, "prompt_tokens", None),
                 getattr(usage, "completion_tokens", None),
             )
-            return response.choices[0].message.content
+            # `content` is None when the model refuses or is cut off before
+            # writing anything. Callers treat the reply as text and strip it;
+            # handing them None turned an empty answer into an AttributeError
+            # after the student had been charged.
+            return response.choices[0].message.content or ""

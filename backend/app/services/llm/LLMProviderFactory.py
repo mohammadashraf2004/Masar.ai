@@ -17,6 +17,8 @@ class LLMProviderFactory:
                 default_max_tokens=self.config.GENERATION_DEFAULT_MAX_TOKENS,
                 default_temperature=self.config.GENERATION_DEFAULT_TEMPERATURE,
                 default_input_max_characters=self.config.INPUT_DEFAULT_MAX_CHARACTERS,
+                timeout=self.config.GENERATION_TIMEOUT_SECONDS,
+                max_retries=self.config.GENERATION_MAX_RETRIES,
             )
 
         if provider == LLMEnum.OPENAI.value:
@@ -27,6 +29,8 @@ class LLMProviderFactory:
                 default_max_tokens=self.config.GENERATION_DEFAULT_MAX_TOKENS,
                 default_temperature=self.config.GENERATION_DEFAULT_TEMPERATURE,
                 default_input_max_characters=self.config.INPUT_DEFAULT_MAX_CHARACTERS,
+                timeout=self.config.GENERATION_TIMEOUT_SECONDS,
+                max_retries=self.config.GENERATION_MAX_RETRIES,
             )
 
         raise ValueError(f"Unknown LLM provider: '{provider}'. Valid values: {[e.value for e in LLMEnum]}")

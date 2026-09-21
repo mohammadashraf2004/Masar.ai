@@ -295,6 +295,9 @@ export interface MentorMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: string
+  /** Set on the assistant bubble that reports a failed request, so it is
+   *  announced as an alert and styled as one. Never sent to the server. */
+  error?: boolean
 }
 
 export interface MentorSession {

@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple
 
 from app.services.language.language_policy import build_policy
 from app.services.llm.providers.BaseLLMProvider import BaseLLMProvider
-from app.services.utils import parse_json_response
+from app.services.utils import parse_json_response, require_text
 
 SYSTEM_PROMPT = """You are an expert AI career mentor helping students in Egypt and the MENA region
 become job-ready software and AI engineers. You are encouraging, precise, and practical.
@@ -46,13 +46,24 @@ def get_mentor_reply(
     ]
 
     system = SYSTEM_PROMPT + build_policy(language, terminology_mode)
-    raw = llm.chat(system=system, messages=messages, max_tokens=800)
+    # A blank answer is a failed call, not a reply: it used to come back as a
+    # 200 with an empty bubble (or, for None, crash in the JSON parser) with
+    # the student already charged. Raising lets the controller refund.
+    raw = require_text(llm.chat(system=system, messages=messages, max_tokens=800))
 
     fallback = (raw, ["Continue learning", "Ask me a question", "Request a quiz"])
     data = parse_json_response(raw, None)
 
     if isinstance(data, dict):
-        return data.get("reply", raw), data.get("suggested_actions", [])
+        # The model chooses these types, and a schema on our side only covers
+        # what we return: `"suggested_actions": null` or a string used to fail
+        # response validation and turn a good answer into a 500.
+        reply = data.get("reply")
+        if not isinstance(reply, str) or not reply.strip():
+            reply = raw
+        actions = data.get("suggested_actions")
+        actions = [a for a in actions if isinstance(a, str) and a.strip()] if isinstance(actions, list) else []
+        return reply, actions
     return fallback
 # ── Add this to the END of backend/app/services/mentor/mentor_service.py ─────
 

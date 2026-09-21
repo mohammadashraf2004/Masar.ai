@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from app.services.llm.providers.BaseLLMProvider import BaseLLMProvider
-from app.services.utils import parse_json_response
+from app.services.utils import parse_json_response, require_text
 
 SYSTEM_PROMPT = """You are a technical career advisor for software and AI engineering roles.
 Analyze the candidate's background and identify skill gaps for their target role.
@@ -35,7 +35,7 @@ def analyze_skill_gap(
         parts.append(f"GitHub: {github_url}")
 
     message = "\n\n".join(parts)
-    raw = llm.chat(system=SYSTEM_PROMPT, messages=[{"role": "user", "content": message}], max_tokens=1000)
+    raw = require_text(llm.chat(system=SYSTEM_PROMPT, messages=[{"role": "user", "content": message}], max_tokens=1000))
 
     fallback = {
         "target_role": target_role,

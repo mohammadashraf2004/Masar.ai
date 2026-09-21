@@ -1240,6 +1240,16 @@ def _boot_with(**env_overrides):
         # provider every account would be permanently unable to spend.
         # Required in production for that reason; see config.py.
         "RESEND_API_KEY": "re_test_key_not_real",
+        # The AI mentor, grading and hints all run on the provider these name.
+        # Production refuses to boot when the backend is unknown, its key is
+        # unset or the model id is blank (Settings.llm_config_problems) — a
+        # deploy that boots without them serves /health and fails every AI
+        # request. Pinned here so a developer's real key in backend/.env
+        # cannot make these subprocess boots pass for the wrong reason.
+        "GENERATION_BACKEND": "openai",
+        "GENERATION_MODEL_ID": "gpt-4o-mini",
+        "OPENAI_API_KEY": "sk-test-not-a-real-key",
+        "ANTHROPIC_API_KEY": "",
         "DATABASE_URL": "postgresql://appuser:realpw@db.internal:5432/app",
         "FRONTEND_URL": "https://app.example.com",
         "EXTRA_CORS_ORIGINS": "",
@@ -1275,6 +1285,56 @@ def test_production_refuses_to_start_without_an_email_provider():
     code, err = _boot_with(REDIS_URL="redis://localhost:6379/0", RESEND_API_KEY="")
     assert code != 0, "booted in production with no way to send verification email"
     assert "RESEND_API_KEY" in err
+
+
+def test_production_refuses_to_start_without_the_provider_key():
+    """The AI mentor is the product's most visible feature. Without this a
+    deploy that forgot the key boots, passes /health and serves 503s."""
+    code, err = _boot_with(REDIS_URL="redis://localhost:6379/0", OPENAI_API_KEY="")
+    assert code != 0, "booted in production with no AI provider key"
+    assert "OPENAI_API_KEY" in err
+
+
+def test_production_refuses_to_start_with_a_blank_model_id():
+    """`GENERATION_MODEL_ID=` — what deploy/production.env.example shipped.
+    An empty variable overrides the default rather than falling back to it."""
+    code, err = _boot_with(REDIS_URL="redis://localhost:6379/0", GENERATION_MODEL_ID="")
+    assert code != 0, "booted in production with a blank model id"
+    assert "GENERATION_MODEL_ID" in err
+
+
+def test_production_refuses_a_backend_whose_key_is_the_other_providers():
+    """GENERATION_BACKEND defaults to anthropic in code. A deploy that sets
+    only OPENAI_API_KEY and forgets the backend line is the classic way to
+    end up configured for a provider it has no key for."""
+    code, err = _boot_with(REDIS_URL="redis://localhost:6379/0", GENERATION_BACKEND="anthropic")
+    assert code != 0, "booted with GENERATION_BACKEND=anthropic and no ANTHROPIC_API_KEY"
+    assert "ANTHROPIC_API_KEY" in err
+
+
+def test_production_refuses_an_unknown_backend():
+    code, err = _boot_with(REDIS_URL="redis://localhost:6379/0", GENERATION_BACKEND="gemini")
+    assert code != 0, "booted with a backend the factory cannot build"
+    assert "GENERATION_BACKEND" in err
+
+
+def test_boot_error_names_settings_but_never_their_values():
+    code, err = _boot_with(
+        REDIS_URL="redis://localhost:6379/0", GENERATION_MODEL_ID="", ANTHROPIC_API_KEY="",
+    )
+    assert code != 0
+    assert "sk-test-not-a-real-key" not in err, "the boot error echoed a key"
+
+
+def test_production_accepts_the_anthropic_backend_with_its_key():
+    code, err = _boot_with(
+        REDIS_URL="redis://localhost:6379/0",
+        GENERATION_BACKEND="anthropic",
+        GENERATION_MODEL_ID="claude-sonnet-4-20250514",
+        ANTHROPIC_API_KEY="sk-ant-test-not-real",
+        OPENAI_API_KEY="",
+    )
+    assert code == 0, err
 
 
 def test_production_starts_with_a_complete_configuration():

@@ -42,6 +42,13 @@ services:
     #   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
     expose:
       - "5432"
+    # The API alone can open 4 gunicorn workers x (pool_size 10 + max_overflow
+    # 20) = 120 connections (app/db/session.py), before the metrics exporter
+    # and the backup job. Postgres defaults to 100, so a burst of traffic ended
+    # in "sorry, too many clients already" and a wave of 500s. On a managed
+    # database this line does not apply: check the plan's connection limit
+    # against that same arithmetic.
+    command: ["postgres", "-c", "max_connections=200"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
@@ -141,8 +148,11 @@ services:
     command: gunicorn app.main:app -c gunicorn.conf.py -k uvicorn.workers.UvicornWorker -w 4 --bind 0.0.0.0:8000 --timeout 60
     # tmpfs, not a volume: these are per-run scratch files that must not
     # survive a restart — stale ones are counted as live workers.
+    # uid/gid must match the non-root appuser in the image: a tmpfs mounts
+    # root-owned, and the metrics middleware then fails every request with
+    # PermissionError.
     tmpfs:
-      - /tmp/prometheus-multiproc
+      - /tmp/prometheus-multiproc:uid=1000,gid=1000,mode=0755
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
       interval: 15s

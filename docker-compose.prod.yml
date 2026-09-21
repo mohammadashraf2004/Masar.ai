@@ -89,6 +89,15 @@ services:
 
   frontend:
     ports: !reset []
+    # Baked into the client bundle at build time, and docker-compose.yml falls
+    # back to http://localhost:8000/api/v1 when it is unset. That builds
+    # cleanly and then sends every visitor's browser to *their own* localhost,
+    # so no request from the app ever reaches the API — sign-in included.
+    # Required here (this overlay is production-only, so local `docker compose
+    # up` is unaffected): forgetting it fails the build instead of shipping.
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?set NEXT_PUBLIC_API_URL to the public https API URL; it is a build argument baked into the client bundle}
 
   # ─── Alert delivery ───────────────────────────────────────────────
   # Prometheus evaluates rules and decides an alert is firing; without an

@@ -20,20 +20,20 @@ export function formatRelative(iso: string) {
 }
 
 export function difficultyColor(d: string) {
-  return { beginner: 'text-emerald', intermediate: 'text-amber', advanced: 'text-rose' }[d] ?? 'text-soft'
+  return { beginner: 'text-emerald', intermediate: 'text-amber-text', advanced: 'text-rose' }[d] ?? 'text-soft'
 }
 
 export function difficultyBg(d: string) {
   return {
     beginner: 'bg-emerald/10 text-emerald border-emerald/20',
-    intermediate: 'bg-amber/10 text-amber border-amber/20',
+    intermediate: 'bg-amber/10 text-amber-text border-amber/20',
     advanced: 'bg-rose/10 text-rose border-rose/20',
   }[d] ?? 'bg-muted text-soft'
 }
 
 export function scoreColor(score: number) {
   if (score >= 75) return 'text-emerald'
-  if (score >= 50) return 'text-amber'
+  if (score >= 50) return 'text-amber-text'
   return 'text-rose'
 }
 

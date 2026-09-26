@@ -1,0 +1,20 @@
+{
+  "module_id": "M014-03",
+  "title": "Sampling, Quantization & Frequency-Domain Representation",
+  "description": "Sampling theory, aliasing, quantization, Fourier analysis, DCT/WHT, periodicity, windowing, and ringing.",
+  "lesson_ids": [
+    "L014-018",
+    "L014-019",
+    "L014-020",
+    "L014-021",
+    "L014-022",
+    "L014-023",
+    "L014-024",
+    "L014-025",
+    "L014-026"
+  ],
+  "lesson_count": 9,
+  "guided_minutes": 580,
+  "module_project": "Sampling & Frequency Analysis Laboratory",
+  "project_lesson_id": "L014-026"
+}

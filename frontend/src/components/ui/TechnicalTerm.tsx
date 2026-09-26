@@ -75,7 +75,7 @@ function TermDefinition({
             {entry.en}
           </span>
         )}
-        <span className="block text-xs text-amber2 mt-1" dir="rtl">
+        <span className="block text-xs text-amber-text2 mt-1" dir="rtl">
           {arabicOverride ?? entry.ar}
         </span>
       </span>
@@ -173,7 +173,7 @@ export function TechnicalTerm({
         aria-controls={open ? panelId : undefined}
         className={cn(
           'inline items-baseline text-start font-medium transition-colors',
-          'text-amber2 hover:text-amber border-b border-dotted border-amber/40 hover:border-amber',
+          'text-amber-text2 hover:text-amber-text border-b border-dotted border-amber/40 hover:border-amber',
           firstMention && 'border-solid'
         )}
         dir="ltr"
@@ -236,7 +236,7 @@ export function TermCard({ term, arabic, category, className, actionable = true 
               {entry.en}
             </p>
           )}
-          <p className="text-xs text-amber2 mt-0.5" dir="rtl">
+          <p className="text-xs text-amber-text2 mt-0.5" dir="rtl">
             {arabic ?? entry.ar}
           </p>
         </div>
@@ -258,7 +258,7 @@ export function TermCard({ term, arabic, category, className, actionable = true 
             'mt-3 inline-flex min-h-[44px] lg:min-h-0 items-center gap-1.5 text-[11px] px-2 py-1 rounded border transition-colors',
             learned
               ? 'border-emerald/25 bg-emerald/10 text-emerald cursor-default'
-              : 'border-border text-ghost hover:text-amber hover:border-amber/30'
+              : 'border-border text-ghost hover:text-amber-text hover:border-amber/30'
           )}
         >
           {learned ? <Check size={11} /> : <BookMarked size={11} />}
@@ -279,7 +279,7 @@ export function CourseVocabulary({ terms, className }: { terms: string[]; classN
   return (
     <div className={className}>
       <div className="flex items-center gap-2 mb-3">
-        <BookMarked size={14} className="text-amber" />
+        <BookMarked size={14} className="text-amber-text" />
         <h3 className="text-sm font-medium text-bright">{t('term.inThisCourse')}</h3>
         <span className="text-xs text-ghost">{resolved.length}</span>
       </div>
@@ -311,7 +311,7 @@ export function TermDetailModal({ term, onClose }: { term: string; onClose: () =
 
   return (
     <>
-      <div className="fixed inset-0 bg-void/80 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-scrim/80 backdrop-blur-sm z-40" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-md pointer-events-auto max-h-[80vh] overflow-y-auto">
           <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-border">
@@ -324,7 +324,7 @@ export function TermDetailModal({ term, onClose }: { term: string; onClose: () =
                   {entry.en}
                 </p>
               )}
-              <p className="text-sm text-amber2 mt-1" dir="rtl">
+              <p className="text-sm text-amber-text2 mt-1" dir="rtl">
                 {entry.ar}
               </p>
             </div>

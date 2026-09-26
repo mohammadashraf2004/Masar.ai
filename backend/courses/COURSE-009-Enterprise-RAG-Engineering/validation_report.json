@@ -1,0 +1,36 @@
+{
+  "module_count": 10,
+  "lesson_count": 80,
+  "guided_minutes": 4335,
+  "guided_time": "72h15m",
+  "module_counts": {
+    "M009-01": 4,
+    "M009-02": 8,
+    "M009-03": 8,
+    "M009-04": 8,
+    "M009-05": 6,
+    "M009-06": 10,
+    "M009-07": 9,
+    "M009-08": 9,
+    "M009-09": 9,
+    "M009-10": 9
+  },
+  "visual_asset_count": 14,
+  "embedded_python_blocks_compiled": 80,
+  "lesson_ids_frozen": true,
+  "module_ids_frozen": true,
+  "approval_status": "Not explicitly approved",
+  "repository_integration_tested": false,
+  "checks": {
+    "lesson_file_count": "PASS",
+    "module_count": "PASS",
+    "python_file_syntax": "PASS",
+    "embedded_python_syntax": "PASS",
+    "unique_lesson_ids": "PASS",
+    "unique_slugs": "PASS",
+    "frozen_id_range": "PASS",
+    "module_project_count": "PASS",
+    "total_guided_minutes": "PASS",
+    "visual_asset_count": "PASS"
+  }
+}

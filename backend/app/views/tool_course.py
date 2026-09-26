@@ -17,7 +17,7 @@ class ToolTopicResponse(BaseModel):
     description_ar: Optional[str] = None
     order: int
     difficulty: DifficultyLevel
-    estimated_hours: float
+    estimated_hours: Optional[float] = None
     skill_tags: List[str]
     technical_terms: List[str] = []
     prerequisite_ids: List[int]

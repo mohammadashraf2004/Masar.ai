@@ -114,7 +114,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
 
   return (
     <>
-      <div className="fixed inset-0 bg-void/80 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-scrim/80 backdrop-blur-sm z-40" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-md pointer-events-auto flex flex-col max-h-[90vh]">
 
@@ -122,7 +122,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
           <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-md bg-amber/10 border border-amber/20 flex items-center justify-center">
-                <ShieldCheck size={14} className="text-amber" />
+                <ShieldCheck size={14} className="text-amber-text" />
               </div>
               <div>
                 <h2 className="text-sm font-semibold text-bright">Exam Access</h2>
@@ -157,7 +157,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
             ) : submitted ? (
               /* Submitted — waiting for confirmation */
               <div className="text-center py-6">
-                <Clock size={40} className="text-amber mx-auto mb-4" />
+                <Clock size={40} className="text-amber-text mx-auto mb-4" />
                 <p className="text-bright font-semibold mb-2">Payment Submitted</p>
                 <p className="text-xs text-ghost leading-relaxed mb-2">
                   Your payment reference has been received. Exam access will be granted after confirmation — usually within <strong className="text-soft">1 hour</strong>.
@@ -174,9 +174,9 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
               <>
                 {/* Important notice */}
                 <div className="flex items-start gap-2.5 px-4 py-3 bg-amber/5 border border-amber/20 rounded-lg">
-                  <Banknote size={14} className="text-amber flex-shrink-0 mt-0.5" />
+                  <Banknote size={14} className="text-amber-text flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-xs font-semibold text-amber mb-0.5">EGP Payment Only</p>
+                    <p className="text-xs font-semibold text-amber-text mb-0.5">EGP Payment Only</p>
                     <p className="text-xs text-ghost leading-relaxed">
                       Certification exams require a real EGP payment. Credits cannot be used. This ensures your certificate is a verified, paid credential.
                     </p>
@@ -186,7 +186,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                 {/* Price */}
                 <div className="flex items-center justify-between py-3 px-4 bg-surface border border-border rounded-lg">
                   <span className="text-xs text-ghost">Exam fee</span>
-                  <span className="text-2xl font-mono font-bold text-amber">{price} EGP</span>
+                  <span className="text-2xl font-mono font-bold text-amber-text">{price} EGP</span>
                 </div>
 
                 {error && (
@@ -236,7 +236,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                             onClick={() => setMethod(key)}
                             className={`py-3 rounded-lg border text-xs font-medium transition-all ${
                               method === key
-                                ? 'bg-amber/10 border-amber/40 text-amber'
+                                ? 'bg-amber/10 border-amber/40 text-amber-text'
                                 : 'bg-surface border-border text-ghost hover:text-soft hover:border-amber/20'
                             }`}
                           >
@@ -253,7 +253,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                         <ol className="space-y-2">
                           {PAYMENT_INSTRUCTIONS[method](price).map((step, i) => (
                             <li key={i} className="flex items-start gap-2 text-xs text-ghost">
-                              <span className="w-4 h-4 rounded-full bg-amber/10 border border-amber/20 text-amber flex items-center justify-center text-xs font-mono flex-shrink-0">
+                              <span className="w-4 h-4 rounded-full bg-amber/10 border border-amber/20 text-amber-text flex items-center justify-center text-xs font-mono flex-shrink-0">
                                 {i + 1}
                               </span>
                               {step}

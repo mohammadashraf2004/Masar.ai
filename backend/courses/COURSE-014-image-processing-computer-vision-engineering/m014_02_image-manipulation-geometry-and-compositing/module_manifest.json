@@ -1,0 +1,21 @@
+{
+  "module_id": "M014-02",
+  "title": "Image Manipulation, Geometry & Compositing",
+  "description": "Point transformations, interpolation, geometric warps, camera rectification, compositing, noise, and JPEG trade-offs.",
+  "lesson_ids": [
+    "L014-008",
+    "L014-009",
+    "L014-010",
+    "L014-011",
+    "L014-012",
+    "L014-013",
+    "L014-014",
+    "L014-015",
+    "L014-016",
+    "L014-017"
+  ],
+  "lesson_count": 10,
+  "guided_minutes": 535,
+  "module_project": "Geometric Correction & Image Compositing Studio",
+  "project_lesson_id": "L014-017"
+}

@@ -1,0 +1,27 @@
+{
+  "course_id": "COURSE-010",
+  "status": "PASS",
+  "module_count": 9,
+  "lesson_file_count": 84,
+  "guided_minutes": 4260,
+  "manual_visual_references": 29,
+  "checks": [
+    "module_count",
+    "lesson_file_count",
+    "python_syntax",
+    "embedded_python_syntax",
+    "unique_lesson_ids",
+    "unique_slugs",
+    "frozen_id_range",
+    "exercise_count",
+    "quiz_count",
+    "module_project_count",
+    "total_guided_minutes",
+    "module_guided_minutes",
+    "visual_reference_count"
+  ],
+  "repository_integration_verified": false,
+  "database_seed_execution_verified": false,
+  "frontend_rendering_verified": false,
+  "production_deployment_verified": false
+}

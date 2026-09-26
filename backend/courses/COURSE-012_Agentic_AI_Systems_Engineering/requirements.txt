@@ -1,0 +1,1 @@
+# Repository-neutral curriculum seed export. Standard library is sufficient for validation/loader scripts.

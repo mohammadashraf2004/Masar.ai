@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Card, Badge, Spinner, ProgressBar } from '@/components/ui/index'
+import { Card, DifficultyBadge, Spinner, ProgressBar } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
@@ -39,12 +39,6 @@ interface ChallengeDetail extends Challenge {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const DIFF_COLORS: Record<string, string> = {
-  beginner:     'emerald',
-  intermediate: 'amber',
-  advanced:     'rose',
-}
-
 const STATUS_LABEL: Record<string, string> = {
   enrolled:  'In Progress',
   submitted: 'Submitted',
@@ -54,8 +48,7 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 function DiffBadge({ diff }: { diff: string }) {
-  const color = DIFF_COLORS[diff] ?? 'ghost'
-  return <Badge variant={color as any} className="capitalize">{diff}</Badge>
+  return <DifficultyBadge level={diff} />
 }
 
 // ─── Enroll Modal ─────────────────────────────────────────────────────────────
@@ -86,7 +79,7 @@ function EnrollModal({ challenge, onClose, onSuccess }: {
 
   return (
     <>
-      <div className="fixed inset-0 bg-void/80 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-scrim/80 backdrop-blur-sm z-40" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-sm pointer-events-auto p-6">
           <div className="flex items-center justify-between mb-4">
@@ -96,7 +89,7 @@ function EnrollModal({ challenge, onClose, onSuccess }: {
           <p className="text-sm text-soft mb-4 leading-relaxed">{challenge.title}</p>
           <div className="flex items-center justify-between py-3 px-4 bg-surface border border-border rounded-lg mb-4">
             <span className="text-xs text-ghost">Cost</span>
-            <span className="text-lg font-mono font-bold text-amber">{challenge.credit_cost} credits</span>
+            <span className="text-lg font-mono font-bold text-amber-text">{challenge.credit_cost} credits</span>
           </div>
           <ul className="space-y-1.5 mb-5">
             {['Access the full dirty dataset', 'Submit your cleaning pipeline', 'Get AI-graded feedback per rubric criterion', `Up to ${3} attempts`].map(item => (
@@ -147,7 +140,7 @@ function SubmitModal({ challenge, onClose, onSuccess }: {
 
   return (
     <>
-      <div className="fixed inset-0 bg-void/80 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-scrim/80 backdrop-blur-sm z-40" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-2xl pointer-events-auto flex flex-col max-h-[90vh]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
@@ -205,7 +198,7 @@ function SubmitModal({ challenge, onClose, onSuccess }: {
 
 // ─── Challenge Card ───────────────────────────────────────────────────────────
 function ChallengeCard({ ch, onSelect }: { ch: Challenge; onSelect: () => void }) {
-  const statusColor = ch.status === 'passed' ? 'text-emerald' : ch.status === 'failed' ? 'text-rose' : 'text-amber'
+  const statusColor = ch.status === 'passed' ? 'text-emerald' : ch.status === 'failed' ? 'text-rose' : 'text-amber-text'
 
   return (
     <Card glow className="p-5">
@@ -217,8 +210,8 @@ function ChallengeCard({ ch, onSelect }: { ch: Challenge; onSelect: () => void }
           )}
         </div>
         <div className="flex items-center gap-1.5 text-xs font-mono">
-          <Zap size={11} className="text-amber" />
-          <span className="text-amber font-bold">{ch.credit_cost}</span>
+          <Zap size={11} className="text-amber-text" />
+          <span className="text-amber-text font-bold">{ch.credit_cost}</span>
           <span className="text-ghost">credits</span>
         </div>
       </div>
@@ -390,10 +383,10 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
             <div className="flex items-center gap-3 mb-4">
               {result.passed
                 ? <Trophy size={18} className="text-emerald" />
-                : <AlertTriangle size={18} className="text-amber" />
+                : <AlertTriangle size={18} className="text-amber-text" />
               }
               <div>
-                <p className={`font-semibold text-sm ${result.passed ? 'text-emerald' : 'text-amber'}`}>
+                <p className={`font-semibold text-sm ${result.passed ? 'text-emerald' : 'text-amber-text'}`}>
                   {result.passed ? 'Challenge Passed!' : 'Not quite — keep improving'}
                 </p>
                 <p className="text-xs text-ghost">Score: <span className="font-mono font-bold">{result.score}%</span></p>
@@ -405,7 +398,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                 <div key={f.criterion} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                   <span className={`w-2 h-2 rounded-full flex-shrink-0 ${f.passed ? 'bg-emerald' : 'bg-rose'}`} />
                   <span className="text-soft w-auto sm:w-40 sm:flex-shrink-0">{f.criterion}</span>
-                  <span className="font-mono text-amber w-12">{f.score}%</span>
+                  <span className="font-mono text-amber-text w-12">{f.score}%</span>
                   <span className="text-ghost flex-1 min-w-0 basis-full sm:basis-auto">{f.feedback}</span>
                 </div>
               ))}
@@ -422,7 +415,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2.5 text-xs font-medium capitalize transition-colors border-b-2 -mb-px ${
                   activeTab === tab
-                    ? 'border-amber text-amber'
+                    ? 'border-amber text-amber-text'
                     : 'border-transparent text-ghost hover:text-soft'
                 }`}
               >
@@ -442,7 +435,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                     <span className="text-xs text-ghost">{ch.dirty_dataset.length} records</span>
                     <button
                       onClick={downloadDataset}
-                      className="flex items-center gap-1.5 text-xs text-amber hover:text-amber/80 transition-colors"
+                      className="flex items-center gap-1.5 text-xs text-amber-text hover:text-amber-text/80 transition-colors"
                     >
                       <Download size={12} /> Download {ch.dataset_filename}
                     </button>
@@ -474,7 +467,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
               {ch.grading_rubric.map((r, i) => (
                 <Card key={i} className="p-4 flex items-start gap-4">
                   <div className="w-12 h-12 rounded-lg bg-amber/10 border border-amber/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-mono font-bold text-amber">{r.weight}%</span>
+                    <span className="text-sm font-mono font-bold text-amber-text">{r.weight}%</span>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-bright mb-1">{r.criterion}</p>
@@ -492,7 +485,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                   <div className="space-y-2">
                     {ch.hints.map((hint, i) => (
                       <Card key={i} className="p-4 flex items-start gap-3">
-                        <span className="w-5 h-5 rounded bg-amber/10 border border-amber/20 flex items-center justify-center text-xs font-mono text-amber flex-shrink-0">{i + 1}</span>
+                        <span className="w-5 h-5 rounded bg-amber/10 border border-amber/20 flex items-center justify-center text-xs font-mono text-amber-text flex-shrink-0">{i + 1}</span>
                         <p className="text-sm text-soft leading-relaxed">{hint}</p>
                       </Card>
                     ))}
@@ -500,8 +493,8 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                 )}
                 <Card className="p-5">
                   <div className="flex items-center gap-2 mb-3">
-                    <Lightbulb size={14} className="text-amber" />
-                    <span className="text-xs font-semibold text-amber uppercase tracking-widest">Ask AI Mentor for a Hint</span>
+                    <Lightbulb size={14} className="text-amber-text" />
+                    <span className="text-xs font-semibold text-amber-text uppercase tracking-widest">Ask AI Mentor for a Hint</span>
                     <span className="text-xs text-ghost ml-auto">1 credit per hint</span>
                   </div>
                   <p className="text-xs text-ghost mb-3 leading-relaxed">
@@ -535,7 +528,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                           {h.concept && (
                             <div className="flex items-center gap-2 mt-2">
                               <span className="text-xs text-ghost">Look up:</span>
-                              <code className="text-xs px-2 py-0.5 rounded bg-surface border border-border text-amber font-mono">{h.concept}</code>
+                              <code className="text-xs px-2 py-0.5 rounded bg-surface border border-border text-amber-text font-mono">{h.concept}</code>
                             </div>
                           )}
                           {h.next_step && (
@@ -617,7 +610,7 @@ export default function ChallengesPage() {
               onClick={() => setFilter(f)}
               className={`min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
                 filter === f
-                  ? 'bg-amber/10 border border-amber/30 text-amber'
+                  ? 'bg-amber/10 border border-amber/30 text-amber-text'
                   : 'bg-surface border border-border text-ghost hover:text-soft'
               }`}
             >

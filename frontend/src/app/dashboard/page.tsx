@@ -4,20 +4,26 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { PageBody } from '@/components/layout/PageContainer'
 import { VocabularyProgress } from '@/components/ui/VocabularyProgress'
 import { Card, ProgressBar, Badge, Spinner } from '@/components/ui/index'
 import { Button, buttonStyles } from '@/components/ui/Button'
 import { PaymentResultBanner } from '@/components/ui/PaymentResultBanner'
+import { LearningSuggestions } from '@/components/learning/LearningSuggestions'
 import { YourMasarCard } from '@/components/learning/YourMasarCard'
 import { api } from '@/lib/api'
 import { useI18n, type StringKey } from '@/lib/i18n'
+import { localizedTitle } from '@/lib/content-language'
 import type { Enrollment, SkillScore, RoadmapWeek } from '@/types'
 import { Brain, BookOpen, ArrowRight, Zap, Target, TrendingUp, Clock } from 'lucide-react'
 import { scoreColor, getErrorMessage } from '@/lib/utils'
 
+// What one run of "Generate roadmap" costs. The API charges it; this is only what the page says.
+const ROADMAP_CREDITS = 5
+
 export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth()
-  const { t, tf } = useI18n()
+  const { t, tf, language, weeks } = useI18n()
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [skills, setSkills] = useState<SkillScore[]>([])
   const [roadmap, setRoadmap] = useState<RoadmapWeek[]>([])
@@ -59,7 +65,7 @@ export default function DashboardPage() {
       const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
       if (typeof detail === 'object' && detail !== null && 'error' in detail
           && (detail as { error?: string }).error === 'insufficient_credits') {
-        setRoadmapError('Not enough credits to generate a roadmap.')
+        setRoadmapError(t('dash.noCredits'))
       } else {
         setRoadmapError(getErrorMessage(err))
       }
@@ -84,9 +90,10 @@ export default function DashboardPage() {
         title={first ? tf(`dash.greeting.${getGreeting()}` as StringKey, { name: first }) : t('nav.dashboard')}
         subtitle={t('dash.subtitle')}
         wrapTitle
+        contained
       />
 
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <PageBody className="space-y-6">
         <Suspense fallback={null}>
           <PaymentResultBanner />
         </Suspense>
@@ -95,20 +102,28 @@ export default function DashboardPage() {
             new onboarding is prompted here rather than redirected. */}
         <YourMasarCard />
 
-        {/* Metrics */}
+        {/* Continue / recommended next: works with no career goal or roadmap at all. */}
+        <LearningSuggestions />
+
+        {/* Metrics. Amber and nothing else: the number is the headline colour, the icon
+            sits in a 36px amber-soft square, and a status colour appears only where the
+            value itself means good or bad - a readiness score, once there is one. A
+            fresh account's 0% is "nothing yet", not "bad", so it stays plain. */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Readiness score', value: `${readiness.toFixed(0)}%`, sub: 'Overall', icon: Target, color: scoreColor(readiness) },
-            { label: 'Tracks enrolled', value: enrollments.length, sub: dataLoading ? '…' : 'Active', icon: BookOpen, color: 'text-sky' },
-            { label: 'Skills tracked', value: skills.length, sub: dataLoading ? '…' : 'Assessed', icon: TrendingUp, color: 'text-emerald' },
-            { label: 'This week', value: roadmap[0]?.theme ?? '—', sub: roadmap[0] ? 'Current focus' : 'Generate roadmap', icon: Clock, color: 'text-violet' },
-          ].map(({ label, value, sub, icon: Icon, color }) => (
+            { label: t('dash.stat.readiness'), value: `${readiness.toFixed(0)}%`, sub: t('dash.stat.overall'), icon: Target, tone: readiness > 0 ? scoreColor(readiness) : 'text-white' },
+            { label: t('dash.stat.tracks'), value: enrollments.length, sub: dataLoading ? '…' : t('dash.stat.active'), icon: BookOpen, tone: 'text-white' },
+            { label: t('dash.stat.skills'), value: skills.length, sub: dataLoading ? '…' : t('dash.stat.assessed'), icon: TrendingUp, tone: 'text-white' },
+            { label: t('dash.stat.week'), value: roadmap[0]?.theme ?? '—', sub: roadmap[0] ? t('dash.stat.focus') : t('dash.stat.generate'), icon: Clock, tone: 'text-white' },
+          ].map(({ label, value, sub, icon: Icon, tone }) => (
             <Card key={label} glow className="p-5">
-              <div className="flex items-start justify-between mb-3">
-                <span className="text-xs text-ghost">{label}</span>
-                <Icon size={14} className={color} />
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <span className="text-xs text-dim">{label}</span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-amber-soft text-amber-text">
+                  <Icon size={16} aria-hidden="true" />
+                </span>
               </div>
-              <div className={`text-2xl font-display font-bold truncate ${color} mb-0.5`}>{value}</div>
+              <div dir="auto" className={`text-2xl font-display font-bold truncate ${tone} mb-0.5`}>{value}</div>
               <div className="text-xs text-ghost">{sub}</div>
             </Card>
           ))}
@@ -117,7 +132,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tracks + roadmap */}
           <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">Your tracks</h2>
+            <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">{t('dash.yourTracks')}</h2>
 
             {dataLoading ? (
               <Card className="p-8 flex items-center justify-center">
@@ -126,10 +141,10 @@ export default function DashboardPage() {
             ) : enrollments.length === 0 ? (
               <Card className="p-8 text-center">
                 <BookOpen size={28} className="text-ghost mx-auto mb-3" />
-                <p className="text-bright font-medium mb-1">No tracks yet</p>
-                <p className="text-sm text-ghost mb-4">Build your Masar, or browse the curriculum libraries.</p>
+                <p className="text-bright font-medium mb-1">{t('dash.noTracks')}</p>
+                <p className="text-sm text-ghost mb-4">{t('dash.noTracksBody')}</p>
                 <Link href="/tracks" className={buttonStyles({ size: 'sm' })}>
-                  Browse tracks
+                  {t('dash.browseTracks')}
                 </Link>
               </Card>
             ) : (
@@ -139,17 +154,17 @@ export default function DashboardPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-lg">{en.track.icon}</span>
-                        <span className="font-medium text-bright">{en.track.title}</span>
+                        <span dir="auto" className="font-medium text-bright">{localizedTitle(en.track, language)}</span>
                       </div>
-                      {en.target_job_title && <Badge variant="ghost">{en.target_job_title}</Badge>}
+                      {en.target_job_title && <Badge variant="ghost" dir="auto">{en.target_job_title}</Badge>}
                     </div>
-                    <span className="text-sm font-mono text-amber">{en.completion_percentage.toFixed(0)}%</span>
+                    <span className="text-sm font-mono text-amber-text">{en.completion_percentage.toFixed(0)}%</span>
                   </div>
                   <ProgressBar value={en.completion_percentage} className="mb-4" />
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-ghost">{en.track.estimated_weeks}w program</span>
+                    <span className="text-xs text-ghost">{tf('dash.program', { weeks: weeks(en.track.estimated_weeks) })}</span>
                     <Link href={`/tracks/${en.track.slug}`} className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
-                      Continue <ArrowRight size={12} className="rtl:rotate-180" />
+                      {t('course.continue')} <ArrowRight size={12} className="rtl:rotate-180" />
                     </Link>
                   </div>
                 </Card>
@@ -159,26 +174,25 @@ export default function DashboardPage() {
             {enrollments.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">Weekly plan</h2>
+                  <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">{t('dash.weeklyPlan')}</h2>
                   <Button
                     variant="ghost"
                     size="sm"
                     loading={roadmapLoading}
                     onClick={() => void generateRoadmap()}
                   >
-                    {roadmap.length > 0 ? 'Regenerate' : 'Generate roadmap'}
-                    <span className="ms-1.5 text-[10px] text-ghost">5 credits</span>
+                    {roadmap.length > 0 ? t('dash.regenerate') : t('dash.generateRoadmap')}
+                    <span className="ms-1.5 text-[10px] text-ghost">{tf('dash.creditsCost', { n: ROADMAP_CREDITS })}</span>
                   </Button>
                 </div>
 
                 {roadmapError && (
-                  <p role="alert" className="mb-3 text-xs text-rose leading-relaxed">{roadmapError}</p>
+                  <p role="alert" dir="auto" className="mb-3 text-xs text-rose leading-relaxed">{roadmapError}</p>
                 )}
 
                 {roadmap.length === 0 && !roadmapLoading && !roadmapError && (
                   <p className="mb-3 text-xs text-ghost leading-relaxed">
-                    Generate a personalised weekly plan for {enrollments[0].track.title}.
-                    Each run asks the AI mentor to build a fresh plan and costs 5 credits.
+                    {tf('dash.roadmapHint', { track: localizedTitle(enrollments[0].track, language), n: ROADMAP_CREDITS })}
                   </p>
                 )}
 
@@ -186,14 +200,14 @@ export default function DashboardPage() {
                   {roadmap.slice(0, 4).map(week => (
                     <Card key={week.week} className="p-4 flex items-start gap-4">
                       <div className="shrink-0 w-8 h-8 rounded-md bg-amber/10 border border-amber/20 flex items-center justify-center">
-                        <span className="text-xs font-mono text-amber">W{week.week}</span>
+                        <span className="text-xs font-mono text-amber-text">W{week.week}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-bright">{week.theme}</span>
-                          <Badge variant="ghost">{week.topics.length} topics</Badge>
+                          <span dir="auto" className="text-sm font-medium text-bright">{week.theme}</span>
+                          <Badge variant="ghost">{tf('dash.topicsCount', { n: week.topics.length })}</Badge>
                         </div>
-                        <p className="text-xs text-ghost">{week.goal}</p>
+                        <p dir="auto" className="text-xs text-ghost">{week.goal}</p>
                       </div>
                     </Card>
                   ))}
@@ -209,15 +223,15 @@ export default function DashboardPage() {
                 between understanding it and being hireable for it. */}
             <VocabularyProgress limit={6} />
 
-            <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">Skill scores</h2>
+            <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">{t('dash.skillScores')}</h2>
             <Card className="p-4">
               {dataLoading ? (
                 <div className="flex justify-center py-4"><Spinner announce /></div>
               ) : skills.length === 0 ? (
                 <div className="text-center py-4">
-                  <p className="text-xs text-ghost mb-3">No scores yet</p>
+                  <p className="text-xs text-ghost mb-3">{t('dash.noScores')}</p>
                   <Link href="/mentor" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
-                    Run skill gap analysis
+                    {t('dash.runGap')}
                   </Link>
                 </div>
               ) : (
@@ -240,19 +254,19 @@ export default function DashboardPage() {
 
             <Card className="p-5 bg-gradient-to-br from-amber/5 to-transparent border-amber/20">
               <div className="flex items-center gap-2 mb-2">
-                <Brain size={14} className="text-amber" />
-                <span className="text-xs font-medium text-amber">AI Mentor</span>
+                <Brain size={14} className="text-amber-text" />
+                <span className="text-xs font-medium text-amber-text">{t('dash.mentor')}</span>
               </div>
               <p className="text-xs text-dim mb-4 leading-relaxed">
-                Ready to explain concepts, quiz you, or review your code.
+                {t('dash.mentorBody')}
               </p>
               <Link href="/mentor" className={buttonStyles({ variant: 'outline', size: 'sm', className: 'w-full' })}>
-                <Zap size={12} /> Open mentor
+                <Zap size={12} /> {t('dash.openMentor')}
               </Link>
             </Card>
           </div>
         </div>
-      </div>
+      </PageBody>
     </AppShell>
   )
 }

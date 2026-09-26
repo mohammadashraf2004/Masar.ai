@@ -16,3 +16,10 @@ from app.models.vocabulary import UserTermProgress, TermStatus  # noqa: F401
 import app.models.learning_path  # noqa: F401
 
 from app.models.update_ack import UserUpdateAcknowledgement  # noqa: F401
+
+from app.models.billing import (  # noqa: F401
+    BillingOrder,
+    CourseEnrollment,
+    CourseOffer,
+    PaymentTransaction,
+)

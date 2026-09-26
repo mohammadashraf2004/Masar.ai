@@ -1,0 +1,182 @@
+{
+  "course_id": "COURSE-004",
+  "course_title": "Applied NLP with Transformers",
+  "source_id": "BOOK-004",
+  "book_title": "SOURCE INFORMATION MISSING",
+  "edition": "SOURCE INFORMATION MISSING",
+  "status": "Curriculum design complete",
+  "approval_status": "Not explicitly approved",
+  "source_review_status": "Complete",
+  "level": "Intermediate → Advanced",
+  "difficulty": "Intermediate / Advanced",
+  "guided_minutes": 2985,
+  "guided_time": "49h45m",
+  "modules": 11,
+  "lessons": 71,
+  "prerequisites": [
+    "COURSE-001 — Machine Learning Foundations",
+    "COURSE-002 — Deep Learning Foundations",
+    "COURSE-003 — Applied Deep Learning (core)"
+  ],
+  "track_roles": {
+    "Data Analyst": "Optional",
+    "ML Engineer": "Core",
+    "AI Developer": "Core",
+    "MLOps Engineer": "Supporting",
+    "AI Engineer": "Core"
+  },
+  "professional_capability": "Build, fine-tune, evaluate, debug, compare, and optimize Transformer-based NLP systems.",
+  "learning_loop": "Learn → Practice → Build → Debug → Evaluate",
+  "capstone": "Production-Oriented Transformer NLP System",
+  "module_inventory": [
+    {
+      "id": "M004-01",
+      "title": "Transformer NLP Workflow & Hugging Face Ecosystem",
+      "role": "CORE",
+      "chapter": 1,
+      "page_start": 20,
+      "project": "Transformer Task Explorer",
+      "lessons": 4,
+      "guided_minutes": 140,
+      "guided_time": "2h20m"
+    },
+    {
+      "id": "M004-02",
+      "title": "End-to-End Transformer Text Classification",
+      "role": "CORE",
+      "chapter": 2,
+      "page_start": 21,
+      "project": "Transformer Text Classification Engineering Lab",
+      "lessons": 7,
+      "guided_minutes": 265,
+      "guided_time": "4h25m"
+    },
+    {
+      "id": "M004-03",
+      "title": "Transformer Internals for Applied NLP",
+      "role": "CORE",
+      "chapter": 3,
+      "page_start": 57,
+      "project": "Transformer Architecture Inspector",
+      "lessons": 5,
+      "guided_minutes": 215,
+      "guided_time": "3h35m"
+    },
+    {
+      "id": "M004-04",
+      "title": "Multilingual NLP & Token Classification",
+      "role": "CORE",
+      "chapter": 4,
+      "page_start": 87,
+      "project": "Multilingual NER Transfer Lab",
+      "lessons": 7,
+      "guided_minutes": 310,
+      "guided_time": "5h10m"
+    },
+    {
+      "id": "M004-05",
+      "title": "Controlled Text Generation & Decoding",
+      "role": "CORE",
+      "chapter": 5,
+      "page_start": 123,
+      "project": "Controlled Generation Benchmark",
+      "lessons": 6,
+      "guided_minutes": 270,
+      "guided_time": "4h30m"
+    },
+    {
+      "id": "M004-06",
+      "title": "Sequence-to-Sequence NLP & Summarization",
+      "role": "CORE",
+      "chapter": 6,
+      "page_start": 141,
+      "project": "Summarization Engineering Lab",
+      "lessons": 7,
+      "guided_minutes": 310,
+      "guided_time": "5h10m"
+    },
+    {
+      "id": "M004-07",
+      "title": "Extractive Question Answering & Retrieval Systems",
+      "role": "CORE",
+      "chapter": 7,
+      "page_start": 165,
+      "project": "Retriever-Reader QA System",
+      "lessons": 8,
+      "guided_minutes": 345,
+      "guided_time": "5h45m"
+    },
+    {
+      "id": "M004-08",
+      "title": "Efficient Transformer Inference & Model Compression",
+      "role": "CORE",
+      "chapter": 8,
+      "page_start": 209,
+      "project": "Transformer Optimization Benchmark",
+      "lessons": 7,
+      "guided_minutes": 320,
+      "guided_time": "5h20m"
+    },
+    {
+      "id": "M004-09",
+      "title": "NLP with Few or No Labels",
+      "role": "CORE",
+      "chapter": 9,
+      "page_start": 249,
+      "project": "Label-Efficiency Strategy Lab",
+      "lessons": 8,
+      "guided_minutes": 340,
+      "guided_time": "5h40m"
+    },
+    {
+      "id": "M004-10",
+      "title": "Training Custom Transformers from Scratch",
+      "role": "OPTIONAL ADVANCED",
+      "chapter": 10,
+      "page_start": 299,
+      "project": "Small-Scale Domain Pretraining Experiment",
+      "lessons": 9,
+      "guided_minutes": 340,
+      "guided_time": "5h40m"
+    },
+    {
+      "id": "M004-11",
+      "title": "Transformer Frontiers: Scaling, Efficient Attention & Multimodal Systems",
+      "role": "REFERENCE / COURSE CLOSING",
+      "chapter": 11,
+      "page_start": 345,
+      "project": null,
+      "lessons": 3,
+      "guided_minutes": 130,
+      "guided_time": "2h10m"
+    }
+  ],
+  "source_chapters": {
+    "1": "1-20",
+    "2": "21-54",
+    "3": "57-84",
+    "4": "87-121",
+    "5": "123-140",
+    "6": "141-163",
+    "7": "165-207",
+    "8": "209-247",
+    "9": "249-297",
+    "10": "299-343",
+    "11": "345-369"
+  },
+  "boundaries": {
+    "full_rag_course": "out_of_scope",
+    "production_serving_kubernetes_monitoring": "future_mlop_course",
+    "deep_multimodal_implementation": "future_multimodal_course",
+    "keras_parallel_implementation": "reference_only"
+  },
+  "implementation_status": {
+    "curriculum_design": "complete",
+    "lesson_seed_export": "generated by this package",
+    "approval": "not explicitly approved",
+    "database_integration": "not verified",
+    "frontend_rendering": "not verified",
+    "all_exercises_e2e": "not verified",
+    "production_deployment": "not verified"
+  }
+}

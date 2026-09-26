@@ -1,0 +1,18 @@
+[
+  "L011_070_infrastructure-as-code-in-the-delivery-pipeline.py",
+  "L011_071_gitops-for-cloud-infrastructure.py",
+  "L011_072_terraform-workflow-automation-with-github-actions.py",
+  "L011_073_running-infrastructure-pipelines-only-when-needed.py",
+  "L011_074_terraform-plan-as-an-infrastructure-review-artifact.py",
+  "L011_075_terraform-state-why-infrastructure-needs-memory.py",
+  "L011_076_remote-terraform-state-with-s3.py",
+  "L011_077_state-locking-and-concurrent-infrastructure-changes.py",
+  "L011_078_troubleshooting-terraform-backend-and-permission-failures.py",
+  "L011_079_separating-staging-and-production-infrastructure.py",
+  "L011_080_protected-production-environments-in-github-actions.py",
+  "L011_081_manual-production-deployment-and-approval-gates.py",
+  "L011_082_infrastructure-change-failure-as-a-merge-gate.py",
+  "L011_083_infrastructure-drift-and-desired-state.py",
+  "L011_084_ai-assisted-infrastructure-review.py",
+  "L011_085_gitops-infrastructure-delivery-project.py"
+]

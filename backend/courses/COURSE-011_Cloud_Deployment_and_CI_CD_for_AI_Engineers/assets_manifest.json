@@ -1,0 +1,191 @@
+[
+  {
+    "id": "FIG-011-001",
+    "module_id": "M011-01",
+    "lesson_id": "L011-002",
+    "source_figure": "Figure 1-3",
+    "title": "Creating a key pair",
+    "priority": "required",
+    "suggested_path": "assets/m011-01/fig-1-3-ec2-key-pair.png"
+  },
+  {
+    "id": "FIG-011-002",
+    "module_id": "M011-01",
+    "lesson_id": "L011-005",
+    "source_figure": "Figure 6-4",
+    "title": "Final state of the infrastructure with subdomains",
+    "priority": "required",
+    "suggested_path": "assets/m011-01/fig-6-4-final-subdomain-infrastructure.png"
+  },
+  {
+    "id": "FIG-011-003",
+    "module_id": "M011-01",
+    "lesson_id": "L011-002",
+    "source_figure": "Figure 1-2",
+    "title": "Selecting the Amazon Linux AMI",
+    "priority": "optional",
+    "suggested_path": "assets/m011-01/fig-1-2-ec2-ami.png"
+  },
+  {
+    "id": "FIG-011-004",
+    "module_id": "M011-02",
+    "lesson_id": "L011-014",
+    "source_figure": "Figure 9-2",
+    "title": "Cloud Run service metrics dashboard",
+    "priority": "required",
+    "suggested_path": "assets/m011-02/fig-9-2-cloud-run-metrics.png"
+  },
+  {
+    "id": "FIG-011-005",
+    "module_id": "M011-02",
+    "lesson_id": "L011-016",
+    "source_figure": "Figure 9-6",
+    "title": "Adjusting load-balancer routing rules",
+    "priority": "required",
+    "suggested_path": "assets/m011-02/fig-9-6-routing-rules.png"
+  },
+  {
+    "id": "FIG-011-006",
+    "module_id": "M011-02",
+    "lesson_id": "L011-022",
+    "source_figure": "Figure 10-6",
+    "title": "ECS security group",
+    "priority": "required",
+    "suggested_path": "assets/m011-02/fig-10-6-ecs-security-group.png"
+  },
+  {
+    "id": "FIG-011-007",
+    "module_id": "M011-02",
+    "lesson_id": "L011-023",
+    "source_figure": "Figure 10-15",
+    "title": "ALB listener rules final result",
+    "priority": "required",
+    "suggested_path": "assets/m011-02/fig-10-15-alb-listener-rules.png"
+  },
+  {
+    "id": "FIG-011-008",
+    "module_id": "M011-02",
+    "lesson_id": "L011-025",
+    "source_figure": "Figure 10-16",
+    "title": "ECS/Fargate cluster",
+    "priority": "required",
+    "suggested_path": "assets/m011-02/fig-10-16-ecs-cluster.png"
+  },
+  {
+    "id": "FIG-011-009",
+    "module_id": "M011-02",
+    "lesson_id": "L011-014",
+    "source_figure": "Figure 9-3",
+    "title": "Cloud Run minimum autoscaling instances",
+    "priority": "optional",
+    "suggested_path": "assets/m011-02/fig-9-3-cloud-run-min-instances.png"
+  },
+  {
+    "id": "FIG-011-010",
+    "module_id": "M011-02",
+    "lesson_id": "L011-017",
+    "source_figure": "Figure 9-9",
+    "title": "Restricted direct Cloud Run URL",
+    "priority": "optional",
+    "suggested_path": "assets/m011-02/fig-9-9-cloud-run-restricted-url.png"
+  },
+  {
+    "id": "FIG-011-011",
+    "module_id": "M011-02",
+    "lesson_id": "L011-021",
+    "source_figure": "Figure 10-3",
+    "title": "ECR repositories",
+    "priority": "optional",
+    "suggested_path": "assets/m011-02/fig-10-3-ecr-repositories.png"
+  },
+  {
+    "id": "FIG-011-012",
+    "module_id": "M011-02",
+    "lesson_id": "L011-023",
+    "source_figure": "Figure 10-7",
+    "title": "Target-group configuration",
+    "priority": "optional",
+    "suggested_path": "assets/m011-02/fig-10-7-target-group.png"
+  },
+  {
+    "id": "FIG-011-013",
+    "module_id": "M011-03",
+    "lesson_id": "L011-035",
+    "source_figure": "Figure 11-5",
+    "title": "Jenkins schedule and shell commands",
+    "priority": "required",
+    "suggested_path": "assets/m011-03/fig-11-5-jenkins-schedule.png"
+  },
+  {
+    "id": "FIG-011-014",
+    "module_id": "M011-03",
+    "lesson_id": "L011-036",
+    "source_figure": "Figure 11-6",
+    "title": "Failed Jenkins execution",
+    "priority": "required",
+    "suggested_path": "assets/m011-03/fig-11-6-jenkins-failure.png"
+  },
+  {
+    "id": "FIG-011-015",
+    "module_id": "M011-04",
+    "lesson_id": "L011-044",
+    "source_figure": "Figure 3.1",
+    "title": "Git workflow: working directory, staging area, repository",
+    "priority": "required",
+    "suggested_path": "assets/m011-04/fig-3-1-git-three-trees.png"
+  },
+  {
+    "id": "FIG-011-016",
+    "module_id": "M011-04",
+    "lesson_id": "L011-048",
+    "source_figure": "Figure 3.2",
+    "title": "GitFlow model",
+    "priority": "required",
+    "suggested_path": "assets/m011-04/fig-3-2-gitflow.png"
+  },
+  {
+    "id": "FIG-011-017",
+    "module_id": "M011-04",
+    "lesson_id": "L011-049",
+    "source_figure": "Figure 3.4",
+    "title": "Open a pull request page",
+    "priority": "optional",
+    "suggested_path": "assets/m011-04/fig-3-4-pull-request.png"
+  },
+  {
+    "id": "FIG-011-018",
+    "module_id": "M011-05",
+    "lesson_id": "L011-055",
+    "source_figure": "Figure 6.1",
+    "title": "CI/CD pipeline",
+    "priority": "required",
+    "suggested_path": "assets/m011-05/fig-6-1-ci-cd-pipeline.png"
+  },
+  {
+    "id": "FIG-011-019",
+    "module_id": "M011-06",
+    "lesson_id": "L011-075",
+    "source_figure": "Figure 7.1",
+    "title": "Terraform state flow",
+    "priority": "required",
+    "suggested_path": "assets/m011-06/fig-7-1-terraform-state-flow.png"
+  },
+  {
+    "id": "FIG-011-020",
+    "module_id": "M011-06",
+    "lesson_id": "L011-081",
+    "source_figure": "Figure 7.4",
+    "title": "Review and approve deployment popup",
+    "priority": "required",
+    "suggested_path": "assets/m011-06/fig-7-4-production-approval.png"
+  },
+  {
+    "id": "FIG-011-021",
+    "module_id": "M011-06",
+    "lesson_id": "L011-080",
+    "source_figure": "Figure 7.2",
+    "title": "Creating a GitHub environment",
+    "priority": "optional",
+    "suggested_path": "assets/m011-06/fig-7-2-github-environment.png"
+  }
+]

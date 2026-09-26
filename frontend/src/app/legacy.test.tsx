@@ -7,7 +7,7 @@ import TracksPage from '@/app/tracks/page'
 import { AppShell } from '@/components/layout/AppShell'
 import { useAuthStore } from '@/lib/store'
 import { useLanguageStore } from '@/lib/language'
-import { NEEDS_ONBOARDING, path, profile } from '@/test/fixtures'
+import { NEEDS_ONBOARDING, NO_RECOMMENDATIONS, path, profile } from '@/test/fixtures'
 import { expectLinkStyledAsButton, expectMirroredArrow } from '@/test/interactive'
 import { router, resetNav } from '@/test/nav'
 import type { CareerTrackSummary, Enrollment, User } from '@/types'
@@ -31,7 +31,7 @@ vi.mock('@/lib/api', () => ({
   api: {
     listTracks: vi.fn(), getMyEnrollments: vi.fn(), enroll: vi.fn(), getSkillScores: vi.fn(),
     register: vi.fn(), getWallet: vi.fn(),
-    getMyLearningProfile: vi.fn(), getMyLearningPath: vi.fn(),
+    getMyLearningProfile: vi.fn(), getMyLearningPath: vi.fn(), getRecommendations: vi.fn(),
   },
 }))
 import { api } from '@/lib/api'
@@ -52,6 +52,7 @@ beforeEach(() => {
   vi.mocked(api.getWallet).mockResolvedValue({ credit_balance: 100 })
   vi.mocked(api.getMyLearningProfile).mockResolvedValue(profile())
   vi.mocked(api.getMyLearningPath).mockResolvedValue(path())
+  vi.mocked(api.getRecommendations).mockResolvedValue(NO_RECOMMENDATIONS)
 })
 
 describe('the tracks page — no longer a "complete three to unlock AI Engineer" flowchart', () => {
@@ -71,7 +72,7 @@ describe('the tracks page — no longer a "complete three to unlock AI Engineer"
   it('says instead that AI Engineer is a goal with routes, and points at Your Masar', async () => {
     await renderTracks()
     expect(screen.getByText(/AI Engineer is a goal with several specialization routes/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open your Masar/ })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: /Open your Masar/ })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('shows AI Engineer like any other track, not locked away', async () => {
@@ -129,7 +130,7 @@ describe('registration', () => {
     const user = userEvent.setup()
     render(<RegisterPage />)
     await fillAndSubmit(user)
-    await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/onboarding/learning-profile'))
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/onboarding/quick'))
   })
 
   it('no longer asks for the level here — it is asked once, in onboarding', async () => {
@@ -172,18 +173,14 @@ describe('the sidebar', () => {
     expect(hrefs.indexOf('/learn')).toBeLessThan(hrefs.indexOf('/tracks'))
   })
 
-  it('ends the quick-action link in an arrow icon that mirrors, not a "→" character that would point the wrong way in Arabic', () => {
-    render(<AppShell><p>page</p></AppShell>)
-    const ask = screen.getByRole('link', { name: 'Ask your AI mentor' })
-    expect(ask.textContent).not.toMatch(/[→←]/)
-    expectMirroredArrow(ask)
-    expect(ask.className).toContain('min-h-[44px]')
-  })
+  // The "Ask your AI mentor" quick action that used to sit above the sign-out button is gone
+  // (the handoff's sidebar has none; the mentor is in the navigation). Its arrow-mirroring guard
+  // went with it. The sidebar's structure is pinned in components/layout/AppShell.test.tsx.
 
   it('labels the new entries in Arabic for an Arabic reader', () => {
     useLanguageStore.setState({ language: 'ar', mode: 'arabic_first' })
     render(<AppShell><p>page</p></AppShell>)
-    expect(screen.getByRole('link', { name: 'مسارك' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'تعلّم' })).toHaveAttribute('href', '/learn')
     expect(screen.getByRole('link', { name: 'استكشف' })).toHaveAttribute('href', '/explore')
   })
 })
@@ -248,7 +245,7 @@ describe('the dashboard — old learners keep everything and are invited in', ()
     const card = (await screen.findByText('Your Roadmap')).closest('div[class*="p-5"]') as HTMLElement
     expect(within(card).getByText('72%')).toBeInTheDocument()
     expect(within(card).getByRole('link', { name: /Continue Learning/ })).toHaveAttribute('href', '/tools/langchain')
-    expect(within(card).getByRole('link', { name: 'View Full Roadmap' })).toHaveAttribute('href', '/learn')
+    expect(within(card).getByRole('link', { name: 'View Full Roadmap' })).toHaveAttribute('href', '/learn/masar')
     // ahead of the metrics tiles in the page
     const metrics = screen.getByText('Readiness score')
     expect(card.compareDocumentPosition(metrics) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -299,7 +296,7 @@ describe('controls that navigate are links; controls that act are buttons', () =
     render(<TracksPage />)
     await screen.findByRole('button', { name: /AI Developer/ })
     const masar = screen.getByRole('link', { name: /Open your Masar/ })
-    expectLinkStyledAsButton(masar, '/learn')
+    expectLinkStyledAsButton(masar, '/learn/masar')
     expectMirroredArrow(masar)
     const cont = screen.getByRole('link', { name: /Continue/ })
     expectLinkStyledAsButton(cont, '/tracks/ai-developer')
@@ -343,6 +340,7 @@ describe('controls that navigate are links; controls that act are buttons', () =
   it('an Arabic reader gets the same links, with the arrows mirrored', async () => {
     useLanguageStore.setState({ language: 'ar' })
     await renderDashboard()
-    expectMirroredArrow(screen.getByRole('link', { name: /Continue/ }))
+    // "Continue" is in Arabic now: the dashboard used to leave it in English on an Arabic page.
+    expectMirroredArrow(screen.getByRole('link', { name: /أكمل/ }))
   })
 })

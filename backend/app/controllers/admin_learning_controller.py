@@ -42,8 +42,8 @@ from app.models.user import User
 from app.services.learning import catalog_admin as admin
 from app.services.learning.learning_service import LearningValidationError
 from app.views.learning_admin import (
-    CareerGoalAdminOut, CareerGoalIn, CatalogIssueOut, CourseAdminOut, CourseIn, FieldAdminOut,
-    FieldIn, LevelAdminOut, LevelIn, SkillAdminOut, SkillIn, StageAdminOut, StageIn,
+    CareerGoalAdminOut, CareerGoalIn, CatalogIssueOut, CourseAdminOut, CourseIn, CourseRoleOut,
+    FieldAdminOut, FieldIn, LevelAdminOut, LevelIn, SkillAdminOut, SkillIn, StageAdminOut, StageIn,
     TemplateAdminOut, TemplateIn, TemplateStageOut,
 )
 from app.views.learning_path import Slug
@@ -113,6 +113,7 @@ def _course_out(c: Course, s) -> CourseAdminOut:
         slug=c.slug, kind=c.kind, level=s["level"][c.level_id], title=c.title,
         fields=[s["field"][l.field_id] for l in c.field_links],
         roles=[s["role"][l.role_id] for l in c.role_links],
+        role_relations=[CourseRoleOut(slug=s["role"][l.role_id], relation=l.relation) for l in c.role_links],
         teaches=[s["skill"][l.skill_id] for l in c.skill_links if l.relation == SKILL_TEACHES],
         assumes=[s["skill"][l.skill_id] for l in c.skill_links if l.relation == SKILL_ASSUMES],
         prerequisites=[s["course"][l.prerequisite_course_id] for l in c.prerequisite_links],

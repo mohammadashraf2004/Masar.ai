@@ -182,7 +182,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
     <div className="rounded-lg border border-border overflow-hidden bg-surface">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-ink">
         <div className="flex items-center gap-2">
-          <Bot size={13} className="text-amber" />
+          <Bot size={13} className="text-amber-text" />
           <span className="text-xs font-medium text-ghost">AI evaluator</span>
         </div>
         {isCorrect === true && (
@@ -191,7 +191,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
           </span>
         )}
         {isCorrect === false && (
-          <span className="flex items-center gap-1 text-xs text-amber">
+          <span className="flex items-center gap-1 text-xs text-amber-text">
             <HelpCircle size={12} /> Keep going
           </span>
         )}
@@ -209,7 +209,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
           <div key={i} className={`flex gap-2.5 ${m.role === 'user' ? 'justify-end' : ''}`}>
             {m.role === 'assistant' && (
               <div className="w-6 h-6 rounded-full bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0 mt-0.5">
-                <Bot size={12} className="text-amber" />
+                <Bot size={12} className="text-amber-text" />
               </div>
             )}
             <div className={`max-w-[85%] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
@@ -268,7 +268,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
       <div className="rounded-lg border border-border overflow-hidden bg-surface">
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-ink">
           <div className="flex items-center gap-2">
-            <Code2 size={13} className="text-amber" />
+            <Code2 size={13} className="text-amber-text" />
             <span className="text-xs font-medium text-ghost">Your code</span>
           </div>
           <div className="flex items-center gap-1.5">

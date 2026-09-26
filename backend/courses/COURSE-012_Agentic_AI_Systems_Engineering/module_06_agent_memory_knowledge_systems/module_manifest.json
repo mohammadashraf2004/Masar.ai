@@ -1,0 +1,36 @@
+{
+  "module_id": "M012-06",
+  "title": "Agent Memory & Knowledge Systems",
+  "source_id": "BOOK-012",
+  "source_chapter": 6,
+  "role": "Core + Agent Memory Specialization",
+  "guided_time_declared": "9h 00m",
+  "lesson_count": 8,
+  "lesson_ids": [
+    "L012-044",
+    "L012-045",
+    "L012-046",
+    "L012-047",
+    "L012-048",
+    "L012-049",
+    "L012-050",
+    "L012-051"
+  ],
+  "project": {
+    "title": "Build a Persistent Hybrid-Memory Agent",
+    "summary": "Build cross-session memory with semantic, graph, and structured stores plus capture, consolidation, and forgetting policies.",
+    "deliverables": [
+      "Short-term state",
+      "Persistent cross-session memory",
+      "Semantic and graph memories",
+      "Structured user facts",
+      "Memory routing",
+      "Capture policy",
+      "Tenant/user scoping",
+      "Deduplication",
+      "Compression/forgetting",
+      "Traceable retrieval"
+    ]
+  },
+  "duration_note": "Included in the frozen module-level planning estimate; detailed historical lesson/project estimates were not fully arithmetic-consistent."
+}

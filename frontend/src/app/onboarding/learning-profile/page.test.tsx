@@ -66,7 +66,7 @@ describe('the onboarding page', () => {
     await user.click(screen.getByRole('button', { name: /Continue/ }))
     await user.click(await screen.findByRole('checkbox', { name: /RAG/ }))
     await user.click(screen.getByRole('button', { name: /Build My Roadmap/ }))
-    await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/learn'))
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/learn/masar'))
     expect(api.saveMyLearningProfile).toHaveBeenCalledWith(expect.objectContaining({ known_skills: ['rag'] }))
   })
 

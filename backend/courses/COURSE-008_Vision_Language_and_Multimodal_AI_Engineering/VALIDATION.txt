@@ -1,0 +1,1 @@
+{'modules': 11, 'lesson_files': 106, 'guided_minutes': 5815, 'guided_time': '96h55m', 'frozen_id_range': 'L008-001..L008-106', 'unique_ids': True, 'unique_slugs': True, 'module_projects': 11, 'visual_assets': 76, 'python_syntax': 'PASS'}

@@ -91,7 +91,18 @@ def get_profile(db: Session, user_id: int) -> Optional[LearningProfile]:
 
 
 def profile_is_complete(profile: Optional[LearningProfile]) -> bool:
+    """A profile a *roadmap* can be built from: a level, a career goal and a field."""
     return bool(profile and profile.level_id and profile.career_role_id and profile.field_slugs)
+
+
+def onboarding_is_complete(profile: Optional[LearningProfile]) -> bool:
+    """The learner has answered enough to be personalised, with or without a
+    roadmap: both experience questions and at least one interest, *or* a full
+    roadmap profile (the earlier onboarding). No career goal is needed."""
+    if profile is None:
+        return False
+    quick = bool(profile.programming_experience and profile.ai_experience and profile.field_slugs)
+    return quick or profile_is_complete(profile)
 
 
 def _validated(kind: str, slugs: Iterable[str], known: Dict[str, object]) -> List[str]:
@@ -134,6 +145,10 @@ def save_profile(db: Session, user: User, update: ProfileUpdate) -> LearningProf
             profile.field_slugs = _validated("field", update.fields or [], bundle.fields)
         if "known_skills" in provided:
             skills_changed = set_self_declared_skills(db, user, update.known_skills or [], bundle)
+        if "programming_experience" in provided:
+            profile.programming_experience = update.programming_experience
+        if "ai_experience" in provided:
+            profile.ai_experience = update.ai_experience
     except LearningValidationError:
         db.rollback()
         record_learning_profile("rejected")
@@ -144,7 +159,7 @@ def save_profile(db: Session, user: User, update: ProfileUpdate) -> LearningProf
     # it records what the row started as, and that stays true.
     profile.source = PROFILE_SOURCE_ONBOARDING
 
-    if profile_is_complete(profile):
+    if onboarding_is_complete(profile):
         profile.onboarding_completed_at = profile.onboarding_completed_at or datetime.now(timezone.utc)
     else:
         # Clearing an answer means onboarding is no longer finished, and the

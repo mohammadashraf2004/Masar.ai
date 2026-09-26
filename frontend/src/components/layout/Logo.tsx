@@ -1,13 +1,16 @@
 import { cn } from '@/lib/utils'
+import { MasarMark } from '@/components/brand/MasarMark'
 
 /**
- * The Masar brand mark — two rails with a marker between them: a track
- * (مسار) and the reader's position along it.
+ * The Masar brand mark in its amber tile — the two-rail "Waypoint" glyph
+ * (`components/brand/MasarMark`) at half the tile's size.
  *
- * Drawn inline rather than loaded as a file so it inherits the Tailwind
- * palette and stays crisp at 28px, which is the size it actually renders at
- * in the sidebar. `public/masar-mark.svg` is the same geometry with literal
- * hex, for anything outside the app (README, press, slide decks).
+ * Built from markup rather than loaded as a file so it inherits the palette
+ * and stays crisp at 28px, the size it renders at in the sidebar. The glyph
+ * takes `text-on-amber`, not `text-void`: `void` is the page background, which
+ * is cream in the light theme, and cream on amber is unreadable.
+ * `public/masar-mark.svg` is the same geometry with literal hex, for anything
+ * outside the app (README, press, slide decks).
  */
 export function LogoMark({
   size = 28,
@@ -20,18 +23,18 @@ export function LogoMark({
   label?: string | null
 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      className={cn('shrink-0', className)}
+    <span
+      // 6px radius on the 28px tile, 8px from the 32px one up.
+      className={cn(
+        'grid shrink-0 place-items-center bg-amber text-on-amber',
+        size <= 28 ? 'rounded-md' : 'rounded-lg',
+        className,
+      )}
+      style={{ width: size, height: size }}
       {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true })}
     >
-      <rect width="64" height="64" rx="14" className="fill-amber" />
-      <rect x="12" y="14" width="5" height="36" className="fill-void" />
-      <rect x="47" y="14" width="5" height="36" className="fill-void" />
-      <circle cx="32" cy="32" r="10" className="fill-void" />
-    </svg>
+      <MasarMark size={Math.round(size / 2)} />
+    </span>
   )
 }
 
@@ -51,6 +54,21 @@ export function Wordmark({ className }: { className?: string }) {
     <span className={cn('font-display font-bold text-bright tracking-tight', className)}>
       <span className="brand-en">Masar</span>
       <span className="brand-ar">مسار</span>
+    </span>
+  )
+}
+
+/**
+ * The same name in the *other* script — Masar beside an Arabic reader's مسار,
+ * مسار beside an English reader's Masar — for the sidebar lockup, where the
+ * name in the reader's script leads and this sits at the far end, quiet.
+ * Hidden from assistive technology: the name has already been read once.
+ */
+export function AltWordmark({ className }: { className?: string }) {
+  return (
+    <span aria-hidden="true" className={cn('font-display font-bold', className)}>
+      <span className="brand-alt-en">Masar</span>
+      <span className="brand-alt-ar">مسار</span>
     </span>
   )
 }

@@ -49,15 +49,22 @@ describe('the Terms and Privacy acknowledgement', () => {
     }
   })
 
-  it('does not allow creating the account until it is ticked, and says why', async () => {
+  it('does not allow creating the account until it is ticked', async () => {
     const user = userEvent.setup()
     render(<RegisterPage />)
     await fill(user)
     expect(create()).toBeDisabled()
-    expect(screen.getByText('Accept the Terms of Service and Privacy Policy to create your account.')).toBeInTheDocument()
-    expect(box()).toHaveAccessibleDescription('Accept the Terms of Service and Privacy Policy to create your account.')
+    // The checkbox is the reason, and it says so: it is marked required for assistive technology.
+    expect(box()).toBeRequired()
     await user.click(create())
     expect(api.register).not.toHaveBeenCalled()
+  })
+
+  it('states the agreement once: the label, not a second sentence under it', () => {
+    render(<RegisterPage />)
+    expect(screen.queryByText('Accept the Terms of Service and Privacy Policy to create your account.')).toBeNull()
+    expect(box()).not.toHaveAccessibleDescription()
+    expect(document.querySelectorAll('form p')).toHaveLength(0)
   })
 
   it('enables the button once ticked, and disables it again when unticked', async () => {
@@ -83,7 +90,7 @@ describe('the Terms and Privacy acknowledgement', () => {
     await fill(user)
     await user.click(box())
     await user.click(create())
-    await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/onboarding/learning-profile'))
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/onboarding/quick'))
     const sent = vi.mocked(api.register).mock.calls[0][0]
     expect(sent).toEqual({
       full_name: 'Amira Hassan', email: 'amira@example.com', password: 'correcthorsebattery',
@@ -124,7 +131,7 @@ describe('the Terms and Privacy acknowledgement', () => {
 })
 
 describe('sign-up is not visually heavy', () => {
-  it('adds one line and a hint to the form — three fields, one checkbox, one button', () => {
+  it('adds one line to the form — three fields, one checkbox, one button', () => {
     render(<RegisterPage />)
     expect(screen.getAllByRole('textbox').length + document.querySelectorAll('input[type="password"]').length).toBe(3)
     expect(screen.getAllByRole('checkbox')).toHaveLength(1)
@@ -142,7 +149,7 @@ describe('Arabic (RTL)', () => {
     expect(screen.getByRole('link', { name: 'شروط الخدمة' })).toHaveAttribute('href', '/terms')
     expect(screen.getByRole('link', { name: 'سياسة الخصوصية' })).toHaveAttribute('href', '/privacy')
     expect(screen.getByRole('button', { name: /إنشاء حساب/ })).toBeDisabled()
-    expect(screen.getByText('وافق على شروط الخدمة وسياسة الخصوصية لإنشاء حسابك.')).toBeInTheDocument()
+    expect(screen.queryByText('وافق على شروط الخدمة وسياسة الخصوصية لإنشاء حسابك.')).toBeNull()
   })
 
   it('creates the account once ticked, sending the same agreement', async () => {

@@ -23,6 +23,7 @@ from app.core.limiter import limiter
 from app.services import get_llm, answer_evaluator_service
 from app.services.content.vocabulary_service import promote_from_correct_answer
 from app.services.wallet.wallet_service import deduct_credits, refund_credits
+from app.services.billing.access_service import require_content_access
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +176,7 @@ def answer_exercise(
     exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
     if not exercise:
         raise HTTPException(status_code=404, detail="Exercise not found")
+    require_content_access(db, current_user.id, exercise)
 
     deduct_credits(current_user.id, CHARGE_ACTION, db)
 
@@ -211,6 +213,9 @@ def get_exercise_answer(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
+    if exercise:
+        require_content_access(db, current_user.id, exercise)
     submission = db.query(AnswerSubmission).filter(
         AnswerSubmission.user_id == current_user.id,
         AnswerSubmission.exercise_id == exercise_id,
@@ -238,6 +243,7 @@ def answer_quiz_question(
     quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=404, detail="Quiz not found")
+    require_content_access(db, current_user.id, quiz)
     if question_index < 0 or question_index >= len(quiz.questions or []):
         raise HTTPException(status_code=404, detail="Question not found")
 
@@ -283,6 +289,9 @@ def get_quiz_question_answer(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
+    if quiz:
+        require_content_access(db, current_user.id, quiz)
     submission = db.query(AnswerSubmission).filter(
         AnswerSubmission.user_id == current_user.id,
         AnswerSubmission.quiz_id == quiz_id,

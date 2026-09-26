@@ -1,0 +1,2 @@
+MODULE = {'id': 'M004-03', 'title': 'Transformer Internals for Applied NLP', 'role': 'CORE', 'chapter': 3, 'page_start': 57, 'project': 'Transformer Architecture Inspector', 'lessons': 5, 'guided_minutes': 215, 'guided_time': '3h35m'}
+LESSON_FILES = ['L004_012_transformer-architecture-revision-for-applied-nlp', 'L004_013_inspect-self-attention-with-pytorch', 'L004_014_build-and-inspect-a-transformer-encoder-block', 'L004_015_positional-information-residual-paths-and-layer-normalization', 'L004_016_choose-the-right-transformer-architecture-for-an-nlp-task']

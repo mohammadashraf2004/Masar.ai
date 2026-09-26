@@ -1,0 +1,42 @@
+{
+  "module_id": "M012-10",
+  "title": "Production Agent Reliability, Security & Operations",
+  "source_id": "BOOK-012",
+  "source_chapter": 8,
+  "role": "Core + Production Agent Engineering",
+  "guided_time_declared": "9h 30m",
+  "lesson_count": 9,
+  "lesson_ids": [
+    "L012-060",
+    "L012-061",
+    "L012-062",
+    "L012-063",
+    "L012-064",
+    "L012-065",
+    "L012-066",
+    "L012-067",
+    "L012-068"
+  ],
+  "project": {
+    "title": "Productionize the COURSE-012 Multi-Agent Research System",
+    "summary": "Turn the course research system into a production-oriented deployment with durable state, idempotency, budgets, security, observability, and release controls.",
+    "deliverables": [
+      "Runtime/topology rationale",
+      "Synchronous and asynchronous paths",
+      "Durable task state",
+      "Idempotency protection",
+      "Timeouts, retries, fallbacks, circuit breaker",
+      "Version manifest",
+      "Correlated tracing",
+      "Cost/task metrics",
+      "Routing/context optimization",
+      "User-scoped authorization",
+      "Tool sandbox and egress allowlist",
+      "Indirect prompt-injection defense",
+      "HITL checkpoint",
+      "External policy enforcement",
+      "Rollback criteria"
+    ]
+  },
+  "duration_note": "Included in the frozen module-level planning estimate; detailed historical lesson/project estimates were not fully arithmetic-consistent."
+}

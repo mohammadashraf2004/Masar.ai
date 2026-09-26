@@ -11,7 +11,9 @@ export function Card({ className, glow, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        'bg-panel border border-border rounded-lg transition-all duration-200',
+        // The handoff's card: --card (surface) with a 1px hairline and a 12px radius. It was
+        // --card2 (panel), which on the light theme is *darker* than the page rather than lifted.
+        'bg-surface border border-border rounded-xl transition-all duration-200',
         glow && 'hover:border-amber/20 hover:shadow-[0_0_24px_rgba(245,158,11,0.06)]',
         className
       )}
@@ -27,9 +29,9 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 const badgeStyles: Record<BadgeVariant, string> = {
   beginner:     'bg-emerald/10 text-emerald border-emerald/20',
-  intermediate: 'bg-amber/10 text-amber border-amber/20',
+  intermediate: 'bg-amber/10 text-amber-text border-amber/20',
   advanced:     'bg-rose/10 text-rose border-rose/20',
-  amber:        'bg-amber/10 text-amber border-amber/20',
+  amber:        'bg-amber/10 text-amber-text border-amber/20',
   emerald:      'bg-emerald/10 text-emerald border-emerald/20',
   rose:         'bg-rose/10 text-rose border-rose/20',
   sky:          'bg-sky/10 text-sky border-sky/20',
@@ -39,12 +41,34 @@ export function Badge({ variant = 'ghost', className, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border',
+        // A pill (999px radius), the handoff's status shape.
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
         badgeStyles[variant],
         className
       )}
       {...props}
     />
+  )
+}
+
+/**
+ * A difficulty level as the reader's language spells it: مبتدئ / متوسط / متقدم,
+ * or Beginner / Intermediate / Advanced. The API sends the English slug, and the
+ * slug is also what picks the colour, so it is never shown raw. A level this does
+ * not know (the API adds one) is shown as sent, in a neutral badge, rather than
+ * hidden or mistranslated.
+ */
+const LEVEL_SLUGS = ['beginner', 'intermediate', 'advanced'] as const
+type LevelSlug = (typeof LEVEL_SLUGS)[number]
+const isLevelSlug = (level: string): level is LevelSlug => (LEVEL_SLUGS as readonly string[]).includes(level)
+
+export function DifficultyBadge({ level, ...props }: { level: string } & Omit<BadgeProps, 'variant' | 'children'>) {
+  const { t } = useI18n()
+  const known = isLevelSlug(level)
+  return (
+    <Badge variant={known ? level : 'ghost'} {...props}>
+      {known ? t(`level.${level}`) : level}
+    </Badge>
   )
 }
 
@@ -55,19 +79,21 @@ interface ProgressProps {
   color?: 'amber' | 'emerald' | 'rose' | 'sky'
   size?: 'sm' | 'md'
 }
+// Solid fills, as the handoff draws them (track --line, fill --acc).
 const progressColors = {
-  amber:   'from-amber to-amber2',
-  emerald: 'from-emerald to-emerald/70',
-  rose:    'from-rose to-rose/70',
-  sky:     'from-sky to-sky/70',
+  amber:   'bg-amber',
+  emerald: 'bg-emerald',
+  rose:    'bg-rose',
+  sky:     'bg-sky',
 }
 export function ProgressBar({ value, className, color = 'amber', size = 'sm' }: ProgressProps) {
+  const clamped = Math.min(100, Math.max(0, value))
+  // A finished bar is green whatever colour it was given: "done" reads the same everywhere.
+  const tone = clamped >= 100 && color === 'amber' ? 'emerald' : color
+  // 4px, or 6px for the hero card.
   return (
-    <div className={cn('progress-track w-full', size === 'sm' ? 'h-1' : 'h-2', className)}>
-      <div
-        className={cn('progress-fill bg-gradient-to-r', progressColors[color])}
-        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-      />
+    <div className={cn('progress-track w-full', size === 'sm' ? 'h-1' : 'h-1.5', className)}>
+      <div className={cn('progress-fill', progressColors[tone])} style={{ width: `${clamped}%` }} />
     </div>
   )
 }

@@ -1,0 +1,17 @@
+[
+  "L011_055_continuous-integration-delivery-and-deployment.py",
+  "L011_056_github-actions-architecture.py",
+  "L011_057_events-and-triggers-for-ai-repositories.py",
+  "L011_058_building-a-continuous-integration-pipeline.py",
+  "L011_059_ci-as-a-required-pull-request-quality-gate.py",
+  "L011_060_diagnosing-github-actions-failures.py",
+  "L011_061_designing-the-continuous-delivery-pipeline.py",
+  "L011_062_ci-cd-secrets-and-cloud-authentication.py",
+  "L011_063_building-and-publishing-containers-from-github-actions.py",
+  "L011_064_multi-job-github-actions-workflows.py",
+  "L011_065_staging-environments-and-release-validation.py",
+  "L011_066_terraform-inside-the-delivery-pipeline.py",
+  "L011_067_end-to-end-automated-staging-deployment.py",
+  "L011_068_ai-assistance-in-ci-cd-workflows.py",
+  "L011_069_github-actions-ci-cd-integration-project.py"
+]

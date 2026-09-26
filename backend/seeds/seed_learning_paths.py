@@ -12,7 +12,6 @@ journey, and each career goal's template.
 Run after the content seeds (it points at courses that must already exist):
 
     python seed.py
-    python seeds/seed_track_ai_developer.py
     python seeds/seed_tool_courses.py            (+ the seed_tool_<name>.py content)
     python seeds/seed_learning_paths.py
 
@@ -28,6 +27,13 @@ No new content is invented here. Every course below is an existing track level
 or tool course; levels of those with no published lessons are catalogued as
 *planned* and appear to learners only once their content lands (see
 `is_available` in catalog_service).
+
+The curriculum itself - which goal each course serves and how much (core /
+supporting / optional), the stages and each goal's template - is data in
+`seeds/curriculum.py`. This script creates it on a fresh database; to bring a
+database that ALREADY has a catalogue up to date, run
+`python seeds/sync_curriculum.py` (it changes only what curriculum.py names,
+deletes nothing and never touches a learner).
 """
 import logging
 import os
@@ -58,6 +64,8 @@ from app.models.learning_path import (
 )
 from app.models.tool_course import ToolCourse, ToolTopic
 from app.services.learning import catalog_admin as admin
+from seeds.curriculum import COURSE_DIRECTORY_COURSES, STAGES, TEMPLATES, roles_for
+from seeds.sync_curriculum import ensure_curriculum_courses, ensure_shell_courses, sync_course_prerequisites
 
 logger = logging.getLogger(__name__)
 
@@ -80,13 +88,19 @@ SKILLS = [
     ("sql", "SQL"), ("data-analysis", "Data Analysis"), ("statistics", "Statistics"),
     ("machine-learning", "Machine Learning"), ("deep-learning", "Deep Learning"),
     ("mlops", "MLOps"), ("computer-vision", "Computer Vision"), ("speech-recognition", "Speech Recognition"),
+    ("python", "Python"), ("numpy", "NumPy"), ("pandas", "pandas"),
+    ("scikit-learn", "scikit-learn"), ("pytorch", "PyTorch"), ("transformers", "Transformers"),
+    ("docker", "Docker"), ("ci-cd", "CI/CD"), ("cloud-deployment", "Cloud Deployment"),
 ]
 
 # Skills that are really named products: a learner who knows LangChain has not
 # thereby learned RAG, so these are catalogued as 'tool' and offered under their
 # own heading. (Migration 013 tags the same slugs on databases that already
 # hold them.) Everything else in SKILLS is a capability.
-TOOL_SKILLS = {"langchain", "langgraph", "llamaindex", "qdrant", "fastapi"}
+TOOL_SKILLS = {
+    "langchain", "langgraph", "llamaindex", "qdrant", "fastapi", "python", "numpy",
+    "pandas", "scikit-learn", "pytorch", "transformers", "docker",
+}
 
 # The skill tags authors already put on every topic (`topics.skill_tags`,
 # `tool_topics.skill_tags`), mapped to catalogue skills. A course's `teaches`
@@ -161,35 +175,34 @@ ROLE_RULES = {
 }
 
 # ─── Courses ────────────────────────────────────────────────────────────────
-# (track level order, slug, title, title_ar, level, fields, roles, note)
+# (track level order, slug, title, title_ar, level, fields)
 #
 # Levels are the modal difficulty of each level's topics (topics.difficulty),
 # with two deliberate overrides: "Advanced RAG" is advanced because its name and
 # its prerequisites say so, and "Multimodal AI" is advanced because Multimodal
 # is defined as an advanced field. A course whose level disagreed with its
 # field would be classed "below level" for exactly the learners it is for.
-_AI = ["ai-developer", "ai-engineer"]
 TRACK_LEVEL_COURSES = [
     (1, "ai-engineering-foundations", "AI Engineering Foundations", "أسس هندسة الذكاء الاصطناعي",
-     "beginner", [], _AI),
+     "beginner", []),
     (2, "llm-integration", "LLM Integration", "دمج الـ LLMs في التطبيقات",
-     "beginner", ["nlp"], _AI),
+     "beginner", ["nlp"]),
     (3, "rag-knowledge-systems", "RAG & Knowledge Systems", "أنظمة RAG والمعرفة",
-     "intermediate", ["nlp"], _AI),
+     "intermediate", ["nlp"]),
     (4, "prompt-engineering", "Prompt Engineering", "هندسة الـ Prompts",
-     "intermediate", ["nlp"], _AI),
+     "intermediate", ["nlp"]),
     (5, "embeddings-semantic-search", "Embeddings & Semantic Search", "الـ Embeddings والبحث الدلالي",
-     "intermediate", ["nlp"], _AI),
+     "intermediate", ["nlp"]),
     (6, "advanced-rag", "Advanced RAG", "RAG المتقدم",
-     "advanced", ["nlp"], _AI),
+     "advanced", ["nlp"]),
     (7, "ai-agents-orchestration", "AI Agents & Orchestration", "الـ AI Agents والـ Orchestration",
-     "intermediate", ["nlp"], _AI),
+     "intermediate", ["nlp"]),
     (8, "deployment-integration", "Deployment & Integration Frameworks", "النشر وأطر التكامل",
-     "advanced", [], _AI + ["mlops-engineer"]),
+     "advanced", []),
     (9, "multimodal-ai", "Multimodal AI", "الذكاء الاصطناعي متعدد الوسائط",
-     "advanced", ["multimodal"], _AI),
+     "advanced", ["multimodal"]),
     (10, "ai-evaluation-observability", "AI Evaluation & Observability", "تقييم الـ AI ومراقبته",
-     "intermediate", [], _AI + ["mlops-engineer"]),
+     "intermediate", []),
 ]
 
 # Prerequisites between the track's own levels — a track is sequential by
@@ -206,113 +219,32 @@ PREREQUISITES = {
     "ai-evaluation-observability": ["rag-knowledge-systems"],
 }
 
-# (tool course slug, fields, roles, extra skills it will teach once written)
-# The level is the tool course's own declared difficulty.
+# (tool course slug, fields, extra skills it will teach once written)
+# The level is the tool course's own declared difficulty. Which career goals a
+# course serves, and how much, is `COURSE_ROLES` in seeds/curriculum.py.
 TOOL_COURSE_TAGS = [
-    ("langchain",          ["nlp"],                       _AI, []),
-    ("langgraph",          ["nlp"],                       _AI, []),
-    ("llamaindex",         ["nlp"],                       _AI, []),
-    ("openai-api",         ["nlp"],                       _AI, ["llms"]),
-    ("hugging-face",       ["nlp", "machine-learning"],   ["ml-engineer"] + _AI, []),
-    ("pinecone",           ["nlp"],                       _AI, ["vector-databases"]),
-    ("qdrant",             ["nlp"],                       _AI + ["mlops-engineer"], []),
-    ("weaviate",           ["nlp", "multimodal"],         _AI, ["vector-databases"]),
-    ("mlflow",             ["machine-learning"],          ["ml-engineer", "mlops-engineer", "ai-engineer"], ["mlops"]),
-    ("dvc",                ["machine-learning", "data"],  ["ml-engineer", "mlops-engineer"], ["mlops"]),
-    ("wandb",              ["machine-learning"],          ["ml-engineer"], []),
-    ("fastapi-serving",    [],                            _AI + ["mlops-engineer"], []),
-    ("airflow",            ["data", "machine-learning"],  ["mlops-engineer"], ["mlops"]),
-    ("dbt",                ["data"],                      ["data-analyst"], ["sql", "data-analysis"]),
-    ("great-expectations", ["data"],                      ["data-analyst", "ml-engineer"], ["data-analysis"]),
-    ("streamlit",          ["data", "machine-learning"],  ["data-analyst", "ml-engineer"], []),
+    ("langchain",          ["nlp"], []),
+    ("langgraph",          ["nlp"], []),
+    ("llamaindex",         ["nlp"], []),
+    ("openai-api",         ["nlp"], ["llms"]),
+    ("hugging-face",       ["nlp", "machine-learning"], []),
+    ("pinecone",           ["nlp"], ["vector-databases"]),
+    ("qdrant",             ["nlp"], []),
+    ("weaviate",           ["nlp", "multimodal"], ["vector-databases"]),
+    ("mlflow",             ["machine-learning"], ["mlops"]),
+    ("dvc",                ["machine-learning", "data"], ["mlops"]),
+    ("wandb",              ["machine-learning"], []),
+    ("fastapi-serving",    [], []),
+    ("airflow",            ["data", "machine-learning"], ["mlops"]),
+    ("dbt",                ["data"], ["sql", "data-analysis"]),
+    ("great-expectations", ["data"], ["data-analysis"]),
+    ("streamlit",          ["data", "machine-learning"], []),
 ]
 
-# ─── Stages ─────────────────────────────────────────────────────────────────
-# (slug, title, title_ar, phase, kind, course slugs)
-# A stage listing courses with no published content is fine: they are counted
-# as upcoming, and the stage reads "coming soon" until they land.
-STAGES = [
-    ("foundations", "AI Foundations", "أسس الذكاء الاصطناعي", "foundations", "learning",
-     ["ai-engineering-foundations"]),
-    ("data-foundations", "Data Foundations", "أسس البيانات", "foundations", "learning",
-     ["dbt", "great-expectations", "streamlit"]),
-    ("machine-learning", "Machine Learning", "تعلّم الآلة", "foundations", "learning",
-     ["hugging-face", "wandb", "dvc"]),
-    ("deep-learning", "Deep Learning", "التعلّم العميق", "foundations", "learning", []),
-    ("nlp-llm", "NLP & LLM Engineering", "هندسة NLP والـ LLMs", "specialization", "learning",
-     ["llm-integration", "prompt-engineering", "langchain", "openai-api"]),
-    ("rag", "RAG Engineering", "هندسة الـ RAG", "specialization", "learning",
-     ["rag-knowledge-systems", "embeddings-semantic-search", "advanced-rag", "llamaindex",
-      "qdrant", "pinecone", "weaviate"]),
-    ("agents", "AI Agents", "الـ AI Agents", "specialization", "learning",
-     ["ai-agents-orchestration", "langgraph"]),
-    ("computer-vision", "Computer Vision", "الرؤية الحاسوبية", "specialization", "learning", []),
-    ("advanced-cv", "Advanced Computer Vision", "الرؤية الحاسوبية المتقدمة", "specialization", "learning", []),
-    ("vision-language", "Vision-Language Models", "نماذج الرؤية واللغة", "specialization", "learning", []),
-    ("audio-processing", "Audio Processing", "معالجة الصوت", "specialization", "learning", []),
-    ("speech-recognition", "Speech Recognition", "التعرّف على الكلام", "specialization", "learning", []),
-    ("text-to-speech", "Text-to-Speech", "تحويل النص إلى كلام", "specialization", "learning", []),
-    ("voice-ai", "Voice AI", "الذكاء الاصطناعي الصوتي", "specialization", "learning", []),
-    ("realtime-voice-agents", "Real-time Voice Agents", "وكلاء صوتيون في الزمن الحقيقي",
-     "specialization", "learning", []),
-    ("multimodal", "Multimodal AI Engineering", "هندسة الذكاء الاصطناعي متعدد الوسائط", "multimodal", "learning",
-     ["multimodal-ai"]),
-    # The production content that exists today (levels 8 and 10) is about
-    # deploying and evaluating LLM applications, so it sits in an NLP-gated
-    # stage of its own. Left in the generic stage it dragged LLM and RAG
-    # prerequisites into a Computer Vision learner's route.
-    ("llm-production", "Deploying & Evaluating LLM Systems", "نشر أنظمة الـ LLMs وتقييمها", "engineering",
-     "learning", ["deployment-integration", "ai-evaluation-observability"]),
-    ("production", "MLOps & Production AI", "الـ MLOps والـ AI في بيئة الإنتاج", "engineering", "learning",
-     ["fastapi-serving", "mlflow", "airflow"]),
-    ("capstone-data-analyst", "Data Analyst Capstone", "المشروع الختامي: محلل بيانات", "career", "capstone", []),
-    ("capstone-ml-engineer", "ML Engineer Capstone", "المشروع الختامي: مهندس تعلّم آلة", "career", "capstone", []),
-    ("capstone-ai-developer", "AI Developer Capstone", "المشروع الختامي: مطوّر تطبيقات ذكاء اصطناعي",
-     "career", "capstone", []),
-    ("capstone-mlops-engineer", "MLOps Engineer Capstone", "المشروع الختامي: مهندس MLOps", "career", "capstone", []),
-    ("capstone-ai-engineer", "AI Engineer Capstone", "المشروع الختامي: مهندس ذكاء اصطناعي",
-     "career", "capstone", []),
-]
-
-# ─── Templates ──────────────────────────────────────────────────────────────
-# One journey per career goal: an ordered list of (stage, field). A stage tied
-# to a field appears only when that field is in the learner's route; `None`
-# means every route. "AI Engineer — Computer Vision" is this template filtered
-# to `computer-vision` — there is no separate list for it anywhere.
-_AI_ENGINEER_STAGES = [
-    ("foundations", None), ("machine-learning", None), ("deep-learning", None),
-    ("nlp-llm", "nlp"), ("rag", "nlp"), ("agents", "nlp"), ("llm-production", "nlp"),
-    ("computer-vision", "computer-vision"), ("advanced-cv", "computer-vision"),
-    ("vision-language", "computer-vision"),
-    ("audio-processing", "speech"), ("speech-recognition", "speech"), ("text-to-speech", "speech"),
-    ("voice-ai", "speech"), ("realtime-voice-agents", "speech"),
-    ("multimodal", "multimodal"),
-    ("production", None), ("capstone-ai-engineer", None),
-]
-
-TEMPLATES = [
-    ("data-analyst-path", "data-analyst", "Data Analyst path", "مسار محلل بيانات", [
-        ("data-foundations", "data"), ("machine-learning", "machine-learning"),
-        ("capstone-data-analyst", None),
-    ]),
-    ("ml-engineer-path", "ml-engineer", "ML Engineer path", "مسار مهندس تعلّم آلة", [
-        ("foundations", None), ("data-foundations", "data"), ("machine-learning", None), ("deep-learning", None),
-        ("nlp-llm", "nlp"), ("computer-vision", "computer-vision"), ("advanced-cv", "computer-vision"),
-        ("audio-processing", "speech"), ("speech-recognition", "speech"),
-        ("production", None), ("capstone-ml-engineer", None),
-    ]),
-    ("ai-developer-path", "ai-developer", "AI Developer path", "مسار مطوّر تطبيقات ذكاء اصطناعي", [
-        ("foundations", None), ("nlp-llm", "nlp"), ("rag", "nlp"), ("agents", "nlp"),
-        ("llm-production", "nlp"), ("multimodal", "multimodal"), ("production", None),
-        ("capstone-ai-developer", None),
-    ]),
-    ("mlops-engineer-path", "mlops-engineer", "MLOps Engineer path", "مسار مهندس MLOps", [
-        ("foundations", None), ("machine-learning", None), ("llm-production", "nlp"),
-        ("production", None), ("capstone-mlops-engineer", None),
-    ]),
-    ("ai-engineer-path", "ai-engineer", "AI Engineer path", "مسار مهندس ذكاء اصطناعي", _AI_ENGINEER_STAGES),
-]
-
+# ─── Stages, templates and course roles ────────────────────────────────────
+# Live in seeds/curriculum.py, shared with seeds/sync_curriculum.py (which brings an
+# existing database to the same state). STAGES, TEMPLATES and `roles_for` are imported
+# at the top of this file.
 
 # ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -381,29 +313,39 @@ def seed_learning_catalog(db: Session) -> Dict[str, int]:
         levels_by_order = {l.order: l for l in track.levels} if track else {}
         if track is None:
             logger.warning("track '%s' not found; its levels are not catalogued", TRACK_SLUG)
-        for order, slug, title, title_ar, level, fields, roles in TRACK_LEVEL_COURSES:
+        for order, slug, title, title_ar, level, fields in TRACK_LEVEL_COURSES:
             source = levels_by_order.get(order)
             if source is None or db.query(Course).filter(Course.slug == slug).first():
                 continue
             admin.upsert_course(
                 db, slug, source={"kind": "track_level", "track_slug": TRACK_SLUG, "level_order": order},
                 level=level, title=title, title_ar=title_ar,
-                fields=fields, roles=roles, teaches=_taught_skills(_track_level_tags(db, source.id), []),
+                fields=fields, roles=roles_for(slug), teaches=_taught_skills(_track_level_tags(db, source.id), []),
             )
             new_courses.append(slug)
             created["courses"] += 1
 
-        for source_slug, fields, roles, extra in TOOL_COURSE_TAGS:
+        for source_slug, fields, extra in TOOL_COURSE_TAGS:
             source = db.query(ToolCourse).filter(ToolCourse.slug == source_slug).first()
             if source is None or db.query(Course).filter(Course.slug == source_slug).first():
                 continue
             admin.upsert_course(
                 db, source_slug, source={"kind": "tool_course", "slug": source_slug},
                 level=_LEVEL_BY_DIFFICULTY.get(source.difficulty, "intermediate"),
-                fields=fields, roles=roles, teaches=_taught_skills(_tool_course_tags(db, source.id), extra),
+                fields=fields, roles=roles_for(source_slug),
+                teaches=_taught_skills(_tool_course_tags(db, source.id), extra),
             )
             new_courses.append(source_slug)
             created["courses"] += 1
+
+        # Placeholder levels of the other tracks, catalogued as courses with no
+        # lessons - never startable until content lands (see seeds/curriculum.py).
+        for change in ensure_shell_courses(db):
+            if change.kind == "course+":
+                created["courses"] += 1
+
+        directory_course_changes = ensure_curriculum_courses(db)
+        created["courses"] += sum(change.kind == "course+" for change in directory_course_changes)
 
         # Second pass: prerequisites reference other courses, so they can only
         # be written once every course above exists.
@@ -413,6 +355,12 @@ def seed_learning_catalog(db: Session) -> Dict[str, int]:
                 course = db.query(Course).filter(Course.slug == slug).first()
                 present = [s for s in wanted if db.query(Course).filter(Course.slug == s).first()]
                 admin.set_course_relations(db, course, prerequisites=present)
+
+        # A course-directory course gets its required prerequisites from the registry and its
+        # recommended ones from its own manifest - the very rule `sync_curriculum` applies.
+        sync_course_prerequisites(
+            db, only={change.subject for change in directory_course_changes if change.kind == "course+"},
+        )
 
         known_courses = {c.slug for c in db.query(Course).all()}
         for slug, title, title_ar, phase, kind, courses in STAGES:

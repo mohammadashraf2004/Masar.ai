@@ -24,6 +24,12 @@ from app.core.limiter import limiter
 from app.services import get_llm, code_review_service
 from app.services.mentor.mentor_service import get_project_hint
 from app.services.wallet.wallet_service import deduct_credits, refund_credits
+from app.services.billing.access_service import (
+    course_access, course_for_track_topic, require_content_access,
+    require_course_access, require_lesson_access,
+)
+from app.models.learning_path import Course
+from app.services.learning import enrollment as course_enrollment
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -34,6 +40,48 @@ router = APIRouter(prefix="/tracks", tags=["Learning Tracks"])
 # feed the engineer scorecard, which is the thing employers are shown, so
 # they get the same "don't trust the client" treatment as anything else.
 MAX_TOPIC_MINUTES = 100_000
+
+
+def _redact_locked_track(track: CareerTrack, user_id: int, db: Session):
+    """Keep curriculum metadata visible while removing paid lesson bodies."""
+    data = CareerTrackResponse.model_validate(track).model_dump()
+    courses = {
+        course.track_level_id: course for course in db.query(Course).filter(
+            Course.track_level_id.in_([level.id for level in track.levels]),
+            Course.is_active.is_(True),
+        ).all()
+    }
+    for level in data["levels"]:
+        course = courses.get(level["id"])
+        if not course or course_access(db, user_id, course).has_access:
+            continue
+        for topic in level["topics"]:
+            for lesson in topic["lessons"]:
+                if not lesson.get("is_preview"):
+                    lesson["content"] = ""
+                    lesson["content_ar"] = None
+                    lesson["is_locked"] = True
+                    lesson["course_slug"] = course.slug
+            for exercise in topic["exercises"]:
+                exercise["description"] = ""
+                exercise["description_ar"] = None
+                exercise["starter_code"] = None
+                exercise["is_locked"] = True
+                exercise["course_slug"] = course.slug
+            for project in topic["projects"]:
+                project["description"] = ""
+                project["description_ar"] = None
+                project["objectives"] = []
+                project["rubric"] = {}
+                project["starter_repo_url"] = None
+                project["is_locked"] = True
+                project["course_slug"] = course.slug
+            for quiz in topic["quizzes"]:
+                quiz["questions"] = []
+                quiz["questions_ar"] = None
+                quiz["is_locked"] = True
+                quiz["course_slug"] = course.slug
+    return data
 
 
 def _validate_progress_targets(db: Session, payload: ProgressUpdate, *, topic_id: int) -> None:
@@ -165,7 +213,7 @@ def get_track(
     )
     if not track:
         raise HTTPException(status_code=404, detail="Track not found")
-    return track
+    return _redact_locked_track(track, current_user.id, db)
 
 
 # ─── Topic Detail ────────────────────────────────────────────────────────
@@ -207,6 +255,27 @@ def get_topic(
     )
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
+    course = course_for_track_topic(db, topic.id)
+    if course and not course_access(db, current_user.id, course).has_access:
+        # Reuse the track serializer so preview lessons remain readable while
+        # every other body is redacted consistently.
+        data = TopicResponse.model_validate(topic).model_dump()
+        for lesson in data["lessons"]:
+            if not lesson.get("is_preview"):
+                lesson["content"] = ""
+                lesson["content_ar"] = None
+                lesson["is_locked"] = True
+                lesson["course_slug"] = course.slug
+        for exercise in data["exercises"]:
+            exercise.update(description="", description_ar=None, starter_code=None)
+            exercise.update(is_locked=True, course_slug=course.slug)
+        for project in data["projects"]:
+            project.update(description="", description_ar=None, objectives=[], rubric={}, starter_repo_url=None)
+            project.update(is_locked=True, course_slug=course.slug)
+        for quiz in data["quizzes"]:
+            quiz.update(questions=[], questions_ar=None)
+            quiz.update(is_locked=True, course_slug=course.slug)
+        return data
     return topic
 
 
@@ -222,6 +291,14 @@ def update_progress(
     if not db.query(Topic.id).filter(Topic.id == topic_id).first():
         raise HTTPException(status_code=404, detail="Topic not found")
     _validate_progress_targets(db, payload, topic_id=topic_id)
+    course = course_for_track_topic(db, topic_id)
+    if course:
+        if payload.lesson_id is not None:
+            require_lesson_access(db, current_user.id, db.query(Lesson).filter(Lesson.id == payload.lesson_id).one())
+        elif payload.exercise_id is not None:
+            require_content_access(db, current_user.id, db.query(Exercise).filter(Exercise.id == payload.exercise_id).one())
+        else:
+            require_course_access(db, current_user.id, course)
 
     # Scoped to current_user.id on both read and write, so there is no id
     # in the request a caller could change to touch someone else's row.
@@ -253,6 +330,9 @@ def update_progress(
 
     db.commit()
     db.refresh(progress)
+    if course:
+        # Working in a course enrolls the learner and moves their lifecycle forward.
+        course_enrollment.sync_lifecycle(db, current_user.id, course)
     return progress
 
 
@@ -262,6 +342,9 @@ def get_topic_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    course = course_for_track_topic(db, topic_id)
+    if course:
+        require_course_access(db, current_user.id, course)
     progress = db.query(UserProgress).filter(
         UserProgress.user_id == current_user.id,
         UserProgress.topic_id == topic_id,
@@ -283,6 +366,7 @@ def submit_quiz(
     quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=404, detail="Quiz not found")
+    require_content_access(db, current_user.id, quiz)
 
     # Authored content, so a bad shape here is a content bug rather than
     # attacker input — but it must not turn a student's submission into a
@@ -356,6 +440,9 @@ def my_quiz_attempts(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
+    if quiz:
+        require_content_access(db, current_user.id, quiz)
     return (
         db.query(QuizAttempt)
         .filter(QuizAttempt.user_id == current_user.id, QuizAttempt.quiz_id == quiz_id)
@@ -396,6 +483,7 @@ def submit_project(
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    require_content_access(db, current_user.id, project)
 
     # The code is the submission; the notes are context the reviewer reads
     # alongside it. `code` is required and non-blank by the request schema,
@@ -443,6 +531,9 @@ def my_project_submissions(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if project:
+        require_content_access(db, current_user.id, project)
     return (
         db.query(ProjectSubmission)
         .filter(
@@ -479,6 +570,7 @@ def project_hint(
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    require_content_access(db, current_user.id, project)
 
     # Charged before the call. Raises 402 with the standard
     # insufficient_credits payload the client already knows how to render.

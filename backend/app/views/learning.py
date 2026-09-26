@@ -43,8 +43,12 @@ class LessonResponse(BaseModel):
     title_ar: Optional[str] = None
     content_ar: Optional[str] = None
     order: int
-    estimated_minutes: int
+    # None when the course does not state a duration (curriculum imported without one).
+    estimated_minutes: Optional[int] = None
     has_code_examples: bool
+    is_preview: bool = False
+    is_locked: bool = False
+    course_slug: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -59,6 +63,8 @@ class ExerciseResponse(BaseModel):
     starter_code: Optional[str]
     difficulty: DifficultyLevel
     skill_tested: List[str]
+    is_locked: bool = False
+    course_slug: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -75,7 +81,9 @@ class ProjectResponse(BaseModel):
     objectives: List[str]
     rubric: dict
     starter_repo_url: Optional[str]
-    estimated_hours: float
+    estimated_hours: Optional[float] = None
+    is_locked: bool = False
+    course_slug: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -102,6 +110,8 @@ class QuizResponse(BaseModel):
     # validator was written to close.
     questions_ar: Optional[List[dict]] = None
     passing_score: int
+    is_locked: bool = False
+    course_slug: Optional[str] = None
 
     @field_validator("questions", mode="before")
     @classmethod
@@ -126,7 +136,7 @@ class TopicResponse(BaseModel):
     description_ar: Optional[str] = None
     order: int
     difficulty: DifficultyLevel
-    estimated_hours: float
+    estimated_hours: Optional[float] = None
     prerequisite_ids: List[int]
     skill_tags: List[str]
     # Terminology dictionary ids this topic teaches.

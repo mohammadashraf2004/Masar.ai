@@ -1,0 +1,27 @@
+{
+  "module_id": "M013-02",
+  "title": "NumPy & pandas for Analytical Data Work",
+  "role": "Core / Data Manipulation",
+  "status": "finalized",
+  "description": "Manipulate numerical and tabular data accurately with NumPy and pandas.",
+  "learning_outcomes": [
+    "Manipulate numerical and tabular data accurately with NumPy and pandas."
+  ],
+  "prerequisites": [
+    "M013-01"
+  ],
+  "estimated_minutes": 430,
+  "lessons": [
+    "L013-007",
+    "L013-008",
+    "L013-009",
+    "L013-010",
+    "L013-011",
+    "L013-012",
+    "L013-013",
+    "L013-014",
+    "L013-015",
+    "L013-016"
+  ],
+  "project": "Multi-Source Retail Data Preparation & Analysis"
+}

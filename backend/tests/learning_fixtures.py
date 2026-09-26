@@ -74,11 +74,26 @@ TOOL_COURSES = [
 ]
 
 
+# Placeholder legacy tracks, as seeded by seeds/tracks_all.py: five levels each,
+# every one a single empty topic. The directory-course registry uses these as
+# stable, empty navigation sources until its local adapters load lesson content.
+PLACEHOLDER_TRACKS = {
+    "data-analyst": ["Python & SQL foundations", "Data analysis with Pandas", "Data visualisation",
+                     "Statistics for analysts", "BI dashboards & reporting"],
+    "ml-engineer": ["ML fundamentals", "Feature engineering", "Deep learning with PyTorch",
+                    "Model evaluation", "Transformers & fine-tuning"],
+}
+
+
 def create_content_sources(db: Session) -> Dict[str, object]:
     """The existing content the catalogue points at. Returns the ids tests need
     to record progress against."""
     track = CareerTrack(slug="ai-developer", title="AI Developer", estimated_weeks=14)
     db.add(track)
+    db.flush()
+
+    for slug, title in (("mlops-engineer", "MLOps Engineer"), ("ai-engineer", "AI Engineer")):
+        db.add(CareerTrack(slug=slug, title=title, estimated_weeks=12))
     db.flush()
 
     lessons_of_level: Dict[int, List[Tuple[int, int]]] = {}
@@ -116,6 +131,20 @@ def create_content_sources(db: Session) -> Dict[str, object]:
             db.add(lesson)
             db.flush()
             lessons_of_tool[slug].append((topic.id, lesson.id))
+    # The other tracks exist in production only as placeholders: levels with one
+    # empty topic and no lessons (seeds/tracks_all.py). The catalogue's shell
+    # and directory courses point at these, so the fixture has to have them.
+    for track_slug, level_titles in PLACEHOLDER_TRACKS.items():
+        shell_track = CareerTrack(slug=track_slug, title=track_slug, estimated_weeks=12)
+        db.add(shell_track)
+        db.flush()
+        for order, title in enumerate(level_titles, start=1):
+            level = TrackLevel(track_id=shell_track.id, title=title, order=order)
+            db.add(level)
+            db.flush()
+            db.add(Topic(level_id=level.id, title=title, slug=f"{track_slug}-{order}", order=1,
+                         difficulty=_D.intermediate, estimated_hours=8.0, skill_tags=[]))
+            db.flush()
     db.commit()
     return {"track": track, "level_lessons": lessons_of_level, "tool_lessons": lessons_of_tool}
 

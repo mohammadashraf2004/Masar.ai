@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- Tile-less cut: amber glyph on whatever sits behind it. For dark
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#F59E0B" stroke-width="2.4" role="img" aria-label="Masar">
+  <!-- Tile-less cut: the amber glyph on whatever sits behind it. For dark
        surfaces where a filled tile reads as a button rather than a mark. -->
-  <rect x="12" y="14" width="5" height="36" fill="#F59E0B"/>
-  <rect x="47" y="14" width="5" height="36" fill="#F59E0B"/>
-  <circle cx="32" cy="32" r="10" fill="#F59E0B"/>
+  <path d="M4 3.5V20.5"/>
+  <path d="M20 3.5V20.5"/>
+  <circle cx="12" cy="12" r="4.5" fill="#F59E0B" stroke="none"/>
 </svg>

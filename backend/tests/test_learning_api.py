@@ -10,7 +10,7 @@ beginner who asks for Multimodal is told, and so on.
 import pytest
 
 from app.models.learning_path import (
-    CareerRole, LearningField, LearningPath, LearningProfile,
+    CareerRole, Course, LearningField, LearningPath, LearningProfile,
 )
 from tests.learning_fixtures import *  # noqa: F401,F403
 from tests.learning_fixtures import complete_level, complete_tool, register
@@ -118,11 +118,41 @@ def test_a_course_carries_levels_fields_roles_skills_and_where_to_open_it(learn_
     course = learn_client.get(f"{API}/courses/rag-knowledge-systems").json()
     assert course["level"]["slug"] == "intermediate"
     assert [f["slug"] for f in course["fields"]] == ["nlp"]
-    assert {r["slug"] for r in course["roles"]} == {"ai-developer", "ai-engineer"}
+    assert {r["slug"] for r in course["roles"]} == {"ai-developer", "ai-engineer", "ml-engineer"}
+    ml_view = next(c for c in _list(learn_client, career_goal="ml-engineer").json()
+                   if c["slug"] == "rag-knowledge-systems")
+    assert ml_view["track_role"] == "optional"
     assert {"rag", "retrieval"} <= {s["slug"] for s in course["skills"]}
     assert [p["slug"] for p in course["prerequisites"]] == ["llm-integration"]
     assert course["href"] == "/tracks/ai-developer"
     assert course["is_available"] is True
+
+
+def test_all_curriculum_directory_courses_are_catalogued_with_valid_track_routes(
+    learn_client, learn_catalog, learn_db,
+):
+    from seeds.curriculum import COURSE_DIRECTORY_COURSES
+
+    catalogued = {course.slug: course for course in learn_db.query(Course).all()}
+    slug_by_id = {course.id: course.slug for course in catalogued.values()}
+    for definition in COURSE_DIRECTORY_COURSES:
+        slug = definition["slug"]
+        course = catalogued[slug]
+        roles = {link.role.slug: link.relation for link in course.role_links}
+        assert roles == definition["roles"]
+        assert {link.field.slug for link in course.field_links} == set(definition["fields"])
+        assert {link.skill.slug for link in course.skill_links if link.relation == "teaches"} == set(definition["skills"])
+        # The registry's prerequisites are the *required* ones; a manifest may add recommended ones.
+        assert {slug_by_id[link.prerequisite_course_id] for link in course.prerequisite_links
+                if link.kind == "required"} == set(definition["prerequisites"])
+
+        response = learn_client.get(f"{API}/courses/{slug}")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["title"] == definition["title"]
+        # A curriculum course is its own course - never reached through a track page.
+        assert body["href"] == f"/courses/{slug}/learn"
+        assert body["is_available"] is False
 
 
 def test_a_tool_course_points_at_its_own_page_and_a_shell_is_not_available(learn_client, learn_catalog):
@@ -217,17 +247,21 @@ def test_ai_engineer_is_a_goal_with_routes_not_a_sum_of_roles(learn_client, lear
 
 def test_the_nlp_route_has_the_stages_the_spec_describes_in_order(learn_client, learn_catalog):
     path = learn_client.get(f"{API}/paths/ai-engineer-nlp").json()
-    assert _slugs(path) == ["foundations", "machine-learning", "deep-learning", "nlp-llm", "rag", "agents",
-                            "llm-production", "production", "capstone-ai-engineer"]
+    assert _slugs(path) == ["foundations", "machine-learning", "course-001", "deep-learning", "course-002",
+                            "course-003", "nlp-llm", "course-004", "course-005", "rag", "agents",
+                            "llm-production", "course-006", "course-007", "course-009", "course-010",
+                            "course-011", "course-012", "production", "capstone-ai-engineer"]
 
 
 def test_the_vision_and_speech_routes_have_their_own_stage_lists(learn_client, learn_catalog):
     cv = _slugs(learn_client.get(f"{API}/paths/ai-engineer-computer-vision").json())
-    assert cv == ["foundations", "machine-learning", "deep-learning", "computer-vision", "advanced-cv",
-                  "vision-language", "production", "capstone-ai-engineer"]
+    assert cv == ["foundations", "machine-learning", "course-001", "deep-learning", "course-002", "course-003",
+                  "computer-vision", "course-014", "advanced-cv", "vision-language", "production",
+                  "capstone-ai-engineer"]
     sp = _slugs(learn_client.get(f"{API}/paths/ai-engineer-speech").json())
-    assert sp == ["foundations", "machine-learning", "deep-learning", "audio-processing", "speech-recognition",
-                  "text-to-speech", "voice-ai", "realtime-voice-agents", "production", "capstone-ai-engineer"]
+    assert sp == ["foundations", "machine-learning", "course-001", "deep-learning", "course-002", "course-003",
+                  "audio-processing", "speech-recognition", "text-to-speech", "voice-ai", "realtime-voice-agents",
+                  "production", "capstone-ai-engineer"]
 
 
 def test_a_route_with_no_published_content_says_so_instead_of_inventing_courses(learn_client, learn_catalog):
@@ -454,8 +488,10 @@ def test_building_saves_the_path_and_it_reads_back_the_same(learn_client, learn_
     who = register(learn_client)
     built = _build(learn_client, who)
     assert built["is_saved"] is True and built["status"] == "active" and built["id"]
-    assert _slugs(built) == ["foundations", "machine-learning", "deep-learning", "nlp-llm", "rag", "agents",
-                            "llm-production", "production", "capstone-ai-engineer"]
+    assert _slugs(built) == ["foundations", "machine-learning", "course-001", "deep-learning", "course-002",
+                            "course-003", "nlp-llm", "course-004", "course-005", "rag", "agents",
+                            "llm-production", "course-006", "course-007", "course-009", "course-010",
+                            "course-011", "course-012", "production", "capstone-ai-engineer"]
     read = learn_client.get(f"{API}/my-path", headers=who["headers"]).json()
     assert read["id"] == built["id"] and _slugs(read) == _slugs(built)
     assert learn_client.get(f"{API}/my-profile", headers=who["headers"]).json()["has_active_path"] is True

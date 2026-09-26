@@ -1,0 +1,21 @@
+# Reference dependencies; pin in the application environment as appropriate.
+numpy
+scipy
+pillow
+matplotlib
+opencv-python
+scikit-image
+scikit-learn
+PyWavelets
+torch
+torchvision
+transformers
+diffusers
+accelerate
+# Optional/selective:
+# segmentation-models-pytorch
+# monai
+# mediapipe
+# ultralytics
+# openai
+# gradio

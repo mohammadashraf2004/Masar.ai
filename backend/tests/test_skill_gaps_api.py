@@ -157,7 +157,7 @@ def test_no_skill_is_invented_every_gap_is_a_catalogue_skill(learn_client, learn
     body = gaps(learn_client, who)
     catalogue = {s.slug for s in learn_db.query(Skill).all()}
     assert set(slugs(body["missing"]) + slugs(body["known"]) + slugs(body["partial"])) <= catalogue
-    assert "python" not in catalogue and "python" not in slugs(body["missing"])
+    assert "python" in catalogue  # explicitly taught by COURSE-001, not inferred from code examples
 
 
 # ─── Level, field, career ───────────────────────────────────────────────────

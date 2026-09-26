@@ -1,0 +1,2 @@
+MODULE = {'id': 'M005-10', 'title': 'Applied LLM Engineering Capstone', 'role': 'CORE / MASAR ADDITION', 'chapters': [], 'project': 'Evaluated Domain LLM Application', 'lessons': 4, 'guided_minutes': 180, 'guided_time': '3h00m'}
+LESSON_FILES = ['L005_067_problem-definition-baseline-and-acceptance-criteria', 'L005_068_integrating-the-llm-application-pipeline', 'L005_069_evaluation-and-failure-analysis', 'L005_070_optimization-documentation-and-portfolio-handoff']

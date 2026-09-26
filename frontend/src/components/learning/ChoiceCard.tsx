@@ -41,13 +41,13 @@ export function ChoiceCard({
         className
       )}
     >
-      {selected && <Check size={14} className="absolute top-3.5 end-3.5 text-amber" aria-hidden="true" />}
+      {selected && <Check size={14} className="absolute top-3.5 end-3.5 text-amber-text" aria-hidden="true" />}
       <span className="flex items-start gap-3">
         {Icon && (
           <span
             className={cn(
               'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border',
-              selected ? 'border-amber/40 bg-amber/10 text-amber' : 'border-border bg-surface text-soft'
+              selected ? 'border-amber/40 bg-amber/10 text-amber-text' : 'border-border bg-surface text-soft'
             )}
             aria-hidden="true"
           >

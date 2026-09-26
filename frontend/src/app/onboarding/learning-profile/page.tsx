@@ -71,7 +71,7 @@ export default function LearningOnboardingPage() {
               {tf('banner.onboard.carried', { goal: carriedGoal })}
             </p>
           )}
-          <OnboardingFlow catalog={catalog} initial={initial} onDone={() => router.replace('/learn')} />
+          <OnboardingFlow catalog={catalog} initial={initial} onDone={() => router.replace('/learn/masar')} />
         </>
       )}
     </div>

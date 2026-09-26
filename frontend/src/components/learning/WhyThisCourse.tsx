@@ -64,7 +64,7 @@ export function WhyThisCourse({ why, defaultOpen = false, className, panelClassN
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex min-h-[44px] items-center gap-1 rounded text-xs font-medium text-amber hover:text-amber2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber lg:min-h-0"
+        className="inline-flex min-h-[44px] items-center gap-1 rounded text-xs font-medium text-amber-text hover:text-amber-text2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring lg:min-h-0"
       >
         {t('why.toggle')}
         <ChevronDown size={12} aria-hidden="true" className={cn('transition-transform', open && 'rotate-180')} />
@@ -122,7 +122,7 @@ export function WhyThisCourse({ why, defaultOpen = false, className, panelClassN
               <ul className="space-y-1">
                 {why.prerequisite_for.map((c) => (
                   <li key={c.slug}>
-                    <Link href={`/courses/${c.slug}`} className="text-amber hover:text-amber2">
+                    <Link href={`/courses/${c.slug}`} className="text-amber-text hover:text-amber-text2">
                       <LearningLabel parts={titleLabel(c, ctx)} />
                     </Link>
                   </li>

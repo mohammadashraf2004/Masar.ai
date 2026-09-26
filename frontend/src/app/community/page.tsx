@@ -119,7 +119,7 @@ const POST_TYPES: Record<PostType, {
 }> = {
   problem:     { label: 'Problem',     icon: Flame,        color: 'text-rose',    bg: 'bg-rose/10 border-rose/20' },
   project:     { label: 'Project',     icon: FolderKanban, color: 'text-sky',     bg: 'bg-sky/10 border-sky/20' },
-  achievement: { label: 'Achievement', icon: Star,         color: 'text-amber',   bg: 'bg-amber/10 border-amber/20' },
+  achievement: { label: 'Achievement', icon: Star,         color: 'text-amber-text',   bg: 'bg-amber/10 border-amber/20' },
   resource:    { label: 'Resource',    icon: Lightbulb,    color: 'text-emerald', bg: 'bg-emerald/10 border-emerald/20' },
   discussion:  { label: 'Discussion',  icon: BookOpen,     color: 'text-violet',  bg: 'bg-violet/10 border-violet/20' },
 }
@@ -131,7 +131,7 @@ function Avatar({ user, size = 'sm' }: { user: Author; size?: 'sm' | 'md' | 'lg'
           : 'w-6 h-6 text-xs'
   return (
     <div className={cn(
-      s, 'rounded-full bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0 font-medium text-amber'
+      s, 'rounded-full bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0 font-medium text-amber-text'
     )}>
       {user.full_name.charAt(0).toUpperCase()}
     </div>
@@ -189,7 +189,7 @@ function PostCard({ post, onUpdate }: { post: Post; onUpdate: (p: Post) => void 
           <div className="flex items-center gap-1.5 mt-0.5">
             <span className="text-xs text-ghost capitalize">{post.author.experience_level}</span>
             <span className="text-ghost">·</span>
-            <span className="text-xs text-amber">
+            <span className="text-xs text-amber-text">
               {post.author.overall_readiness_score.toFixed(0)}% ready
             </span>
           </div>
@@ -333,7 +333,7 @@ function CreatePostModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-void/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-scrim/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-xl p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-bold text-white">Share with the community</h2>
@@ -526,7 +526,7 @@ export default function CommunityPage() {
                       className={cn(
                         'min-h-[44px] lg:min-h-0 px-4 py-2 rounded text-sm transition-all capitalize',
                         activeTab === tab
-                          ? 'bg-amber/10 text-amber border border-amber/20'
+                          ? 'bg-amber/10 text-amber-text border border-amber/20'
                           : 'text-ghost hover:text-bright border border-transparent'
                       )}
                     >
@@ -598,7 +598,7 @@ export default function CommunityPage() {
                 <Card className="overflow-hidden">
                   <div className="px-5 py-4 border-b border-border">
                     <h3 className="font-medium text-bright flex items-center gap-2">
-                      <Trophy size={15} className="text-amber" /> Top contributors
+                      <Trophy size={15} className="text-amber-text" /> Top contributors
                     </h3>
                   </div>
                   <div className="divide-y divide-border">
@@ -609,9 +609,9 @@ export default function CommunityPage() {
                       >
                         <div className={cn(
                           'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0',
-                          entry.rank === 1 ? 'bg-amber text-void' :
+                          entry.rank === 1 ? 'bg-amber text-on-amber' :
                           entry.rank === 2 ? 'bg-soft/30 text-bright' :
-                          entry.rank === 3 ? 'bg-amber/30 text-amber' :
+                          entry.rank === 3 ? 'bg-amber/30 text-amber-text' :
                           'bg-surface text-ghost'
                         )}>
                           {entry.rank}
@@ -630,7 +630,7 @@ export default function CommunityPage() {
                           <span className="flex items-center gap-1">
                             <FolderKanban size={11} className="text-sky" /> {entry.posts_count}
                           </span>
-                          <span className="text-amber font-mono">
+                          <span className="text-amber-text font-mono">
                             {entry.readiness_score.toFixed(0)}%
                           </span>
                         </div>
@@ -677,7 +677,7 @@ export default function CommunityPage() {
                     <h3 className="text-xs font-medium text-ghost uppercase tracking-widest">Top 3</h3>
                     <button
                       onClick={() => setActiveTab('leaderboard')}
-                      className="min-h-[44px] px-2 text-xs text-amber hover:text-amber2 lg:min-h-0 lg:px-0"
+                      className="min-h-[44px] px-2 text-xs text-amber-text hover:text-amber-text2 lg:min-h-0 lg:px-0"
                     >
                       See all
                     </button>
@@ -687,9 +687,9 @@ export default function CommunityPage() {
                       <div key={entry.rank} className="flex items-center gap-2.5">
                         <span className={cn(
                           'text-xs font-bold w-4 text-center',
-                          entry.rank === 1 ? 'text-amber'
+                          entry.rank === 1 ? 'text-amber-text'
                           : entry.rank === 2 ? 'text-soft'
-                          : 'text-amber/60'
+                          : 'text-amber-text/60'
                         )}>
                           {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : '🥉'}
                         </span>
@@ -709,7 +709,7 @@ export default function CommunityPage() {
               )}
 
               <Card className="p-4 bg-gradient-to-br from-amber/5 to-transparent border-amber/20">
-                <p className="text-xs text-amber font-medium mb-1">💡 Tip</p>
+                <p className="text-xs text-amber-text font-medium mb-1">💡 Tip</p>
                 <p className="text-xs text-dim leading-relaxed">
                   Sharing your problems is as valuable as sharing solutions.
                   Someone in the community has faced the same issue.

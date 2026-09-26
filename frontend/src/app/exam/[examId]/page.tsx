@@ -108,7 +108,7 @@ function MCQ({ q, value, onChange }: { q: Question; value: string; onChange: (v:
           onClick={() => onChange(opt)}
           className={`w-full text-start flex items-center gap-3 px-4 py-3 rounded-lg border text-sm transition-all duration-150 ${
             value === opt
-              ? "bg-amber/10 border-amber/40 text-amber"
+              ? "bg-amber/10 border-amber/40 text-amber-text"
               : "bg-surface border-border text-soft hover:border-amber/20 hover:text-bright"
           }`}
         >
@@ -238,7 +238,7 @@ function FillBlank({ q, value, onChange }: { q: Question; value: string[]; onCha
                 value={vals[idx] ?? ""}
                 onChange={(e) => setBlank(idx, e.target.value)}
                 placeholder={`···`}
-                className="inline-block bg-amber/10 border border-amber/40 rounded text-amber text-sm font-mono px-2 py-0.5 outline-none focus:border-amber mx-1"
+                className="inline-block bg-amber/10 border border-amber/40 rounded text-amber-text text-sm font-mono px-2 py-0.5 outline-none focus:border-amber mx-1"
                 style={{ width: Math.max(80, (vals[idx]?.length ?? 6) * 9 + 24), fontFamily: "var(--font-jetbrains), monospace" }}
               />
             );
@@ -281,7 +281,7 @@ function Ordering({ q, value, onChange }: { q: Question; value: string[]; onChan
           }}
           className="flex items-center gap-3 px-4 py-3 bg-surface border border-border rounded-lg cursor-grab active:cursor-grabbing hover:border-amber/20 transition-colors"
         >
-          <span className="w-6 h-6 rounded bg-amber/10 border border-amber/20 flex items-center justify-center text-xs font-mono text-amber flex-shrink-0">
+          <span className="w-6 h-6 rounded bg-amber/10 border border-amber/20 flex items-center justify-center text-xs font-mono text-amber-text flex-shrink-0">
             {i + 1}
           </span>
           <GripVertical size={14} className="text-ghost flex-shrink-0" />
@@ -560,7 +560,7 @@ export default function ExamPage() {
           )}
           {!showPaymentGate && (
             <Card className="p-8 max-w-md w-full text-center">
-              <ShieldCheck size={36} className="text-amber mx-auto mb-4" />
+              <ShieldCheck size={36} className="text-amber-text mx-auto mb-4" />
               <h2 className="font-display font-bold text-bright text-lg mb-2">Payment Required</h2>
               <p className="text-sm text-ghost mb-6">This certification exam requires an EGP payment to access.</p>
               <div className="flex gap-3 justify-center">
@@ -609,7 +609,7 @@ export default function ExamPage() {
               { label: "Passing", value: result.passing_score },
             ].map(({ label, value }) => (
               <div key={label} className="bg-surface border border-border rounded-lg p-3">
-                <div className={`text-xl font-mono font-bold mb-0.5 ${passed ? "text-emerald" : "text-amber"}`}>{value}</div>
+                <div className={`text-xl font-mono font-bold mb-0.5 ${passed ? "text-emerald" : "text-amber-text"}`}>{value}</div>
                 <div className="text-xs text-ghost">{label}</div>
               </div>
             ))}
@@ -627,7 +627,7 @@ export default function ExamPage() {
           )}
           {!passed && (
             <p className="text-sm text-ghost mb-6">
-              You need <span className="text-amber font-mono">{result.passing_score}</span> points to pass. Review the material and try again!
+              You need <span className="text-amber-text font-mono">{result.passing_score}</span> points to pass. Review the material and try again!
             </p>
           )}
 
@@ -668,7 +668,7 @@ export default function ExamPage() {
               { icon: CheckCircle, label: `Pass: ${exam.passing_score}+` },
             ].map(({ icon: Icon, label }) => (
               <span key={label} className="flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-border rounded-lg text-xs text-soft">
-                <Icon size={12} className="text-amber" />
+                <Icon size={12} className="text-amber-text" />
                 {label}
               </span>
             ))}
@@ -677,8 +677,8 @@ export default function ExamPage() {
           {/* Rules */}
           <Card className="p-5">
             <div className="flex items-center gap-2 mb-3">
-              <Shield size={14} className="text-amber" />
-              <span className="text-xs font-medium text-amber uppercase tracking-widest">Exam Rules</span>
+              <Shield size={14} className="text-amber-text" />
+              <span className="text-xs font-medium text-amber-text uppercase tracking-widest">Exam Rules</span>
             </div>
             <ul className="space-y-2">
               {[
@@ -702,8 +702,8 @@ export default function ExamPage() {
           {/* Webcam */}
           <Card className="p-5">
             <div className="flex items-center gap-2 mb-3">
-              <Camera size={14} className="text-amber" />
-              <span className="text-xs font-medium text-amber uppercase tracking-widest">Webcam Setup</span>
+              <Camera size={14} className="text-amber-text" />
+              <span className="text-xs font-medium text-amber-text uppercase tracking-widest">Webcam Setup</span>
             </div>
             <div className="flex items-center gap-4">
               <div className="w-32 h-24 bg-ink border border-border rounded-lg overflow-hidden flex-shrink-0 relative">
@@ -715,7 +715,7 @@ export default function ExamPage() {
                   </div>
                 )}
                 {webcamOk && (
-                  <div className="absolute top-1.5 end-1.5 flex items-center gap-1 bg-void/80 px-1.5 py-0.5 rounded">
+                  <div data-theme="dark" className="absolute top-1.5 end-1.5 flex items-center gap-1 bg-void/80 px-1.5 py-0.5 rounded">
                     <span className="w-1.5 h-1.5 rounded-full bg-rose animate-pulse" />
                     <span className="text-xs font-mono text-rose">REC</span>
                   </div>
@@ -766,8 +766,8 @@ export default function ExamPage() {
         {/* Violation toast */}
         {violationMsg && (
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 bg-ink border border-amber/40 rounded-lg shadow-xl">
-            <AlertTriangle size={13} className="text-amber" />
-            <span className="text-xs text-amber font-medium">{violationMsg}</span>
+            <AlertTriangle size={13} className="text-amber-text" />
+            <span className="text-xs text-amber-text font-medium">{violationMsg}</span>
           </div>
         )}
 
@@ -798,7 +798,7 @@ export default function ExamPage() {
                     title={`Q${i + 1}: ${TYPE_META[sq.question_type]?.label}`}
                     className={`aspect-square rounded text-xs font-mono transition-all duration-150 ${
                       i === current
-                        ? "bg-amber/20 border border-amber/50 text-amber"
+                        ? "bg-amber/20 border border-amber/50 text-amber-text"
                         : done
                         ? "bg-emerald/10 border border-emerald/30 text-emerald"
                         : "bg-surface border border-border text-ghost hover:border-amber/20 hover:text-soft"
@@ -815,7 +815,7 @@ export default function ExamPage() {
           <div className="p-3 border-t border-border max-w-[180px] lg:max-w-none">
             <div className="relative rounded-lg overflow-hidden border border-border bg-void">
               <video ref={videoRef} autoPlay playsInline muted className="w-full block" />
-              <div className="absolute top-1.5 end-1.5 flex items-center gap-1 bg-void/80 px-1.5 py-0.5 rounded">
+              <div data-theme="dark" className="absolute top-1.5 end-1.5 flex items-center gap-1 bg-void/80 px-1.5 py-0.5 rounded">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose animate-pulse" />
                 <span className="text-xs font-mono text-rose">REC</span>
               </div>
@@ -835,7 +835,7 @@ export default function ExamPage() {
             </div>
             <div className="flex items-center gap-3">
               {violations > 0 && (
-                <span className="flex items-center gap-1.5 text-xs text-amber bg-amber/10 border border-amber/20 px-2.5 py-1 rounded-full">
+                <span className="flex items-center gap-1.5 text-xs text-amber-text bg-amber/10 border border-amber/20 px-2.5 py-1 rounded-full">
                   <AlertTriangle size={11} />
                   {violations}/5 violations
                 </span>
@@ -907,7 +907,7 @@ export default function ExamPage() {
                   size="sm"
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="bg-emerald text-void hover:bg-emerald/90"
+                  className="bg-emerald text-on-solid hover:bg-emerald/90"
                 >
                   {submitting ? <Spinner announce className="w-3 h-3" /> : <><CheckCircle size={14} /> Submit Exam</>}
                 </Button>

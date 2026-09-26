@@ -25,7 +25,7 @@ function Chip({ pressed, onClick, children }: { pressed: boolean; onClick: () =>
       className={cn(
         'min-h-[44px] rounded-full border px-3.5 py-1.5 text-sm transition-colors lg:min-h-0',
         pressed
-          ? 'border-amber/50 bg-amber/10 text-amber'
+          ? 'border-amber/50 bg-amber/10 text-amber-text'
           : 'border-border bg-panel text-soft hover:border-muted hover:text-bright'
       )}
     >

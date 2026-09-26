@@ -66,8 +66,12 @@ export interface Lesson {
   title_ar?: string | null
   content_ar?: string | null
   order: number
-  estimated_minutes: number
+  /** Null when the course does not state a duration. */
+  estimated_minutes?: number | null
   has_code_examples: boolean
+  is_preview?: boolean
+  is_locked?: boolean
+  course_slug?: string | null
 }
 
 export interface Exercise {
@@ -79,6 +83,8 @@ export interface Exercise {
   starter_code?: string
   difficulty: Difficulty
   skill_tested: string[]
+  is_locked?: boolean
+  course_slug?: string | null
 }
 
 export interface Project {
@@ -92,7 +98,9 @@ export interface Project {
   objectives: string[]
   rubric: Record<string, number>
   starter_repo_url?: string
-  estimated_hours: number
+  estimated_hours?: number | null
+  is_locked?: boolean
+  course_slug?: string | null
 }
 
 export interface QuizQuestion {
@@ -112,6 +120,8 @@ export interface Quiz {
    *  `questions`, so grading is language-independent. */
   questions_ar?: QuizQuestion[] | null
   passing_score: number
+  is_locked?: boolean
+  course_slug?: string | null
 }
 
 export interface Topic {
@@ -123,7 +133,7 @@ export interface Topic {
   description_ar?: string | null
   order: number
   difficulty: Difficulty
-  estimated_hours: number
+  estimated_hours?: number | null
   prerequisite_ids: number[]
   skill_tags: string[]
   /** Terminology dictionary ids this topic teaches. */
@@ -225,7 +235,7 @@ export interface ToolTopic {
   description_ar?: string | null
   order: number
   difficulty: 'beginner' | 'intermediate' | 'advanced'
-  estimated_hours: number
+  estimated_hours?: number | null
   skill_tags: string[]
   technical_terms: string[]
   prerequisite_ids: number[]
@@ -584,16 +594,302 @@ export interface CatalogCourse {
   fields: FieldRef[]
   roles: RoleRef[]
   skills: Skill[]
+  /** The role relationship for the single `career_goal` catalogue filter. */
+  track_role?: CourseRole | null
   estimated_hours: number
+  /** The course's structure. Counts only: a listing never carries lesson text. */
+  module_count?: number
+  lesson_count?: number
   /** False for a catalogue entry whose lessons are not published yet. */
   is_available: boolean
+  is_free?: boolean
+  /** Signed-in learners only: where they stand in this course. */
+  enrollment?: EnrollmentBrief | null
+  readiness?: ReadinessBrief | null
+  /** Courses the card suggests studying before this one (advice, never a gate). */
+  recommended_before?: Array<Pick<CatalogCourse, 'id' | 'slug' | 'title' | 'title_ar'>>
 }
+
+// ─── Independent course enrollment, readiness and recommendations ─────────
+
+export type LearningStatus = 'enrolled' | 'in_progress' | 'completed' | 'paused'
+
+export interface EnrollmentBrief {
+  status: LearningStatus
+  /** Derived from the learner's activity on every request; never stored. */
+  progress_percentage: number
+  enrolled_at?: string | null
+  started_at?: string | null
+  completed_at?: string | null
+}
+
+export type ReadinessState = 'ready' | 'mostly_ready' | 'needs_foundation' | 'not_assessed'
+
+export interface ReadinessBrief {
+  state: ReadinessState
+  score: number
+}
+
+export type SkillProficiency = 'not_assessed' | 'beginner' | 'intermediate' | 'advanced'
+export type SkillStanding = 'strong' | 'partial' | 'gap' | 'unknown'
+
+export interface SkillStandingItem {
+  skill: Skill
+  standing: SkillStanding
+  level: SkillProficiency
+  /** Whether a *required* prerequisite teaches it. */
+  required: boolean
+}
+
+export interface CourseModule {
+  /** The topic id the course viewer opens. */
+  id: number
+  order: number
+  title: string
+  title_ar?: string | null
+  description?: string | null
+  description_ar?: string | null
+  estimated_hours?: number | null
+  lesson_count: number
+  exercise_count: number
+  quiz_count: number
+  project_count: number
+  completion_pct?: number | null
+  status?: 'not_started' | 'in_progress' | 'completed' | null
+}
+
+export interface CourseProject {
+  id: number
+  title: string
+  title_ar?: string | null
+  estimated_hours?: number | null
+  module_order: number
+  kind: 'module' | 'lab' | 'capstone' | 'lesson'
+}
+
+export interface RoadmapMembership {
+  career_goal: RoleRef
+  track_role: CourseRole
+  position?: number | null
+  total: number
+}
+
+export interface ReviewModule {
+  id: number
+  order: number
+  title: string
+  title_ar?: string | null
+}
+
+export interface ReviewItem {
+  course: Pick<CatalogCourse, 'id' | 'slug' | 'title' | 'title_ar'>
+  skills: Skill[]
+  required: boolean
+  modules: ReviewModule[]
+}
+
+export interface ReadinessReport {
+  course_id: number
+  course_slug: string
+  state: ReadinessState
+  score: number
+  strengths: SkillStandingItem[]
+  gaps: SkillStandingItem[]
+  recommended_review: ReviewItem[]
+  has_prerequisites: boolean
+  /** A short check exists for this course. */
+  assessment_available: boolean
+  last_assessed_at?: string | null
+}
+
+export interface ModuleRef {
+  id: number
+  order: number
+  title: string
+  title_ar?: string | null
+}
+
+export interface StartPlan {
+  mode: 'start' | 'resume'
+  recommended_module?: ModuleRef | null
+  preparation: ReviewItem[]
+}
+
+export interface CourseLearningEnrollment {
+  course_id: number
+  course_slug: string
+  status: LearningStatus
+  source: string
+  progress_percentage: number
+  enrolled_at?: string | null
+  started_at?: string | null
+  completed_at?: string | null
+}
+
+export interface EnrollResult {
+  enrollment: CourseLearningEnrollment
+  created: boolean
+  readiness: ReadinessReport
+  start: StartPlan
+}
+
+export interface CourseProgress {
+  course_id: number
+  course_slug: string
+  enrolled: boolean
+  status: LearningStatus
+  progress_percentage: number
+  modules_total: number
+  modules_completed: number
+  lessons_total: number
+  modules: CourseModule[]
+  next_module?: ModuleRef | null
+}
+
+export interface AssessmentQuestion {
+  /** "<quiz id>:<index>". No answer key is ever sent. */
+  id: string
+  skill: Skill
+  question: string
+  question_ar?: string | null
+  options: string[]
+  options_ar?: string[] | null
+}
+
+export interface ReadinessAssessment {
+  course_id: number
+  course_slug: string
+  question_count: number
+  estimated_minutes: number
+  questions: AssessmentQuestion[]
+}
+
+export interface AssessmentResult {
+  assessment_id: number
+  score: number
+  correct_count: number
+  question_count: number
+  skill_results: Record<string, number>
+  questions: Array<{ id: string; correct: boolean; explanation: string }>
+  readiness: ReadinessReport
+}
+
+export interface Recommendation {
+  course: CatalogCourse
+  /** A code the client turns into a sentence in the reader's language. */
+  reason_code: string
+  params: Record<string, unknown>
+  /** An English sentence, for a client that does not localise. */
+  reason: string
+  readiness?: ReadinessState | null
+}
+
+export interface Recommendations {
+  continue_learning: Recommendation[]
+  recommended_next: Recommendation[]
+  build_foundations: Recommendation[]
+  completed: Recommendation[]
+  career_goal?: RoleRef | null
+}
+
+export interface TrackCourse {
+  course: CatalogCourse
+  track_role: CourseRole
+  position: number
+  stage?: StageRef | null
+}
+
+/** A career roadmap: a recommended, ordered set of canonical courses. */
+export interface TrackDetail extends CareerGoal {
+  courses: TrackCourse[]
+}
+
+export interface SkillLevels {
+  levels: Record<string, SkillProficiency>
+  skills: Array<{ skill: Skill; level: SkillProficiency }>
+  programming_experience?: string | null
+  ai_experience?: string | null
+}
+
+export type ProgrammingExperience = 'none' | 'basic' | 'comfortable' | 'professional'
+export type AiExperience = 'none' | 'basics' | 'projects' | 'applications'
+
+// ─── Course billing and access ─────────────────────────────────────────────
+
+export interface CourseOffer {
+  course_id: string
+  price_amount: number
+  currency: 'EGP'
+  original_price_amount?: number | null
+}
+
+export type CourseAccessReason = 'free' | 'purchase' | 'admin_grant' | 'purchase_required'
+
+export interface CourseAccess {
+  has_access: boolean
+  reason: CourseAccessReason
+  enrollment_id?: number | null
+}
+
+export interface CheckoutResponse {
+  order_id: number
+  payment_url: string
+  amount: number
+  currency: 'EGP'
+}
+
+export interface BillingOrder {
+  id: number
+  course: { id: number; slug: string; title: string; title_ar?: string | null }
+  amount: number
+  currency: 'EGP'
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'refunded'
+  created_at: string
+  paid_at?: string | null
+}
+
+export interface CourseEnrollment {
+  id: number
+  user_id: number
+  course_id: string
+  source: 'purchase' | 'admin_grant' | 'free'
+  status: 'active' | 'revoked' | 'expired'
+  enrolled_at: string
+  expires_at?: string | null
+}
+
+export interface MyCourse {
+  course_id: number
+  slug: string
+  title: string
+  title_ar?: string | null
+  href?: string | null
+  progress: number
+  enrolled_at: string
+  access_type: 'purchase' | 'admin_grant' | 'free'
+  /** Lifecycle, cached on the enrollment; `progress` is always live. */
+  status?: LearningStatus
+  started_at?: string | null
+  completed_at?: string | null
+  estimated_hours?: number | null
+  module_count?: number
+}
+
+/** A course's role is contextual: it can differ between career goals. */
+export type CourseRole = 'core' | 'supporting' | 'optional'
 
 export interface CatalogCourseDetail extends CatalogCourse {
   assumes: Skill[]
+  /** Required prerequisites: the ones a roadmap is ordered by. Never a gate. */
   prerequisites: Array<Pick<CatalogCourse, 'id' | 'slug' | 'title' | 'title_ar'>>
+  /** Advice only. */
+  recommended_prerequisites?: Array<Pick<CatalogCourse, 'id' | 'slug' | 'title' | 'title_ar'>>
   learning_objectives: string[]
   learning_objectives_ar: string[]
+  modules?: CourseModule[]
+  projects?: CourseProject[]
+  /** The roadmaps this course appears in: informational only. */
+  roadmaps?: RoadmapMembership[]
 }
 
 export type PathCourseState = 'required' | 'completed' | 'optional' | 'waived'
@@ -725,6 +1021,8 @@ export interface LearningProfile {
   career_goal?: RoleRef | null
   fields: FieldRef[]
   known_skills: Skill[]
+  programming_experience?: ProgrammingExperience | null
+  ai_experience?: AiExperience | null
   onboarding_completed: boolean
   /** The one flag the client branches on to send someone to onboarding. */
   needs_onboarding: boolean
@@ -822,6 +1120,8 @@ export interface LearningProfileUpdate {
   career_goal?: string | null
   fields?: string[]
   known_skills?: string[]
+  programming_experience?: ProgrammingExperience | null
+  ai_experience?: AiExperience | null
 }
 
 export interface GeneratePathRequest {
@@ -831,9 +1131,34 @@ export interface GeneratePathRequest {
 }
 
 export interface CourseFilters {
+  /** `level` and `difficulty` are one filter (the API accepts both names). */
   level?: string[]
+  difficulty?: string[]
+  /** A field of the catalogue's own taxonomy (NLP, computer vision ...); `category` is its alias. */
   field?: string[]
+  category?: string[]
   career_goal?: string[]
+  skill?: string[]
   q?: string
   available_only?: boolean
+  /** true: only my courses; false: only those I am not in. */
+  enrolled?: boolean
+}
+
+/** A certificate as the API returns it, both for the signed-in learner's own list
+ *  and for the public verification lookup (the same shape, by design: the public
+ *  one shows nothing the certificate itself does not). */
+export interface CertificateSummary {
+  /** A UUID: the public identifier, and what the verification link carries. */
+  certificate_id: string
+  /** The career track the exam belonged to. */
+  track_title: string
+  /** The holder's name as their account has it. */
+  user_name: string
+  score: number
+  issued_at: string
+  /** False once revoked. The learner's own list only ever holds valid ones. */
+  is_valid: boolean
+  /** The exam it was earned in. Only on the learner's own list: the public lookup omits it. */
+  exam_id?: number | null
 }

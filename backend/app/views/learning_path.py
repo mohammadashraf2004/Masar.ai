@@ -23,10 +23,17 @@ from typing_extensions import Annotated
 # vehicle for anything but a lookup key.
 Slug = Annotated[str, StringConstraints(pattern=r"^[a-z0-9][a-z0-9-]{0,62}$", max_length=63)]
 
+# A course is addressed by its slug, in any case: `course-004` and `COURSE-004` are the
+# same course (the frozen id in the curriculum export is upper-case). Handlers lower-case it.
+CourseSlug = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9][A-Za-z0-9-]{0,62}$", max_length=63)]
+
 # Nothing in the catalogue comes close to these; they exist to bound a request.
 MAX_FIELDS = 12
 MAX_SKILLS = 100
 MAX_WAIVED = 200
+
+# How much a course matters to one career goal. Mirrors `course_roles.relation`.
+TrackRole = Literal["core", "supporting", "optional"]
 
 
 # ─── Vocabulary ─────────────────────────────────────────────────────────────
@@ -125,15 +132,89 @@ class CourseSummary(CourseRef):
     roles: List[RoleRef] = []
     skills: List[SkillOut] = []
     estimated_hours: float
+    # The course's structure. Counts only - a listing never carries lesson text.
+    module_count: int = 0
+    lesson_count: int = 0
     # False for a catalogue entry whose lessons are not published yet.
     is_available: bool
+    # Existing catalogue courses are free until an admin activates a paid
+    # offer. Paid access itself is reported by the authenticated access API.
+    is_free: bool = True
+    # The course's weight for one career goal - present only where a goal is in
+    # context (a path, or a listing filtered to a single goal), else null. It
+    # describes; it never changes a course's state or a path's progress.
+    track_role: Optional[TrackRole] = None
+
+
+class EnrollmentBrief(BaseModel):
+    """A signed-in learner's standing in one course. `progress_percentage` is
+    derived from their activity on every request, never stored."""
+    status: Literal["enrolled", "in_progress", "completed", "paused"]
+    progress_percentage: float
+    enrolled_at: Optional[datetime] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+
+class ReadinessBrief(BaseModel):
+    state: Literal["ready", "mostly_ready", "needs_foundation", "not_assessed"]
+    score: int
+
+
+class CourseCard(CourseSummary):
+    """A course in a listing: the summary plus, for a signed-in learner, where
+    they stand in it. Still no lesson text."""
+    enrollment: Optional[EnrollmentBrief] = None
+    readiness: Optional[ReadinessBrief] = None
+    # The prerequisites the card names ("Recommended: Machine Learning Foundations").
+    recommended_before: List[CourseRef] = []
+
+
+class ModuleOut(BaseModel):
+    id: int                                   # the topic id the course viewer opens
+    order: int
+    title: str
+    title_ar: Optional[str] = None
+    description: Optional[str] = None
+    description_ar: Optional[str] = None
+    estimated_hours: Optional[float] = None
+    lesson_count: int
+    exercise_count: int
+    quiz_count: int
+    project_count: int
+    completion_pct: Optional[float] = None    # signed-in learners only
+    status: Optional[Literal["not_started", "in_progress", "completed"]] = None
+
+
+class ProjectOut(BaseModel):
+    id: int
+    title: str
+    title_ar: Optional[str] = None
+    estimated_hours: Optional[float] = None
+    module_order: int
+    kind: Literal["module", "lab", "capstone", "lesson"]
+
+
+class RoadmapMembership(BaseModel):
+    """One roadmap (career goal) this course is part of - informational only."""
+    career_goal: RoleRef
+    track_role: TrackRole
+    position: Optional[int] = None            # 1-based place in that roadmap's order
+    total: int = 0                            # courses in that roadmap
 
 
 class CourseDetail(CourseSummary):
     assumes: List[SkillOut] = []
+    # Required prerequisites: the ones a roadmap is ordered by. Never a gate.
     prerequisites: List[CourseRef] = []
+    # Advice only.
+    recommended_prerequisites: List[CourseRef] = []
     learning_objectives: List[str] = []
     learning_objectives_ar: List[str] = []
+    modules: List[ModuleOut] = []
+    projects: List[ProjectOut] = []
+    roadmaps: List[RoadmapMembership] = []
+    enrollment: Optional[EnrollmentBrief] = None
 
 
 # ─── Paths ──────────────────────────────────────────────────────────────────
@@ -173,6 +254,7 @@ class CourseWhyOut(BaseModel):
 
 
 class PathCourseOut(BaseModel):
+    # `course.track_role` carries this course's weight for the path's career goal.
     course: CourseSummary
     state: Literal["required", "completed", "optional", "waived"]
     # prerequisite | below_level | known_skills (why it is in this state).
@@ -276,6 +358,8 @@ class ProfileOut(BaseModel):
     career_goal: Optional[RoleRef] = None
     fields: List[FieldRef] = []
     known_skills: List[SkillOut] = []
+    programming_experience: Optional[str] = None
+    ai_experience: Optional[str] = None
     onboarding_completed: bool
     # The one flag the client branches on to send someone to onboarding.
     needs_onboarding: bool
@@ -374,6 +458,10 @@ class ProfileUpdate(BaseModel):
     career_goal: Optional[Slug] = None
     fields: Optional[List[Slug]] = Field(None, max_length=MAX_FIELDS)
     known_skills: Optional[List[Slug]] = Field(None, max_length=MAX_SKILLS)
+    # The two questions of the short onboarding. Neither a level nor a career goal is
+    # needed to finish it: fields (interests) plus these two answers are enough.
+    programming_experience: Optional[Literal["none", "basic", "comfortable", "professional"]] = None
+    ai_experience: Optional[Literal["none", "basics", "projects", "applications"]] = None
 
 
 class GenerateRequest(BaseModel):

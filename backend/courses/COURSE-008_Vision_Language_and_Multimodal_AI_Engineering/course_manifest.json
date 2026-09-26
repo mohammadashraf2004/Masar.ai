@@ -1,0 +1,240 @@
+{
+  "course_id": "COURSE-008",
+  "course_title": "Vision-Language & Multimodal AI Engineering",
+  "source_id": "BOOK-008",
+  "book_title": "Vision Language Models",
+  "edition": "SOURCE INFORMATION MISSING",
+  "status": "Curriculum design finalized / course-folder seed export generated",
+  "finalization_status": "Finished by user",
+  "approval_status": "Not explicitly approved",
+  "source_review_status": "Complete",
+  "source_structure": {
+    "chapters": 11,
+    "chapters_reviewed": "11/11"
+  },
+  "level": "Advanced",
+  "difficulty": "Intermediate → Advanced",
+  "guided_minutes": 5815,
+  "guided_time": "96h55m",
+  "modules": 11,
+  "lessons": 106,
+  "lesson_id_range": "L008-001..L008-106",
+  "module_id_range": "M008-01..M008-11",
+  "visual_assets": 76,
+  "prerequisites": [
+    "COURSE-001 — Machine Learning Foundations",
+    "COURSE-002 — Deep Learning Foundations",
+    "COURSE-003 — Applied Deep Learning",
+    "COURSE-004 — Applied NLP with Transformers",
+    "COURSE-005 — Applied LLM Engineering",
+    "COURSE-006 — Production AI Engineering",
+    "COURSE-007 — Advanced LLM Systems & Application Architecture"
+  ],
+  "track_roles": {
+    "Data Analyst": "Optional",
+    "ML Engineer": "Core",
+    "AI Developer": "Core",
+    "MLOps Engineer": "Supporting",
+    "AI Engineer": "Core"
+  },
+  "professional_capability": "Build, train, adapt, evaluate, optimize, retrieve with, deploy, and extend modern vision-language and multimodal AI systems across image-text, documents, video, any-to-any generation, visual agents, and VLA architectures.",
+  "learning_loop": "Learn → Practice → Build → Debug → Evaluate",
+  "capstone": "Production Multimodal AI System Capstone",
+  "module_inventory": [
+    {
+      "id": "M008-01",
+      "title": "Foundations of Vision-Language Systems",
+      "role": "CORE + REVISION",
+      "chapters": [
+        1
+      ],
+      "project": "Multimodal Foundations Exploration Lab",
+      "guided_minutes": 350,
+      "lessons": 8,
+      "guided_time": "5h50m"
+    },
+    {
+      "id": "M008-02",
+      "title": "Vision-Language Applications & Evaluation",
+      "role": "CORE",
+      "chapters": [
+        2
+      ],
+      "project": "VLM Applications & Evaluation Lab",
+      "guided_minutes": 405,
+      "lessons": 8,
+      "guided_time": "6h45m"
+    },
+    {
+      "id": "M008-03",
+      "title": "Training Vision-Language Models from First Principles",
+      "role": "CORE / IMPLEMENTATION",
+      "chapters": [
+        3
+      ],
+      "project": "Train and Debug a Small Vision-Language Model",
+      "guided_minutes": 555,
+      "lessons": 10,
+      "guided_time": "9h15m"
+    },
+    {
+      "id": "M008-04",
+      "title": "Multimodal Data Engineering, Curation & Dataset Mixtures",
+      "role": "CORE / IMPLEMENTATION",
+      "chapters": [
+        4
+      ],
+      "project": "Build a Multimodal Dataset Factory",
+      "guided_minutes": 560,
+      "lessons": 10,
+      "guided_time": "9h20m"
+    },
+    {
+      "id": "M008-05",
+      "title": "Post-Training & Alignment for Vision-Language Models",
+      "role": "CORE / ADVANCED IMPLEMENTATION",
+      "chapters": [
+        5
+      ],
+      "project": "Adapt & Align a Vision-Language Model",
+      "guided_minutes": 560,
+      "lessons": 10,
+      "guided_time": "9h20m"
+    },
+    {
+      "id": "M008-06",
+      "title": "Core Architectures of Vision-Language Models",
+      "role": "CORE / ARCHITECTURE / IMPLEMENTATION",
+      "chapters": [
+        6
+      ],
+      "project": "Build & Compare Two VLM Architectures",
+      "guided_minutes": 480,
+      "lessons": 9,
+      "guided_time": "8h00m"
+    },
+    {
+      "id": "M008-07",
+      "title": "Multimodal Inference & Deployment Engineering",
+      "role": "CORE / PRODUCTION / PERFORMANCE ENGINEERING",
+      "chapters": [
+        7
+      ],
+      "project": "Profile, Optimize & Serve a Vision-Language Model",
+      "guided_minutes": 580,
+      "lessons": 10,
+      "guided_time": "9h40m"
+    },
+    {
+      "id": "M008-08",
+      "title": "Document AI & Multimodal RAG",
+      "role": "CORE / APPLIED SPECIALIZATION",
+      "chapters": [
+        8
+      ],
+      "project": "Build a Visual Document Intelligence & RAG System",
+      "guided_minutes": 580,
+      "lessons": 10,
+      "guided_time": "9h40m"
+    },
+    {
+      "id": "M008-09",
+      "title": "Video-Language Models & Video-RAG",
+      "role": "CORE / APPLIED SPECIALIZATION",
+      "chapters": [
+        9
+      ],
+      "project": "Build a Searchable Video Intelligence & Video-RAG System",
+      "guided_minutes": 570,
+      "lessons": 10,
+      "guided_time": "9h30m"
+    },
+    {
+      "id": "M008-10",
+      "title": "Any-to-Any Multimodal Systems",
+      "role": "ADVANCED CORE / ARCHITECTURE / GENERATIVE MULTIMODALITY",
+      "chapters": [
+        10
+      ],
+      "project": "Build a Modular Any-to-Any Multimodal Assistant",
+      "guided_minutes": 620,
+      "lessons": 11,
+      "guided_time": "10h20m"
+    },
+    {
+      "id": "M008-11",
+      "title": "Agentic Vision & Vision-Language-Action Systems",
+      "role": "ADVANCED CORE / ACTION-CAPABLE MULTIMODAL SYSTEMS",
+      "chapters": [
+        11
+      ],
+      "project": "Build an Action-Capable Visual Agent",
+      "guided_minutes": 555,
+      "lessons": 10,
+      "guided_time": "9h15m"
+    }
+  ],
+  "source_chapters": [
+    {
+      "chapter": 1,
+      "title": "Introduction to Vision and Language",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 2,
+      "title": "Vision Language Model Applications",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 3,
+      "title": "Vision Language Model Training",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 4,
+      "title": "Training Data and Preprocessing for VLMs",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 5,
+      "title": "Post-Training Vision Language Models",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 6,
+      "title": "Core Architectures of Vision Language Models",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 7,
+      "title": "Deploying Models for Inference at Scale",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 8,
+      "title": "Document AI",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 9,
+      "title": "Video-Language Models",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 10,
+      "title": "Any-to-Any Models",
+      "status": "incorporated"
+    },
+    {
+      "chapter": 11,
+      "title": "Advanced Topics and Cutting-Edge Research",
+      "status": "incorporated"
+    }
+  ],
+  "frozen": {
+    "course_id": true,
+    "module_ids": true,
+    "lesson_ids": true,
+    "intentional_boundaries": true
+  }
+}

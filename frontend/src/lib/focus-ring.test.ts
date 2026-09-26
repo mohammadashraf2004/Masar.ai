@@ -14,8 +14,10 @@ describe('the shared text-field focus ring', () => {
     expect(block).not.toBeNull()
   })
 
-  it('draws a solid 2px amber outline', () => {
-    expect(block?.[1]).toMatch(/outline:\s*2px solid #F59E0B/i)
+  // The colour is the --ring token — amber on the dark theme, a darker amber on
+  // the light one (contrast.test.ts holds both to 3:1 against every surface).
+  it('draws a solid 2px outline in the ring colour', () => {
+    expect(block?.[1]).toMatch(/outline:\s*2px solid rgb\(var\(--ring\)\)/)
   })
 
   it('leaves checkboxes, radios and buttons to the general focus rule', () => {
@@ -25,7 +27,7 @@ describe('the shared text-field focus ring', () => {
     }
   })
 
-  it('keeps the general 2px amber focus rule that every other control relies on', () => {
-    expect(css).toMatch(/\*:focus-visible\s*\{\s*outline:\s*2px solid #F59E0B/i)
+  it('keeps the general 2px focus rule that every other control relies on', () => {
+    expect(css).toMatch(/\*:focus-visible\s*\{\s*outline:\s*2px solid rgb\(var\(--ring\)\)/)
   })
 })

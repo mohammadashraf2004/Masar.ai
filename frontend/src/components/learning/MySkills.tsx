@@ -164,7 +164,7 @@ export function MySkillsSection() {
               <ul className="space-y-1.5">
                 {skills.learning.map((s) => (
                   <li key={s.slug} className="flex items-start gap-2 text-sm text-bright">
-                    <CircleDot size={15} className="mt-0.5 shrink-0 text-amber" aria-hidden="true" />
+                    <CircleDot size={15} className="mt-0.5 shrink-0 text-amber-text" aria-hidden="true" />
                     <LearningLabel parts={skillLabel(s, ctx)} />
                   </li>
                 ))}
@@ -186,7 +186,7 @@ export function MySkillsSection() {
       {message === 'saved' && (
         <p role="status" className="mt-4 text-sm text-emerald">
           {t('mys.saved')}{' '}
-          <Link href="/learn" className="underline">{t('mys.viewRoadmap')}</Link>
+          <Link href="/learn/masar" className="underline">{t('mys.viewRoadmap')}</Link>
         </p>
       )}
       {message === 'savedNoPath' && <p role="status" className="mt-4 text-sm text-emerald">{t('mys.savedNoPath')}</p>}

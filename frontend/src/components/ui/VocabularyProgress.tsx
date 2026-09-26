@@ -51,7 +51,7 @@ export function VocabularyProgress({
     <div className={cn('rounded-lg bg-panel border border-border p-4', className)}>
       <div className="flex items-baseline justify-between gap-2 mb-2">
         <h3 className="text-sm font-medium text-bright">{t('term.glossaryTitle')}</h3>
-        <span className="text-xs font-mono text-amber">{pct}%</span>
+        <span className="text-xs font-mono text-amber-text">{pct}%</span>
       </div>
 
       <ProgressBar value={pct} size="md" color={pct >= 80 ? 'emerald' : 'amber'} />
@@ -85,7 +85,7 @@ export function VocabularyProgress({
 
       <Link
         href="/glossary"
-        className="mt-3 inline-flex min-h-[44px] items-center gap-1 text-xs text-amber hover:text-amber2 transition-colors lg:min-h-0"
+        className="mt-3 inline-flex min-h-[44px] items-center gap-1 text-xs text-amber-text hover:text-amber-text2 transition-colors lg:min-h-0"
       >
         {t('nav.glossary')} <ArrowRight size={12} className="rtl:rotate-180" aria-hidden="true" />
       </Link>

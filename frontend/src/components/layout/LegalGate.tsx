@@ -61,9 +61,9 @@ export function LegalGate() {
     }
   }
 
-  const link = 'text-amber underline underline-offset-2 hover:text-amber2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber'
+  const link = 'text-amber-text underline underline-offset-2 hover:text-amber-text2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring'
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-void/90 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-scrim/90 p-4 backdrop-blur-sm">
       <div
         role="dialog"
         aria-modal="true"
@@ -79,7 +79,7 @@ export function LegalGate() {
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+            className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           />
           <label htmlFor={boxId} className="min-h-[44px] flex-1 cursor-pointer py-0.5 text-sm leading-relaxed text-soft">
             {t('legal.agree.prefix')}
@@ -96,7 +96,7 @@ export function LegalGate() {
           <button
             type="button"
             onClick={logout}
-            className="min-h-[44px] rounded px-2 text-xs text-soft hover:text-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber lg:min-h-0"
+            className="min-h-[44px] rounded px-2 text-xs text-soft hover:text-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring lg:min-h-0"
           >
             {t('nav.signOut')}
           </button>

@@ -1,0 +1,2 @@
+# Application dependencies come from the Masar backend.
+# Course examples reference PyTorch/Transformers and, where relevant, PEFT, TRL, datasets, vLLM, diffusers, FAISS, and video/document tooling.

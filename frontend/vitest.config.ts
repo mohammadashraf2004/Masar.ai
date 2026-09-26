@@ -20,5 +20,8 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}'],
     css: false,
     restoreMocks: true,
+    // Three test files at a time. Under load (Docker, a busy laptop) the default fan-out starves
+    // the slower component tests past Vitest's 5 s limit, which shows up as random timeouts.
+    maxWorkers: 3,
   },
 })

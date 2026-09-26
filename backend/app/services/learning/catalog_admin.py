@@ -21,14 +21,16 @@ and history keep resolving.
 """
 from __future__ import annotations
 
-from typing import Dict, Iterable, List, Optional, Sequence
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence
 
 from sqlalchemy.orm import Session
 
 from app.models.learning import CareerTrack, TrackLevel
 from app.models.learning_path import (
-    COURSE_KIND_TOOL, COURSE_KIND_TRACK_LEVEL, ROLE_FIELD_RECOMMENDED, ROLE_FIELD_REQUIRED,
+    COURSE_KIND_TOOL, COURSE_KIND_TRACK_LEVEL, COURSE_ROLE_CORE, COURSE_ROLE_RELATIONS,
+    ROLE_FIELD_RECOMMENDED, ROLE_FIELD_REQUIRED,
     SKILL_ASSUMES, SKILL_KINDS, SKILL_TEACHES,
+    PREREQ_RECOMMENDED, PREREQ_REQUIRED,
     CareerRole, CareerRoleField, CareerRoleSkill, Course, CourseField, CoursePrerequisite,
     CourseRole, CourseSkill, LearningField, LearningFieldPrerequisite, LearningLevel,
     PathStage, PathStageCourse, PathTemplate, PathTemplateStage, Skill,
@@ -232,33 +234,84 @@ def resolve_source(db: Session, source: Dict[str, object]):
     raise LearningValidationError("unknown_source", "source.kind must be 'tool_course' or 'track_level'.")
 
 
+def course_role_pairs(roles: Iterable[Any]) -> Dict[str, str]:
+    """The career goals a course serves, each with its relation, in order.
+
+    An entry is a bare slug - which means `core`, what a tag has always meant, so
+    every existing caller keeps working - or `{"slug": ..., "relation": ...}`.
+    Naming one goal twice with two different relations is a mistake to report,
+    not something to merge silently.
+    """
+    pairs: Dict[str, str] = {}
+    for entry in roles:
+        if isinstance(entry, str):
+            slug, relation = entry, COURSE_ROLE_CORE
+        elif isinstance(entry, Mapping):
+            slug, relation = entry.get("slug"), entry.get("relation") or COURSE_ROLE_CORE
+        elif isinstance(entry, (tuple, list)) and len(entry) == 2:
+            slug, relation = entry
+        else:
+            raise LearningValidationError(
+                "invalid_course_role", "A course role is a career goal slug or {slug, relation}.")
+        if not isinstance(slug, str) or not slug:
+            raise LearningValidationError("invalid_course_role", "A course role needs a career goal slug.")
+        if relation not in COURSE_ROLE_RELATIONS:
+            raise LearningValidationError(
+                "invalid_course_role_relation",
+                f"Course role '{relation}' for '{slug}' must be one of: {', '.join(COURSE_ROLE_RELATIONS)}.")
+        if pairs.get(slug, relation) != relation:
+            raise LearningValidationError(
+                "conflicting_course_role", f"Career goal '{slug}' is listed with two different relations.")
+        pairs[slug] = relation
+    return pairs
+
+
 def set_course_relations(db: Session, course: Course, *, fields: Optional[Sequence[str]] = None,
-                         roles: Optional[Sequence[str]] = None, teaches: Optional[Sequence[str]] = None,
+                         roles: Optional[Sequence[Any]] = None, teaches: Optional[Sequence[str]] = None,
                          assumes: Optional[Sequence[str]] = None,
-                         prerequisites: Optional[Sequence[str]] = None) -> None:
+                         prerequisites: Optional[Sequence[str]] = None,
+                         recommended_prerequisites: Optional[Sequence[str]] = None) -> None:
     """Replace whichever relation lists are given; `None` leaves that list as it
     is. That is what lets a seed create every course first and add the
-    prerequisites between them in a second pass."""
+    prerequisites between them in a second pass. `roles` takes slugs (core) or
+    `{slug, relation}` entries - see `course_role_pairs`.
+
+    `prerequisites` are the *required* ones the path generator orders a roadmap
+    by; `recommended_prerequisites` are advice for readiness and recommendations.
+    Each list is replaced on its own; a course named in both is required."""
     if fields is not None:
         rows = _by_slug(db, LearningField, fields, "field")
         _replace(db, course.field_links, [CourseField(field_id=rows[s].id) for s in dict.fromkeys(fields)])
     if roles is not None:
-        rows = _by_slug(db, CareerRole, roles, "career_goal")
-        _replace(db, course.role_links, [CourseRole(role_id=rows[s].id) for s in dict.fromkeys(roles)])
+        pairs = course_role_pairs(roles)
+        rows = _by_slug(db, CareerRole, pairs, "career_goal")
+        _replace(db, course.role_links,
+                 [CourseRole(role_id=rows[s].id, relation=relation) for s, relation in pairs.items()])
     if teaches is not None or assumes is not None:
         t, a = list(teaches or []), list(assumes or [])
         rows = _by_slug(db, Skill, [*t, *a], "skill")
         _replace(db, course.skill_links,
                  [CourseSkill(skill_id=rows[s].id, relation=SKILL_TEACHES) for s in dict.fromkeys(t)]
                  + [CourseSkill(skill_id=rows[s].id, relation=SKILL_ASSUMES) for s in dict.fromkeys(a)])
-    if prerequisites is not None:
-        if course.slug in prerequisites:
+    if prerequisites is not None or recommended_prerequisites is not None:
+        by_id = {c.id: c.slug for c in db.query(Course).filter(
+            Course.id.in_([l.prerequisite_course_id for l in course.prerequisite_links])).all()} \
+            if course.prerequisite_links else {}
+        current = {kind: [by_id[l.prerequisite_course_id] for l in course.prerequisite_links
+                          if l.kind == kind and l.prerequisite_course_id in by_id]
+                   for kind in (PREREQ_REQUIRED, PREREQ_RECOMMENDED)}
+        required = list(dict.fromkeys(prerequisites if prerequisites is not None else current[PREREQ_REQUIRED]))
+        recommended = [s for s in dict.fromkeys(
+            recommended_prerequisites if recommended_prerequisites is not None else current[PREREQ_RECOMMENDED]
+        ) if s not in required]
+        if course.slug in required or course.slug in recommended:
             raise LearningValidationError("course_prerequisite_self", "A course cannot be its own prerequisite.")
-        rows = _by_slug(db, Course, prerequisites, "course")
+        rows = _by_slug(db, Course, [*required, *recommended], "course")
         _replace(db, course.prerequisite_links,
-                 [CoursePrerequisite(prerequisite_course_id=rows[s].id) for s in dict.fromkeys(prerequisites)])
+                 [CoursePrerequisite(prerequisite_course_id=rows[s].id, kind=PREREQ_REQUIRED) for s in required]
+                 + [CoursePrerequisite(prerequisite_course_id=rows[s].id, kind=PREREQ_RECOMMENDED) for s in recommended])
     db.flush()
-    if prerequisites is not None:
+    if prerequisites is not None or recommended_prerequisites is not None:
         _assert_course_graph_acyclic(db)
 
 

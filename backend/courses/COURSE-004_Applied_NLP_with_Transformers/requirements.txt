@@ -1,0 +1,10 @@
+# Runtime dependencies are owned by the Masar backend.
+# Lesson examples assume modern versions of:
+transformers
+datasets
+evaluate
+accelerate
+torch
+scikit-learn
+seqeval
+onnxruntime

@@ -5,13 +5,129 @@
 :root {
   /* --font-dm-sans, --font-syne, --font-jetbrains and --font-plex-arabic
      are set on <html> by next/font/local; see src/fonts/index.ts. Only the
-     composite stack is assembled here.
+     composite stacks are assembled here.
 
-     Arabic text falls to IBM Plex Sans Arabic; DM Sans has no Arabic
+     Arabic text falls to IBM Plex Sans Arabic; DM Sans and Syne have no Arabic
      coverage, and letting the browser pick produces a different fallback
      face on every OS. Latin comes first so English technical terms inside
-     Arabic prose keep the product's own typography. */
-  --font-arabic: var(--font-dm-sans), var(--font-plex-arabic), sans-serif;
+     Arabic prose keep the product's own typography.
+
+     Every stack carries the Arabic fallback in every UI language, not only
+     under html[lang="ar"]: an English page still shows Arabic (the brand name,
+     the glosses beside a technical term), and it should get the same face. */
+  --font-body: var(--font-dm-sans), var(--font-plex-arabic), system-ui, sans-serif;
+  --font-display: var(--font-syne), var(--font-plex-arabic), system-ui, sans-serif;
+  /* The diagrams face leads: its own unicode-range (see the @font-face below)
+     makes the browser skip it for every character outside that set. Why it
+     has to come first is written up in tailwind.config.ts. */
+  --font-mono: 'JetBrains Mono Diagrams', var(--font-jetbrains), ui-monospace, monospace;
+  /* The name the Arabic rules below and lesson content were written against. */
+  --font-arabic: var(--font-body);
+}
+
+/* ── Theme tokens ─────────────────────────────────────────────────────
+   Every colour in the app is one of these. tailwind.config.ts maps the
+   utility names the code already uses (bg-void, text-ghost, border-border…)
+   onto them, so the same class is dark under data-theme="dark" (the default)
+   and light under data-theme="light", set on <html> by the inline script in
+   app/layout.tsx before first paint.
+
+   Values are space-separated RGB channels, not hex, so Tailwind's opacity
+   modifiers (bg-amber/10, border-border/60) keep working: the utility is
+   `rgb(var(--acc) / <alpha>)`. In CSS, use `rgb(var(--acc))`.
+
+   [data-theme="dark"] is also how a region stays dark inside a light page:
+   put the attribute on the element and everything inside it resolves against
+   the dark set again. Code is always dark (the handoff's rule), so `.prism-code`
+   — the class on the code editor, on highlighted code blocks and on lesson
+   code — is part of the dark selector and needs no attribute.
+
+   Token names follow the design handoff; the comment on each is the utility
+   it feeds. Dark values are the ones the app shipped with. Where a handoff
+   value would fail the app's own contrast rule (4.5:1 for every text token on
+   every surface, and for status text on its own tint — src/lib/contrast.test.ts),
+   the closest passing value is used and the difference is noted. */
+:root,
+[data-theme="dark"],
+.prism-code {
+  color-scheme: dark;
+
+  /* surfaces */
+  --bg: 8 10 14;        /* #080A0E  void    page                        */
+  --side: 13 17 23;     /* #0D1117  ink     sidebar, menus              */
+  --card: 17 22 32;     /* #111620  surface cards, fields               */
+  --card2: 22 28 40;    /* #161C28  panel   inset / active fills        */
+  --line: 30 37 53;     /* #1E2535  border  1px hairlines               */
+  --track: 42 51 71;    /* #2A3347  muted   bar tracks, hover borders   */
+
+  /* text, strongest first */
+  --head: 247 250 252;  /* #F7FAFC  white   headings                    */
+  --text: 226 232 240;  /* #E2E8F0  bright  body                        */
+  --soft: 160 174 192;  /* #A0AEC0  soft    secondary                   */
+  --mute: 142 155 176;  /* #8E9BB0  dim     tertiary (handoff --mute)   */
+  /* handoff --faint is #6B7588, 3.7:1 on a panel; the shipped, AA-tuned
+     #7D8A9E stays. */
+  --faint: 125 138 158; /* #7D8A9E  ghost   quiet meta                  */
+
+  /* amber. Fills use --acc with --on-acc on top; amber TEXT uses --acc-text,
+     which darkens in the light theme (amber #F59E0B on cream is 1.9:1). */
+  --acc: 245 158 11;        /* #F59E0B  amber           fills, borders   */
+  --acc-hover: 251 191 36;  /* #FBBF24  amber2          hover fill       */
+  --acc-text: 245 158 11;   /* #F59E0B  amber-text      amber text       */
+  --acc-text2: 251 191 36;  /* #FBBF24  amber-text2     brighter amber text */
+  --on-acc: 8 10 14;        /* #080A0E  on-amber        text on an amber fill */
+  --acc-soft-a: 0.12;       /*          amber-soft      tint alpha       */
+  --ring: 245 158 11;       /* #F59E0B  ring            focus outline    */
+
+  /* status: used for states, never decoration. --ok/--bad double as fills. */
+  --ok: 16 185 129;     /* #10B981  emerald */
+  /* handoff --bad is #F43F5E, 4.24:1 on its own tint; the shipped #FB5B75 stays. */
+  --bad: 251 91 117;    /* #FB5B75  rose    */
+  --sky: 56 189 248;    /* #38BDF8  sky     */
+  /* The shipped #8B5CF6 was 4.0:1 as text on a panel (it had never been checked);
+     this is the next step up the same hue, 6.3:1. */
+  --violet: 167 139 250; /* #A78BFA violet  */
+  --on-solid: 8 10 14;  /* #080A0E  on-solid  text on an --ok / --bad fill */
+
+  --scrim: 8 10 14;     /* #080A0E  scrim   behind modals and drawers   */
+  --cert: 11 14 20;     /* #0B0E14  cert    certificate paper           */
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: 245 244 240;    /* #F5F4F0 */
+  --side: 255 255 255;  /* #FFFFFF */
+  --card: 255 255 255;  /* #FFFFFF */
+  --card2: 239 237 232; /* #EFEDE8 */
+  --line: 226 223 215;  /* #E2DFD7 */
+  --track: 216 212 201; /* #D8D4C9  (not in the handoff: it has no bar-track token) */
+
+  --head: 14 17 22;     /* #0E1116 */
+  --text: 42 47 58;     /* #2A2F3A */
+  --soft: 69 76 90;     /* #454C5A  (not in the handoff: between --text and --mute) */
+  --mute: 93 100 114;   /* #5D6472 */
+  /* handoff #6E7582 is 3.96:1 on a card2 panel and 4.21:1 on the page. */
+  --faint: 100 106 118; /* #646A76 */
+
+  --acc: 245 158 11;
+  --acc-hover: 251 191 36;
+  /* handoff #9A5800 is 4.17:1 as text on its own 10% tint over a panel. */
+  --acc-text: 146 84 0;   /* #925400 */
+  --acc-text2: 122 71 0;  /* #7A4700  (darker, not brighter, on a light page) */
+  --on-acc: 8 10 14;
+  --acc-soft-a: 0.14;
+  --ring: 146 84 0;       /* the amber outline is 1.9:1 on cream; this is 5.5:1 */
+
+  /* handoff --ok #0B7F5A and --bad #C92A45 are 3.8:1 and 4.0:1 on their own tint. */
+  --ok: 10 112 80;      /* #0A7050 */
+  --bad: 184 38 63;     /* #B8263F */
+  --sky: 3 103 159;     /* #03679F  (not in the handoff) */
+  --violet: 109 40 217; /* #6D28D9  (not in the handoff) */
+  --on-solid: 255 255 255;
+
+  --scrim: 8 10 14;
+  --cert: 255 254 251;  /* #FFFEFB */
 }
 
 /* Supplemental JetBrains Mono glyphs for lesson diagrams (box-drawing rules
@@ -61,23 +177,23 @@
 * { box-sizing: border-box; }
 
 html {
-  background: #080A0E;
-  color: #E2E8F0;
+  background: rgb(var(--bg));
+  color: rgb(var(--text));
   scroll-behavior: smooth;
 }
 
 body {
-  font-family: var(--font-dm-sans);
-  background: #080A0E;
+  font-family: var(--font-body);
+  background: rgb(var(--bg));
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #0D1117; }
-::-webkit-scrollbar-thumb { background: #2A3347; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #F59E0B; }
+::-webkit-scrollbar-track { background: rgb(var(--side)); }
+::-webkit-scrollbar-thumb { background: rgb(var(--track)); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--acc)); }
 
 /* ── Arabic-first typography and RTL ──────────────────────────────────
    Only direction-dependent rules live here; everything else uses Tailwind
@@ -85,30 +201,11 @@ body {
    in both directions. Code is explicitly excluded: a code block stays LTR
    and left-aligned inside an RTL page, because a Python snippet does not
    change direction when the sentence around it is Arabic. */
-html[lang="ar"] body,
-html[lang="ar"] .lesson-content {
-  font-family: var(--font-arabic);
-}
-/* Headings use Tailwind's `font-display`, which is Syne (a Latin-only face) with
-   a bare `sans-serif` behind it — so Arabic in a heading skipped the product's
-   Plex Arabic and rendered in whatever the OS offered, which on a machine with
-   thin Arabic coverage looks broken (wide, badly joined letters). Latin glyphs
-   still take Syne; only the Arabic falls through, and now to Plex Arabic. */
-html[lang="ar"] .font-display {
-  font-family: var(--font-syne), var(--font-plex-arabic), sans-serif;
-}
-html[lang="ar"] .lesson-content {
-  /* Arabic script needs more vertical room than Latin at the same size. */
-  line-height: 1.95;
-}
-[dir="rtl"] .lesson-content th,
-[dir="rtl"] .lesson-content td {
-  text-align: right;
-}
-[dir="rtl"] .lesson-content input[type="checkbox"] {
-  margin-right: 0;
-  margin-left: 0.5rem;
-}
+/* Headings use Tailwind's `font-display`, which is Syne (a Latin-only face).
+   Its stack (--font-display, above) puts Plex Arabic straight behind it, so
+   Latin glyphs take Syne and only the Arabic falls through — to Plex Arabic,
+   not to whatever the OS offers, which on a machine with thin Arabic coverage
+   looks broken (wide, badly joined letters). Body text works the same way. */
 .prism-code,
 .prism-inline-code,
 code, pre, kbd, samp {
@@ -133,13 +230,25 @@ html[lang="ar"] .brand-ar {
   font-family: var(--font-plex-arabic), sans-serif;
   font-weight: 700;
 }
+/* The sidebar lockup shows the name in the reader's script first and the other
+   script at the far end, small and quiet. This pair is the exact inverse of
+   the one above: مسار beside a Latin reader's Masar, Masar beside مسار. */
+.brand-alt-ar {
+  font-family: var(--font-plex-arabic), sans-serif;
+  font-weight: 700;
+}
+.brand-alt-en { display: none; }
+html[lang="ar"] .brand-alt-ar { display: none; }
+html[lang="ar"] .brand-alt-en { display: inline; }
 
 /* Selection */
-::selection { background: #F59E0B30; color: #FBBF24; }
+::selection { background: rgb(var(--acc) / 0.19); color: rgb(var(--acc-text2)); }
 
 /* Focus rings: solid and 2px so keyboard focus is visible on the dark panels
-   (a translucent 1px amber all but vanished against them). */
-*:focus-visible { outline: 2px solid #F59E0B; outline-offset: 2px; }
+   (a translucent 1px amber all but vanished against them). --ring is amber in
+   the dark theme and a darker amber in the light one, where #F59E0B on cream is
+   under 2:1. */
+*:focus-visible { outline: 2px solid rgb(var(--ring)); outline-offset: 2px; }
 
 /* Text fields. Nearly every one is written `focus:outline-none focus:border-amber/50`,
    and that utility (0,2,0) outranks the rule above (0,1,0), so the only focus
@@ -153,7 +262,7 @@ html[lang="ar"] .brand-ar {
   textarea,
   select
 ):focus-visible {
-  outline: 2px solid #F59E0B;
+  outline: 2px solid rgb(var(--ring));
   outline-offset: 0;
 }
 
@@ -165,28 +274,28 @@ html[lang="ar"] [class*="tracking-"] { letter-spacing: normal; }
 
 /* Prose for markdown */
 .prose-dark {
-  color: #A0AEC0;
+  color: rgb(var(--soft));
   line-height: 1.75;
 }
 .prose-dark h1, .prose-dark h2, .prose-dark h3 {
-  color: #E2E8F0;
-  font-family: var(--font-syne);
+  color: rgb(var(--text));
+  font-family: var(--font-display);
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
 }
 .prose-dark h2 { font-size: 1.25rem; }
-.prose-dark h3 { font-size: 1.1rem; color: #F59E0B; }
+.prose-dark h3 { font-size: 1.1rem; color: rgb(var(--acc-text)); }
 .prose-dark p { margin-bottom: 0.875rem; }
 .prose-dark ul, .prose-dark ol { margin: 0.75rem 0 0.75rem 1.25rem; }
 .prose-dark li { margin-bottom: 0.3rem; }
 .prose-dark code {
   font-family: var(--font-jetbrains);
   font-size: 0.82rem;
-  background: #161C28;
-  color: #FBBF24;
+  background: rgb(var(--card2));
+  color: rgb(var(--acc-text2));
   padding: 1px 6px;
   border-radius: 4px;
-  border: 1px solid #1E2535;
+  border: 1px solid rgb(var(--line));
 }
 .prose-dark pre { margin: 1rem 0; }
 .prose-dark pre code {
@@ -210,20 +319,20 @@ html[lang="ar"] [class*="tracking-"] { letter-spacing: normal; }
   font-size: 0.875rem;
 }
 .prose-dark th, .prose-dark td {
-  border: 1px solid #1E2535;
+  border: 1px solid rgb(var(--line));
   padding: 0.4rem 0.65rem;
   text-align: start;
 }
-.prose-dark th { background: #111620; color: #E2E8F0; font-weight: 600; }
+.prose-dark th { background: rgb(var(--card)); color: rgb(var(--text)); font-weight: 600; }
 
-.prose-dark strong { color: #E2E8F0; font-weight: 600; }
+.prose-dark strong { color: rgb(var(--text)); font-weight: 600; }
 .prose-dark blockquote {
-  border-left: 2px solid #F59E0B;
+  border-left: 2px solid rgb(var(--acc));
   padding-left: 1rem;
-  color: #8E9BB0; /* dim */
+  color: rgb(var(--mute)); /* dim */
   font-style: italic;
 }
-.prose-dark a { color: #F59E0B; text-decoration: none; }
+.prose-dark a { color: rgb(var(--acc-text)); text-decoration: none; }
 .prose-dark a:hover { text-decoration: underline; }
 
 /* Noise texture overlay */
@@ -239,26 +348,26 @@ html[lang="ar"] [class*="tracking-"] { letter-spacing: normal; }
 
 /* Amber glow button */
 .btn-amber {
-  background: #F59E0B;
-  color: #080A0E;
+  background: rgb(var(--acc));
+  color: rgb(var(--on-acc));
   font-weight: 600;
   transition: all 0.15s;
 }
 .btn-amber:hover {
-  background: #FBBF24;
-  box-shadow: 0 0 20px #F59E0B50;
+  background: rgb(var(--acc-hover));
+  box-shadow: 0 0 20px rgb(var(--acc) / 0.31);
 }
 
 /* Ghost button */
 .btn-ghost {
   background: transparent;
-  border: 1px solid #1E2535;
-  color: #A0AEC0;
+  border: 1px solid rgb(var(--line));
+  color: rgb(var(--soft));
   transition: all 0.15s;
 }
 .btn-ghost:hover {
-  border-color: #F59E0B40;
-  color: #E2E8F0;
+  border-color: rgb(var(--acc) / 0.25);
+  color: rgb(var(--text));
 }
 
 /* Animated underline nav */
@@ -270,7 +379,7 @@ html[lang="ar"] [class*="tracking-"] { letter-spacing: normal; }
   left: 0;
   width: 0;
   height: 1px;
-  background: #F59E0B;
+  background: rgb(var(--acc));
   transition: width 0.2s;
 }
 .nav-link:hover::after, .nav-link.active::after { width: 100%; }
@@ -280,20 +389,24 @@ html[lang="ar"] [class*="tracking-"] { letter-spacing: normal; }
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .stat-card:hover {
-  border-color: #F59E0B30;
-  box-shadow: 0 0 24px #F59E0B10;
+  border-color: rgb(var(--acc) / 0.19);
+  box-shadow: 0 0 24px rgb(var(--acc) / 0.06);
 }
 
-/* Progress bar */
+/* Progress bar. The track stays --line: cards here are --card2 (bg-panel), so a
+   --card2 track (the handoff's, for its --card cards) would disappear on them. */
 .progress-track {
-  background: #1E2535;
+  background: rgb(var(--line));
   border-radius: 999px;
   overflow: hidden;
 }
+/* The fill's colour comes from utilities on the element (`bg-amber`, `bg-emerald`,
+   or a gradient), never from here. It used to set `background` itself, and because
+   this rule is later in the file than the utilities it beat them: every emerald and
+   rose bar in the app rendered amber. */
 .progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #F59E0B, #FBBF24);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -342,56 +455,193 @@ html[lang="ar"] [class*="tracking-"] { letter-spacing: normal; }
   color: #38BDF8; /* sky */
 }
 
-/* ── Lesson content (components/ui/MarkdownLesson.tsx) ──────────────────
-   Deliberately separate from .prose-dark (still used by the mentor chat
-   markdown renderer) — MarkdownLesson styles every element it knows about
-   via per-component Tailwind classes, so this only needs to cover base
-   fallbacks and GFM extras (tables, strikethrough, task-list checkboxes)
-   that don't have a custom renderer. ── */
-.lesson-content {
-  color: #A0AEC0; /* soft */
-}
-.lesson-content del {
-  color: #7D8A9E; /* ghost */
-}
-.lesson-content input[type="checkbox"] {
-  accent-color: #F59E0B;
-  margin-right: 0.5rem;
-}
-.lesson-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1.25rem 0;
-  font-size: 0.875rem;
-}
-.lesson-content th, .lesson-content td {
-  border: 1px solid #1E2535;
-  padding: 0.5rem 0.75rem;
-  text-align: left;
-}
-.lesson-content th {
-  background: #111620;
-  color: #E2E8F0;
-  font-weight: 600;
+/* ── Course content typography (single source of truth) ──────────────────
+   Every size, line-height and gap used to read a lesson lives here as a
+   token; MarkdownLesson.tsx and the lesson readers only pick colours and
+   structure. Sizes are rem-based (they follow the reader's browser font
+   setting) and fluid between a 320px phone and a desktop, so the hierarchy
+   scales as one system instead of jumping at breakpoints.
+
+     title   lesson title in the reader (accordion header)   24 -> 26px
+     h2      section heading inside a lesson                 20 -> 22px
+     h3      sub-heading                                     17 -> 18px
+     body    paragraphs, lists, callouts, tables             15 -> 16px
+     code    code + diagrams (never below 14px)              14px
+     meta    "12 min read", chips, secondary descriptions    13px
+     label   uppercase eyebrows / section labels             12px
+
+   Spacing scale: 8 (tight, inside a group) / 16 (between elements) /
+   24 (before a sub-heading) / 32 (before a section heading). */
+:root {
+  --lc-title: clamp(1.5rem, 1.35rem + 0.7vw, 1.625rem);
+  --lc-h2: clamp(1.25rem, 1.15rem + 0.45vw, 1.375rem);
+  --lc-h3: clamp(1.0625rem, 1.03rem + 0.15vw, 1.125rem);
+  --lc-body: clamp(0.9375rem, 0.875rem + 0.3vw, 1rem);
+  --lc-code: 0.875rem;
+  --lc-meta: 0.8125rem;
+  --lc-label: 0.75rem;
+
+  --lc-lh-body: 1.75;
+  --lc-lh-body-rtl: 1.9;
+  --lc-lh-head: 1.3;
+  --lc-lh-head-rtl: 1.55;
+  --lc-lh-code: 1.7;
+
+  --lc-space-tight: 0.5rem;
+  --lc-space: 1rem;
+  --lc-space-sub: 1.5rem;
+  --lc-space-section: 2rem;
+
+  /* Reading measure for prose (~75 characters at body size). Code and
+     tables are not bound by it and use the full column. */
+  --lc-measure: 42rem;
 }
 
-/* Compact prose — an exercise or project brief rendered inside a card.
-   Same renderer as a lesson, one scale down, so a numbered task list reads
-   as a task list instead of a wall of text. */
-.lesson-content--compact table {
-  margin: 0.75rem 0;
-  font-size: 0.8125rem;
+/* Exercise / project briefs render inside a card: same renderer, one step
+   down. Still >= 15px body and >= 14px code. */
+.lesson-content--compact {
+  --lc-body: 0.9375rem;
+  --lc-h2: 1.125rem;
+  --lc-h3: 1rem;
+  --lc-space-sub: 1.25rem;
+  --lc-space-section: 1.5rem;
 }
-.lesson-content--compact pre {
-  margin: 0.75rem 0;
+
+html[lang="ar"] .text-lc-title { line-height: var(--lc-lh-head-rtl); }
+
+.lesson-content {
+  color: rgb(var(--soft));
+  font-size: var(--lc-body);
+  line-height: var(--lc-lh-body);
+  /* Long identifiers, URLs and Latin terms inside Arabic prose wrap instead
+     of stretching the column. */
+  overflow-wrap: break-word;
+  min-width: 0;
 }
+/* Arabic needs more vertical room than Latin at the same size. Keyed on the
+   text's own direction, not the UI language, so an English fallback lesson
+   in an Arabic UI keeps Latin leading. */
+.lesson-content[dir="rtl"] { line-height: var(--lc-lh-body-rtl); }
+
+/* Vertical rhythm: one rule for the gap between any two blocks, then
+   exceptions for headings. */
+.lesson-content > * + * { margin-block-start: var(--lc-space); }
+.lesson-content > :first-child { margin-block-start: 0; }
+
+.lesson-content > hr { margin-block: var(--lc-space-section); }
+
+.lesson-content h2 {
+  font-size: var(--lc-h2);
+  line-height: var(--lc-lh-head);
+  text-wrap: balance;
+}
+.lesson-content h3 {
+  font-size: var(--lc-h3);
+  line-height: var(--lc-lh-head);
+  text-wrap: balance;
+}
+.lesson-content[dir="rtl"] h2,
+.lesson-content[dir="rtl"] h3 { line-height: var(--lc-lh-head-rtl); }
+
+.lesson-content > h2 { margin-block-start: var(--lc-space-section); }
+.lesson-content > h3 { margin-block-start: var(--lc-space-sub); }
+/* Whatever follows a heading sits close to it. Declared after the heading
+   rules so h2 > h3 also collapses to the tight gap. */
+.lesson-content > h2 + *,
+.lesson-content > h3 + * { margin-block-start: var(--lc-space-tight); }
+
+/* Prose is held to the reading measure; wide technical content is not. */
+.lesson-content > :is(p, ul, ol, h2, h3, .lesson-callout) { max-inline-size: var(--lc-measure); }
+
+/* Lists */
+.lesson-content :is(ul, ol) { padding-inline-start: 1.5rem; }
+.lesson-content li + li { margin-block-start: var(--lc-space-tight); }
+.lesson-content li > :is(ul, ol),
+.lesson-content li > * + * { margin-block-start: var(--lc-space-tight); }
+.lesson-content--compact li + li { margin-block-start: 0.375rem; }
+
+.lesson-content del { color: rgb(var(--faint)); }
+.lesson-content input[type="checkbox"] {
+  accent-color: rgb(var(--acc));
+  margin-inline-end: 0.5rem;
+}
+
+/* Callout (blockquote) */
+.lesson-callout > * + * { margin-block-start: var(--lc-space-tight); }
+
+/* Code blocks and diagrams: one size, one leading, one padding; scroll
+   inside the block, never the page. */
+.lesson-content pre {
+  font-size: var(--lc-code);
+  line-height: var(--lc-lh-code);
+  padding: var(--lc-space);
+  max-inline-size: 100%;
+  overflow-x: auto;
+  tab-size: 4;
+}
+.lesson-content pre code { font-size: inherit; line-height: inherit; }
 
 .prism-inline-code {
   font-family: var(--font-jetbrains), monospace;
-  font-size: 0.85em;
-  background: #161C28;
-  color: #FBBF24;
-  padding: 1px 6px;
+  font-size: max(0.9em, var(--lc-code));
+  background: rgb(var(--card2));
+  color: rgb(var(--acc-text2));
+  padding: 0.1em 0.4em;
   border-radius: 4px;
-  border: 1px solid #1E2535;
+  border: 1px solid rgb(var(--line));
+  overflow-wrap: anywhere;
+}
+
+/* Tables: scroll in their own wrapper, keep columns readable instead of
+   crushing them, and may be wider than prose. */
+.lesson-table-wrap { overflow-x: auto; max-inline-size: 100%; }
+.lesson-content table {
+  width: max-content;
+  min-width: 100%;
+  max-width: 56rem;
+  border-collapse: collapse;
+  font-size: var(--lc-body);
+  line-height: 1.5;
+}
+.lesson-content[dir="rtl"] table { line-height: 1.7; }
+.lesson-content th, .lesson-content td {
+  border: 1px solid rgb(var(--line));
+  padding: 0.625rem 0.875rem;
+  text-align: start;
+  vertical-align: top;
+  min-width: 5rem;
+}
+.lesson-content th {
+  background: rgb(var(--card));
+  color: rgb(var(--text));
+  font-weight: 600;
+}
+
+/* Images: fit the column, keep the product's radius. */
+.lesson-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(var(--line));
+}
+
+/* ── Printing a certificate ───────────────────────────────────────────────
+   "Download PDF" sets `body.printing-certificate` (lib/certificates.ts) and opens
+   the print dialog; these rules keep only the certificate on the page, at A4
+   landscape. It sizes itself in container units, so 297mm wide is all it needs.
+   Nothing here applies to any other printout. */
+@media print {
+  body.printing-certificate * { visibility: hidden !important; }
+  body.printing-certificate .certificate-root,
+  body.printing-certificate .certificate-root * { visibility: visible !important; }
+  body.printing-certificate .certificate-root {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 297mm !important;
+    height: 210mm !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

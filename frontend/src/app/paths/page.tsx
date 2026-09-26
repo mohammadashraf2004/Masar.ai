@@ -73,7 +73,7 @@ export default function PathsPage() {
                             {t('paths.recommendedLevel')}: <LearningLabel parts={levelLabel(p.recommended_level, ctx)} />
                           </p>
                         )}
-                        <p className="mt-3 inline-flex items-center gap-1 text-xs text-amber">
+                        <p className="mt-3 inline-flex items-center gap-1 text-xs text-amber-text">
                           {t('paths.openPath')} <ArrowRight size={11} className="rtl:rotate-180" />
                         </p>
                       </Card>

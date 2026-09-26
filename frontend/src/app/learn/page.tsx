@@ -1,138 +1,166 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { RefreshCw, SlidersHorizontal } from 'lucide-react'
+import { ArrowRight, Sparkles } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useLearningCatalog } from '@/hooks/useLearningCatalog'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { AdvisoryList, MasarSummary, PathRoadmap } from '@/components/learning/PathRoadmap'
-import { SkillGapsPanel } from '@/components/learning/SkillGapsPanel'
+import { PageBody } from '@/components/layout/PageContainer'
+import { CourseCatalog } from '@/components/learning/CourseCatalog'
+import { LearningLabel, useLabelContext } from '@/components/learning/LearningLabel'
+import { RecommendationGrid } from '@/components/learning/RecommendationGrid'
 import { Button, buttonStyles } from '@/components/ui/Button'
-import { Card, EmptyState, Spinner } from '@/components/ui/index'
+import { Card, Spinner } from '@/components/ui/index'
 import { api } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
-import type { LearningPath } from '@/types'
+import { roleLabel } from '@/lib/learning'
+import type { LearningProfile, Recommendations } from '@/types'
 
-type View =
-  | { kind: 'loading' }
-  | { kind: 'error' }
-  | { kind: 'empty' }
-  | { kind: 'path'; path: LearningPath }
+const SECTION_TITLE = 'mb-3 text-base font-semibold text-bright'
 
 /**
- * Your Masar: the learner's personalised path.
+ * Learn: the front door to the courses, with no track or career goal required.
  *
- * Every number and every state on this screen — which stage is current, what
- * each percentage is, which courses are optional — is decided by the server and
- * only displayed here. A learner who has not finished onboarding is sent there
- * first, which is how a migrated account is asked for the new answers.
+ *   Your learning        the courses you are in
+ *   Recommended for you  what to take next, each with the reason
+ *   Explore courses      every published course
+ *   Career roadmaps      guidance, not gates
+ *
+ * Recommendations are computed by the server from real progress and readiness;
+ * a learner who has chosen nothing still gets a sensible list, and any course can
+ * be opened and enrolled in from the catalogue below regardless of it.
  */
-export default function LearnPage() {
+export default function LearnHubPage() {
   const { isLoading: authLoading } = useAuth()
-  const router = useRouter()
   const { t } = useI18n()
+  const ctx = useLabelContext()
   const { catalog } = useLearningCatalog()
-  const [view, setView] = useState<View>({ kind: 'loading' })
-  const [rebuilding, setRebuilding] = useState(false)
-
-  // Bumped by "try again" to re-run the load below.
+  const [recs, setRecs] = useState<Recommendations | null>(null)
+  const [profile, setProfile] = useState<LearningProfile | null>(null)
+  const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     if (authLoading) return
     let alive = true
-    ;(async () => {
-      try {
-        const profile = await api.getMyLearningProfile()
-        if (!alive) return
-        if (profile.needs_onboarding) {
-          router.replace('/onboarding/learning-profile')
-          return
-        }
-        const path = await api.getMyLearningPath()
-        if (alive) setView(path ? { kind: 'path', path } : { kind: 'empty' })
-      } catch {
-        if (alive) setView({ kind: 'error' })
-      }
-    })()
+    api.getRecommendations()
+      .then((r) => alive && (setRecs(r), setFailed(false)))
+      .catch(() => alive && setFailed(true))
+    // Only used to offer "personalise": its failure must not hide the courses.
+    api.getMyLearningProfile().then((p) => alive && setProfile(p)).catch(() => {})
     return () => {
       alive = false
     }
-  }, [authLoading, router, attempt])
-
-  function retry() {
-    setView({ kind: 'loading' })
-    setAttempt((n) => n + 1)
-  }
-
-  async function rebuild() {
-    setRebuilding(true)
-    try {
-      setView({ kind: 'path', path: await api.saveMyLearningPath({ regenerate: true }) })
-    } catch {
-      setView({ kind: 'error' })
-    }
-    setRebuilding(false)
-  }
+  }, [authLoading, attempt])
 
   if (authLoading) {
     return <div className="flex min-h-dvh items-center justify-center bg-void"><Spinner announce className="h-6 w-6" /></div>
   }
 
+  const yourLearning = recs?.continue_learning ?? []
+  const recommended = recs?.recommended_next ?? []
+  const foundations = recs?.build_foundations ?? []
+  const completed = recs?.completed ?? []
+
   return (
     <AppShell>
-      <PageHeader title={t('learn.title')} />
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl space-y-6">
-          {view.kind === 'loading' && (
-            <div className="flex justify-center py-16"><Spinner announce className="h-6 w-6" /></div>
+      <PageHeader title={t('hub.title')} contained />
+      <PageBody>
+        <div className="space-y-10">
+          {profile && !profile.onboarding_completed && (
+            <Card className="flex flex-wrap items-center justify-between gap-3 border-amber/20 p-4">
+              <div className="max-w-xl">
+                <p className="flex items-center gap-2 text-sm font-medium text-bright">
+                  <Sparkles size={14} className="text-amber-text" aria-hidden="true" />
+                  {t('hub.personalize.title')}
+                </p>
+                <p className="mt-1 text-xs text-soft">{t('hub.personalize.body')}</p>
+              </div>
+              <Link href="/onboarding/quick" className={buttonStyles({ size: 'sm' })}>
+                {t('hub.personalize.cta')}
+              </Link>
+            </Card>
           )}
 
-          {view.kind === 'error' && (
+          {failed ? (
             <Card className="p-8 text-center">
-              <p role="alert" className="mb-4 text-sm text-rose">{t('learn.loadError')}</p>
-              <Button variant="ghost" onClick={retry}>{t('common.retry')}</Button>
+              <p role="alert" className="mb-4 text-sm text-rose">{t('hub.loadError')}</p>
+              <Button variant="ghost" onClick={() => setAttempt((n) => n + 1)}>{t('common.retry')}</Button>
             </Card>
-          )}
-
-          {view.kind === 'empty' && (
-            <Card>
-              <EmptyState
-                title={t('learn.emptyTitle')}
-                description={t('learn.emptyBody')}
-                action={
-                  <Button loading={rebuilding} onClick={() => void rebuild()}>
-                    {t('onb.build.cta')}
-                  </Button>
-                }
-              />
-            </Card>
-          )}
-
-          {view.kind === 'path' && (
+          ) : !recs ? (
+            <div className="flex justify-center py-10"><Spinner announce className="h-6 w-6" /></div>
+          ) : (
             <>
-              <MasarSummary
-                path={view.path}
-                actions={
-                  <>
-                    <Button variant="ghost" size="sm" loading={rebuilding} onClick={() => void rebuild()}>
-                      <RefreshCw size={12} aria-hidden="true" /> {t('learn.rebuild')}
-                    </Button>
-                    <Link href="/profile/learning" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
-                      <SlidersHorizontal size={12} aria-hidden="true" /> {t('learn.editAnswers')}
+              <section aria-labelledby="hub-learning">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <h2 id="hub-learning" className={SECTION_TITLE}>{t('hub.yourLearning')}</h2>
+                  {yourLearning.length > 0 && (
+                    <Link href="/learn/my-courses" className="mb-3 text-xs text-amber-text hover:text-amber-text2">
+                      {t('nav.myCourses')}
                     </Link>
-                  </>
-                }
-              />
-              <SkillGapsPanel variant="roadmap" reloadKey={view.path.id ?? 0} />
-              <AdvisoryList path={view.path} catalogFields={catalog?.fields} />
-              <PathRoadmap path={view.path} />
+                  )}
+                </div>
+                {yourLearning.length > 0 ? (
+                  <RecommendationGrid items={yourLearning} />
+                ) : (
+                  <p className="text-sm text-soft">{t('hub.yourLearning.empty')}</p>
+                )}
+              </section>
+
+              <section aria-labelledby="hub-recommended">
+                <h2 id="hub-recommended" className={SECTION_TITLE}>{t('hub.recommended')}</h2>
+                {recommended.length > 0 ? (
+                  <RecommendationGrid items={recommended} />
+                ) : (
+                  <p className="text-sm text-soft">{t('hub.recommended.empty')}</p>
+                )}
+              </section>
+
+              {foundations.length > 0 && (
+                <section aria-labelledby="hub-foundations">
+                  <h2 id="hub-foundations" className={SECTION_TITLE}>{t('hub.foundations')}</h2>
+                  <RecommendationGrid items={foundations} />
+                </section>
+              )}
             </>
           )}
+
+          <section aria-labelledby="hub-explore">
+            <h2 id="hub-explore" className={SECTION_TITLE}>{t('hub.explore')}</h2>
+            <CourseCatalog />
+          </section>
+
+          <section aria-labelledby="hub-roadmaps">
+            <h2 id="hub-roadmaps" className={SECTION_TITLE}>{t('hub.roadmaps')}</h2>
+            <p className="mb-4 max-w-3xl text-sm text-soft">{t('hub.roadmaps.blurb')}</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {(catalog?.goals ?? []).map((goal) => (
+                <Link key={goal.slug} href={`/roadmaps/${goal.slug}`} className="block">
+                  <Card glow className="h-full p-4">
+                    <p className="text-sm font-medium text-bright"><LearningLabel parts={roleLabel(goal, ctx)} /></p>
+                    <p className="mt-3 inline-flex items-center gap-1 text-xs text-amber-text">
+                      {t('hub.roadmaps.open')} <ArrowRight size={11} className="rtl:rotate-180" aria-hidden="true" />
+                    </p>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+            {profile?.has_active_path && (
+              <p className="mt-4 text-sm">
+                <Link href="/learn/masar" className="text-amber-text hover:text-amber-text2">{t('hub.yourMasar')}</Link>
+              </p>
+            )}
+          </section>
+
+          {completed.length > 0 && (
+            <section aria-labelledby="hub-completed">
+              <h2 id="hub-completed" className={SECTION_TITLE}>{t('hub.completed')}</h2>
+              <RecommendationGrid items={completed} />
+            </section>
+          )}
         </div>
-      </div>
+      </PageBody>
     </AppShell>
   )
 }

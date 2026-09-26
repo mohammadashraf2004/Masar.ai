@@ -1,0 +1,1 @@
+{'modules': 10, 'lesson_files': 60, 'guided_minutes': 2430, 'guided_time': '40h30m', 'frozen_id_range': 'L007-001..L007-060', 'unique_ids': True, 'unique_slugs': True, 'module_projects': 10, 'python_syntax': 'PASS'}

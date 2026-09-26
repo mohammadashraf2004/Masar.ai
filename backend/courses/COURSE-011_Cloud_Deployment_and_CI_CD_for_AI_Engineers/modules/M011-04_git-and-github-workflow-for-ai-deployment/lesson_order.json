@@ -1,0 +1,13 @@
+[
+  "L011_044_git-mental-model-for-deployment-repositories.py",
+  "L011_045_building-clean-traceable-commits.py",
+  "L011_046_local-and-remote-repository-workflow.py",
+  "L011_047_secure-github-authentication-and-repository-access.py",
+  "L011_048_branching-for-ai-service-development-and-deployment.py",
+  "L011_049_pull-requests-as-the-deployment-quality-gate.py",
+  "L011_050_code-review-for-ai-infrastructure-changes.py",
+  "L011_051_protected-main-branches-and-ci-merge-gates.py",
+  "L011_052_resolving-merge-conflicts-safely.py",
+  "L011_053_professional-git-workflow-for-production-ai-repositories.py",
+  "L011_054_git-and-github-integration-lab-for-an-ai-service.py"
+]

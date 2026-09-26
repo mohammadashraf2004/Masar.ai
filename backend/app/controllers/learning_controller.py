@@ -7,8 +7,9 @@ The learning-path API.
       GET  /learning/levels
       GET  /learning/fields
       GET  /learning/career-goals
-      GET  /learning/courses            ?level= &field= &career_goal= &q=
-      GET  /learning/courses/{slug}
+      GET  /learning/courses            ?level= &field= &career_goal= &q= &difficulty= &category= &skill= &enrolled=
+                                        every filter is optional - no career goal or track is ever needed
+      GET  /learning/courses/{slug}     (see learning_courses_controller for enroll / readiness / progress)
       GET  /learning/paths
       GET  /learning/paths/{slug}       ?level=
       GET  /learning/skills             ?career_goal= &level= &field=   what to ask "do you know it?" about
@@ -31,23 +32,30 @@ listings are and it carries no lesson content. Everything `my-*` and
 `generate` requires a signed-in user, and every query is scoped to that user's
 id — no path or profile id is ever accepted from the client.
 """
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy.orm import Session
+from sqlalchemy import or_
+from sqlalchemy.orm import Session, joinedload
 
 from app.content import terminology as T
 from app.core.limiter import limiter
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_optional_user
 from app.db.session import get_db
 from app.models.user import User
+from app.models.billing import CourseEnrollment
+from app.models.learning_path import Course
+from app.services.billing.access_service import course_access
 from app.services.learning import learning_service as svc
+from app.services.learning import course_views as CV
 from app.services.learning import presenters as P
 from app.services.learning.catalog_service import CatalogBundle, load_catalog_bundle
 from app.services.learning.path_generator import PathGenerationError
 from app.services.learning.progress_service import overview
+from app.services.learning.progress_service import course_completion, pct
 from app.views.learning_path import (
-    CareerGoalOut, CourseDetail, CourseSummary, FieldOut, GenerateRequest, LevelOut,
+    CareerGoalOut, CourseCard, CourseDetail, CourseSlug, CourseSummary, FieldOut, GenerateRequest, LevelOut,
     MySkillsOut, PathOut, PathSummaryOut, PathUpdate, ProfileOut, ProfileUpdate, ProgressOut,
     SkillGapsOut, SkillOptionOut, SkillsSavedOut, SkillsUpdate, Slug,
 )
@@ -116,49 +124,147 @@ def _matches_text(summary: CourseSummary, surfaces: List[str]) -> bool:
     return any(surface.lower() in haystack for surface in surfaces)
 
 
-@router.get("/courses", response_model=List[CourseSummary])
+@router.get("/courses", response_model=List[CourseCard])
 def list_courses(
     level: List[Slug] = Query(default=[], max_length=12),
+    difficulty: List[Slug] = Query(default=[], max_length=12),
     field: List[Slug] = Query(default=[], max_length=12),
+    category: List[Slug] = Query(default=[], max_length=12),
     career_goal: List[Slug] = Query(default=[], max_length=12),
+    skill: List[Slug] = Query(default=[], max_length=12),
     q: Optional[str] = Query(None, min_length=2, max_length=120),
     available_only: bool = False,
+    enrolled: Optional[bool] = None,
+    user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db),
 ):
-    """Filters combine: any-of within one dimension, all-of across them —
-    `level=intermediate&field=nlp&field=speech&career_goal=ai-engineer` is
-    "intermediate AND (NLP OR Speech) AND AI Engineer". Courses whose content
-    is not published yet are listed (flagged `is_available: false`) unless
-    `available_only` is set."""
+    """The course catalogue - every published course, browsable on its own.
+
+    No filter is required; in particular no career goal, so a learner who has
+    chosen no track sees the whole catalogue. Filters combine: any-of within one
+    dimension, all-of across them - `difficulty=intermediate&category=nlp&category=speech`
+    is "intermediate AND (NLP OR Speech)".
+
+      level / difficulty   the course's level (the two names are one filter)
+      field / category     its field (NLP, computer vision, ...) - the catalogue's own taxonomy
+      career_goal          courses tagged for that roadmap
+      skill                courses that teach the skill
+      enrolled             true: only my courses; false: only those I am not in (signed in)
+
+    Courses whose content is not published yet are listed (flagged
+    `is_available: false`) unless `available_only`. A signed-in learner also gets
+    their own `enrollment` and `readiness` on every card; the catalogue itself is public.
+    Cards carry no lesson text."""
     bundle = load_catalog_bundle(db)
     surfaces = T.expand_query_surfaces(q) if q else []
+    learner = CV.load_learner(db, user, bundle)
+    levels = set(level) | set(difficulty)
+    fields = set(field) | set(category)
 
-    result: List[CourseSummary] = []
+    result: List[CourseCard] = []
     for course_id, info in bundle.catalog.courses.items():
         course = bundle.courses[course_id]
         if available_only and not info.is_available:
             continue
-        if level and course.level.slug not in level:
+        if levels and course.level.slug not in levels:
             continue
-        if field and not (info.field_slugs & set(field)):
+        if fields and not (info.field_slugs & fields):
             continue
         if career_goal and not (info.role_slugs & set(career_goal)):
             continue
-        summary = P.course_summary(bundle, course)
-        if q and not _matches_text(summary, surfaces or [q]):
+        if skill and not (info.teaches & set(skill)):
             continue
-        result.append(summary)
+        if enrolled is not None:
+            mine = CV.enrollment_brief(learner, course_id) is not None
+            if mine != enrolled:
+                continue
+        # A listing filtered to exactly one career goal is a goal context, so
+        # each course reports its weight there; with none or several it does not.
+        card = CV.course_card(bundle, course, learner, role_slug=career_goal[0] if len(career_goal) == 1 else None)
+        if q and not _matches_text(card, surfaces or [q]):
+            continue
+        result.append(card)
     result.sort(key=lambda c: (c.level.rank, c.id))
     return result
 
 
 @router.get("/courses/{slug}", response_model=CourseDetail)
-def get_course(slug: Slug, db: Session = Depends(get_db)):
+def get_course(slug: CourseSlug, user: Optional[User] = Depends(get_optional_user), db: Session = Depends(get_db)):
+    """One course, on its own: description, modules, projects, prerequisites and the
+    roadmaps it appears in. Public; a signed-in learner also gets their
+    enrollment and per-module progress. No lesson text - the course viewer serves
+    (and paywalls) that."""
     bundle = load_catalog_bundle(db)
-    course = bundle.course_by_slug(slug)
+    course = bundle.course_by_slug(slug.lower())
     if course is None:
         raise HTTPException(status_code=404, detail="Course not found")
-    return P.course_detail(bundle, course)
+    return CV.course_detail(db, bundle, course, CV.load_learner(db, user, bundle))
+
+
+@router.get("/courses/{slug}/access")
+def get_course_access(
+    slug: CourseSlug,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    course = db.query(Course).filter(Course.slug == slug.lower(), Course.is_active.is_(True)).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    access = course_access(db, current_user.id, course)
+    return {
+        "has_access": access.has_access,
+        "reason": access.reason,
+        "enrollment_id": access.enrollment_id,
+    }
+
+
+@router.get("/my-courses")
+def get_my_courses(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    enrollments = (
+        db.query(CourseEnrollment)
+        .join(Course, CourseEnrollment.course_id == Course.id)
+        .options(
+            joinedload(CourseEnrollment.course).joinedload(Course.tool_course),
+            joinedload(CourseEnrollment.course).joinedload(Course.track_level),
+        )
+        .filter(
+            CourseEnrollment.user_id == current_user.id,
+            CourseEnrollment.status == "active",
+            or_(CourseEnrollment.expires_at.is_(None), CourseEnrollment.expires_at > datetime.now(timezone.utc)),
+            Course.is_active.is_(True),
+        )
+        .order_by(CourseEnrollment.enrolled_at.desc())
+        .all()
+    )
+    courses = [enrollment.course for enrollment in enrollments]
+    completion = course_completion(db, current_user.id, courses)
+    bundle = load_catalog_bundle(db)
+    result = []
+    for enrollment in enrollments:
+        course = enrollment.course
+        if course.id not in bundle.courses:
+            continue
+        summary = P.course_summary(bundle, course)
+        result.append({
+            "course_id": course.id,
+            "slug": course.slug,
+            "title": summary.title,
+            "title_ar": summary.title_ar,
+            "href": summary.href,
+            "progress": pct(completion.get(course.id, 0.0)),
+            "enrolled_at": enrollment.enrolled_at,
+            "access_type": enrollment.source,
+            # Lifecycle (cached on the enrollment; `progress` above is always live).
+            "status": enrollment.learning_status,
+            "started_at": enrollment.started_at,
+            "completed_at": enrollment.completed_at,
+            "estimated_hours": summary.estimated_hours,
+            "module_count": summary.module_count,
+        })
+    return result
 
 
 @router.get("/paths", response_model=List[PathSummaryOut])

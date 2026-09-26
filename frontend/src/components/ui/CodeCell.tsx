@@ -31,9 +31,11 @@ export function CodeCell({ value, onChange, placeholder, minHeight = 140, autoFo
         placeholder={placeholder}
         textareaClassName="code-cell-textarea"
         style={{
-          fontSize: 13,
+          fontSize: 14,
           minHeight,
-          color: '#E2E8F0',
+          // `.prism-code` (the wrapper) is always dark, so this is the dark text
+          // colour in both themes.
+          color: 'rgb(var(--text))',
         }}
       />
     </div>

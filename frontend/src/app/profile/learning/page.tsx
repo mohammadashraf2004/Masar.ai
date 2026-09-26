@@ -97,7 +97,7 @@ export default function LearningProfilePage() {
                 {message === 'saved' && (
                   <p role="status" className="text-sm text-emerald">
                     {t('plp.saved')}{' '}
-                    <Link href="/learn" className="underline">{t('learn.title')}</Link>
+                    <Link href="/learn/masar" className="underline">{t('learn.title')}</Link>
                   </p>
                 )}
                 {message === 'error' && <p role="alert" className="text-sm text-rose">{t('plp.saveError')}</p>}

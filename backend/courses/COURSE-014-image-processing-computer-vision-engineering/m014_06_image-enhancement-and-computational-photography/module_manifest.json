@@ -1,0 +1,20 @@
+{
+  "module_id": "M014-06",
+  "title": "Image Enhancement & Computational Photography",
+  "description": "Tone, dithering, histogram enhancement, color correction, denoising, wavelets, and modern enhancement workflows.",
+  "lesson_ids": [
+    "L014-043",
+    "L014-044",
+    "L014-045",
+    "L014-046",
+    "L014-047",
+    "L014-048",
+    "L014-049",
+    "L014-050",
+    "L014-051"
+  ],
+  "lesson_count": 9,
+  "guided_minutes": 530,
+  "module_project": "Adaptive Image Enhancement & Quality Benchmarking Workbench",
+  "project_lesson_id": "L014-051"
+}

@@ -1,0 +1,33 @@
+{
+  "module_id": "M012-05",
+  "title": "Agent Reasoning, Planning & Adaptive Strategies",
+  "source_id": "BOOK-012",
+  "source_chapter": 5,
+  "role": "Core + Advanced Agent Behavior",
+  "guided_time_declared": "8h 50m",
+  "lesson_count": 8,
+  "lesson_ids": [
+    "L012-036",
+    "L012-037",
+    "L012-038",
+    "L012-039",
+    "L012-040",
+    "L012-041",
+    "L012-042",
+    "L012-043"
+  ],
+  "project": {
+    "title": "Adaptive Research Planning Agent",
+    "summary": "Build a planner with explicit external state, ReAct execution, evaluator feedback, and bounded replanning.",
+    "deliverables": [
+      "Problem decomposition",
+      "Explicit external plan",
+      "Adaptive tool loop",
+      "Bounded critique/retry cycle",
+      "Deterministic termination",
+      "Observable action/tool traces",
+      "Reasoning-cost metrics"
+    ]
+  },
+  "duration_note": "Included in the frozen module-level planning estimate; detailed historical lesson/project estimates were not fully arithmetic-consistent."
+}

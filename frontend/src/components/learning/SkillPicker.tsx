@@ -80,7 +80,7 @@ export function SkillPicker({ options, value, onChange }: SkillPickerProps) {
           <button
             type="button"
             onClick={() => onChange(Array.from(new Set([...value, ...options.map((o) => o.slug)])))}
-            className="min-h-[44px] rounded-md border border-border px-3 text-xs text-soft transition-colors hover:border-muted hover:text-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber lg:min-h-0 lg:py-1.5"
+            className="min-h-[44px] rounded-md border border-border px-3 text-xs text-soft transition-colors hover:border-muted hover:text-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring lg:min-h-0 lg:py-1.5"
           >
             {t('skills.selectAll')}
           </button>
@@ -88,7 +88,7 @@ export function SkillPicker({ options, value, onChange }: SkillPickerProps) {
             type="button"
             onClick={() => onChange(value.filter((s) => !visible.has(s)))}
             disabled={chosenHere === 0}
-            className="min-h-[44px] rounded-md border border-border px-3 text-xs text-soft transition-colors hover:border-muted hover:text-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber disabled:opacity-40 lg:min-h-0 lg:py-1.5"
+            className="min-h-[44px] rounded-md border border-border px-3 text-xs text-soft transition-colors hover:border-muted hover:text-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-40 lg:min-h-0 lg:py-1.5"
           >
             {t('skills.clear')}
           </button>
@@ -119,7 +119,7 @@ export function SkillPicker({ options, value, onChange }: SkillPickerProps) {
                       htmlFor={id}
                       className={cn(
                         'flex min-h-[44px] cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 transition-colors',
-                        'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-amber',
+                        'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-ring',
                         selected
                           ? 'border-amber/50 bg-amber/10 text-bright'
                           : 'border-border bg-panel text-soft hover:border-muted hover:text-bright'
@@ -136,7 +136,7 @@ export function SkillPicker({ options, value, onChange }: SkillPickerProps) {
                         aria-hidden="true"
                         className={cn(
                           'flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors',
-                          selected ? 'border-amber bg-amber text-void' : 'border-muted bg-surface'
+                          selected ? 'border-amber bg-amber text-on-amber' : 'border-muted bg-surface'
                         )}
                       >
                         {selected && <Check size={13} strokeWidth={3} />}

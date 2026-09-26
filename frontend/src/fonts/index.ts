@@ -54,6 +54,12 @@ export const syne = localFont({
   src: [{ path: './syne-latin.woff2', weight: '600 800', style: 'normal' }],
   variable: '--font-syne',
   display: 'swap',
+  // Same reasoning as DM Sans above. Syne is the display face, and the display
+  // stack (`--font-display`) puts IBM Plex Sans Arabic straight after it so an
+  // Arabic heading is set in Plex. A generated Arial fallback sitting between
+  // the two would take those glyphs first on any machine whose Arial carries
+  // Arabic (Windows, macOS), and the heading would render in Arial.
+  adjustFontFallback: false,
 })
 
 export const jetbrainsMono = localFont({

@@ -1,0 +1,17 @@
+"""Masar curriculum seed — L011-001."""
+
+LESSON_META = {'lesson_id': 'L011-001', 'course_id': 'COURSE-011', 'module_id': 'M011-01', 'title': 'AWS Identity & Least-Privilege Deployment Access', 'slug': 'aws-identity-and-least-privilege-deployment-access', 'status': 'approved', 'difficulty': 'intermediate-to-advanced', 'estimated_minutes': None, 'learning_objective': 'Apply aws identity & least-privilege deployment access concepts to the deployment and operation of an existing production-oriented AI service.'}
+
+TOPICS = ['AWS root account vs IAM identities', 'root-account 2FA', 'IAM users and groups', 'least privilege', 'deployment permissions']
+
+SOURCE_REFERENCES = ['BOOK-011 Chapters 1, 4, 5, 6, 7, 8']
+
+FIGURE_REFERENCES = []
+
+LESSON_MARKDOWN = '# L011-001 — AWS Identity & Least-Privilege Deployment Access\n\n## Learning objective\n\nApply aws identity & least-privilege deployment access concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- AWS root account vs IAM identities\n- root-account 2FA\n- IAM users and groups\n- least privilege\n- deployment permissions\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n'
+
+EXERCISES = [{'id': 'L011-001-EX1', 'title': 'Apply AWS Identity & Least-Privilege Deployment Access', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: AWS root account vs IAM identities, root-account 2FA, IAM users and groups. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-001-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to aws identity & least-privilege deployment access. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
+
+QUIZ = [{'id': 'L011-001-Q1', 'type': 'short_answer', 'question': 'What production problem is aws identity & least-privilege deployment access intended to solve in an AI-service deployment?', 'answer': 'It addresses the deployment/operations concerns represented by: AWS root account vs IAM identities, root-account 2FA, IAM users and groups.', 'explanation': 'A correct answer should connect the concept to deployment reliability, security, repeatability, scalability, or operability rather than re-explaining AI application fundamentals.'}, {'id': 'L011-001-Q2', 'type': 'true_false', 'question': 'This lesson should be applied without considering security boundaries, failure behavior, or validation.', 'answer': False, 'explanation': 'Production deployment decisions must include security, failure handling, and verification.'}, {'id': 'L011-001-Q3', 'type': 'short_answer', 'question': 'Name two concrete topics covered by AWS Identity & Least-Privilege Deployment Access.', 'answer': 'AWS root account vs IAM identities, root-account 2FA', 'explanation': "The answer should use the lesson's declared core topics."}]
+
+PROJECT = None

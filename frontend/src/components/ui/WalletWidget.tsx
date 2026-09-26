@@ -55,7 +55,7 @@ const PAYMENT_ICONS: Record<string, string> = {
 
 function balanceColor(balance: number): string {
   if (balance >= 50)  return 'text-emerald'
-  if (balance >= 20)  return 'text-amber'
+  if (balance >= 20)  return 'text-amber-text'
   return 'text-rose'
 }
 
@@ -122,7 +122,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
 
   return (
     <>
-      <div className="fixed inset-0 bg-void/80 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-scrim/80 backdrop-blur-sm z-40" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-md pointer-events-auto flex flex-col max-h-[90vh]">
 
@@ -130,7 +130,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
           <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-md bg-amber/10 border border-amber/20 flex items-center justify-center">
-                <Zap size={14} className="text-amber" />
+                <Zap size={14} className="text-amber-text" />
               </div>
               <div>
                 <h2 className="text-sm font-semibold text-bright">Buy Credits</h2>
@@ -174,10 +174,10 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-semibold text-bright">{pkg.name}</span>
                               {pkg.is_popular && (
-                                <span className="text-xs px-1.5 py-0.5 rounded bg-amber/20 text-amber border border-amber/30 font-medium">Popular</span>
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-amber/20 text-amber-text border border-amber/30 font-medium">Popular</span>
                               )}
                             </div>
-                            <span className="text-sm font-mono font-bold text-amber">{pkg.egp_price.toFixed(0)} EGP</span>
+                            <span className="text-sm font-mono font-bold text-amber-text">{pkg.egp_price.toFixed(0)} EGP</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-xs text-soft font-mono">{total} credits</span>
@@ -248,7 +248,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                             onClick={() => setMethod(key)}
                             className={`py-2.5 rounded-lg border text-xs font-medium transition-all ${
                               method === key
-                                ? 'bg-amber/10 border-amber/40 text-amber'
+                                ? 'bg-amber/10 border-amber/40 text-amber-text'
                                 : 'bg-surface border-border text-ghost hover:text-soft hover:border-amber/20'
                             }`}
                           >
@@ -265,22 +265,22 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                         {method === 'fawry' && (
                           <>
                             <p>1. Open Fawry app or visit any Fawry outlet</p>
-                            <p>2. Pay <span className="text-amber font-mono">{selected.egp_price} EGP</span> to service code <span className="text-amber font-mono">AI-CAREER</span></p>
+                            <p>2. Pay <span className="text-amber-text font-mono">{selected.egp_price} EGP</span> to service code <span className="text-amber-text font-mono">AI-CAREER</span></p>
                             <p>3. Enter the reference number you receive below</p>
                           </>
                         )}
                         {method === 'instapay' && (
                           <>
                             <p>1. Open your InstaPay app</p>
-                            <p>2. Transfer <span className="text-amber font-mono">{selected.egp_price} EGP</span> to <span className="text-amber font-mono">payments@aicareer.eg</span></p>
+                            <p>2. Transfer <span className="text-amber-text font-mono">{selected.egp_price} EGP</span> to <span className="text-amber-text font-mono">payments@aicareer.eg</span></p>
                             <p>3. Use your phone number as the transfer note</p>
                             <p>4. Enter the transaction ID below</p>
                           </>
                         )}
                         {method === 'vodafone_cash' && (
                           <>
-                            <p>1. Dial <span className="text-amber font-mono">*9*7*01XXXXXXXXX*{selected.egp_price.toFixed(0)}#</span></p>
-                            <p>2. Or use the Vodafone Cash app to send to <span className="text-amber font-mono">01XXXXXXXXX</span></p>
+                            <p>1. Dial <span className="text-amber-text font-mono">*9*7*01XXXXXXXXX*{selected.egp_price.toFixed(0)}#</span></p>
+                            <p>2. Or use the Vodafone Cash app to send to <span className="text-amber-text font-mono">01XXXXXXXXX</span></p>
                             <p>3. Enter the confirmation code you receive below</p>
                           </>
                         )}
@@ -334,12 +334,12 @@ function TransactionModal({ onClose }: { onClose: () => void }) {
   const typeIcon = (tx: Transaction) => {
     if (tx.transaction_type === 'topup' || tx.transaction_type === 'bonus') return <ArrowUpRight size={13} className="text-emerald" />
     if (tx.transaction_type === 'deduction') return <ArrowDownLeft size={13} className="text-rose" />
-    return <Gift size={13} className="text-amber" />
+    return <Gift size={13} className="text-amber-text" />
   }
 
   return (
     <>
-      <div className="fixed inset-0 bg-void/80 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-scrim/80 backdrop-blur-sm z-40" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-md pointer-events-auto flex flex-col max-h-[80vh]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
@@ -405,8 +405,8 @@ export function WalletWidget() {
       <div className={`mx-3 mb-3 rounded-lg border p-3 ${low ? 'border-rose/30 bg-rose/5' : 'border-border bg-surface'}`}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
-            <Zap size={12} className={low ? 'text-rose' : 'text-amber'} />
-            <span className={`text-xs font-medium ${low ? 'text-rose' : 'text-amber'}`}>Credits</span>
+            <Zap size={12} className={low ? 'text-rose' : 'text-amber-text'} />
+            <span className={`text-xs font-medium ${low ? 'text-rose' : 'text-amber-text'}`}>Credits</span>
           </div>
           <button
             onClick={() => setShowHistory(true)}

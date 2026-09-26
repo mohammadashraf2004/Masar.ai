@@ -1,0 +1,15 @@
+[
+  "L011_031_jenkins-as-a-deployment-and-operations-automation-server.py",
+  "L011_032_non-interactive-cloud-identities-for-automation.py",
+  "L011_033_cloud-object-storage-as-a-production-dependency.py",
+  "L011_034_cross-cloud-automation-from-one-workload.py",
+  "L011_035_scheduled-jobs-parameters-and-backfills.py",
+  "L011_036_diagnosing-failed-automation-jobs.py",
+  "L011_037_updating-a-running-multi-container-deployment.py",
+  "L011_038_connecting-containers-to-external-cloud-services.py",
+  "L011_039_production-application-server-architecture.py",
+  "L011_040_runtime-assets-configuration-and-secrets.py",
+  "L011_041_production-logging-and-request-diagnostics.py",
+  "L011_042_deployment-health-and-runtime-validation.py",
+  "L011_043_deployment-automation-integration-project.py"
+]

@@ -1,0 +1,27 @@
+{
+  "module_id": "M013-05",
+  "title": "Visual Analysis & Interactive Dashboards",
+  "role": "Core / Portfolio",
+  "status": "finalized",
+  "description": "Select, build, and communicate static and interactive analytical visualizations and dashboards.",
+  "learning_outcomes": [
+    "Select, build, and communicate static and interactive analytical visualizations and dashboards."
+  ],
+  "prerequisites": [
+    "M013-02",
+    "M013-03"
+  ],
+  "estimated_minutes": 420,
+  "lessons": [
+    "L013-031",
+    "L013-032",
+    "L013-033",
+    "L013-034",
+    "L013-035",
+    "L013-036",
+    "L013-037",
+    "L013-038",
+    "L013-039"
+  ],
+  "project": "Executive EDA & Interactive Analytics Dashboard"
+}

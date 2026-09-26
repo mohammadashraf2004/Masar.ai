@@ -143,8 +143,8 @@ export function ProjectSubmit({ project }: { project: Project }) {
           {hints.map((h, i) => (
             <div key={i} className="p-3 rounded bg-surface border border-border space-y-1.5">
               <div className="flex items-center gap-1.5">
-                <Lightbulb size={12} className="text-amber" />
-                <span className="text-[11px] font-medium uppercase tracking-wider text-amber">
+                <Lightbulb size={12} className="text-amber-text" />
+                <span className="text-[11px] font-medium uppercase tracking-wider text-amber-text">
                   Hint {i + 1}
                 </span>
               </div>
@@ -166,7 +166,7 @@ export function ProjectSubmit({ project }: { project: Project }) {
       {open && (
         <form onSubmit={submit} className="space-y-3 border-t border-border pt-4">
           <div className="space-y-1.5">
-            <label className="text-[11px] font-medium uppercase tracking-wider text-amber">
+            <label className="text-[11px] font-medium uppercase tracking-wider text-amber-text">
               Your solution
             </label>
             <CodeCell
@@ -218,7 +218,7 @@ export function ProjectSubmit({ project }: { project: Project }) {
           {submitted.review ? (
             <div className="p-4 rounded bg-surface border border-border">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles size={13} className="text-amber" />
+                <Sparkles size={13} className="text-amber-text" />
                 <span className="text-sm font-medium text-bright">
                   AI review — {submitted.review.score}/100
                 </span>

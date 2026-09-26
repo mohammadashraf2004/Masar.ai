@@ -25,7 +25,7 @@ vi.mock('@/lib/api', () => ({
     getLearningLevels: vi.fn(), getLearningFields: vi.fn(), getCareerGoals: vi.fn(),
     getMyLearningProfile: vi.fn(), saveMyLearningProfile: vi.fn(), saveMyLearningPath: vi.fn(),
     getCatalogCourse: vi.fn(), getMySkills: vi.fn(), saveMySkills: vi.fn(), getSkillOptions: vi.fn(),
-    getMySkillGaps: vi.fn(),
+    getMySkillGaps: vi.fn(), getCourseAccess: vi.fn(), getCourseReadiness: vi.fn(),
   },
 }))
 import { api } from '@/lib/api'
@@ -73,7 +73,7 @@ describe('the learning profile page', () => {
       level: 'intermediate', fields: ['nlp', 'computer-vision'], career_goal: 'ai-engineer',
     })
     expect(await screen.findByRole('status')).toHaveTextContent('Saved. Your Masar was rebuilt.')
-    expect(screen.getByRole('link', { name: 'Your Masar' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'Your Masar' })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('reports a failed save', async () => {
@@ -106,15 +106,20 @@ describe('the course page', () => {
     prerequisites: [{ id: 5, slug: 'llm-integration', title: 'LLM Integration', title_ar: null }],
   }
 
-  beforeEach(() => setParams({ slug: 'rag-knowledge-systems' }))
+  beforeEach(() => {
+    setParams({ slug: 'rag-knowledge-systems' })
+    vi.mocked(api.getCourseAccess).mockResolvedValue({ has_access: true, reason: 'free', enrollment_id: null })
+    vi.mocked(api.getCourseReadiness).mockRejectedValue(new Error('not needed here'))
+  })
 
   it('shows the course opened, with why it matters and where to start', async () => {
     vi.mocked(api.getCatalogCourse).mockResolvedValue(detail)
     render(<CoursePage />)
-    expect(await screen.findByRole('link', { name: 'RAG & Knowledge Systems' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'RAG & Knowledge Systems' })).toBeInTheDocument()
     expect(api.getCatalogCourse).toHaveBeenCalledWith('rag-knowledge-systems')
-    expect(screen.getByText('Build retrieval-augmented applications.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Open course' })).toHaveAttribute('href', '/tracks/ai-developer')
+    expect(await screen.findByText('Build retrieval-augmented applications.')).toBeInTheDocument()
+    // Open to anyone with access, with no track or goal involved: enrolling is one click away.
+    expect(screen.getByRole('button', { name: 'Enroll now' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'LLM Integration' })).toHaveAttribute('href', '/courses/llm-integration')
   })
 

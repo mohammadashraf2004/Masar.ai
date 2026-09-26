@@ -1,0 +1,17 @@
+"""Masar curriculum seed — L011-083."""
+
+LESSON_META = {'lesson_id': 'L011-083', 'course_id': 'COURSE-011', 'module_id': 'M011-06', 'title': 'Infrastructure Drift & Desired State', 'slug': 'infrastructure-drift-and-desired-state', 'status': 'approved', 'difficulty': 'intermediate-to-advanced', 'estimated_minutes': None, 'learning_objective': 'Apply infrastructure drift & desired state concepts to the deployment and operation of an existing production-oriented AI service.'}
+
+TOPICS = ['desired vs actual state', 'manual cloud changes', 'configuration drift', 'periodic plan checks', 'GitOps integrity']
+
+SOURCE_REFERENCES = ['Secondary DevOps source (source ID not provided) — Chapter 7: Automating Infrastructure with Terraform and CI/CD']
+
+FIGURE_REFERENCES = []
+
+LESSON_MARKDOWN = '# L011-083 — Infrastructure Drift & Desired State\n\n## Learning objective\n\nApply infrastructure drift & desired state concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- desired vs actual state\n- manual cloud changes\n- configuration drift\n- periodic plan checks\n- GitOps integrity\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n'
+
+EXERCISES = [{'id': 'L011-083-EX1', 'title': 'Apply Infrastructure Drift & Desired State', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: desired vs actual state, manual cloud changes, configuration drift. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-083-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to infrastructure drift & desired state. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
+
+QUIZ = [{'id': 'L011-083-Q1', 'type': 'short_answer', 'question': 'What production problem is infrastructure drift & desired state intended to solve in an AI-service deployment?', 'answer': 'It addresses the deployment/operations concerns represented by: desired vs actual state, manual cloud changes, configuration drift.', 'explanation': 'A correct answer should connect the concept to deployment reliability, security, repeatability, scalability, or operability rather than re-explaining AI application fundamentals.'}, {'id': 'L011-083-Q2', 'type': 'true_false', 'question': 'This lesson should be applied without considering security boundaries, failure behavior, or validation.', 'answer': False, 'explanation': 'Production deployment decisions must include security, failure handling, and verification.'}, {'id': 'L011-083-Q3', 'type': 'short_answer', 'question': 'Name two concrete topics covered by Infrastructure Drift & Desired State.', 'answer': 'desired vs actual state, manual cloud changes', 'explanation': "The answer should use the lesson's declared core topics."}]
+
+PROJECT = None

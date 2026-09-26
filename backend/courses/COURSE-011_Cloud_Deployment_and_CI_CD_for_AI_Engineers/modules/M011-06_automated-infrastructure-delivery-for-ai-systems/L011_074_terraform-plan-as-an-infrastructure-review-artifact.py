@@ -1,0 +1,17 @@
+"""Masar curriculum seed — L011-074."""
+
+LESSON_META = {'lesson_id': 'L011-074', 'course_id': 'COURSE-011', 'module_id': 'M011-06', 'title': 'Terraform Plan as an Infrastructure Review Artifact', 'slug': 'terraform-plan-as-an-infrastructure-review-artifact', 'status': 'approved', 'difficulty': 'intermediate-to-advanced', 'estimated_minutes': None, 'learning_objective': 'Apply terraform plan as an infrastructure review artifact concepts to the deployment and operation of an existing production-oriented AI service.'}
+
+TOPICS = ['terraform plan', 'create/update/destroy review', 'pull-request review', 'risk inspection', 'review before apply']
+
+SOURCE_REFERENCES = ['Secondary DevOps source (source ID not provided) — Chapter 7: Automating Infrastructure with Terraform and CI/CD']
+
+FIGURE_REFERENCES = []
+
+LESSON_MARKDOWN = '# L011-074 — Terraform Plan as an Infrastructure Review Artifact\n\n## Learning objective\n\nApply terraform plan as an infrastructure review artifact concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- terraform plan\n- create/update/destroy review\n- pull-request review\n- risk inspection\n- review before apply\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n'
+
+EXERCISES = [{'id': 'L011-074-EX1', 'title': 'Apply Terraform Plan as an Infrastructure Review Artifact', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: terraform plan, create/update/destroy review, pull-request review. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-074-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to terraform plan as an infrastructure review artifact. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
+
+QUIZ = [{'id': 'L011-074-Q1', 'type': 'short_answer', 'question': 'What production problem is terraform plan as an infrastructure review artifact intended to solve in an AI-service deployment?', 'answer': 'It addresses the deployment/operations concerns represented by: terraform plan, create/update/destroy review, pull-request review.', 'explanation': 'A correct answer should connect the concept to deployment reliability, security, repeatability, scalability, or operability rather than re-explaining AI application fundamentals.'}, {'id': 'L011-074-Q2', 'type': 'true_false', 'question': 'This lesson should be applied without considering security boundaries, failure behavior, or validation.', 'answer': False, 'explanation': 'Production deployment decisions must include security, failure handling, and verification.'}, {'id': 'L011-074-Q3', 'type': 'short_answer', 'question': 'Name two concrete topics covered by Terraform Plan as an Infrastructure Review Artifact.', 'answer': 'terraform plan, create/update/destroy review', 'explanation': "The answer should use the lesson's declared core topics."}]
+
+PROJECT = None

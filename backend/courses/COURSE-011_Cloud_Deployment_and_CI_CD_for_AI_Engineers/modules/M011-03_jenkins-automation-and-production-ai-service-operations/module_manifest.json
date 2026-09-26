@@ -1,0 +1,12 @@
+{
+  "module_id": "M011-03",
+  "course_id": "COURSE-011",
+  "title": "Jenkins Automation & Production AI Service Operations",
+  "slug": "jenkins-automation-and-production-ai-service-operations",
+  "status": "approved",
+  "lesson_count": 13,
+  "source_references": [
+    "BOOK-011 Chapters 11, 12, 13"
+  ],
+  "module_project": "Deployment Automation Integration Project"
+}

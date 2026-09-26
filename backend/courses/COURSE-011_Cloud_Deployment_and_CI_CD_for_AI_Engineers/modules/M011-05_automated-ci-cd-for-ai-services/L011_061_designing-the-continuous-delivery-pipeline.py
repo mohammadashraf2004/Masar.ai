@@ -1,0 +1,17 @@
+"""Masar curriculum seed — L011-061."""
+
+LESSON_META = {'lesson_id': 'L011-061', 'course_id': 'COURSE-011', 'module_id': 'M011-05', 'title': 'Designing the Continuous Delivery Pipeline', 'slug': 'designing-the-continuous-delivery-pipeline', 'status': 'approved', 'difficulty': 'intermediate-to-advanced', 'estimated_minutes': None, 'learning_objective': 'Apply designing the continuous delivery pipeline concepts to the deployment and operation of an existing production-oriented AI service.'}
+
+TOPICS = ['post-merge delivery', 'container build', 'registry publication', 'staging deployment', 'artifact handoff']
+
+SOURCE_REFERENCES = ['Secondary DevOps source (source ID not provided) — Chapter 6: Constructing Your First CI/CD Pipeline']
+
+FIGURE_REFERENCES = []
+
+LESSON_MARKDOWN = '# L011-061 — Designing the Continuous Delivery Pipeline\n\n## Learning objective\n\nApply designing the continuous delivery pipeline concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- post-merge delivery\n- container build\n- registry publication\n- staging deployment\n- artifact handoff\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n'
+
+EXERCISES = [{'id': 'L011-061-EX1', 'title': 'Apply Designing the Continuous Delivery Pipeline', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: post-merge delivery, container build, registry publication. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-061-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to designing the continuous delivery pipeline. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
+
+QUIZ = [{'id': 'L011-061-Q1', 'type': 'short_answer', 'question': 'What production problem is designing the continuous delivery pipeline intended to solve in an AI-service deployment?', 'answer': 'It addresses the deployment/operations concerns represented by: post-merge delivery, container build, registry publication.', 'explanation': 'A correct answer should connect the concept to deployment reliability, security, repeatability, scalability, or operability rather than re-explaining AI application fundamentals.'}, {'id': 'L011-061-Q2', 'type': 'true_false', 'question': 'This lesson should be applied without considering security boundaries, failure behavior, or validation.', 'answer': False, 'explanation': 'Production deployment decisions must include security, failure handling, and verification.'}, {'id': 'L011-061-Q3', 'type': 'short_answer', 'question': 'Name two concrete topics covered by Designing the Continuous Delivery Pipeline.', 'answer': 'post-merge delivery, container build', 'explanation': "The answer should use the lesson's declared core topics."}]
+
+PROJECT = None

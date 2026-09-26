@@ -31,10 +31,12 @@ from app.db.session import get_db
 from app.models.user import User
 from app.models.wallet import UserWallet, WalletTransaction, TransactionStatus, TransactionType, CreditPackage, PaymentMethod
 from app.models.challenge import ExamPayment
+from app.models.billing import BillingOrder
 from app.models.exam import Exam
 from app.core.security import get_current_user
 from app.services.wallet.wallet_service import confirm_pending_topup, get_or_create_wallet
 from app.services.payments import paymob_service
+from app.services.billing.course_billing import process_paymob_course_webhook
 
 from app.controllers.exam_payment_controller import EXAM_PRICE_EGP
 
@@ -222,6 +224,17 @@ async def paymob_webhook(request: Request, db: Session = Depends(get_db)):
     if not merchant_order_id:
         raise HTTPException(status_code=400, detail="Missing merchant_order_id")
 
+    # Course purchases use the same verified callback and the same Paymob
+    # client as exams and wallet top-ups.  Their settlement is isolated in
+    # the billing service because it additionally validates the provider
+    # order, amount and currency before creating an enrollment.
+    try:
+        course_result = process_paymob_course_webhook(db, obj)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    if course_result is not None:
+        return course_result
+
     # Wallet top-up?
     tx = (
         db.query(WalletTransaction)
@@ -278,12 +291,19 @@ async def paymob_webhook(request: Request, db: Session = Depends(get_db)):
 # ─── Browser return (cosmetic only — grants nothing) ────────────────────────
 
 @router.get("/paymob/callback")
-def paymob_callback(request: Request):
+def paymob_callback(request: Request, db: Session = Depends(get_db)):
     """Where the customer's browser lands after completing checkout.
     Deliberately does not trust anything in these query params — redirects
     to a frontend page that polls our own authenticated status endpoints,
     which only ever reflect what the webhook above actually confirmed."""
     merchant_order_id = request.query_params.get("merchant_order_id", "")
+    course_order = db.query(BillingOrder).filter(
+        BillingOrder.merchant_order_id == merchant_order_id,
+    ).first()
+    if course_order:
+        return RedirectResponse(
+            url=f"{settings.FRONTEND_URL}/billing/course-success?order_id={course_order.id}"
+        )
     return RedirectResponse(
         url=f"{settings.FRONTEND_URL}/dashboard?payment_ref={merchant_order_id}"
     )

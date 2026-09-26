@@ -35,7 +35,7 @@ export function SkillGapSummary({ known, partial, missing, total, coveragePct, i
     <section aria-label={t('gap.coverage')} className={className}>
       <div className="flex items-baseline justify-between gap-3 text-xs">
         <span className="font-medium uppercase tracking-widest text-soft">{t('gap.coverage')}</span>
-        <span className="font-mono text-amber" dir="ltr">{pct}%</span>
+        <span className="font-mono text-amber-text" dir="ltr">{pct}%</span>
       </div>
       <div
         role="progressbar"
@@ -50,7 +50,7 @@ export function SkillGapSummary({ known, partial, missing, total, coveragePct, i
       <p className="mt-2 text-xs text-soft">{tf('gap.coverageOf', { known, total })}</p>
       <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs">
         <li className="text-emerald">{tf('gap.legend.known', { n: known })}</li>
-        {partial > 0 && <li className="text-amber">{tf('gap.legend.partial', { n: partial })}</li>}
+        {partial > 0 && <li className="text-amber-text">{tf('gap.legend.partial', { n: partial })}</li>}
         <li className="text-soft">{tf('gap.legend.missing', { n: missing })}</li>
         {immediate > 0 && <li className="text-bright">{tf('gap.immediateCount', { n: immediate })}</li>}
       </ul>

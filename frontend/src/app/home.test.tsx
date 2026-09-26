@@ -41,7 +41,7 @@ describe('home — a signed-in learner', () => {
     expect(screen.getByText('72%')).toBeInTheDocument()
     expect(screen.getByText("You're currently learning:").nextElementSibling).toHaveTextContent('LangChain')
     expect(screen.getByText('Next:').nextElementSibling).toHaveTextContent('RAG & Knowledge Systems')
-    expect(screen.getByRole('link', { name: /Continue Roadmap/ })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: /Continue Roadmap/ })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('lets the greeting wrap onto two lines, as the dashboard greeting does, rather than cutting it off on a phone', async () => {
@@ -75,7 +75,7 @@ describe('home — a signed-in learner', () => {
     useLanguageStore.setState({ language: 'ar', mode: 'arabic_first' })
     render(<Home />)
     expect(screen.getByRole('heading', { name: 'أهلاً بعودتك، Amira' })).toBeInTheDocument()
-    expect(await screen.findByRole('link', { name: /واصل مسارك/ })).toHaveAttribute('href', '/learn')
+    expect(await screen.findByRole('link', { name: /واصل مسارك/ })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('shows an error state, not a broken card, when the roadmap cannot load', async () => {

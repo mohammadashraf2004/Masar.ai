@@ -83,7 +83,7 @@ export function Modal({ title, description, onClose, initialFocus, icon, footer,
   }, [])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-void/90 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-scrim/90 p-4 backdrop-blur-sm">
       <div
         ref={panel}
         role="dialog"
@@ -100,14 +100,14 @@ export function Modal({ title, description, onClose, initialFocus, icon, footer,
           type="button"
           onClick={onClose}
           aria-label={t('common.close')}
-          className="absolute end-1.5 top-1.5 flex h-11 w-11 items-center justify-center rounded text-soft transition-colors hover:bg-surface hover:text-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber"
+          className="absolute end-1.5 top-1.5 flex h-11 w-11 items-center justify-center rounded text-soft transition-colors hover:bg-surface hover:text-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
         >
           <X size={18} aria-hidden="true" />
         </button>
 
         <div className="flex items-start gap-3 pe-9">
           {icon && (
-            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-amber/30 bg-amber/10 text-amber" aria-hidden="true">
+            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-amber/30 bg-amber/10 text-amber-text" aria-hidden="true">
               {icon}
             </span>
           )}

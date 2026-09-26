@@ -1,0 +1,19 @@
+{
+  "module_id": "M014-05",
+  "title": "Frequency-Domain Filtering & Noise Analysis",
+  "description": "Frequency-domain filter design, low/high/band/notch filters, periodic-noise removal, quality evaluation, and Fourier-feature awareness.",
+  "lesson_ids": [
+    "L014-035",
+    "L014-036",
+    "L014-037",
+    "L014-038",
+    "L014-039",
+    "L014-040",
+    "L014-041",
+    "L014-042"
+  ],
+  "lesson_count": 8,
+  "guided_minutes": 465,
+  "module_project": "Frequency-Domain Noise Analysis & Removal Toolkit",
+  "project_lesson_id": "L014-042"
+}

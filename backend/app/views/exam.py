@@ -90,6 +90,11 @@ class CertificateResponse(BaseModel):
     score: float
     issued_at: datetime
     is_valid: bool
+    # The exam this certificate was issued for. Filled in only on the holder's own
+    # list (/my-certificates), where the exam picker matches certificates to exams
+    # by it; the public verification lookup leaves it out, because nothing about an
+    # internal exam id helps someone checking a certificate.
+    exam_id: Optional[int] = None
 
     class Config:
         from_attributes = True

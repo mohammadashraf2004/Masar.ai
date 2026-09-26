@@ -25,7 +25,7 @@ function sourceFiles(dir: string): string[] {
 // Every screen and component of the learning experience.
 const NEW_SURFACES = [
   ...sourceFiles(join(SRC, 'components', 'learning')),
-  ...['learn', 'explore', 'paths', 'courses', 'onboarding'].flatMap((d) => sourceFiles(join(SRC, 'app', d))),
+  ...['learn', 'explore', 'paths', 'courses', 'onboarding', 'roadmaps'].flatMap((d) => sourceFiles(join(SRC, 'app', d))),
   join(SRC, 'app', 'profile', 'learning', 'page.tsx'),
   // Sign-up, the legal documents, the home page and the acceptance dialog.
   ...sourceFiles(join(SRC, 'components', 'legal')),
@@ -33,6 +33,11 @@ const NEW_SURFACES = [
   join(SRC, 'app', 'page.tsx'),
   join(SRC, 'app', 'auth', 'register', 'page.tsx'),
   join(SRC, 'components', 'layout', 'LegalGate.tsx'),
+  // The shell every signed-in page sits in: the sidebar sits on the right in Arabic and the
+  // left in English only because none of this says "left" or "right".
+  ...['AppShell', 'Sidebar', 'ShellHeader', 'MobileMenu', 'AccountMenu', 'CreditsBadge', 'GlobalSearch', 'PageHeader', 'ThemeToggle']
+    .map((name) => join(SRC, 'components', 'layout', `${name}.tsx`)),
+  join(SRC, 'components', 'brand', 'MasarMark.tsx'),
 ]
 
 // Physical-direction utilities. The logical twins (ms-/me-/ps-/pe-/start-/end-/
@@ -58,6 +63,8 @@ describe('right-to-left safety of the learning screens', () => {
       'components/learning/YourMasarCard.tsx', 'components/legal/LegalDocumentPage.tsx',
       'components/legal/LegalLinks.tsx', 'components/layout/LegalGate.tsx',
       'app/page.tsx', 'app/auth/register/page.tsx', 'app/terms/page.tsx', 'app/privacy/page.tsx',
+      'components/layout/Sidebar.tsx', 'components/layout/ShellHeader.tsx', 'components/layout/MobileMenu.tsx',
+      'components/layout/GlobalSearch.tsx',
     ]))
   })
 

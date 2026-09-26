@@ -3,16 +3,16 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { usePathname } from 'next/navigation'
 
 /**
- * Open/closed state for the mobile navigation drawer.
+ * Open/closed state for the mobile navigation menu.
  *
- * It lives in context rather than in AppShell's own state because the control
- * that opens the drawer sits in PageHeader, which is a sibling of the sidebar
- * rather than a child of it. Passing the setter down through every page would
- * mean touching all eleven of them; this keeps the drawer a shell concern.
+ * It lives in context rather than in AppShell's own state because the button
+ * that opens the menu (ShellHeader) and the panel it opens (MobileMenu) are
+ * siblings, and either may be reached from deeper components that should not
+ * be handed a setter to thread through.
  *
  * `available` is false when no AppShell wraps the tree — the exam runner
- * renders its own shell — so the toggle can render nothing instead of opening
- * a drawer that isn't there.
+ * renders its own shell — so anything that toggles the menu can render nothing
+ * instead of opening one that isn't there.
  */
 interface MobileNavState {
   open: boolean

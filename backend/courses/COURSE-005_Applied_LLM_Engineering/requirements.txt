@@ -1,0 +1,23 @@
+# Runtime dependencies are owned by the Masar backend.
+# Revalidate package APIs and versions before production integration.
+torch
+transformers
+datasets
+evaluate
+accelerate
+sentence-transformers
+scikit-learn
+umap-learn
+hdbscan
+bertopic
+faiss-cpu
+rank-bm25
+peft
+trl
+setfit
+mteb
+# Optional GPU fine-tuning dependency; validate platform support first.
+bitsandbytes
+# Orchestration implementation is concept-first; choose current framework versions deliberately.
+langchain-core
+langgraph

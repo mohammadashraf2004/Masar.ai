@@ -105,7 +105,7 @@ describe('Edit Skills — reopens the same picker', () => {
 
     await waitFor(() => expect(api.saveMySkills).toHaveBeenCalledWith(['llms', 'rag']))
     expect(await screen.findByRole('status')).toHaveTextContent('Saved. Your roadmap was updated and your progress is unchanged.')
-    expect(screen.getByRole('link', { name: 'View roadmap' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'View roadmap' })).toHaveAttribute('href', '/learn/masar')
     expect(screen.queryByRole('checkbox')).toBeNull()                           // the picker closed
     expect(within(known()).getByText('RAG')).toBeInTheDocument()
   })

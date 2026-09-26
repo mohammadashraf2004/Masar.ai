@@ -469,6 +469,7 @@ def my_certificates(
 ):
     certs = db.query(Certificate).options(
         joinedload(Certificate.track),
+        joinedload(Certificate.attempt),
     ).filter(
         Certificate.user_id == current_user.id,
         Certificate.is_valid == True,
@@ -482,6 +483,7 @@ def my_certificates(
             score=c.score,
             issued_at=c.issued_at,
             is_valid=c.is_valid,
+            exam_id=c.attempt.exam_id,
         )
         for c in certs
     ]

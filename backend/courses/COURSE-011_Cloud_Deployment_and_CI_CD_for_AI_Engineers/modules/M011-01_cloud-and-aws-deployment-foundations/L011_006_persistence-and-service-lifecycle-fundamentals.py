@@ -1,0 +1,17 @@
+"""Masar curriculum seed — L011-006."""
+
+LESSON_META = {'lesson_id': 'L011-006', 'course_id': 'COURSE-011', 'module_id': 'M011-01', 'title': 'Persistence & Service Lifecycle Fundamentals', 'slug': 'persistence-and-service-lifecycle-fundamentals', 'status': 'approved', 'difficulty': 'intermediate-to-advanced', 'estimated_minutes': None, 'learning_objective': 'Apply persistence & service lifecycle fundamentals concepts to the deployment and operation of an existing production-oriented AI service.'}
+
+TOPICS = ['ephemeral containers', 'persistent volumes and host mounts', 'restart policies', 'Docker service startup', 'stateful vs stateless components']
+
+SOURCE_REFERENCES = ['BOOK-011 Chapters 1, 4, 5, 6, 7, 8']
+
+FIGURE_REFERENCES = []
+
+LESSON_MARKDOWN = '# L011-006 — Persistence & Service Lifecycle Fundamentals\n\n## Learning objective\n\nApply persistence & service lifecycle fundamentals concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- ephemeral containers\n- persistent volumes and host mounts\n- restart policies\n- Docker service startup\n- stateful vs stateless components\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n'
+
+EXERCISES = [{'id': 'L011-006-EX1', 'title': 'Apply Persistence & Service Lifecycle Fundamentals', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: ephemeral containers, persistent volumes and host mounts, restart policies. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-006-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to persistence & service lifecycle fundamentals. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
+
+QUIZ = [{'id': 'L011-006-Q1', 'type': 'short_answer', 'question': 'What production problem is persistence & service lifecycle fundamentals intended to solve in an AI-service deployment?', 'answer': 'It addresses the deployment/operations concerns represented by: ephemeral containers, persistent volumes and host mounts, restart policies.', 'explanation': 'A correct answer should connect the concept to deployment reliability, security, repeatability, scalability, or operability rather than re-explaining AI application fundamentals.'}, {'id': 'L011-006-Q2', 'type': 'true_false', 'question': 'This lesson should be applied without considering security boundaries, failure behavior, or validation.', 'answer': False, 'explanation': 'Production deployment decisions must include security, failure handling, and verification.'}, {'id': 'L011-006-Q3', 'type': 'short_answer', 'question': 'Name two concrete topics covered by Persistence & Service Lifecycle Fundamentals.', 'answer': 'ephemeral containers, persistent volumes and host mounts', 'explanation': "The answer should use the lesson's declared core topics."}]
+
+PROJECT = None

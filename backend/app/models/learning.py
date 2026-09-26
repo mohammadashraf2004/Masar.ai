@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Float, JSON, ForeignKey, Enum, ARRAY
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Float, JSON, ForeignKey, Enum, ARRAY, Index, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -86,8 +86,14 @@ class Topic(Base):
 class Lesson(Base):
     """Theory lesson within a topic"""
     __tablename__ = "lessons"
+    __table_args__ = (
+        Index("uq_lessons_source_key", "source_key", unique=True, postgresql_where=text("source_key IS NOT NULL")),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
+    # Stable identity of curriculum imported from backend/courses (e.g. 'COURSE-004/L004-001').
+    # Lets a re-import update this row in place: learners' progress refers to its id.
+    source_key = Column(String, nullable=True)
     topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)  # Markdown
@@ -99,6 +105,7 @@ class Lesson(Base):
     order = Column(Integer, nullable=False)
     estimated_minutes = Column(Integer, default=15)
     has_code_examples = Column(Boolean, default=False)
+    is_preview = Column(Boolean, nullable=False, default=False, server_default="false")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     topic = relationship("Topic", back_populates="lessons")
@@ -110,8 +117,14 @@ class Lesson(Base):
 class Exercise(Base):
     """Guided coding exercise"""
     __tablename__ = "exercises"
+    __table_args__ = (
+        Index("uq_exercises_source_key", "source_key", unique=True, postgresql_where=text("source_key IS NOT NULL")),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
+    # Stable identity of curriculum imported from backend/courses (e.g. 'COURSE-004/L004-001').
+    # Lets a re-import update this row in place: learners' progress refers to its id.
+    source_key = Column(String, nullable=True)
     topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
@@ -133,8 +146,14 @@ class Exercise(Base):
 class Project(Base):
     """Real-world portfolio project"""
     __tablename__ = "projects"
+    __table_args__ = (
+        Index("uq_projects_source_key", "source_key", unique=True, postgresql_where=text("source_key IS NOT NULL")),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
+    # Stable identity of curriculum imported from backend/courses (e.g. 'COURSE-004/L004-001').
+    # Lets a re-import update this row in place: learners' progress refers to its id.
+    source_key = Column(String, nullable=True)
     topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
@@ -157,8 +176,14 @@ class Project(Base):
 class Quiz(Base):
     """Knowledge check quiz"""
     __tablename__ = "quizzes"
+    __table_args__ = (
+        Index("uq_quizzes_source_key", "source_key", unique=True, postgresql_where=text("source_key IS NOT NULL")),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
+    # Stable identity of curriculum imported from backend/courses (e.g. 'COURSE-004/L004-001').
+    # Lets a re-import update this row in place: learners' progress refers to its id.
+    source_key = Column(String, nullable=True)
     topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
     title = Column(String, nullable=False)
     questions = Column(JSON, nullable=False)

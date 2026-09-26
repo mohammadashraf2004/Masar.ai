@@ -81,9 +81,7 @@ STATUS_MARKERS = ("❌ Incorrect", "⚠️ Partially correct", "✅ Correct")
 
 # ─── The exercise under test ─────────────────────────────────────────────
 # Deliberately the real "Add a Fourth Action: Rewrite for Tone" exercise
-# from seeds/track_ai_developer/level_01_foundations.py, because it is the
-# one whose feedback prompted this change. The starter code below is the
-# repository's; the answers are what a student submits.
+# Keep this opt-in provider test independent of the curriculum file layout.
 TONE_EXERCISE = {
     "kind": "exercise",
     "title": "Add a Fourth Action: Rewrite for Tone",

@@ -25,7 +25,20 @@ const MODE_KEYS: Record<TerminologyMode, { label: `lang.mode.${TerminologyMode}`
   },
 }
 
-export function LanguageSwitcher({ className }: { className?: string }) {
+export function LanguageSwitcher({
+  className,
+  placement = 'down',
+  align = 'end',
+}: {
+  className?: string
+  /** Which way the panel opens. `up` is for a trigger at the bottom of a
+   *  scrolling menu, where a panel opening downward would be cut off. */
+  placement?: 'down' | 'up'
+  /** Which edge of the trigger the panel lines up with. `end` suits a trigger
+   *  at the trailing edge of a header (the default); a trigger at the leading
+   *  edge needs `start`, or the panel opens off-screen. */
+  align?: 'start' | 'end'
+}) {
   const { t, language, mode, annotateTerms } = useI18n()
   const setLanguage = useLanguageStore((s) => s.setLanguage)
   const setMode = useLanguageStore((s) => s.setMode)
@@ -57,7 +70,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         className={cn(
           'flex min-h-[44px] items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all lg:min-h-0',
           open
-            ? 'border-amber/40 bg-amber/10 text-amber'
+            ? 'border-amber/40 bg-amber/10 text-amber-text'
             : 'border-border text-dim hover:text-bright hover:border-amber/20'
         )}
       >
@@ -68,7 +81,13 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       </button>
 
       {open && (
-        <div className="absolute end-0 top-full mt-2 w-72 max-w-[calc(100vw-2rem)] bg-ink border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
+        <div
+          className={cn(
+            'absolute w-72 max-w-[calc(100vw-2rem)] bg-ink border border-border rounded-xl shadow-2xl z-50 overflow-hidden',
+            align === 'start' ? 'start-0' : 'end-0',
+            placement === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',
+          )}
+        >
           {/* ── Explanation language ── */}
           <div className="px-4 pt-3.5 pb-3 border-b border-border">
             <p className="text-[11px] text-ghost mb-2">{t('lang.uiLanguage')}</p>
@@ -80,7 +99,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
                   className={cn(
                     'flex-1 px-3 py-1.5 rounded-lg border text-xs transition-colors',
                     language === code
-                      ? 'border-amber/30 bg-amber/10 text-amber font-medium'
+                      ? 'border-amber/30 bg-amber/10 text-amber-text font-medium'
                       : 'border-border text-dim hover:text-bright'
                   )}
                 >
@@ -111,12 +130,12 @@ export function LanguageSwitcher({ className }: { className?: string }) {
                       <span
                         className={cn(
                           'text-xs font-medium',
-                          active ? 'text-amber' : 'text-soft'
+                          active ? 'text-amber-text' : 'text-soft'
                         )}
                       >
                         {t(MODE_KEYS[value].label)}
                       </span>
-                      {active && <Check size={11} className="text-amber" />}
+                      {active && <Check size={11} className="text-amber-text" />}
                     </span>
                     <span className="block text-[11px] text-ghost leading-snug mt-0.5">
                       {t(MODE_KEYS[value].hint)}

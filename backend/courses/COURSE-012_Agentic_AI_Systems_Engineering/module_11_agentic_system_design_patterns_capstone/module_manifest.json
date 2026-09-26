@@ -1,0 +1,35 @@
+{
+  "module_id": "M012-11",
+  "title": "Agentic System Design Patterns & Capstone",
+  "source_id": "BOOK-012",
+  "source_chapter": 11,
+  "role": "Synthesis + Architecture + Capstone",
+  "guided_time_declared": "8h 30m",
+  "lesson_count": 6,
+  "lesson_ids": [
+    "L012-086",
+    "L012-087",
+    "L012-088",
+    "L012-089",
+    "L012-090",
+    "L012-091"
+  ],
+  "project": {
+    "title": "Production Agentic AI System with MCP, Memory, Evaluation & Multi-Agent Orchestration",
+    "summary": "Final portfolio capstone integrating the full COURSE-012 architecture into one bounded, observable, secure, and evaluable agentic system.",
+    "deliverables": [
+      "Architecture review and component rationale",
+      "Typed agent contracts",
+      "Custom MCP capability",
+      "Justified multi-agent pattern",
+      "Persistent memory",
+      "Long-horizon state/termination",
+      "Adaptive strategy pivot",
+      "25+ benchmark cases",
+      "Security/HITL controls",
+      "Reliability failure drill",
+      "Release manifest and rollback criteria"
+    ]
+  },
+  "duration_note": "Included in the frozen module-level planning estimate; detailed historical lesson/project estimates were not fully arithmetic-consistent."
+}

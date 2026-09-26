@@ -8,6 +8,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { LearningLabel, useLabelContext } from '@/components/learning/LearningLabel'
 import { AdvisoryList, MasarSummary, PathRoadmap } from '@/components/learning/PathRoadmap'
+import { TrackCurriculum } from '@/components/learning/TrackCurriculum'
 import { Button, buttonStyles } from '@/components/ui/Button'
 import { Card, Spinner } from '@/components/ui/index'
 import { api } from '@/lib/api'
@@ -97,7 +98,7 @@ function PathPreview() {
         career_goal: path.career_goal.slug,
       })
       await api.saveMyLearningPath({ regenerate: true })
-      router.push('/learn')
+      router.push('/learn/masar')
     } catch {
       setSaveFailed(true)
       setSaving(false)
@@ -142,7 +143,7 @@ function PathPreview() {
                       className={cn(
                         'min-h-[44px] rounded-full border px-3.5 py-1.5 text-sm transition-colors lg:min-h-0',
                         path.level.slug === l.slug
-                          ? 'border-amber/50 bg-amber/10 text-amber'
+                          ? 'border-amber/50 bg-amber/10 text-amber-text'
                           : 'border-border bg-panel text-soft hover:border-muted hover:text-bright'
                       )}
                     >
@@ -163,6 +164,7 @@ function PathPreview() {
               {hasPath && <p className="-mt-3 text-xs text-ghost">{t('paths.replacesCurrent')}</p>}
               <AdvisoryList path={path} catalogFields={catalog?.fields} />
               <PathRoadmap path={path} />
+              <TrackCurriculum careerGoal={path.career_goal.slug} path={path} />
             </>
           )}
         </div>

@@ -17,6 +17,7 @@ import app.models.exam         # noqa
 import app.models.tool_course  # noqa
 import app.models.learning_path  # noqa
 import app.models.update_ack  # noqa
+import app.models.billing  # noqa
 
 config = context.config
 if config.config_file_name is not None:

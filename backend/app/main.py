@@ -33,8 +33,10 @@ from app.controllers.terminology_controller import router as terminology_router
 from app.controllers.search_controller import router as search_router
 from app.controllers.admin_analytics_controller import router as admin_analytics_router
 from app.controllers.learning_controller import router as learning_router
+from app.controllers.learning_courses_controller import router as learning_courses_router
 from app.controllers.legal_controller import router as legal_router
 from app.controllers.admin_learning_controller import router as admin_learning_router
+from app.controllers.billing_controller import router as billing_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -224,8 +226,10 @@ app.include_router(answer_evaluation_router,      prefix=API_PREFIX)
 app.include_router(terminology_router,            prefix=API_PREFIX)
 app.include_router(search_router,                 prefix=API_PREFIX)
 app.include_router(learning_router,               prefix=API_PREFIX)
+app.include_router(learning_courses_router,       prefix=API_PREFIX)
 app.include_router(legal_router,                  prefix=API_PREFIX)
 app.include_router(admin_learning_router,         prefix=API_PREFIX)
+app.include_router(billing_router,                prefix=API_PREFIX, tags=["Course Billing"])
 # Read-only admin analytics. Nothing else in the app imports it, so the
 # rest of the API is unaffected if these queries ever misbehave.
 app.include_router(admin_analytics_router,        prefix=API_PREFIX)

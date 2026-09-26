@@ -67,7 +67,7 @@ export function PaymentResultBanner() {
       status === 'failed'    ? 'bg-rose/5 border-rose/20' :
                                 'bg-amber/5 border-amber/20'
     }`}>
-      {status === 'pending'   && <Clock size={16} className="text-amber flex-shrink-0" />}
+      {status === 'pending'   && <Clock size={16} className="text-amber-text flex-shrink-0" />}
       {status === 'confirmed' && <CheckCircle size={16} className="text-emerald flex-shrink-0" />}
       {status === 'failed'    && <XCircle size={16} className="text-rose flex-shrink-0" />}
       <p className="text-sm flex-1">

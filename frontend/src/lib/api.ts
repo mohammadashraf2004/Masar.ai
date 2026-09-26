@@ -14,7 +14,10 @@ import type {
   LearningLevel, LearningField, CareerGoal, CatalogCourse, CatalogCourseDetail,
   PathSummary, LearningPath, LearningProfile, LearningProfileUpdate, LearningProgress,
   GeneratePathRequest, CourseFilters, SkillOption, SkillOptionsQuery, MySkills, SkillsSaved, SkillGaps,
-  LegalDocument,
+  LegalDocument, CertificateSummary,
+  BillingOrder, CheckoutResponse, CourseAccess, CourseOffer, MyCourse,
+  ToolTopic, EnrollResult, CourseLearningEnrollment, CourseProgress, ReadinessReport, ReadinessAssessment,
+  AssessmentResult, Recommendations, TrackDetail, SkillLevels,
 } from '@/types'
 import { useAuthStore } from '@/lib/store'
 
@@ -418,8 +421,14 @@ class ApiClient {
     return res.data
   }
 
-  async getMyCertificates() {
+  async getMyCertificates(): Promise<CertificateSummary[]> {
     const res = await this.http.get('/exams/my-certificates')
+    return res.data
+  }
+
+  /** Public: anyone holding the link can check a certificate. No account needed. */
+  async verifyCertificate(certificateId: string): Promise<CertificateSummary> {
+    const res = await this.http.get(`/exams/certificates/${encodeURIComponent(certificateId)}`)
     return res.data
   }
   async getScorecard(refresh = false) {
@@ -611,10 +620,14 @@ class ApiClient {
     const res = await this.http.get<CatalogCourse[]>('/learning/courses', {
       params: {
         level: filters.level,
+        difficulty: filters.difficulty,
         field: filters.field,
+        category: filters.category,
         career_goal: filters.career_goal,
+        skill: filters.skill,
         q: filters.q || undefined,
         available_only: filters.available_only || undefined,
+        enrolled: filters.enrolled,
       },
       paramsSerializer: { indexes: null },
     })
@@ -706,6 +719,103 @@ class ApiClient {
 
   async getMyLearningProgress() {
     const res = await this.http.get<LearningProgress>('/learning/my-progress')
+    return res.data
+  }
+
+  // ─── Course billing and ownership ────────────────────────────────────
+
+  async getCourseOffer(courseId: string) {
+    const res = await this.http.get<CourseOffer>(`/billing/courses/${courseId}/offer`)
+    return res.data
+  }
+
+  // ─── Independent course enrollment, readiness, recommendations ───────
+
+  /** Enroll in a course - no track, goal or path needed. Idempotent. A learner who
+   *  is not yet ready is never refused: the answer says what to review first. */
+  async enrollInCourse(slug: string) {
+    const res = await this.http.post<EnrollResult>(`/learning/courses/${slug}/enroll`)
+    return res.data
+  }
+
+  async setCoursePaused(slug: string, paused: boolean) {
+    const res = await this.http.patch<CourseLearningEnrollment>(`/learning/courses/${slug}/enrollment`, {
+      status: paused ? 'paused' : 'active',
+    })
+    return res.data
+  }
+
+  async getCourseProgress(slug: string) {
+    const res = await this.http.get<CourseProgress>(`/learning/courses/${slug}/progress`)
+    return res.data
+  }
+
+  async getCourseReadiness(slug: string) {
+    const res = await this.http.get<ReadinessReport>(`/learning/courses/${slug}/readiness`)
+    return res.data
+  }
+
+  /** The questions of the short check: no answer key is ever sent. */
+  async getReadinessAssessment(slug: string) {
+    const res = await this.http.get<ReadinessAssessment>(`/learning/courses/${slug}/readiness-assessment`)
+    return res.data
+  }
+
+  /** Answers only (question id -> chosen option index). The score is computed on the server. */
+  async submitReadinessAssessment(slug: string, answers: Record<string, number>) {
+    const res = await this.http.post<AssessmentResult>(`/learning/courses/${slug}/readiness-assessment`, { answers })
+    return res.data
+  }
+
+  async getRecommendations() {
+    const res = await this.http.get<Recommendations>('/learning/recommendations')
+    return res.data
+  }
+
+  /** A career roadmap: the recommended, ordered courses. (`getTrack` is the legacy track,
+   *  `getRoadmap` the mentor's study plan.) */
+  async getCareerRoadmap(slug: string) {
+    const res = await this.http.get<TrackDetail>(`/learning/tracks/${slug}`)
+    return res.data
+  }
+
+  /** One module's content, on demand: the course viewer loads a course a module at a time. */
+  async getToolTopic(topicId: number) {
+    const res = await this.http.get<ToolTopic>(`/tool-courses/topics/${topicId}`)
+    return res.data
+  }
+
+  async getMySkillLevels() {
+    const res = await this.http.get<SkillLevels>('/learning/my-skill-levels')
+    return res.data
+  }
+
+  async getCourseAccess(courseId: string) {
+    const res = await this.http.get<CourseAccess>(`/learning/courses/${courseId}/access`)
+    return res.data
+  }
+
+  async checkoutCourse(courseId: string, method: 'card' | 'wallet' = 'card', phoneNumber?: string) {
+    const res = await this.http.post<CheckoutResponse>('/billing/checkout', {
+      course_id: courseId,
+      method,
+      phone_number: phoneNumber,
+    })
+    return res.data
+  }
+
+  async getBillingOrders() {
+    const res = await this.http.get<BillingOrder[]>('/billing/orders')
+    return res.data
+  }
+
+  async getBillingOrder(orderId: number) {
+    const res = await this.http.get<BillingOrder>(`/billing/orders/${orderId}`)
+    return res.data
+  }
+
+  async getMyCourses() {
+    const res = await this.http.get<MyCourse[]>('/learning/my-courses')
     return res.data
   }
 

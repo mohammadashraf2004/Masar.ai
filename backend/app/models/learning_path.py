@@ -49,6 +49,26 @@ SKILL_ASSUMES = "assumes"   # the course expects the skill beforehand
 ROLE_FIELD_REQUIRED = "required"        # a foundation the goal cannot skip
 ROLE_FIELD_RECOMMENDED = "recommended"  # a specialisation route the goal suits
 
+# How much a course matters to one career goal (`course_roles.relation`). One
+# course, many goals, a different weight in each. Descriptive only: the path
+# generator, course states and progress never read it.
+COURSE_ROLE_CORE = "core"
+COURSE_ROLE_SUPPORTING = "supporting"
+COURSE_ROLE_OPTIONAL = "optional"
+COURSE_ROLE_RELATIONS = (COURSE_ROLE_CORE, COURSE_ROLE_SUPPORTING, COURSE_ROLE_OPTIONAL)
+
+# A course prerequisite is `required` (the path generator orders the roadmap by it -
+# what every prerequisite has always been) or `recommended` (advice only: read by
+# readiness and recommendations, never by the path generator). Neither blocks a
+# learner from enrolling.
+PREREQ_REQUIRED = "required"
+PREREQ_RECOMMENDED = "recommended"
+PREREQ_KINDS = (PREREQ_REQUIRED, PREREQ_RECOMMENDED)
+
+# Onboarding answers, ordered from least to most experienced.
+PROGRAMMING_EXPERIENCE = ("none", "basic", "comfortable", "professional")
+AI_EXPERIENCE = ("none", "basics", "projects", "applications")
+
 PATH_ACTIVE = "active"
 PATH_PAUSED = "paused"
 PATH_ARCHIVED = "archived"
@@ -260,6 +280,9 @@ class Course(Base):
     learning_objectives = Column(JSON, nullable=True)
     learning_objectives_ar = Column(JSON, nullable=True)
     is_active = Column(Boolean, nullable=False, default=True, server_default=text("true"))
+    # Existing catalogue content remains free after the billing migration.
+    # Creating an active paid offer deliberately turns this off.
+    is_free = Column(Boolean, nullable=False, default=True, server_default=text("true"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     level = relationship("LearningLevel")
@@ -284,10 +307,17 @@ class CourseField(Base):
 
 
 class CourseRole(Base):
+    """A course serves a career goal, with a weight: `core`, `supporting` or
+    `optional`. The row is the only place the weight lives, so a course is never
+    copied per goal - it is one entity with a different relation in each."""
     __tablename__ = "course_roles"
+    __table_args__ = (
+        CheckConstraint(_in("relation", COURSE_ROLE_RELATIONS), name="ck_course_roles_relation"),
+    )
 
     course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), primary_key=True)
     role_id = Column(Integer, ForeignKey("career_roles.id", ondelete="CASCADE"), primary_key=True, index=True)
+    relation = Column(String, nullable=False, default=COURSE_ROLE_CORE, server_default=COURSE_ROLE_CORE)
 
     role = relationship("CareerRole")
 
@@ -309,10 +339,12 @@ class CoursePrerequisite(Base):
     __tablename__ = "course_prerequisites"
     __table_args__ = (
         CheckConstraint("course_id <> prerequisite_course_id", name="ck_course_prereq_not_self"),
+        CheckConstraint(_in("kind", PREREQ_KINDS), name="ck_course_prerequisites_kind"),
     )
 
     course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), primary_key=True)
     prerequisite_course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), primary_key=True)
+    kind = Column(String, nullable=False, default=PREREQ_REQUIRED, server_default=PREREQ_REQUIRED)
 
 
 # ─── Path configuration ─────────────────────────────────────────────────────
@@ -401,12 +433,24 @@ class LearningProfile(Base):
     may be guessed to fill the gap. `onboarding_completed_at` is the single
     switch for "ask them to finish the new onboarding"."""
     __tablename__ = "learning_profiles"
+    __table_args__ = (
+        CheckConstraint(
+            "programming_experience IS NULL OR " + _in("programming_experience", PROGRAMMING_EXPERIENCE),
+            name="ck_learning_profiles_programming_experience"),
+        CheckConstraint(
+            "ai_experience IS NULL OR " + _in("ai_experience", AI_EXPERIENCE),
+            name="ck_learning_profiles_ai_experience"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     level_id = Column(Integer, ForeignKey("learning_levels.id"), nullable=True)
     career_role_id = Column(Integer, ForeignKey("career_roles.id"), nullable=True)
     field_slugs = Column(JSON, nullable=False, default=list)
+    # The two onboarding questions. Self-reported starting points, never evidence:
+    # readiness may use them as a weak prior and never as proof.
+    programming_experience = Column(String, nullable=True)
+    ai_experience = Column(String, nullable=True)
     # DEPRECATED - no longer read or written. Migration 013 copied these into
     # `learner_skills`, which is the source of truth (it records status and
     # source per skill). The column stays so the migration is reversible and no
@@ -488,3 +532,29 @@ class LearningPath(Base):
 
     level = relationship("LearningLevel")
     career_role = relationship("CareerRole")
+
+
+class ReadinessAssessment(Base):
+    """One short readiness check a learner took before a course.
+
+    The questions are drawn server-side from the quizzes of the course's
+    prerequisite courses (real curriculum questions, never generated), and the
+    score is computed here from the stored `answers` - the client never sends
+    a score. `skill_results` is `{skill slug: fraction correct}` and is the only
+    thing readiness reads back."""
+    __tablename__ = "readiness_assessments"
+    __table_args__ = (
+        Index("ix_readiness_assessments_user_course", "user_id", "course_id", "created_at"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
+    question_count = Column(Integer, nullable=False)
+    correct_count = Column(Integer, nullable=False)
+    score = Column(Float, nullable=False)                     # 0-100
+    skill_results = Column(JSON, nullable=False, default=dict)
+    answers = Column(JSON, nullable=False, default=dict)      # {"<quiz id>:<index>": selected option}
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    course = relationship("Course")

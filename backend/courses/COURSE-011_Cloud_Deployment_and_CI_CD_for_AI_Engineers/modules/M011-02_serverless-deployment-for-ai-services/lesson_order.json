@@ -1,0 +1,23 @@
+[
+  "L011_010_serverless-computing-and-workload-suitability.py",
+  "L011_011_designing-stateless-ai-services-for-serverless-deployment.py",
+  "L011_012_preparing-containers-for-google-cloud-run.py",
+  "L011_013_build-publish-and-deploy-with-google-cloud-run.py",
+  "L011_014_cloud-run-autoscaling-cold-starts-and-monitoring.py",
+  "L011_015_serverless-network-endpoint-groups-and-load-balancing.py",
+  "L011_016_host-based-routing-dns-and-https-on-cloud-run.py",
+  "L011_017_securing-cloud-run-ingress.py",
+  "L011_018_identity-aware-and-ip-based-access-control-on-gcp.py",
+  "L011_019_aws-managed-container-deployment-architecture.py",
+  "L011_020_aws-cli-iam-and-programmatic-deployment-identity.py",
+  "L011_021_amazon-ecr-and-container-release-workflow.py",
+  "L011_022_aws-serverless-networking-and-security-boundaries.py",
+  "L011_023_target-groups-and-application-load-balancer-routing.py",
+  "L011_024_restricting-alternate-access-paths-on-aws.py",
+  "L011_025_ecs-task-definitions-for-ai-services.py",
+  "L011_026_ecs-services-and-managed-application-runtime.py",
+  "L011_027_https-and-custom-domains-for-aws-fargate.py",
+  "L011_028_manual-scaling-and-ecs-service-autoscaling.py",
+  "L011_029_gcp-cloud-run-vs-aws-ecs-fargate.py",
+  "L011_030_serverless-ai-deployment-integration-project.py"
+]

@@ -1,0 +1,2 @@
+# Repository-specific dependencies come from the Masar backend.
+# Lesson examples may additionally use transformers, sentence-transformers, datasets, trl, peft, bitsandbytes, langchain, llama-index, dspy, and lmql depending on implementation.

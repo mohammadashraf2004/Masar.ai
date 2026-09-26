@@ -1,0 +1,17 @@
+"""Masar curriculum seed — L011-077."""
+
+LESSON_META = {'lesson_id': 'L011-077', 'course_id': 'COURSE-011', 'module_id': 'M011-06', 'title': 'State Locking & Concurrent Infrastructure Changes', 'slug': 'state-locking-and-concurrent-infrastructure-changes', 'status': 'approved', 'difficulty': 'intermediate-to-advanced', 'estimated_minutes': None, 'learning_objective': 'Apply state locking & concurrent infrastructure changes concepts to the deployment and operation of an existing production-oriented AI service.'}
+
+TOPICS = ['concurrent runs', 'state corruption risk', 'state locking', 'DynamoDB locking pattern', 'lock acquisition and release']
+
+SOURCE_REFERENCES = ['Secondary DevOps source (source ID not provided) — Chapter 7: Automating Infrastructure with Terraform and CI/CD']
+
+FIGURE_REFERENCES = []
+
+LESSON_MARKDOWN = '# L011-077 — State Locking & Concurrent Infrastructure Changes\n\n## Learning objective\n\nApply state locking & concurrent infrastructure changes concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- concurrent runs\n- state corruption risk\n- state locking\n- DynamoDB locking pattern\n- lock acquisition and release\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n'
+
+EXERCISES = [{'id': 'L011-077-EX1', 'title': 'Apply State Locking & Concurrent Infrastructure Changes', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: concurrent runs, state corruption risk, state locking. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-077-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to state locking & concurrent infrastructure changes. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
+
+QUIZ = [{'id': 'L011-077-Q1', 'type': 'short_answer', 'question': 'What production problem is state locking & concurrent infrastructure changes intended to solve in an AI-service deployment?', 'answer': 'It addresses the deployment/operations concerns represented by: concurrent runs, state corruption risk, state locking.', 'explanation': 'A correct answer should connect the concept to deployment reliability, security, repeatability, scalability, or operability rather than re-explaining AI application fundamentals.'}, {'id': 'L011-077-Q2', 'type': 'true_false', 'question': 'This lesson should be applied without considering security boundaries, failure behavior, or validation.', 'answer': False, 'explanation': 'Production deployment decisions must include security, failure handling, and verification.'}, {'id': 'L011-077-Q3', 'type': 'short_answer', 'question': 'Name two concrete topics covered by State Locking & Concurrent Infrastructure Changes.', 'answer': 'concurrent runs, state corruption risk', 'explanation': "The answer should use the lesson's declared core topics."}]
+
+PROJECT = None

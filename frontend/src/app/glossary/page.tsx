@@ -69,7 +69,7 @@ export default function GlossaryPage() {
           <Card className="p-5">
             <div className="flex items-baseline justify-between mb-2">
               <span className="text-sm text-bright">{t('term.glossaryTitle')}</span>
-              <span className="text-xs font-mono text-amber">
+              <span className="text-xs font-mono text-amber-text">
                 {learned.size} / {TERM_LIST.length} · {pct}%
               </span>
             </div>
@@ -99,7 +99,7 @@ export default function GlossaryPage() {
                   className={cn(
                     'min-h-[44px] lg:min-h-0 px-2.5 py-1 rounded-full border text-xs transition-colors',
                     category === value
-                      ? 'border-amber/30 bg-amber/10 text-amber'
+                      ? 'border-amber/30 bg-amber/10 text-amber-text'
                       : 'border-border text-ghost hover:text-soft'
                   )}
                 >
@@ -136,7 +136,7 @@ export default function GlossaryPage() {
                             {term.en}
                           </p>
                         )}
-                        <p className="text-xs text-amber2 mt-0.5" dir="rtl">
+                        <p className="text-xs text-amber-text2 mt-0.5" dir="rtl">
                           {term.ar}
                         </p>
                       </div>
@@ -163,7 +163,7 @@ export default function GlossaryPage() {
                         'mt-3 inline-flex min-h-[44px] lg:min-h-0 items-center gap-1.5 text-[11px] px-2 py-1 rounded border transition-colors',
                         isLearned
                           ? 'border-emerald/25 bg-emerald/10 text-emerald cursor-default'
-                          : 'border-border text-ghost hover:text-amber hover:border-amber/30'
+                          : 'border-border text-ghost hover:text-amber-text hover:border-amber/30'
                       )}
                     >
                       {isLearned ? <Check size={11} /> : <Circle size={9} />}

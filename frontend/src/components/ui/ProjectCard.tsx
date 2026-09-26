@@ -1,6 +1,6 @@
 'use client'
 import { CheckCircle, FileText, ListChecks, Wrench } from 'lucide-react'
-import { Badge } from '@/components/ui/index'
+import { Badge, DifficultyBadge } from '@/components/ui/index'
 import { MarkdownLesson } from '@/components/ui/MarkdownLesson'
 import { useI18n } from '@/lib/i18n'
 import { pickText } from '@/lib/content-language'
@@ -36,10 +36,10 @@ export function ProjectCard({
       {/* ── Header ── */}
       <div className="px-5 pt-4 pb-3.5 border-b border-border">
         <div className="flex items-start justify-between gap-3 mb-1.5">
-          <span className="text-[11px] font-mono text-ghost uppercase tracking-wider">
+          <span className="text-lc-label font-mono text-ghost uppercase tracking-wider">
             {t('project.label')}
           </span>
-          <Badge variant={project.difficulty}>{project.difficulty}</Badge>
+          <DifficultyBadge level={project.difficulty} />
         </div>
 
         <h3
@@ -50,13 +50,13 @@ export function ProjectCard({
         </h3>
 
         <div className="flex items-center gap-3 mt-2.5">
-          <Badge variant="ghost">{project.estimated_hours}h</Badge>
+          {project.estimated_hours != null && <Badge variant="ghost">{project.estimated_hours}h</Badge>}
           {project.starter_repo_url && (
             <a
               href={safeUrl(project.starter_repo_url)}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-amber hover:text-amber2 transition-colors"
+              className="text-xs text-amber-text hover:text-amber-text2 transition-colors"
             >
               Starter repo →
             </a>
@@ -78,7 +78,7 @@ export function ProjectCard({
         <Band icon={<ListChecks size={13} />} label={t('project.objectives')}>
           <ul className="space-y-1.5">
             {project.objectives.map((objective, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-soft leading-relaxed">
+              <li key={i} className="flex items-start gap-2 text-lc-body text-soft">
                 <CheckCircle size={12} className="text-emerald mt-1 shrink-0" />
                 <span>{objective}</span>
               </li>
@@ -94,7 +94,7 @@ export function ProjectCard({
             {project.tech_stack.map((tool) => (
               <span
                 key={tool}
-                className="px-2 py-0.5 rounded bg-surface border border-border text-xs font-mono text-dim"
+                className="px-2 py-0.5 rounded bg-surface border border-border text-lc-meta font-mono text-dim"
                 dir="ltr"
               >
                 {tool}
@@ -122,9 +122,9 @@ function Band({
 }) {
   return (
     <div className={cn('px-5 py-4', !last && 'border-b border-border')}>
-      <div className="flex items-center gap-1.5 mb-2.5 text-amber">
+      <div className="flex items-center gap-1.5 mb-2.5 text-amber-text">
         {icon}
-        <span className="text-[11px] font-medium uppercase tracking-wider">{label}</span>
+        <span className="text-lc-label font-medium uppercase tracking-wider">{label}</span>
       </div>
       {children}
     </div>

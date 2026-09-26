@@ -1,0 +1,250 @@
+{
+  "course_id": "COURSE-007",
+  "course_title": "Advanced LLM Systems & Application Architecture",
+  "source_id": "BOOK-007",
+  "book_title": "SOURCE INFORMATION MISSING",
+  "edition": "SOURCE INFORMATION MISSING",
+  "status": "Curriculum design complete / course-folder seed export generated",
+  "approval_status": "Not explicitly approved",
+  "source_review_status": "Complete",
+  "source_structure": {
+    "parts": 3,
+    "chapters": 13,
+    "chapters_reviewed": "13/13"
+  },
+  "level": "Advanced",
+  "difficulty": "Intermediate → Advanced",
+  "guided_minutes": 2430,
+  "guided_time": "40h30m",
+  "modules": 10,
+  "lessons": 60,
+  "prerequisites": [
+    "COURSE-001 — Machine Learning Foundations",
+    "COURSE-002 — Deep Learning Foundations",
+    "COURSE-003 — Applied Deep Learning",
+    "COURSE-004 — Applied NLP with Transformers",
+    "COURSE-005 — Applied LLM Engineering",
+    "COURSE-006 — Production AI Engineering"
+  ],
+  "track_roles": {
+    "Data Analyst": "Optional",
+    "ML Engineer": "Supporting",
+    "AI Developer": "Core",
+    "MLOps Engineer": "Supporting",
+    "AI Engineer": "Core"
+  },
+  "professional_capability": "Design, adapt, evaluate, optimize, retrieve with, and integrate large language models into robust software systems using fine-tuning, advanced retrieval, RAG, agents, multi-model architectures, verification, and production-oriented application patterns.",
+  "learning_loop": "Learn → Practice → Build → Debug → Evaluate",
+  "capstone": "Production LLM System Architecture Capstone",
+  "module_inventory": [
+    {
+      "id": "M007-01",
+      "title": "LLM Foundations & Pre-Training Revision",
+      "role": "REVISION",
+      "chapters": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "project": "LLM Foundations Revision Audit",
+      "guided_minutes": 115,
+      "lessons": 4,
+      "guided_time": "1h55m"
+    },
+    {
+      "id": "M007-02",
+      "title": "Pretrained Model Selection, Evaluation & Execution",
+      "role": "REVISION + EXTENSION",
+      "chapters": [
+        5
+      ],
+      "project": "Model Selection & Evaluation Lab",
+      "guided_minutes": 170,
+      "lessons": 5,
+      "guided_time": "2h50m"
+    },
+    {
+      "id": "M007-03",
+      "title": "Fine-Tuning & Dataset Engineering",
+      "role": "REVISION + EXTENSION",
+      "chapters": [
+        6
+      ],
+      "project": "Fine-Tuning Dataset & Adaptation Lab",
+      "guided_minutes": 245,
+      "lessons": 6,
+      "guided_time": "4h05m"
+    },
+    {
+      "id": "M007-04",
+      "title": "Advanced Model Adaptation & Model Fusion",
+      "role": "REVISION + EXTENSION",
+      "chapters": [
+        7
+      ],
+      "project": "Advanced Adaptation Strategy Benchmark",
+      "guided_minutes": 230,
+      "lessons": 5,
+      "guided_time": "3h50m"
+    },
+    {
+      "id": "M007-05",
+      "title": "Alignment, Reliability & Reasoning",
+      "role": "REVISION + EXTENSION",
+      "chapters": [
+        8
+      ],
+      "project": "Alignment & Reasoning Reliability Lab",
+      "guided_minutes": 245,
+      "lessons": 6,
+      "guided_time": "4h05m"
+    },
+    {
+      "id": "M007-06",
+      "title": "Inference Performance Engineering",
+      "role": "REVISION + EXTENSION",
+      "chapters": [
+        9
+      ],
+      "project": "Inference Optimization Benchmark",
+      "guided_minutes": 240,
+      "lessons": 6,
+      "guided_time": "4h00m"
+    },
+    {
+      "id": "M007-07",
+      "title": "LLM Application Paradigms, Tools & Agents",
+      "role": "REVISION + APPLICATION EXTENSION",
+      "chapters": [
+        10
+      ],
+      "project": "Tool-Using Agent System",
+      "guided_minutes": 320,
+      "lessons": 8,
+      "guided_time": "5h20m"
+    },
+    {
+      "id": "M007-08",
+      "title": "Embeddings, Retrieval & Document Representation",
+      "role": "REVISION + RETRIEVAL EXTENSION",
+      "chapters": [
+        11
+      ],
+      "project": "Retrieval Representation & Document Pipeline",
+      "guided_minutes": 305,
+      "lessons": 7,
+      "guided_time": "5h05m"
+    },
+    {
+      "id": "M007-09",
+      "title": "Advanced RAG Systems Engineering",
+      "role": "REVISION + ADVANCED RAG EXTENSION",
+      "chapters": [
+        12
+      ],
+      "project": "Advanced RAG Architecture Evaluation",
+      "guided_minutes": 355,
+      "lessons": 8,
+      "guided_time": "5h55m"
+    },
+    {
+      "id": "M007-10",
+      "title": "LLM System Architecture & Programming Patterns",
+      "role": "SYSTEM DESIGN + SYNTHESIS",
+      "chapters": [
+        13
+      ],
+      "project": "Production LLM System Architecture Capstone",
+      "guided_minutes": 205,
+      "lessons": 5,
+      "guided_time": "3h25m"
+    }
+  ],
+  "source_chapters": {
+    "1": {
+      "title": "Introduction",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "2": {
+      "title": "Pre-Training Data",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "3": {
+      "title": "Vocabulary and Tokenization",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "4": {
+      "title": "Architectures and Learning Objectives",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "5": {
+      "title": "Adapting LLMs to Your Use Case",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "6": {
+      "title": "Fine-Tuning",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "7": {
+      "title": "Advanced Fine-Tuning Techniques",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "8": {
+      "title": "Alignment Training and Reasoning",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "9": {
+      "title": "Inference Optimization",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "10": {
+      "title": "Interfacing LLMs with External Tools",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "11": {
+      "title": "Representation Learning and Embeddings",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "12": {
+      "title": "Retrieval-Augmented Generation",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "13": {
+      "title": "Design Patterns and System Architecture",
+      "pages": "SOURCE INFORMATION MISSING"
+    }
+  },
+  "chapter_disposition": {
+    "1": "REVISION",
+    "2": "REVISION",
+    "3": "REVISION",
+    "4": "REVISION",
+    "5": "REVISION + SELECTIVE EXTENSION",
+    "6": "REVISION + SELECTIVE EXTENSION",
+    "7": "REVISION + ADVANCED EXTENSION",
+    "8": "REVISION + RELIABILITY/REASONING EXTENSION",
+    "9": "REVISION + PERFORMANCE EXTENSION",
+    "10": "REVISION + APPLICATION/AGENT EXTENSION",
+    "11": "REVISION + RETRIEVAL/DOCUMENT EXTENSION",
+    "12": "REVISION + ADVANCED RAG EXTENSION",
+    "13": "SYSTEM ARCHITECTURE + SYNTHESIS"
+  },
+  "source_boundaries": {
+    "multimodal_models": "Explicitly out of scope in the provided book front matter; isolated visual-document/computer-use material is retained only where the source itself includes it.",
+    "multilingual_llms": "Mostly out of scope in the provided book front matter.",
+    "deep_theory_and_math": "Explicitly not the focus of the source.",
+    "reasoning_models": "Only rudimentary coverage according to the provided book front matter."
+  },
+  "implementation_status": {
+    "curriculum_design": "complete",
+    "lesson_seed_export": "generated by this package",
+    "ids_frozen": true,
+    "architecture_frozen": true,
+    "approval": "not explicitly approved",
+    "database_integration": "not verified",
+    "frontend_rendering": "not verified",
+    "all_exercises_e2e": "not verified",
+    "production_deployment": "not verified"
+  }
+}

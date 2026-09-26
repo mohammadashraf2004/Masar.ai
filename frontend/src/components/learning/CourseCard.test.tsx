@@ -129,3 +129,38 @@ describe('Arabic (RTL) rendering', () => {
     expect(screen.getByText(/مناسبة لـ/).closest('p')).toHaveTextContent('AI Engineer (مهندس ذكاء اصطناعي)')
   })
 })
+
+describe('CourseCard — enrollment and readiness on the card', () => {
+  it('shows the size of the course on the card itself, without opening the details', () => {
+    render(<CourseCard course={course({ module_count: 12 })} />)
+    expect(screen.getByText('12 modules')).toBeInTheDocument()
+    expect(screen.getByText('40.5h')).toBeInTheDocument()
+  })
+
+  it('offers "View course" to a learner who is not enrolled, and shows their readiness', () => {
+    render(<CourseCard course={course({ readiness: { state: 'mostly_ready', score: 78 } })} />)
+    expect(screen.getByRole('link', { name: 'View course' })).toHaveAttribute('href', '/courses/rag-knowledge-systems')
+    expect(screen.getByText('Mostly ready')).toBeInTheDocument()
+    expect(screen.queryByText(/complete/)).toBeNull()
+  })
+
+  it('shows progress and "Continue" for an enrolled learner, in place of readiness', () => {
+    render(<CourseCard course={course({
+      enrollment: { status: 'in_progress', progress_percentage: 42 }, readiness: { state: 'ready', score: 90 },
+    })} />)
+    expect(screen.getByText('42% complete')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Continue' })).toHaveAttribute('href', '/courses/rag-knowledge-systems')
+    expect(screen.queryByText('Ready')).toBeNull()
+  })
+
+  it('offers a review of a completed course', () => {
+    render(<CourseCard course={course({ enrollment: { status: 'completed', progress_percentage: 100 } })} />)
+    expect(screen.getByText('Completed')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Review course' })).toBeInTheDocument()
+  })
+
+  it('says nothing about readiness while it has not been assessed', () => {
+    render(<CourseCard course={course({ readiness: { state: 'not_assessed', score: 0 } })} />)
+    expect(screen.queryByText('Not assessed yet')).toBeNull()
+  })
+})

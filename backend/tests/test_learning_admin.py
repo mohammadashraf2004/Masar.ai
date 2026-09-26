@@ -378,7 +378,11 @@ def test_the_seed_tolerates_content_that_has_not_been_seeded(learn_db):
     from seeds.seed_learning_paths import seed_learning_catalog
 
     report = seed_learning_catalog(learn_db)  # no track, no tool courses at all
-    assert report["courses"] == 0 and report["stages"] > 0 and report["templates"] == 5
+    # The only courses that can exist are the curriculum courses: each is its own tool course,
+    # so - unlike a track level - it needs no legacy track to point at.
+    from seeds.curriculum import COURSE_DIRECTORY_COURSES
+    assert report["courses"] == len(COURSE_DIRECTORY_COURSES)
+    assert report["stages"] > 0 and report["templates"] == 5
 
 
 def test_the_seeded_configuration_has_no_prerequisite_cycle(learn_client, learn_catalog, admin_user):

@@ -28,12 +28,13 @@ from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.models.learning import Lesson, Topic, TrackLevel
 from app.models.learning_path import (
-    COURSE_KIND_TOOL, COURSE_KIND_TRACK_LEVEL, ROLE_FIELD_RECOMMENDED, ROLE_FIELD_REQUIRED,
+    COURSE_KIND_TOOL, COURSE_KIND_TRACK_LEVEL, PREREQ_RECOMMENDED, PREREQ_REQUIRED,
+    ROLE_FIELD_RECOMMENDED, ROLE_FIELD_REQUIRED,
     SKILL_ASSUMES, SKILL_KIND_TOOL, SKILL_TEACHES,
     CareerRole, Course, LearningField, LearningFieldPrerequisite, LearningLevel,
     PathStage, PathTemplate, PathTemplateStage, Skill,
 )
-from app.models.tool_course import ToolTopic
+from app.models.tool_course import CURRICULUM_CATEGORY, ToolTopic
 from app.services.learning.domain import (
     Catalog, CourseInfo, FieldInfo, LevelInfo, RoleInfo, StageInfo, TemplateInfo,
     TemplateStageInfo,
@@ -61,6 +62,10 @@ def course_href(course: Course) -> Optional[str]:
     """Where the underlying content lives in the app. The catalogue owns no
     pages of its own for lessons — it points at the ones that exist."""
     if course.kind == COURSE_KIND_TOOL and course.tool_course is not None:
+        # A curriculum course is a course in its own right, not a "tool": it opens in
+        # the course viewer under /courses, never on the Tools pages.
+        if course.tool_course.category == CURRICULUM_CATEGORY:
+            return f"/courses/{course.slug}/learn"
         return f"/tools/{course.tool_course.slug}"
     if course.kind == COURSE_KIND_TRACK_LEVEL and course.track_level is not None:
         track = course.track_level.track
@@ -89,7 +94,11 @@ def _content_and_hours(db: Session):
         db.query(Topic.level_id, func.coalesce(func.sum(Topic.estimated_hours), 0.0))
         .group_by(Topic.level_id).all()
     )
-    return tool_lessons, level_lessons, tool_hours, level_hours
+    tool_modules = dict(
+        db.query(ToolTopic.tool_course_id, func.count(ToolTopic.id)).group_by(ToolTopic.tool_course_id).all()
+    )
+    level_modules = dict(db.query(Topic.level_id, func.count(Topic.id)).group_by(Topic.level_id).all())
+    return tool_lessons, level_lessons, tool_hours, level_hours, tool_modules, level_modules
 
 
 def load_catalog_bundle(db: Session) -> CatalogBundle:
@@ -137,15 +146,17 @@ def load_catalog_bundle(db: Session) -> CatalogBundle:
     )
     role_slug = {r.id: r.slug for r in roles.values()}
 
-    tool_lessons, level_lessons, tool_hours, level_hours = _content_and_hours(db)
+    tool_lessons, level_lessons, tool_hours, level_hours, tool_modules, level_modules = _content_and_hours(db)
 
     courses: Dict[int, CourseInfo] = {}
     for c in course_rows:
         if c.kind == COURSE_KIND_TOOL:
             lessons = tool_lessons.get(c.tool_course_id, 0)
+            modules = tool_modules.get(c.tool_course_id, 0)
             source_hours = (c.tool_course.estimated_hours if c.tool_course else None) or tool_hours.get(c.tool_course_id, 0.0)
         else:
             lessons = level_lessons.get(c.track_level_id, 0)
+            modules = level_modules.get(c.track_level_id, 0)
             source_hours = level_hours.get(c.track_level_id, 0.0)
         hours = c.estimated_hours if c.estimated_hours is not None else source_hours
         courses[c.id] = CourseInfo(
@@ -154,12 +165,19 @@ def load_catalog_bundle(db: Session) -> CatalogBundle:
             level_rank=c.level.rank if c.level else 0,
             field_slugs=frozenset(field_slug[l.field_id] for l in c.field_links if l.field_id in field_slug),
             role_slugs=frozenset(role_slug[l.role_id] for l in c.role_links if l.role_id in role_slug),
+            role_relations=tuple(sorted(
+                (role_slug[l.role_id], l.relation) for l in c.role_links if l.role_id in role_slug
+            )),
             teaches=frozenset(skill_slug[l.skill_id] for l in c.skill_links
                               if l.relation == SKILL_TEACHES and l.skill_id in skill_slug),
             assumes=frozenset(skill_slug[l.skill_id] for l in c.skill_links
                               if l.relation == SKILL_ASSUMES and l.skill_id in skill_slug),
-            prerequisite_ids=frozenset(p.prerequisite_course_id for p in c.prerequisite_links),
+            prerequisite_ids=frozenset(p.prerequisite_course_id for p in c.prerequisite_links
+                                       if p.kind == PREREQ_REQUIRED),
+            recommended_prerequisite_ids=frozenset(p.prerequisite_course_id for p in c.prerequisite_links
+                                                   if p.kind == PREREQ_RECOMMENDED),
             estimated_hours=round(float(hours or 0.0), 1),
+            module_count=modules, lesson_count=lessons,
             is_available=lessons > 0,
             is_active=True,
         )
@@ -167,8 +185,9 @@ def load_catalog_bundle(db: Session) -> CatalogBundle:
     # dangle; drop the reference rather than chase it.
     for cid, info in list(courses.items()):
         live = frozenset(p for p in info.prerequisite_ids if p in courses)
-        if live != info.prerequisite_ids:
-            courses[cid] = replace(info, prerequisite_ids=live)
+        live_recommended = frozenset(p for p in info.recommended_prerequisite_ids if p in courses)
+        if live != info.prerequisite_ids or live_recommended != info.recommended_prerequisite_ids:
+            courses[cid] = replace(info, prerequisite_ids=live, recommended_prerequisite_ids=live_recommended)
 
     stage_rows = (
         db.query(PathStage).options(selectinload(PathStage.course_links))

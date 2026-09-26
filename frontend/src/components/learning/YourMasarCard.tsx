@@ -104,13 +104,13 @@ export function YourMasarCard({ variant = 'dashboard', className }: YourMasarCar
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="min-w-0 max-w-xl">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-bright">
-              <Compass size={15} className="text-amber" aria-hidden="true" />
+              <Compass size={15} className="text-amber-text" aria-hidden="true" />
               {t('card.empty.title')}
             </h2>
             <p className="mt-1 text-xs leading-relaxed text-soft">{t('card.empty.body')}</p>
             {carried && <p className="mt-1 text-xs text-soft">{tf('banner.onboard.carried', { goal: carried })}</p>}
           </div>
-          <Link href={profile.needs_onboarding ? '/onboarding/learning-profile' : '/learn'} className={buttonStyles({ size: 'sm' })}>
+          <Link href={profile.needs_onboarding ? '/onboarding/learning-profile' : '/learn/masar'} className={buttonStyles({ size: 'sm' })}>
             {t('card.empty.cta')} <ArrowRight size={12} className="rtl:rotate-180" aria-hidden="true" />
           </Link>
         </div>
@@ -160,7 +160,7 @@ export function YourMasarCard({ variant = 'dashboard', className }: YourMasarCar
         >
           <div className="progress-fill bg-gradient-to-r from-amber to-amber2" style={{ width: `${pct}%` }} />
         </div>
-        <span className="font-mono text-xs text-amber" dir="ltr">{pct}%</span>
+        <span className="font-mono text-xs text-amber-text" dir="ltr">{pct}%</span>
       </div>
 
       {current ? (
@@ -183,7 +183,7 @@ export function YourMasarCard({ variant = 'dashboard', className }: YourMasarCar
 
       <div className="mt-5 flex flex-wrap gap-2">
         {home ? (
-          <Link href="/learn" className={buttonStyles({ size: 'sm' })}>
+          <Link href="/learn/masar" className={buttonStyles({ size: 'sm' })}>
             {t('card.continueRoadmap')} <ArrowRight size={12} className="rtl:rotate-180" aria-hidden="true" />
           </Link>
         ) : (
@@ -193,7 +193,7 @@ export function YourMasarCard({ variant = 'dashboard', className }: YourMasarCar
                 {t('card.continue')} <ArrowRight size={12} className="rtl:rotate-180" aria-hidden="true" />
               </Link>
             )}
-            <Link href="/learn" className={buttonStyles({ size: 'sm', variant: current ? 'ghost' : 'amber' })}>
+            <Link href="/learn/masar" className={buttonStyles({ size: 'sm', variant: current ? 'ghost' : 'amber' })}>
               {t('card.viewRoadmap')}
             </Link>
           </>

@@ -1,0 +1,3 @@
+"""Module project seed for M012-10."""
+MODULE_ID = 'M012-10'
+PROJECT = {'title': 'Productionize the COURSE-012 Multi-Agent Research System', 'summary': 'Turn the course research system into a production-oriented deployment with durable state, idempotency, budgets, security, observability, and release controls.', 'deliverables': ['Runtime/topology rationale', 'Synchronous and asynchronous paths', 'Durable task state', 'Idempotency protection', 'Timeouts, retries, fallbacks, circuit breaker', 'Version manifest', 'Correlated tracing', 'Cost/task metrics', 'Routing/context optimization', 'User-scoped authorization', 'Tool sandbox and egress allowlist', 'Indirect prompt-injection defense', 'HITL checkpoint', 'External policy enforcement', 'Rollback criteria']}

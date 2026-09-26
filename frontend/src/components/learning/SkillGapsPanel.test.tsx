@@ -220,7 +220,7 @@ describe('SkillGapsPanel — profile variant', () => {
     await screen.findByRole('heading', { name: "Skills you're working toward" })
     expect(screen.getAllByRole('listitem').filter((li) => li.getAttribute('data-status'))).toHaveLength(8)
     expect(screen.getByText(/\+4/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'See all skill gaps' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'See all skill gaps' })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('has no editable control', async () => {

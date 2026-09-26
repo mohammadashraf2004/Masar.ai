@@ -1,0 +1,263 @@
+[
+  {
+    "chapter": 1,
+    "figure": "Figure 1-4",
+    "title": "FastAPI web server with data source integrations that serve a generative model",
+    "lesson_id": "L010-002",
+    "filename": "fig_01_04_ai_service_architecture.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 2,
+    "figure": "Figure 2-2",
+    "title": "Dependency injection in FastAPI",
+    "lesson_id": "L010-006",
+    "filename": "fig_02_02_dependency_injection.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 2,
+    "figure": "Figure 2-3",
+    "title": "Onion design pattern",
+    "lesson_id": "L010-008",
+    "filename": "fig_02_03_onion_architecture.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 2,
+    "figure": "Figure 2-9",
+    "title": "Generative AI service you’ll build with FastAPI",
+    "lesson_id": "L010-008",
+    "filename": "fig_02_09_course_service_architecture.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 3,
+    "figure": "Figure 3-28",
+    "title": "Loading and using models on every request",
+    "lesson_id": "L010-015",
+    "filename": "fig_03_28_per_request_model_loading.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 3,
+    "figure": "Figure 3-29",
+    "title": "Using the FastAPI application lifespan to preload models",
+    "lesson_id": "L010-014",
+    "filename": "fig_03_29_lifespan_model_preloading.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 5,
+    "figure": "Figure 5-1",
+    "title": "Concurrency and parallelism",
+    "lesson_id": "L010-026",
+    "filename": "fig_05_01_concurrency_vs_parallelism.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 5,
+    "figure": "Figure 5-4",
+    "title": "Async IO event loop",
+    "lesson_id": "L010-027",
+    "filename": "fig_05_04_async_event_loop.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 5,
+    "figure": "Figure 5-5",
+    "title": "How multithreading and Async IO handle I/O blocking operations",
+    "lesson_id": "L010-029",
+    "filename": "fig_05_05_threadpool_vs_async.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 5,
+    "figure": "Figure 5-16",
+    "title": "Dynamic/continuous batching with variable batch size",
+    "lesson_id": "L010-031",
+    "filename": "fig_05_16_continuous_batching.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 6,
+    "figure": "Figure 6-4",
+    "title": "SSE",
+    "lesson_id": "L010-034",
+    "filename": "fig_06_04_sse.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 6,
+    "figure": "Figure 6-5",
+    "title": "WS communication",
+    "lesson_id": "L010-036",
+    "filename": "fig_06_05_websocket_communication.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 6,
+    "figure": "Figure 6-6",
+    "title": "WebSocket connection lifecycle",
+    "lesson_id": "L010-036",
+    "filename": "fig_06_06_websocket_lifecycle.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 6,
+    "figure": "Figure 6-7",
+    "title": "Comparison of web communication mechanisms",
+    "lesson_id": "L010-033",
+    "filename": "fig_06_07_communication_mechanisms.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 7,
+    "figure": "Figure 7-4",
+    "title": "The repository pattern within the onion/layered application architecture",
+    "lesson_id": "L010-044",
+    "filename": "fig_07_04_repository_layer.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 8,
+    "figure": "Figure 8-5",
+    "title": "JWT authentication system architecture",
+    "lesson_id": "L010-050",
+    "filename": "fig_08_05_jwt_auth_architecture.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 8,
+    "figure": "Figure 8-8",
+    "title": "OAuth authentication flow",
+    "lesson_id": "L010-052",
+    "filename": "fig_08_08_oauth_flow.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 8,
+    "figure": "Figure 8-11",
+    "title": "Authorization models",
+    "lesson_id": "L010-054",
+    "filename": "fig_08_11_authorization_models.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 8,
+    "figure": "Figure 8-17",
+    "title": "Separating the authorization service from the GenAI service",
+    "lesson_id": "L010-055",
+    "filename": "fig_08_17_external_authorization_service.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 9,
+    "figure": "Figure 9-1",
+    "title": "Comparison of an LLM system without and with guardrails",
+    "lesson_id": "L010-057",
+    "filename": "fig_09_01_io_guardrails.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 9,
+    "figure": "Figure 9-2",
+    "title": "Comparison of rate-limiting strategies",
+    "lesson_id": "L010-060",
+    "filename": "fig_09_02_rate_limit_strategies.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 10,
+    "figure": "Figure 10-3",
+    "title": "System architecture for context caching",
+    "lesson_id": "L010-066",
+    "filename": "fig_10_03_context_caching.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 11,
+    "figure": "Figure 11-1",
+    "title": "Types of tests in software testing",
+    "lesson_id": "L010-069",
+    "filename": "fig_11_01_test_boundaries.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 11,
+    "figure": "Figure 11-9",
+    "title": "Test doubles",
+    "lesson_id": "L010-071",
+    "filename": "fig_11_09_test_doubles.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 11,
+    "figure": "Figure 11-11",
+    "title": "E2E test boundaries visualized on the RAG data pipeline diagram",
+    "lesson_id": "L010-076",
+    "filename": "fig_11_11_e2e_boundaries.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 12,
+    "figure": "Figure 12-3",
+    "title": "Comparison of containerization and virtualization system architectures",
+    "lesson_id": "L010-077",
+    "filename": "fig_12_03_containers_vs_vms.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 12,
+    "figure": "Figure 12-4",
+    "title": "Docker platform system architecture",
+    "lesson_id": "L010-078",
+    "filename": "fig_12_04_docker_platform.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 12,
+    "figure": "Figure 12-7",
+    "title": "Docker storage mounts",
+    "lesson_id": "L010-080",
+    "filename": "fig_12_07_storage_mounts.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  },
+  {
+    "chapter": 12,
+    "figure": "Figure 12-10",
+    "title": "Isolated bridge networks",
+    "lesson_id": "L010-081",
+    "filename": "fig_12_10_isolated_bridge_networks.png",
+    "priority": "REQUIRED",
+    "source_image_included": false
+  }
+]

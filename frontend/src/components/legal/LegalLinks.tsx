@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 export function LegalLinks({ className }: { className?: string }) {
   const { t } = useI18n()
   const link =
-    'inline-flex min-h-[44px] items-center text-xs text-soft underline-offset-2 hover:text-bright hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber lg:min-h-0'
+    'inline-flex min-h-[44px] items-center text-xs text-soft underline-offset-2 hover:text-bright hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring lg:min-h-0'
   return (
     <nav aria-label={`${t('legal.footer.terms')} / ${t('legal.footer.privacy')}`} className={cn('flex items-center gap-4', className)}>
       <Link href="/terms" className={link}>{t('legal.footer.terms')}</Link>

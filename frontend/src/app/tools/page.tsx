@@ -4,26 +4,37 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Card, Badge, Spinner, ProgressBar } from '@/components/ui/index'
+import { PageBody } from '@/components/layout/PageContainer'
+import { Card, Badge, DifficultyBadge, Spinner, ProgressBar } from '@/components/ui/index'
 import { Button, buttonStyles } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import type { ToolCourseSummary, ToolEnrollment, SearchResults } from '@/types'
 import { ArrowRight, CheckCircle, Layers, Boxes, Server, Database, Clock, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useI18n } from '@/lib/i18n'
+import { useI18n, type StringKey } from '@/lib/i18n'
 import { localizedTitle, localizedDescription } from '@/lib/content-language'
 
-const CATEGORY_META: Record<string, { icon: React.ElementType; color: string }> = {
-  'LLM & AI Application Layer': { icon: Layers, color: 'amber' },
-  'Vector Databases':           { icon: Database, color: 'sky' },
-  'MLOps & Infrastructure':     { icon: Server, color: 'emerald' },
-  'Data Tools':                 { icon: Boxes, color: 'violet' },
+// Whole class names, not `text-${color}`: Tailwind only emits classes it can read
+// in the source, and amber TEXT is `amber-text` (a different token from the fill).
+const CATEGORY_META: Record<string, { icon: React.ElementType; text: string }> = {
+  'LLM & AI Application Layer': { icon: Layers, text: 'text-amber-text' },
+  'Vector Databases':           { icon: Database, text: 'text-sky' },
+  'MLOps & Infrastructure':     { icon: Server, text: 'text-emerald' },
+  'Data Tools':                 { icon: Boxes, text: 'text-violet' },
 }
 const CATEGORY_ORDER = Object.keys(CATEGORY_META)
+// The API sends the category as English text. The four it knows are shown in the
+// reader's language; one it does not know is shown as sent.
+const CATEGORY_LABEL: Record<string, StringKey> = {
+  'LLM & AI Application Layer': 'tools.cat.llm',
+  'Vector Databases':           'tools.cat.vector',
+  'MLOps & Infrastructure':     'tools.cat.mlops',
+  'Data Tools':                 'tools.cat.data',
+}
 
 export default function ToolsPage() {
   const { isLoading: authLoading } = useAuth()
-  const { t, language } = useI18n()
+  const { t, tf, language } = useI18n()
   const [courses, setCourses] = useState<ToolCourseSummary[]>([])
   const [enrollments, setEnrollments] = useState<ToolEnrollment[]>([])
   const [loading, setLoading] = useState(true)
@@ -95,13 +106,10 @@ export default function ToolsPage() {
 
   return (
     <AppShell>
-      <PageHeader
-        title={t('nav.tools')}
-        subtitle="No prerequisites, no tracks — pick any tool and start. Great alongside or independent of a career track."
-      />
+      <PageHeader title={t('nav.tools')} subtitle={t('tools.subtitle')} contained />
 
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="max-w-5xl mx-auto space-y-10">
+      <PageBody>
+        <div className="space-y-10">
           {/* ── Bilingual search ── */}
           <div>
             <div className="relative">
@@ -129,7 +137,7 @@ export default function ToolsPage() {
                   <p className="font-display font-bold text-bright text-sm" dir="ltr">
                     {term.preferred}
                   </p>
-                  <p className="text-xs text-amber2 mt-0.5" dir="rtl">{term.ar}</p>
+                  <p className="text-xs text-amber-text2 mt-0.5" dir="rtl">{term.ar}</p>
                   <p className="text-xs text-soft leading-relaxed mt-2" dir="rtl">
                     {term.definitionAr}
                   </p>
@@ -145,14 +153,14 @@ export default function ToolsPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <Badge variant="ghost" className="text-[10px]">{hit.kind.replace('_', ' ')}</Badge>
                         {hit.parent_title && (
-                          <span className="text-xs text-ghost truncate">{hit.parent_title}</span>
+                          <span dir="auto" className="text-xs text-ghost truncate">{hit.parent_title}</span>
                         )}
                       </div>
-                      <p className="text-sm text-bright">
+                      <p dir="auto" className="text-sm text-bright">
                         {localizedTitle(hit, language) || hit.title}
                       </p>
                       {(hit.description || hit.description_ar) && (
-                        <p className="text-xs text-ghost leading-relaxed mt-1 line-clamp-2">
+                        <p dir="auto" className="text-xs text-ghost leading-relaxed mt-1 line-clamp-2">
                           {localizedDescription(hit, language)}
                         </p>
                       )}
@@ -164,13 +172,15 @@ export default function ToolsPage() {
           )}
 
           {!searchActive && orderedCategories.map(category => {
-            const meta = CATEGORY_META[category] ?? { icon: Boxes, color: 'ghost' }
+            const meta = CATEGORY_META[category] ?? { icon: Boxes, text: 'text-ghost' }
             const Icon = meta.icon
             return (
               <div key={category}>
                 <div className="flex items-center gap-2 mb-4">
-                  <Icon size={15} className={`text-${meta.color}`} />
-                  <h2 className="text-sm font-medium text-bright">{category}</h2>
+                  <Icon size={15} className={meta.text} />
+                  <h2 dir="auto" className="text-sm font-medium text-bright">
+                    {CATEGORY_LABEL[category] ? t(CATEGORY_LABEL[category]) : category}
+                  </h2>
                   <span className="text-xs text-ghost">
                     {byCategory.get(category)!.length} {t('course.tools')}
                   </span>
@@ -194,13 +204,13 @@ export default function ToolsPage() {
                               <Clock size={10} className="me-1" /> {t('course.comingSoon')}
                             </Badge>
                           ) : (
-                            <Badge variant={course.difficulty}>{course.difficulty}</Badge>
+                            <DifficultyBadge level={course.difficulty} />
                           )}
                         </div>
-                        <h3 className="font-medium text-bright text-sm mb-1.5">
+                        <h3 dir="auto" className="font-medium text-bright text-sm mb-1.5">
                           {localizedTitle(course, language)}
                         </h3>
-                        <p className="text-xs text-ghost leading-relaxed mb-4 flex-1">
+                        <p dir="auto" className="text-xs text-ghost leading-relaxed mb-4 flex-1">
                           {localizedDescription(course, language)}
                         </p>
 
@@ -210,13 +220,13 @@ export default function ToolsPage() {
                               <span className="text-xs text-ghost">
                                 {enr.progress_pct >= 100 ? t('course.completed') : t('course.inProgress')}
                               </span>
-                              <span className="text-xs font-mono text-amber">{Math.round(enr.progress_pct)}%</span>
+                              <span className="text-xs font-mono text-amber-text">{Math.round(enr.progress_pct)}%</span>
                             </div>
                             <ProgressBar value={enr.progress_pct} size="sm" color={enr.progress_pct >= 100 ? 'emerald' : 'amber'} />
                           </div>
                         ) : !comingSoon ? (
                           <div className="flex items-center gap-3 mb-3 text-xs text-ghost">
-                            {course.estimated_hours && <span>{course.estimated_hours}h</span>}
+                            {course.estimated_hours && <span>{tf('card.hours', { n: course.estimated_hours })}</span>}
                             {course.topic_count > 0 && (
                               <span>{course.topic_count} {t('course.topics')}</span>
                             )}
@@ -255,7 +265,7 @@ export default function ToolsPage() {
             )
           })}
         </div>
-      </div>
+      </PageBody>
     </AppShell>
   )
 }

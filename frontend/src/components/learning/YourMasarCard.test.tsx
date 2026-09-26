@@ -39,7 +39,7 @@ describe('the roadmap card — dashboard variant', () => {
   it('leads with the next action: Continue Learning opens the current course\'s lessons', async () => {
     render(<YourMasarCard />)
     expect(await screen.findByRole('link', { name: /Continue Learning/ })).toHaveAttribute('href', '/tools/langchain')
-    expect(screen.getByRole('link', { name: 'View Full Roadmap' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'View Full Roadmap' })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('does not dump the curriculum: no stage or course list on the card', async () => {
@@ -121,7 +121,7 @@ describe('the roadmap card — home variant', () => {
     expect(screen.getByText('72%')).toBeInTheDocument()
     expect(screen.getByText("You're currently learning:").nextElementSibling).toHaveTextContent('LangChain')
     expect(screen.getByText('Next:').nextElementSibling).toHaveTextContent('RAG & Knowledge Systems')
-    expect(screen.getByRole('link', { name: /Continue Roadmap/ })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: /Continue Roadmap/ })).toHaveAttribute('href', '/learn/masar')
     expect(screen.queryByRole('link', { name: /Continue Learning/ })).toBeNull()
   })
 })
@@ -147,7 +147,7 @@ describe('the roadmap card — no roadmap yet', () => {
   it('sends a learner who answered but has no path to Your Masar, where it can be built', async () => {
     vi.mocked(api.getMyLearningPath).mockResolvedValue(null)
     render(<YourMasarCard />)
-    expect(await screen.findByRole('link', { name: /Build My Roadmap/ })).toHaveAttribute('href', '/learn')
+    expect(await screen.findByRole('link', { name: /Build My Roadmap/ })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('is told which career goal was kept from their old enrolment', async () => {

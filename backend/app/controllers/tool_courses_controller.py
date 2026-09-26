@@ -13,12 +13,13 @@ regardless of which kind of topic they belong to.
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 from typing import List
 
 from app.db.session import get_db
 from app.models.user import User
-from app.models.tool_course import ToolCourse, ToolTopic, ToolEnrollment, ToolCourseCompletion
+from app.models.tool_course import CURRICULUM_CATEGORY, ToolCourse, ToolTopic, ToolEnrollment, ToolCourseCompletion
 from app.models.learning import Lesson, Exercise, Project, Quiz
 from app.models.progress import UserProgress, ProgressStatus
 from app.views.tool_course import (
@@ -27,11 +28,41 @@ from app.views.tool_course import (
     ToolProgressUpdate, ToolProgressResponse,
 )
 from app.core.security import get_current_user
+from app.models.learning_path import Course
+from app.services.learning import enrollment as course_enrollment
+from app.services.billing.access_service import (
+    course_access, course_for_tool_topic, require_content_access,
+    require_course_access, require_lesson_access,
+)
 
 router = APIRouter(prefix="/tool-courses", tags=["Tool Courses"])
 
 # Mirrors tracks_controller.MAX_TOPIC_MINUTES.
 MAX_TOPIC_MINUTES = 100_000
+
+
+def _redact_locked_tool_course(course: ToolCourse, user_id: int, db: Session):
+    data = ToolCourseResponse.model_validate(course).model_dump()
+    catalog_course = db.query(Course).filter(
+        Course.tool_course_id == course.id, Course.is_active.is_(True),
+    ).first()
+    if not catalog_course or course_access(db, user_id, catalog_course).has_access:
+        return data
+    for topic in data["topics"]:
+        for lesson in topic["lessons"]:
+            if not lesson.get("is_preview"):
+                lesson.update(content="", content_ar=None, is_locked=True)
+                lesson["course_slug"] = catalog_course.slug
+        for exercise in topic["exercises"]:
+            exercise.update(description="", description_ar=None, starter_code=None)
+            exercise.update(is_locked=True, course_slug=catalog_course.slug)
+        for project in topic["projects"]:
+            project.update(description="", description_ar=None, objectives=[], rubric={}, starter_repo_url=None)
+            project.update(is_locked=True, course_slug=catalog_course.slug)
+        for quiz in topic["quizzes"]:
+            quiz.update(questions=[], questions_ar=None)
+            quiz.update(is_locked=True, course_slug=catalog_course.slug)
+    return data
 
 
 def _validate_progress_targets(db: Session, payload: ToolProgressUpdate, *, topic_id: int) -> None:
@@ -62,7 +93,9 @@ def list_tool_courses(db: Session = Depends(get_db)):
     courses = (
         db.query(ToolCourse)
         .options(joinedload(ToolCourse.topics))
-        .filter(ToolCourse.is_active == True)
+        # Curriculum courses are listed in the course catalogue, not among the tools.
+        .filter(ToolCourse.is_active == True,
+                or_(ToolCourse.category.is_(None), ToolCourse.category != CURRICULUM_CATEGORY))
         .order_by(ToolCourse.category, ToolCourse.title)
         .all()
     )
@@ -101,6 +134,11 @@ def enroll(
     db.add(enrollment)
     db.commit()
     db.refresh(enrollment)
+    # One enrollment record per course: keep the catalogue's in step with this one.
+    catalog_course = db.query(Course).filter(
+        Course.tool_course_id == course.id, Course.is_active.is_(True)).first()
+    if catalog_course:
+        course_enrollment.sync_lifecycle(db, current_user.id, catalog_course)
     return enrollment
 
 
@@ -162,7 +200,7 @@ def get_tool_course(
     )
     if not course:
         raise HTTPException(status_code=404, detail="Tool course not found")
-    return course
+    return _redact_locked_tool_course(course, current_user.id, db)
 
 
 # ─── Topic detail ────────────────────────────────────────────────────────
@@ -186,6 +224,23 @@ def get_tool_topic(
     )
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
+    course = course_for_tool_topic(db, topic.id)
+    if course and not course_access(db, current_user.id, course).has_access:
+        data = ToolTopicResponse.model_validate(topic).model_dump()
+        for lesson in data["lessons"]:
+            if not lesson.get("is_preview"):
+                lesson.update(content="", content_ar=None, is_locked=True)
+                lesson["course_slug"] = course.slug
+        for exercise in data["exercises"]:
+            exercise.update(description="", description_ar=None, starter_code=None)
+            exercise.update(is_locked=True, course_slug=course.slug)
+        for project in data["projects"]:
+            project.update(description="", description_ar=None, objectives=[], rubric={}, starter_repo_url=None)
+            project.update(is_locked=True, course_slug=course.slug)
+        for quiz in data["quizzes"]:
+            quiz.update(questions=[], questions_ar=None)
+            quiz.update(is_locked=True, course_slug=course.slug)
+        return data
     return topic
 
 
@@ -237,6 +292,14 @@ def update_tool_progress(
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
     _validate_progress_targets(db, payload, topic_id=topic_id)
+    course = course_for_tool_topic(db, topic_id)
+    if course:
+        if payload.lesson_id is not None:
+            require_lesson_access(db, current_user.id, db.query(Lesson).filter(Lesson.id == payload.lesson_id).one())
+        elif payload.exercise_id is not None:
+            require_content_access(db, current_user.id, db.query(Exercise).filter(Exercise.id == payload.exercise_id).one())
+        else:
+            require_course_access(db, current_user.id, course)
 
     progress = db.query(UserProgress).filter(
         UserProgress.user_id == current_user.id,
@@ -277,6 +340,9 @@ def update_tool_progress(
     db.commit()
     db.refresh(progress)
     _recompute_course_progress(db, current_user.id, topic.tool_course_id)
+    if course:
+        # Working in a course enrolls the learner and moves their lifecycle forward.
+        course_enrollment.sync_lifecycle(db, current_user.id, course)
     return progress
 
 
@@ -286,6 +352,9 @@ def get_tool_topic_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    course = course_for_tool_topic(db, topic_id)
+    if course:
+        require_course_access(db, current_user.id, course)
     progress = db.query(UserProgress).filter(
         UserProgress.user_id == current_user.id,
         UserProgress.tool_topic_id == topic_id,

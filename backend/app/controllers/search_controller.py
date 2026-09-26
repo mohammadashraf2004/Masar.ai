@@ -26,8 +26,15 @@ from app.content import terminology as T
 from app.core.limiter import limiter
 from app.db.session import get_db
 from app.models.learning import CareerTrack, Lesson, Topic, TrackLevel
-from app.models.tool_course import ToolCourse, ToolTopic
+from app.models.tool_course import CURRICULUM_CATEGORY, ToolCourse, ToolTopic
 from app.views.terminology import SearchHit, SearchResponse
+
+def _course_href(course: ToolCourse, *, learn: bool = False) -> str:
+    """Curriculum courses open under /courses; hand-seeded tool courses stay under /tools."""
+    if course.category == CURRICULUM_CATEGORY:
+        return f"/courses/{course.slug}/learn" if learn else f"/courses/{course.slug}"
+    return f"/tools/{course.slug}"
+
 
 router = APIRouter(prefix="/search", tags=["Search"])
 
@@ -114,8 +121,8 @@ def search(
                 title_ar=course.title_ar,
                 description=course.description,
                 description_ar=course.description_ar,
-                href=f"/tools/{course.slug}",
-                parent_title=course.category,
+                href=_course_href(course),
+                parent_title=None if course.category == CURRICULUM_CATEGORY else course.category,
                 score=_score(
                     surfaces,
                     [
@@ -161,7 +168,7 @@ def search(
                 title_ar=topic.title_ar,
                 description=topic.description,
                 description_ar=topic.description_ar,
-                href=f"/tools/{course.slug}",
+                href=_course_href(course, learn=True),
                 parent_title=course.title,
                 score=_score(
                     surfaces,
@@ -285,7 +292,7 @@ def search(
         href: Optional[str] = None
         parent: Optional[str] = None
         if lesson.tool_topic is not None and lesson.tool_topic.tool_course is not None:
-            href = f"/tools/{lesson.tool_topic.tool_course.slug}"
+            href = _course_href(lesson.tool_topic.tool_course, learn=True)
             parent = lesson.tool_topic.title
         elif lesson.topic is not None and lesson.topic.level is not None:
             track = lesson.topic.level.track

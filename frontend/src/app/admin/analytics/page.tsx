@@ -33,7 +33,7 @@ function Stat({ label, value, hint }: { label: string; value: string | number; h
 function SectionTitle({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
   return (
     <h2 className="flex items-center gap-2 text-sm font-semibold text-soft uppercase tracking-wide">
-      <Icon size={14} className="text-amber" />
+      <Icon size={14} className="text-amber-text" />
       {children}
     </h2>
   )
@@ -206,7 +206,7 @@ function GrantCredits() {
                 <p className="text-xs text-ghost truncate">{found.email} · id {found.user_id}</p>
               </div>
               <div className="text-end shrink-0">
-                <p className="font-mono text-lg text-amber">{found.credit_balance}</p>
+                <p className="font-mono text-lg text-amber-text">{found.credit_balance}</p>
                 <p className="text-xs text-ghost">current balance</p>
               </div>
             </div>
@@ -382,7 +382,7 @@ export default function AdminAnalyticsPage() {
               </div>
               {!users.verification_reliable && (
                 <div className="flex-1 flex items-start gap-2 text-xs text-dim">
-                  <Info size={14} className="text-amber flex-shrink-0 mt-0.5" />
+                  <Info size={14} className="text-amber-text flex-shrink-0 mt-0.5" />
                   <span>
                     <Badge variant="amber" className="me-2">unreliable</Badge>
                     {users.verification_note}
@@ -464,7 +464,7 @@ export default function AdminAnalyticsPage() {
                 // Deliberately shows nothing rather than a number the data
                 // cannot support — see the backend controller for why.
                 <div className="flex items-start gap-2">
-                  <Info size={14} className="text-amber flex-shrink-0 mt-0.5" />
+                  <Info size={14} className="text-amber-text flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-dim">
                     <Badge variant="ghost" className="me-2">unavailable</Badge>
                     {retention.reason}

@@ -79,15 +79,29 @@ class CourseInfo:
     level_rank: int
     field_slugs: FrozenSet[str] = frozenset()
     role_slugs: FrozenSet[str] = frozenset()
+    # (career goal slug, 'core' | 'supporting' | 'optional'), sorted. Descriptive
+    # metadata for display and discovery: no generation rule reads it.
+    role_relations: Tuple[Tuple[str, str], ...] = ()
     teaches: FrozenSet[str] = frozenset()
     assumes: FrozenSet[str] = frozenset()
+    # Required prerequisites: the only ones the path generator orders a roadmap by.
     prerequisite_ids: FrozenSet[int] = frozenset()
+    # Advice only (readiness, recommendations); never read by the path generator.
+    recommended_prerequisite_ids: FrozenSet[int] = frozenset()
     estimated_hours: float = 0.0
+    # Structure of the course's content: modules (topics) and lessons. Counts only -
+    # a catalogue snapshot never carries lesson bodies.
+    module_count: int = 0
+    lesson_count: int = 0
     # Active AND its source actually contains lessons. A catalogue entry whose
     # content has not been written yet is *planned*, not available: it is
     # never put in front of a learner as something they can start.
     is_available: bool = True
     is_active: bool = True
+
+    def relation_for(self, role_slug: str) -> Optional[str]:
+        """This course's weight in one career goal, or None when it is not tagged for it."""
+        return next((rel for slug, rel in self.role_relations if slug == role_slug), None)
 
 
 @dataclass(frozen=True)

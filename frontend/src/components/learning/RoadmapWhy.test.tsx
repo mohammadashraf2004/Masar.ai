@@ -92,7 +92,7 @@ describe('the roadmap card — skills to gain and why', () => {
     render(<YourMasarCard />)
     expect(await screen.findByText('3 skills to gain')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Continue Learning/ })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'View Full Roadmap' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'View Full Roadmap' })).toHaveAttribute('href', '/learn/masar')
     expect(screen.queryByRole('button', { name: /Why this course\?/ })).toBeNull()
   })
 
@@ -107,7 +107,7 @@ describe('the roadmap card — skills to gain and why', () => {
     render(<YourMasarCard variant="home" />)
     expect(await screen.findByText('3 skills to gain')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Why this course\?/ })).toBeNull()
-    expect(screen.getByRole('link', { name: /Continue Roadmap/ })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: /Continue Roadmap/ })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('uses the singular for one skill and says so when there is nothing to gain', async () => {

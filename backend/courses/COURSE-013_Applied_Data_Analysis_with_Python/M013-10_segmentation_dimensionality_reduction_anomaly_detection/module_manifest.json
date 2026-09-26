@@ -1,0 +1,26 @@
+{
+  "module_id": "M013-10",
+  "title": "Segmentation, Dimensionality Reduction & Anomaly Detection",
+  "role": "Core / Analytical Pattern Discovery",
+  "status": "finalized",
+  "description": "Discover unlabeled structure using PCA, clustering, and anomaly detection, then translate outputs into analyst investigations.",
+  "learning_outcomes": [
+    "Discover unlabeled structure using PCA, clustering, and anomaly detection, then translate outputs into analyst investigations."
+  ],
+  "prerequisites": [
+    "M013-03",
+    "M013-07"
+  ],
+  "estimated_minutes": 420,
+  "lessons": [
+    "L013-074",
+    "L013-075",
+    "L013-076",
+    "L013-077",
+    "L013-078",
+    "L013-079",
+    "L013-080",
+    "L013-081"
+  ],
+  "project": "Customer Segmentation & Behavioral Anomaly Investigation"
+}

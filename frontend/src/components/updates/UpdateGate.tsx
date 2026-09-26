@@ -10,7 +10,7 @@ import { WhatsNewDialog } from './WhatsNewDialog'
  * dashboard) and the roadmap it points at - never a lesson, an exam, a payment
  * or a sign-in page. Elsewhere it simply waits for the next visit.
  */
-const PLACES = new Set(['/', '/dashboard', '/learn'])
+const PLACES = new Set(['/', '/dashboard', '/learn', '/learn/masar'])
 
 /**
  * Shows the announcement the server says this account has yet to see, if any.

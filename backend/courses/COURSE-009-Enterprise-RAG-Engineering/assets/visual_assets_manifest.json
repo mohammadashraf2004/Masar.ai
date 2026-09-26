@@ -1,0 +1,100 @@
+[
+  {
+    "chapter": 1,
+    "figure": "Figure 1-2",
+    "title": "The RAG stack",
+    "lesson_id": "L009-002",
+    "filename": "fig_01_02_rag_stack.png"
+  },
+  {
+    "chapter": 4,
+    "figure": "Figure 4-1",
+    "title": "Cascading model approach via LLM router",
+    "lesson_id": "L009-033",
+    "filename": "fig_04_01_model_cascade.png"
+  },
+  {
+    "chapter": 4,
+    "figure": "Figure 4-2",
+    "title": "Example production architecture for RAG",
+    "lesson_id": "L009-028",
+    "filename": "fig_04_02_production_rag_architecture.png"
+  },
+  {
+    "chapter": 5,
+    "figure": "Figure 5-1",
+    "title": "Centralized RAG platform governance",
+    "lesson_id": "L009-038",
+    "filename": "fig_05_01_rag_platform_governance.png"
+  },
+  {
+    "chapter": 6,
+    "figure": "Figure 6-1",
+    "title": "Open Evaluation interface",
+    "lesson_id": "L009-050",
+    "filename": "fig_06_01_open_evaluation.png"
+  },
+  {
+    "chapter": 7,
+    "figure": "Figure 7-2",
+    "title": "The agentic stack",
+    "lesson_id": "L009-051",
+    "filename": "fig_07_02_agentic_stack.png"
+  },
+  {
+    "chapter": 7,
+    "figure": "Figure 7-4",
+    "title": "Orchestrator-worker multi-agent pattern",
+    "lesson_id": "L009-052",
+    "filename": "fig_07_04_orchestrator_worker.png"
+  },
+  {
+    "chapter": 7,
+    "figure": "Figure 7-5",
+    "title": "Model Context Protocol architecture",
+    "lesson_id": "L009-055",
+    "filename": "fig_07_05_mcp_architecture.png"
+  },
+  {
+    "chapter": 8,
+    "figure": "Figure 8-2",
+    "title": "Table processing flow in RAG",
+    "lesson_id": "L009-061",
+    "filename": "fig_08_02_table_rag_flow.png"
+  },
+  {
+    "chapter": 8,
+    "figure": "Figure 8-5",
+    "title": "Shared embedding space for text and images",
+    "lesson_id": "L009-063",
+    "filename": "fig_08_05_shared_embedding_space.png"
+  },
+  {
+    "chapter": 8,
+    "figure": "Figure 8-8",
+    "title": "Aligned chunk vs orphan chunk",
+    "lesson_id": "L009-066",
+    "filename": "fig_08_08_modality_alignment.png"
+  },
+  {
+    "chapter": 9,
+    "figure": "Figure 9-2",
+    "title": "Chunk enrichment workflow",
+    "lesson_id": "L009-071",
+    "filename": "fig_09_02_chunk_enrichment.png"
+  },
+  {
+    "chapter": 9,
+    "figure": "Figure 9-3",
+    "title": "Graph query generation in a RAG pipeline",
+    "lesson_id": "L009-072",
+    "filename": "fig_09_03_graph_hybrid_retrieval.png"
+  },
+  {
+    "chapter": 10,
+    "figure": "Figure 10-1",
+    "title": "RAG filtering for long-context models",
+    "lesson_id": "L009-079",
+    "filename": "fig_10_01_context_filtering.png"
+  }
+]

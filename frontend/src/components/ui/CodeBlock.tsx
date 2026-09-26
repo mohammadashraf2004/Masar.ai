@@ -43,9 +43,11 @@ export function CodeBlock({
     return (
       <pre
         dir="ltr"
+        // No `.prism-code` here, so scope the always-dark code surface by hand.
+        data-theme="dark"
         className={cn(
           'bg-void border border-border rounded-lg p-4 overflow-x-auto',
-          'text-[13px] leading-relaxed font-mono text-soft text-start',
+          'text-sm leading-[1.7] font-mono text-soft text-start',
           className
         )}
       >
@@ -61,7 +63,7 @@ export function CodeBlock({
       dir="ltr"
       className={cn(
         'prism-code bg-void border border-border rounded-lg p-4 overflow-x-auto',
-        'text-[13px] leading-relaxed text-start',
+        'text-sm leading-[1.7] text-start',
         className
       )}
     >

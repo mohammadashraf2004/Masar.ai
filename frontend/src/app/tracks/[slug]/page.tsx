@@ -1,13 +1,14 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Spinner } from '@/components/ui/index'
-import { Badge } from '@/components/ui/index'
+import { Badge, DifficultyBadge } from '@/components/ui/index'
 import { ProgressBar } from '@/components/ui/index'
-import { Button } from '@/components/ui/Button'
+import { Button, buttonStyles } from '@/components/ui/Button'
 import { QuizPanel } from '@/components/ui/QuizPanel'
 import { ExerciseCard } from '@/components/ui/ExerciseCard'
 import { ProjectCard as ProjectBrief } from '@/components/ui/ProjectCard'
@@ -30,7 +31,7 @@ import { Info } from 'lucide-react'
 
 export default function TrackPage() {
   useAuth()
-  const { t, language } = useI18n()
+  const { t, tf, language } = useI18n()
   const { slug } = useParams() as { slug: string }
   const [track, setTrack] = useState<CareerTrack | null>(null)
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null)
@@ -77,7 +78,7 @@ export default function TrackPage() {
 
   if (!track) return (
     <AppShell>
-      <div className="flex-1 flex items-center justify-center text-ghost">Track not found.</div>
+      <div className="flex-1 flex items-center justify-center text-ghost">{t('tracks.notFound')}</div>
     </AppShell>
   )
 
@@ -86,6 +87,7 @@ export default function TrackPage() {
       <PageHeader
         title={localizedTitle(track, language)}
         subtitle={localizedDescription(track, language)}
+        dirAuto
         action={
           enrollment ? (
             <div className="flex items-center gap-2">
@@ -109,7 +111,7 @@ export default function TrackPage() {
 
       <div className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden min-w-0">
         {/* ── Skill tree sidebar ── */}
-        <div className="w-full lg:w-72 shrink-0 max-h-[45vh] lg:max-h-none overflow-y-auto border-b lg:border-b-0 lg:border-e border-border bg-ink py-4">
+        <div className="w-full lg:w-60 xl:w-72 shrink-0 max-h-[45vh] lg:max-h-none overflow-y-auto border-b lg:border-b-0 lg:border-e border-border bg-ink py-4">
           {track.levels.map((level, li) => {
             const isOpen = expandedLevel === li
             return (
@@ -119,9 +121,9 @@ export default function TrackPage() {
                   onClick={() => setExpandedLevel(isOpen ? -1 : li)}
                 >
                   <div className="w-5 h-5 rounded bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0">
-                    <span className="text-xs font-mono text-amber">{li + 1}</span>
+                    <span className="text-xs font-mono text-amber-text">{li + 1}</span>
                   </div>
-                  <span className="text-sm font-medium text-bright flex-1 text-start">
+                  <span dir="auto" className="text-sm font-medium text-bright flex-1 text-start">
                     {localizedTitle(level, language)}
                   </span>
                   {isOpen
@@ -140,20 +142,18 @@ export default function TrackPage() {
                           className={cn(
                             'w-full text-start px-3 py-2 rounded text-sm transition-all my-0.5',
                             active
-                              ? 'bg-amber/10 text-amber border border-amber/20'
+                              ? 'bg-amber/10 text-amber-text border border-amber/20'
                               : 'text-dim hover:text-bright hover:bg-surface border border-transparent'
                           )}
                           onClick={() => setActiveTopic(topic)}
                         >
                           <div className="flex items-center gap-2">
-                            <Circle size={8} className={active ? 'text-amber' : 'text-ghost'} />
-                            <span className="flex-1">{localizedTitle(topic, language)}</span>
+                            <Circle size={8} className={active ? 'text-amber-text' : 'text-ghost'} />
+                            <span dir="auto" className="flex-1">{localizedTitle(topic, language)}</span>
                           </div>
                           <div className="flex items-center gap-2 mt-1 ms-3.5">
-                            <Badge variant={topic.difficulty as 'beginner' | 'intermediate' | 'advanced'} className="text-[10px] py-0">
-                              {topic.difficulty}
-                            </Badge>
-                            <span className="text-xs text-ghost">{topic.estimated_hours}h</span>
+                            <DifficultyBadge level={topic.difficulty} className="text-xs py-0" />
+                            {topic.estimated_hours != null && <span className="text-lc-meta text-ghost">{tf('card.hours', { n: topic.estimated_hours })}</span>}
                           </div>
                         </button>
                       )
@@ -172,12 +172,10 @@ export default function TrackPage() {
             <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-border shrink-0">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-display font-bold text-white text-base sm:text-lg mb-2">{activeTopic.title}</h2>
+                  <h2 dir="auto" className="font-display font-bold text-white text-xl mb-2">{localizedTitle(activeTopic, language)}</h2>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant={activeTopic.difficulty as 'beginner' | 'intermediate' | 'advanced'}>
-                      {activeTopic.difficulty}
-                    </Badge>
-                    <Badge variant="ghost">{activeTopic.estimated_hours}h estimated</Badge>
+                    <DifficultyBadge level={activeTopic.difficulty} />
+                    {activeTopic.estimated_hours != null && <Badge variant="ghost">{tf('course.estimatedHours', { n: activeTopic.estimated_hours })}</Badge>}
                     {activeTopic.skill_tags.map(tag => (
                       <Badge key={tag} variant="ghost">{tag}</Badge>
                     ))}
@@ -186,7 +184,7 @@ export default function TrackPage() {
               </div>
 
               {/* Content tabs */}
-              <div className="flex items-center gap-1 mt-4 overflow-x-auto">
+              <div className="flex items-center gap-1 mt-4 py-1 -my-1 overflow-x-auto">
                 {[
                   { key: 'lesson', icon: BookOpen, label: 'Lessons', count: activeTopic.lessons.length },
                   { key: 'exercise', icon: Code, label: 'Exercises', count: activeTopic.exercises.length },
@@ -197,9 +195,9 @@ export default function TrackPage() {
                     key={key}
                     onClick={() => setActiveTab(key as typeof activeTab)}
                     className={cn(
-                      'flex items-center gap-2 px-4 py-2 rounded text-sm transition-all',
+                      'flex shrink-0 items-center gap-2 whitespace-nowrap px-4 py-2 min-h-[44px] lg:min-h-0 rounded text-sm transition-all',
                       activeTab === key
-                        ? 'bg-amber/10 text-amber border border-amber/20'
+                        ? 'bg-amber/10 text-amber-text border border-amber/20'
                         : 'text-ghost hover:text-soft border border-transparent'
                     )}
                   >
@@ -207,7 +205,7 @@ export default function TrackPage() {
                     {label}
                     <span className={cn(
                       'text-xs px-1.5 py-0.5 rounded',
-                      activeTab === key ? 'bg-amber/20 text-amber' : 'bg-muted text-ghost'
+                      activeTab === key ? 'bg-amber/20 text-amber-text' : 'bg-muted text-ghost'
                     )}>
                       {count}
                     </span>
@@ -236,13 +234,10 @@ export default function TrackPage() {
                 <div className="space-y-5 max-w-3xl">
                   {activeTopic.exercises.length === 0 ? (
                     <p className="text-ghost text-sm">{t('exercise.noneYet')}</p>
-                  ) : activeTopic.exercises.map((ex, i) => (
-                    <ExerciseCard
-                      key={ex.id}
-                      exercise={ex}
-                      index={i}
-                      total={activeTopic.exercises.length}
-                    />
+                  ) : activeTopic.exercises.map((ex, i) => ex.is_locked ? (
+                    <LockedContent key={ex.id} courseSlug={ex.course_slug} />
+                  ) : (
+                    <ExerciseCard key={ex.id} exercise={ex} index={i} total={activeTopic.exercises.length} />
                   ))}
                 </div>
               )}
@@ -252,9 +247,9 @@ export default function TrackPage() {
                   <p className="text-ghost text-sm">No quiz for this topic yet.</p>
                 ) : (
                   <div className="space-y-8">
-                    {activeTopic.quizzes.map(quiz => (
-                      <QuizPanel key={quiz.id} quiz={quiz} />
-                    ))}
+                    {activeTopic.quizzes.map(quiz => quiz.is_locked ? (
+                      <LockedContent key={quiz.id} courseSlug={quiz.course_slug} />
+                    ) : <QuizPanel key={quiz.id} quiz={quiz} />)}
                   </div>
                 )
               )}
@@ -263,9 +258,9 @@ export default function TrackPage() {
                 <div className="space-y-4 max-w-3xl">
                   {activeTopic.projects.length === 0 ? (
                     <p className="text-ghost text-sm">No projects for this topic yet.</p>
-                  ) : activeTopic.projects.map(proj => (
-                    <ProjectCard key={proj.id} project={proj} />
-                  ))}
+                  ) : activeTopic.projects.map(proj => proj.is_locked ? (
+                    <LockedContent key={proj.id} courseSlug={proj.course_slug} />
+                  ) : <ProjectCard key={proj.id} project={proj} />)}
                 </div>
               )}
             </div>
@@ -284,25 +279,27 @@ export default function TrackPage() {
 // ── Sub-components ──────────────────────────────────────────────────────────
 
 function LessonCard({ lesson, index }: { lesson: Lesson; index: number }) {
-  const { t, language } = useI18n()
+  const { t, tf, language } = useI18n()
   const [expanded, setExpanded] = useState(index === 0)
 
   // Same fallback rule as the tool-course reader: show the Arabic body when
   // it exists, otherwise the English original with a note.
   const body = localizedContent(lesson, language)
 
+  if (lesson.is_locked) return <LockedContent courseSlug={lesson.course_slug} />
+
   return (
     <Card className={cn('overflow-hidden transition-all', expanded ? 'border-amber/20' : '')}>
       <button
-        className="w-full flex items-center gap-4 p-5 text-start hover:bg-surface/50 transition-colors"
+        className="w-full flex items-center gap-4 p-4 sm:p-5 text-start hover:bg-surface/50 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
         <div className="w-7 h-7 rounded bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0">
-          <Play size={11} className="text-amber" />
+          <Play size={11} className="text-amber-text" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-bright text-sm">{localizedTitle(lesson, language)}</p>
-          <p className="text-xs text-ghost mt-0.5">{lesson.estimated_minutes} min read</p>
+          <p dir="auto" className="font-display font-bold text-bright text-lc-title">{localizedTitle(lesson, language)}</p>
+          {lesson.estimated_minutes != null && <p className="text-lc-meta text-ghost mt-1">{tf('lesson.readTime', { n: lesson.estimated_minutes })}</p>}
         </div>
         {expanded
           ? <ChevronDown size={14} className="text-ghost shrink-0" />
@@ -311,11 +308,11 @@ function LessonCard({ lesson, index }: { lesson: Lesson; index: number }) {
       </button>
 
       {expanded && (
-        <div className="px-5 pb-6 border-t border-border">
+        <div className="px-4 sm:px-6 pb-6 border-t border-border">
           {body.isFallback && (
             <div className="mt-4 flex items-start gap-2 px-3 py-2 rounded-lg bg-sky/5 border border-sky/20">
               <Info size={13} className="text-sky shrink-0 mt-0.5" />
-              <p className="text-xs text-soft leading-relaxed">{t('course.arabicUnavailable')}</p>
+              <p className="text-lc-meta text-soft">{t('course.arabicUnavailable')}</p>
             </div>
           )}
           <div className="mt-4">
@@ -323,6 +320,18 @@ function LessonCard({ lesson, index }: { lesson: Lesson; index: number }) {
           </div>
         </div>
       )}
+    </Card>
+  )
+}
+
+function LockedContent({ courseSlug }: { courseSlug?: string | null }) {
+  return (
+    <Card className="flex flex-col items-center gap-3 p-8 text-center">
+      <Lock size={24} className="text-amber-text" aria-hidden="true" />
+      <p className="text-sm font-medium text-bright">Purchase this course to unlock this content.</p>
+      <Link href={courseSlug ? `/courses/${courseSlug}` : '/explore'} className={buttonStyles({ size: 'sm' })}>
+        View course
+      </Link>
     </Card>
   )
 }

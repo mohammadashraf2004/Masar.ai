@@ -10,12 +10,17 @@ Reuses DifficultyLevel from app.models.learning — no new enum needed.
 Relationships to CareerTrack are advisory only (related_track_ids for display)
 and never auto-complete or skip any track topic.
 """
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Float, JSON, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Float, JSON, ForeignKey, Enum, Index, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.db.session import Base
 from app.models.learning import DifficultyLevel
+
+# `ToolCourse.category` of a curriculum course (COURSE-001 ...). These are courses in
+# their own right - found in the course catalogue and opened under /courses - so the
+# Tools pages leave them out. A plain marker on the existing column, no new schema.
+CURRICULUM_CATEGORY = "curriculum"
 
 
 class ToolCourse(Base):
@@ -60,9 +65,16 @@ class ToolCourse(Base):
 
 
 class ToolTopic(Base):
+    """A topic of a tool course - for curriculum courses (COURSE-001 ...) it is a *module*."""
     __tablename__ = "tool_topics"
+    __table_args__ = (
+        Index("uq_tool_topics_source_key", "source_key", unique=True, postgresql_where=text("source_key IS NOT NULL")),
+    )
 
     id               = Column(Integer, primary_key=True, index=True)
+    # Stable identity of a curriculum module imported from backend/courses
+    # (e.g. 'COURSE-004/M004-01'); NULL for hand-seeded tool topics.
+    source_key       = Column(String, nullable=True)
     tool_course_id   = Column(Integer, ForeignKey("tool_courses.id"), nullable=False)
     title            = Column(String, nullable=False)
     slug             = Column(String, index=True, nullable=False)

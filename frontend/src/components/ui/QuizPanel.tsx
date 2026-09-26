@@ -69,7 +69,7 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
     <div className="space-y-4 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-medium text-bright">{quiz.title}</h3>
+          <h3 dir="auto" className="font-medium text-bright">{quiz.title}</h3>
           <p className="text-xs text-ghost mt-0.5">
             {mcqIndices.length} multiple-choice{openIndices.length > 0 ? ` · ${openIndices.length} open-ended` : ''} · pass at {quiz.passing_score}%
           </p>
@@ -115,7 +115,7 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
                         : isWrongSelected
                         ? 'bg-rose/10 border-rose/40 text-rose'
                         : selected
-                        ? 'bg-amber/10 border-amber/40 text-amber'
+                        ? 'bg-amber/10 border-amber/40 text-amber-text'
                         : 'bg-surface border-border text-soft hover:border-amber/20'
                     } ${result ? 'cursor-default' : ''}`}
                   >
@@ -147,7 +147,7 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
           )}
           {result ? (
             <Card className={`p-5 flex items-center gap-4 ${result.passed ? 'border-emerald/30' : 'border-amber/30'}`}>
-              {result.passed ? <Trophy size={24} className="text-emerald shrink-0" /> : <XCircle size={24} className="text-amber shrink-0" />}
+              {result.passed ? <Trophy size={24} className="text-emerald shrink-0" /> : <XCircle size={24} className="text-amber-text shrink-0" />}
               <div className="flex-1">
                 <p className="text-sm font-medium text-bright">
                   {result.passed ? 'Passed!' : 'Not quite — review and try again'}
@@ -172,7 +172,7 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
         return (
           <Card key={i} className="p-5">
             <div className="flex items-start gap-2 mb-3">
-              <MessageSquare size={14} className="text-amber shrink-0 mt-0.5" />
+              <MessageSquare size={14} className="text-amber-text shrink-0 mt-0.5" />
               <p className="text-sm font-medium text-bright">
                 {i + 1}. {q.question}
               </p>

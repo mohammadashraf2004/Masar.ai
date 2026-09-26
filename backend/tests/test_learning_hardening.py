@@ -213,11 +213,14 @@ def test_the_client_never_supplies_completion_it_only_reads_it(learn_client, lea
 
 # ─── Skill vs tool ──────────────────────────────────────────────────────────
 
-def test_the_five_tools_are_tools_and_everything_else_is_a_skill(learn_catalog, learn_db):
+def test_course_technologies_are_tools_and_capabilities_are_skills(learn_catalog, learn_db):
     kinds = {s.slug: s.kind for s in learn_db.query(Skill).all()}
     assert {slug for slug, kind in kinds.items() if kind == "tool"} == {
-        "langchain", "langgraph", "llamaindex", "qdrant", "fastapi"}
+        "langchain", "langgraph", "llamaindex", "qdrant", "fastapi", "python", "numpy",
+        "pandas", "scikit-learn", "pytorch", "transformers", "docker",
+    }
     assert {"rag", "embeddings", "vector-databases", "llms"} <= {s for s, k in kinds.items() if k == "skill"}
+    assert kinds["cloud-deployment"] == "skill" and kinds["ci-cd"] == "skill"
 
 
 def test_a_tool_is_never_taken_for_the_capability_and_the_capability_never_for_the_tool(

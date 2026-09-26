@@ -61,7 +61,7 @@ function fmtMinutes(mins: number): string {
 function gradeColor(grade: string | null): string {
   if (!grade) return 'text-ghost'
   if (grade === 'A+' || grade === 'A') return 'text-emerald'
-  if (grade === 'B+' || grade === 'B') return 'text-amber'
+  if (grade === 'B+' || grade === 'B') return 'text-amber-text'
   if (grade === 'C') return 'text-sky'
   return 'text-rose'
 }
@@ -69,14 +69,14 @@ function gradeColor(grade: string | null): string {
 function latencyColor(ms: number | null): string {
   if (!ms) return 'text-ghost'
   if (ms < 800) return 'text-emerald'
-  if (ms < 2000) return 'text-amber'
+  if (ms < 2000) return 'text-amber-text'
   return 'text-rose'
 }
 
 function hallucinationColor(rate: number | null): string {
   if (rate === null || rate === undefined) return 'text-ghost'
   if (rate < 0.05) return 'text-emerald'
-  if (rate < 0.15) return 'text-amber'
+  if (rate < 0.15) return 'text-amber-text'
   return 'text-rose'
 }
 
@@ -106,7 +106,7 @@ function MetricCard({
 }
 
 // ─── Section header ───────────────────────────────────────────────────────────
-function SectionHeader({ icon: Icon, label, color = 'text-amber' }: {
+function SectionHeader({ icon: Icon, label, color = 'text-amber-text' }: {
   icon: any; label: string; color?: string
 }) {
   return (
@@ -228,7 +228,7 @@ export default function ProfilePage() {
           <Card className="p-6">
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 rounded-full bg-amber/10 border-2 border-amber/30 flex items-center justify-center shrink-0">
-                <span className="text-2xl font-display font-bold text-amber">
+                <span className="text-2xl font-display font-bold text-amber-text">
                   {user.full_name.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -249,7 +249,7 @@ export default function ProfilePage() {
                 </div>
                 <p className="text-sm text-ghost">{user.email}</p>
                 <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                  <span className="text-xs px-2 py-0.5 rounded bg-amber/10 border border-amber/20 text-amber capitalize">
+                  <span className="text-xs px-2 py-0.5 rounded bg-amber/10 border border-amber/20 text-amber-text capitalize">
                     {user.experience_level}
                   </span>
                   <span className="text-xs text-ghost capitalize">{user.role}</span>
@@ -261,7 +261,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="text-end shrink-0">
-                <div className="text-3xl font-display font-bold text-amber">
+                <div className="text-3xl font-display font-bold text-amber-text">
                   {user.overall_readiness_score.toFixed(0)}%
                 </div>
                 <div className="text-xs text-ghost">Readiness score</div>
@@ -352,7 +352,7 @@ export default function ProfilePage() {
                       <button
                         onClick={handleResendVerification}
                         disabled={resendingVerification}
-                        className="text-xs text-amber hover:text-amber2 flex min-h-[44px] items-center gap-1.5 disabled:opacity-50 lg:min-h-0"
+                        className="text-xs text-amber-text hover:text-amber-text2 flex min-h-[44px] items-center gap-1.5 disabled:opacity-50 lg:min-h-0"
                       >
                         <Mail size={12} /> Email not verified — resend verification link
                       </button>
@@ -388,7 +388,7 @@ export default function ProfilePage() {
                         <button
                           onClick={handleDeleteAccount}
                           disabled={deleting}
-                          className="flex-1 text-xs font-medium text-void bg-rose hover:bg-rose/90 rounded-lg disabled:opacity-50"
+                          className="flex-1 text-xs font-medium text-on-solid bg-rose hover:bg-rose/90 rounded-lg disabled:opacity-50"
                         >
                           {deleting ? 'Deleting…' : 'Confirm delete'}
                         </button>
@@ -405,7 +405,7 @@ export default function ProfilePage() {
               {/* Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-amber" />
+                  <ShieldCheck size={16} className="text-amber-text" />
                   <h3 className="font-display font-bold text-bright">Engineer Scorecard</h3>
                   <Badge variant="amber">Verified</Badge>
                 </div>
@@ -452,7 +452,7 @@ export default function ProfilePage() {
 
                   {/* Certification */}
                   <div>
-                    <SectionHeader icon={Trophy} label="Certification" color="text-amber" />
+                    <SectionHeader icon={Trophy} label="Certification" color="text-amber-text" />
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <MetricCard
                         icon={Award}
@@ -467,7 +467,7 @@ export default function ProfilePage() {
                         label="Exam pass rate"
                         value={fmt(sc!.exam_pass_rate, 0, '%')}
                         sub={`${sc!.exams_attempted} attempted`}
-                        valueClass={sc!.exam_pass_rate && sc!.exam_pass_rate >= 70 ? 'text-emerald' : 'text-amber'}
+                        valueClass={sc!.exam_pass_rate && sc!.exam_pass_rate >= 70 ? 'text-emerald' : 'text-amber-text'}
                         locked={sc!.exams_attempted === 0}
                       />
                       <MetricCard

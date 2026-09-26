@@ -76,7 +76,7 @@ const DIAGRAM_CONNECTOR =
 function renderDiagram(raw: string) {
   return raw
     .split(DIAGRAM_CONNECTOR)
-    .map((part, i) => (i % 2 === 1 ? <span key={i} className="text-amber2">{part}</span> : part))
+    .map((part, i) => (i % 2 === 1 ? <span key={i} className="text-amber-text2">{part}</span> : part))
 }
 
 /** Renders lesson markdown with a voice that matches the rest of the
@@ -109,85 +109,60 @@ function MarkdownBody({
           // The lesson's own h1 duplicates the collapsible card title
           // that's already shown above it — render it as a small eyebrow
           // instead of a second giant heading.
+          //
+          // Sizes, line-heights and gaps for headings, paragraphs, lists,
+          // code and tables come from the `.lesson-content` rules in
+          // globals.css (the --lc-* tokens); the classes here are colour and
+          // structure only, so a size cannot be set in two places.
           h1: ({ children }) => (
-            <p className="text-xs font-medium text-amber uppercase tracking-widest mb-4">
+            <p className="text-lc-label font-medium text-amber-text uppercase tracking-widest">
               {annotate(children)}
             </p>
           ),
           h2: ({ children }) => (
-            <h2 className={cn('flex items-center gap-2.5 mb-3 first:mt-0', compact ? 'mt-5' : 'mt-8')}>
-              <span className={cn('w-1 rounded-full bg-amber shrink-0', compact ? 'h-4' : 'h-5')} />
-              <span
-                className={cn(
-                  'font-display font-bold text-bright',
-                  compact ? 'text-sm' : 'text-lg'
-                )}
-              >
+            <h2 className="flex items-start gap-3">
+              <span className="w-1 self-stretch my-[0.2em] rounded-full bg-amber shrink-0" />
+              <span className="min-w-0 font-display font-bold text-bright">
                 {annotate(children)}
               </span>
             </h2>
           ),
           h3: ({ children }) => (
-            <h3
-              className={cn(
-                'font-display font-semibold text-amber mb-2',
-                compact ? 'text-sm mt-4' : 'text-base mt-6'
-              )}
-            >
+            <h3 className="font-display font-semibold text-amber-text">
               {annotate(children)}
             </h3>
           ),
-          p: ({ children }) => (
-            <p
-              className={cn(
-                'text-soft',
-                compact ? 'text-sm leading-relaxed mb-3' : 'text-[15px] leading-[1.8] mb-4'
-              )}
-            >
-              {annotate(children)}
-            </p>
-          ),
+          p: ({ children }) => <p className="text-soft">{annotate(children)}</p>,
           strong: ({ children }) => (
-            <strong className="text-amber2 font-semibold">{annotate(children)}</strong>
+            <strong className="text-amber-text2 font-semibold">{annotate(children)}</strong>
           ),
           em: ({ children }) => <em className="text-dim">{annotate(children)}</em>,
-          ul: ({ children }) => (
-            <ul className={cn('list-disc list-outside ps-5', compact ? 'space-y-1.5 my-3' : 'space-y-2 my-4')}>
-              {children}
-            </ul>
-          ),
-          ol: ({ children }) => (
-            <ol
-              className={cn(
-                'list-decimal list-outside ps-5',
-                compact ? 'space-y-1.5 my-3' : 'space-y-2.5 my-4'
-              )}
-            >
-              {children}
-            </ol>
-          ),
+          ul: ({ children }) => <ul className="list-disc list-outside">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal list-outside">{children}</ol>,
           li: ({ children }) => (
-            <li
-              className={cn(
-                'text-soft marker:text-amber marker:font-mono',
-                compact ? 'text-sm leading-relaxed' : 'text-[15px] leading-[1.75]'
-              )}
-            >
-              {annotate(children)}
-            </li>
+            <li className="text-soft marker:text-amber-text marker:font-mono">{annotate(children)}</li>
           ),
           blockquote: ({ children }) => (
-            <div className="flex gap-3 my-5 px-4 py-3.5 rounded-lg bg-amber/5 border border-amber/20">
-              <Lightbulb size={16} className="text-amber shrink-0 mt-0.5" />
-              <div className="text-sm text-soft leading-relaxed [&>p]:mb-0">{children}</div>
+            <div className="lesson-callout flex gap-3 px-4 py-3 rounded-lg bg-amber/5 border border-amber/20">
+              {/* One line box tall, so the icon centres on the first line at
+                  any body size or script. */}
+              <span className="flex h-[1lh] shrink-0 items-center text-amber-text">
+                <Lightbulb size={16} />
+              </span>
+              <div className="min-w-0 text-soft">{children}</div>
             </div>
           ),
-          hr: () => <div className={cn('border-t border-border', compact ? 'my-5' : 'my-8')} />,
+          hr: () => <hr className="border-0 border-t border-border" />,
           a: ({ children, href }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer" className="text-amber hover:text-amber2 underline decoration-amber/30 underline-offset-2 transition-colors">
+            <a href={href} target="_blank" rel="noopener noreferrer" className="text-amber-text hover:text-amber-text2 underline decoration-amber/30 underline-offset-2 transition-colors">
               {children}
             </a>
           ),
+          // The `code` renderer below returns its own <pre> for blocks;
+          // react-markdown's default wraps that in another one, which left an
+          // unstyled outer <pre> around the styled inner one (invalid
+          // nesting, and the outer box took the spacing instead of the block).
+          pre: ({ children }) => <>{children}</>,
           code: ({ className, children }) => {
             const untrimmed = String(children)
             const raw = untrimmed.replace(/\n$/, '')
@@ -226,7 +201,7 @@ function MarkdownBody({
               return (
                 <pre
                   dir="ltr"
-                  className="prism-code bg-void border border-border rounded-lg p-4 overflow-x-auto text-[13px] leading-relaxed text-start"
+                  className="prism-code bg-void border border-border rounded-lg text-start"
                 >
                   {/*
                     The ONLY dangerouslySetInnerHTML in the app, and the
@@ -255,7 +230,7 @@ function MarkdownBody({
             return (
               <pre
                 dir="ltr"
-                className="my-4 px-4 py-3.5 rounded-lg bg-surface border border-border border-s-2 border-s-amber/40 text-[13px] leading-[1.8] text-soft font-mono overflow-x-auto text-start"
+                className="rounded-lg bg-surface border border-border border-s-2 border-s-amber/40 text-soft font-mono text-start"
               >
                 <code>{renderDiagram(raw)}</code>
               </pre>
@@ -271,7 +246,7 @@ function MarkdownBody({
           // width wider than the viewport. Desktop is unaffected: the
           // container only scrolls when there is something to scroll.
           table: ({ children }) => (
-            <div className="overflow-x-auto">
+            <div className="lesson-table-wrap">
               <table>{children}</table>
             </div>
           ),

@@ -1,0 +1,28 @@
+{
+  "module_id": "M013-08",
+  "title": "Time-Series Analysis & Forecasting",
+  "role": "Core / Applied Analytics",
+  "status": "finalized",
+  "description": "Analyze temporal structure, build forecasting baselines/models, and evaluate forecasts without leakage.",
+  "learning_outcomes": [
+    "Analyze temporal structure, build forecasting baselines/models, and evaluate forecasts without leakage."
+  ],
+  "prerequisites": [
+    "M013-03",
+    "M013-05",
+    "M013-07"
+  ],
+  "estimated_minutes": 460,
+  "lessons": [
+    "L013-056",
+    "L013-057",
+    "L013-058",
+    "L013-059",
+    "L013-060",
+    "L013-061",
+    "L013-062",
+    "L013-063",
+    "L013-064"
+  ],
+  "project": "Business Sales Forecasting & Forecast Evaluation"
+}

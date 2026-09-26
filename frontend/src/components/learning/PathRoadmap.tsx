@@ -53,7 +53,7 @@ export function MasarSummary({ path, actions }: { path: LearningPath; actions?: 
       <div className="mt-5">
         <div className="mb-1.5 flex items-baseline justify-between text-xs">
           <span className="text-soft">{t('learn.progress')}</span>
-          <span className="font-mono text-amber" dir="ltr">{pct === null ? '—' : `${Math.round(pct)}%`}</span>
+          <span className="font-mono text-amber-text" dir="ltr">{pct === null ? '—' : `${Math.round(pct)}%`}</span>
         </div>
         <ProgressBar
           value={pct ?? 0}
@@ -130,7 +130,7 @@ export function AdvisoryList({ path, catalogFields = [] }: { path: LearningPath;
               warn ? 'border-amber/30 bg-amber/5 text-soft' : 'border-sky/20 bg-sky/5 text-soft'
             )}
           >
-            <Icon size={13} className={cn('mt-0.5 shrink-0', warn ? 'text-amber' : 'text-sky')} aria-hidden="true" />
+            <Icon size={13} className={cn('mt-0.5 shrink-0', warn ? 'text-amber-text' : 'text-sky')} aria-hidden="true" />
             <span>{text}</span>
           </li>
         )
@@ -143,7 +143,7 @@ export function AdvisoryList({ path, catalogFields = [] }: { path: LearningPath;
 
 const STATUS_ICON: Record<PathStageStatus, { icon: typeof Circle; tone: string }> = {
   completed: { icon: CheckCircle, tone: 'text-emerald' },
-  current: { icon: CircleDot, tone: 'text-amber' },
+  current: { icon: CircleDot, tone: 'text-amber-text' },
   upcoming: { icon: Circle, tone: 'text-soft' },
   coming_soon: { icon: Clock, tone: 'text-soft' },
   skippable: { icon: MinusCircle, tone: 'text-soft' },
@@ -168,7 +168,7 @@ function rowKind(item: PathCourse, isCurrent: boolean): RowKind {
 const ROW_STYLE: Record<RowKind, { icon: typeof Circle; tone: string; badge: 'emerald' | 'sky' | 'amber' | 'ghost' }> = {
   completed: { icon: CheckCircle, tone: 'text-emerald', badge: 'emerald' },
   known: { icon: BadgeCheck, tone: 'text-sky', badge: 'sky' },
-  current: { icon: ArrowRight, tone: 'text-amber', badge: 'amber' },
+  current: { icon: ArrowRight, tone: 'text-amber-text', badge: 'amber' },
   upcoming: { icon: Circle, tone: 'text-dim', badge: 'ghost' },
   optional: { icon: MinusCircle, tone: 'text-dim', badge: 'ghost' },
 }
@@ -211,7 +211,7 @@ function CourseRow({ item, isCurrent }: { item: PathCourse; isCurrent: boolean }
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
           <div className="min-w-0 flex-1 basis-40">
-            <Link href={`/courses/${course.slug}`} className="text-sm text-bright hover:text-amber transition-colors">
+            <Link href={`/courses/${course.slug}`} className="text-sm text-bright hover:text-amber-text transition-colors">
               <LearningLabel parts={titleLabel(course, ctx)} />
             </Link>
             <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-soft">
@@ -224,7 +224,7 @@ function CourseRow({ item, isCurrent }: { item: PathCourse; isCurrent: boolean }
           </div>
           <div className="flex shrink-0 items-center gap-2.5">
             {(state === 'required') && (item.completion_pct ?? 0) > 0 && (
-              <span className="font-mono text-xs text-amber" dir="ltr">{Math.round(item.completion_pct ?? 0)}%</span>
+              <span className="font-mono text-xs text-amber-text" dir="ltr">{Math.round(item.completion_pct ?? 0)}%</span>
             )}
             <Badge variant={badge}>{badgeText}</Badge>
           </div>
@@ -295,7 +295,7 @@ function StageRow({ stage, isLast, currentId }: { stage: PathStage; isLast: bool
               <LearningLabel parts={titleLabel(stage, ctx)} />
             </span>
             <span className="mt-0.5 block text-xs text-soft">
-              {isCurrent && <span className="me-2 font-medium text-amber">{t('stage.current')}</span>}
+              {isCurrent && <span className="me-2 font-medium text-amber-text">{t('stage.current')}</span>}
               {meta.map((part, i) => (
                 <span key={i}>{i > 0 && ' · '}{part}</span>
               ))}
@@ -303,7 +303,7 @@ function StageRow({ stage, isLast, currentId }: { stage: PathStage; isLast: bool
           </span>
           <span className="flex shrink-0 items-center gap-3">
             {stage.progress_pct != null && stage.status !== 'completed' && (
-              <span className="font-mono text-xs text-amber" dir="ltr">{Math.round(stage.progress_pct)}%</span>
+              <span className="font-mono text-xs text-amber-text" dir="ltr">{Math.round(stage.progress_pct)}%</span>
             )}
             {hasCourses && (
               <ChevronDown size={14} className={cn('text-soft transition-transform', open && 'rotate-180')} aria-hidden="true" />

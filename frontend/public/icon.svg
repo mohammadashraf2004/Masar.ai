@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#F59E0B" stroke-width="2.4" role="img" aria-label="Masar">
+  <!-- Monochrome amber Waypoint mark: two rails and the node between them.
+       The handoff's copy of this file carried an embedded provenance blob
+       (about 7.7 KB) around these three shapes; a favicon is fetched by every
+       visitor, so only the shapes are shipped. Same geometry as
+       components/brand/MasarMark.tsx. -->
+  <path d="M4 3.5V20.5"/>
+  <path d="M20 3.5V20.5"/>
+  <circle cx="12" cy="12" r="4.5" fill="#F59E0B" stroke="none"/>
+</svg>

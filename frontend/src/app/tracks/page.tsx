@@ -5,12 +5,15 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { PageBody } from '@/components/layout/PageContainer'
 import { Card, ProgressBar, Badge, Spinner } from '@/components/ui/index'
 import { Button, buttonStyles } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import type { CareerTrackSummary, Enrollment } from '@/types'
 import { cn } from '@/lib/utils'
 import { isTrackComingSoon } from '@/lib/tracks'
+import { useI18n, STRINGS, type StringKey } from '@/lib/i18n'
+import { localizedTitle } from '@/lib/content-language'
 import {
   BarChart2, Brain, Code2, Server, Layers,
   CheckCircle, ArrowRight, ChevronRight,
@@ -20,57 +23,47 @@ import {
 // ─── Track metadata (visual config, not from API) ─────────────────────
 const TRACK_META: Record<string, {
   icon: React.ElementType
-  color: string
+  // The progress-bar fill, as a whole class name: Tailwind only emits classes it
+  // can read in the source, so it cannot be assembled as `bg-${colour}`.
+  fill: string
   borderColor: string
   bgColor: string
   textColor: string
-  topics: string[]
-  outcome: string
 }> = {
   'data-analyst': {
     icon: BarChart2,
-    color: 'sky',
+    fill: 'bg-sky',
     borderColor: 'border-sky/40',
     bgColor: 'bg-sky/5',
     textColor: 'text-sky',
-    topics: ['Python & SQL', 'Pandas & NumPy', 'Data visualisation', 'Statistics', 'BI dashboards'],
-    outcome: 'Analyse datasets, build dashboards, derive insights',
   },
   'ml-engineer': {
     icon: Brain,
-    color: 'violet',
+    fill: 'bg-violet',
     borderColor: 'border-violet/40',
     bgColor: 'bg-violet/5',
     textColor: 'text-violet',
-    topics: ['Supervised learning', 'Deep learning', 'PyTorch', 'Model evaluation', 'Feature engineering'],
-    outcome: 'Train and evaluate machine learning models',
   },
   'ai-developer': {
     icon: Code2,
-    color: 'amber',
+    fill: 'bg-amber',
     borderColor: 'border-amber/40',
     bgColor: 'bg-amber/5',
-    textColor: 'text-amber',
-    topics: ['LLM integration', 'RAG systems', 'Vector databases', 'FastAPI', 'Prompt engineering'],
-    outcome: 'Build production AI apps with LLMs and APIs',
+    textColor: 'text-amber-text',
   },
   'mlops-engineer': {
     icon: Server,
-    color: 'emerald',
+    fill: 'bg-emerald',
     borderColor: 'border-emerald/40',
     bgColor: 'bg-emerald/5',
     textColor: 'text-emerald',
-    topics: ['Docker & K8s', 'CI/CD pipelines', 'Model monitoring', 'Cloud deployment', 'Experiment tracking'],
-    outcome: 'Deploy and maintain ML systems at scale',
   },
   'ai-engineer': {
     icon: Layers,
-    color: 'amber',
+    fill: 'bg-amber',
     borderColor: 'border-amber/40',
     bgColor: 'bg-amber/10',
-    textColor: 'text-amber',
-    topics: ['System architecture', 'Production AI', 'End-to-end pipelines', 'NLP, Vision, Speech or Multimodal routes'],
-    outcome: 'Design and ship complete AI systems in the specialization you choose',
+    textColor: 'text-amber-text',
   },
 }
 
@@ -85,6 +78,7 @@ interface TrackWithStatus extends CareerTrackSummary {
 export default function TracksPage() {
   const router = useRouter()
   const { isLoading: authLoading } = useAuth()
+  const { t, language, weeks } = useI18n()
   const [tracks, setTracks] = useState<TrackWithStatus[]>([])
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [selected, setSelected] = useState<TrackWithStatus | null>(null)
@@ -102,14 +96,14 @@ export default function TracksPage() {
         setEnrollments(enrs)
         const enrMap = new Map(enrs.map(e => [e.track_id, e]))
 
-        const withStatus: TrackWithStatus[] = allTracks.map(t => {
-          const enr = enrMap.get(t.id)
+        const withStatus: TrackWithStatus[] = allTracks.map(track => {
+          const enr = enrMap.get(track.id)
           let status: TrackStatus = 'available'
           // An existing enrolment wins: someone already in a track keeps their
           // way back into it, the same rule the tool courses use.
           if (enr) status = enr.completion_percentage >= 100 ? 'completed' : 'enrolled'
-          else if (isTrackComingSoon(t.slug)) status = 'coming_soon'
-          return { ...t, status, enrollment: enr }
+          else if (isTrackComingSoon(track.slug)) status = 'coming_soon'
+          return { ...track, status, enrollment: enr }
         })
 
         // Every career track is shown alike. AI Engineer used to be a locked
@@ -121,8 +115,8 @@ export default function TracksPage() {
         // Auto-select first enrolled, else the first track anyone can start —
         // opening on a coming-soon track shows a panel whose only action is
         // disabled.
-        const firstActive = rest.find(t => t.status === 'enrolled')
-          ?? rest.find(t => t.status !== 'coming_soon')
+        const firstActive = rest.find(track => track.status === 'enrolled')
+          ?? rest.find(track => track.status !== 'coming_soon')
           ?? rest[0]
         if (firstActive) setSelected(firstActive)
       } catch {}
@@ -136,8 +130,8 @@ export default function TracksPage() {
     setEnrolling(true)
     try {
       const enr = await api.enroll(track.id)
-      setTracks(prev => prev.map(t =>
-        t.id === track.id ? { ...t, status: 'enrolled', enrollment: enr } : t
+      setTracks(prev => prev.map(tr =>
+        tr.id === track.id ? { ...tr, status: 'enrolled', enrollment: enr } : tr
       ))
       setSelected(prev => prev?.id === track.id ? { ...track, status: 'enrolled', enrollment: enr } : prev)
       router.push(`/tracks/${track.slug}`)
@@ -151,17 +145,23 @@ export default function TracksPage() {
     </div>
   )
 
-  const meta = selected ? (TRACK_META[selected.slug] ?? TRACK_META['ai-engineer']) : null
+  const metaSlug = selected ? (selected.slug in TRACK_META ? selected.slug : 'ai-engineer') : null
+  const meta = metaSlug ? TRACK_META[metaSlug] : null
+  // The copy for a track is in the i18n table, keyed by slug: an outcome line and up to five topics.
+  const outcomeKey = `tracks.meta.${metaSlug}.outcome` as StringKey
+  const topics = metaSlug
+    ? [1, 2, 3, 4, 5]
+        .map(i => `tracks.meta.${metaSlug}.topic${i}` as StringKey)
+        .filter(key => key in STRINGS.en)
+        .map(key => t(key))
+    : []
 
   return (
     <AppShell>
-      <PageHeader
-        title="Career tracks"
-        subtitle="The curriculum libraries behind your Masar. Browse and enrol in the ones with published lessons."
-      />
+      <PageHeader title={t('tracks.title')} subtitle={t('tracks.subtitle')} contained />
 
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <PageBody>
+        <div className="space-y-8">
 
           {/* ── Flowchart section ─────────────────────────────────────── */}
           <div>
@@ -169,17 +169,14 @@ export default function TracksPage() {
                 libraries behind it; the path itself is built from level, field
                 and career goal. */}
             <Card className="mb-6 flex flex-wrap items-center justify-between gap-3 border-amber/20 p-4">
-              <p className="max-w-xl text-sm text-soft">
-                Your learning path is built from your level, your interests and your career goal —
-                AI Engineer is a goal with several specialization routes, not the sum of other tracks.
-              </p>
-              <Link href="/learn" className={buttonStyles({ size: 'sm' })}>
-                Open your Masar <ArrowRight size={12} className="rtl:rotate-180" />
+              <p className="max-w-xl text-sm text-soft">{t('tracks.intro')}</p>
+              <Link href="/learn/masar" className={buttonStyles({ size: 'sm' })}>
+                {t('tracks.openMasar')} <ArrowRight size={12} className="rtl:rotate-180" />
               </Link>
             </Card>
 
             <div className="text-xs font-medium text-ghost uppercase tracking-widest text-center mb-4">
-              Curriculum libraries
+              {t('tracks.libraries')}
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -206,11 +203,11 @@ export default function TracksPage() {
                       size={20}
                       className={cn('mb-3', comingSoon ? 'text-ghost' : (m.textColor ?? 'text-ghost'))}
                     />
-                    <div className="text-sm font-medium text-bright mb-1 leading-tight">
-                      {track.title}
+                    <div dir="auto" className="text-sm font-medium text-bright mb-1 leading-tight">
+                      {localizedTitle(track, language)}
                     </div>
                     <div className="text-xs text-ghost mb-3">
-                      {track.estimated_weeks}w
+                      {weeks(track.estimated_weeks)}
                     </div>
 
                     {/* An unpublished track has nothing to be a percentage of,
@@ -218,7 +215,7 @@ export default function TracksPage() {
                     {comingSoon ? (
                       <div className="flex items-center gap-1.5 text-xs text-ghost">
                         <Clock size={11} className="shrink-0" />
-                        Coming soon
+                        {t('course.comingSoon')}
                       </div>
                     ) : (
                       <>
@@ -228,7 +225,7 @@ export default function TracksPage() {
                             className={cn(
                               'h-full rounded-full transition-all duration-700',
                               track.status === 'completed' ? 'bg-emerald'
-                              : track.status === 'enrolled'  ? `bg-${m.color ?? 'sky'}`
+                              : track.status === 'enrolled'  ? (m.fill ?? 'bg-sky')
                               : 'bg-muted'
                             )}
                             style={{ width: `${pct}%` }}
@@ -243,7 +240,7 @@ export default function TracksPage() {
                             <CheckCircle size={12} className="text-emerald" />
                           )}
                           {track.status === 'enrolled' && (
-                            <span className={cn('text-xs', m.textColor)}>active</span>
+                            <span className={cn('text-xs', m.textColor)}>{t('tracks.active')}</span>
                           )}
                           {track.status === 'available' && (
                             <span className="text-xs text-ghost">—</span>
@@ -267,22 +264,22 @@ export default function TracksPage() {
                     <meta.icon size={20} className={meta.textColor} />
                   </div>
                   <div>
-                    <h2 className="font-display font-bold text-white text-lg">{selected.title}</h2>
+                    <h2 dir="auto" className="font-display font-bold text-white text-lg">{localizedTitle(selected, language)}</h2>
                     <div className="flex items-center gap-2 mt-0.5">
                       <Badge variant="ghost">
                         <Clock size={10} className="me-1" />
-                        {selected.estimated_weeks} weeks
+                        {weeks(selected.estimated_weeks)}
                       </Badge>
                       {selected.status === 'enrolled' && (
-                        <Badge variant="sky">Active</Badge>
+                        <Badge variant="sky">{t('tracks.statusActive')}</Badge>
                       )}
                       {selected.status === 'completed' && (
-                        <Badge variant="emerald">Completed</Badge>
+                        <Badge variant="emerald">{t('tracks.statusCompleted')}</Badge>
                       )}
                       {selected.status === 'coming_soon' && (
                         <Badge variant="ghost">
                           <Clock size={10} className="me-1" />
-                          Coming soon
+                          {t('course.comingSoon')}
                         </Badge>
                       )}
                     </div>
@@ -293,7 +290,7 @@ export default function TracksPage() {
                 <div>
                   {selected.status === 'coming_soon' && (
                     <Button size="sm" variant="ghost" disabled>
-                      Coming soon
+                      {t('course.comingSoon')}
                     </Button>
                   )}
                   {selected.status === 'available' && (
@@ -302,7 +299,7 @@ export default function TracksPage() {
                       loading={enrolling}
                       size="sm"
                     >
-                      Enroll now
+                      {t('tracks.enroll')}
                     </Button>
                   )}
                   {(selected.status === 'enrolled' || selected.status === 'completed') && (
@@ -310,19 +307,19 @@ export default function TracksPage() {
                       href={`/tracks/${selected.slug}`}
                       className={buttonStyles({ size: 'sm', variant: selected.status === 'completed' ? 'ghost' : 'amber' })}
                     >
-                      {selected.status === 'completed' ? 'Review track' : 'Continue'} <ArrowRight size={12} className="rtl:rotate-180" />
+                      {selected.status === 'completed' ? t('tracks.reviewTrack') : t('course.continue')} <ArrowRight size={12} className="rtl:rotate-180" />
                     </Link>
                   )}
                 </div>
               </div>
 
-              <p className="text-sm text-soft mb-5 leading-relaxed">{meta.outcome}</p>
+              <p className="text-sm text-soft mb-5 leading-relaxed">{t(outcomeKey)}</p>
 
               {/* Progress bar for enrolled */}
               {selected.enrollment && (
                 <div className="mb-5">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-ghost">Overall progress</span>
+                    <span className="text-xs text-ghost">{t('tracks.overallProgress')}</span>
                     <span className={cn('text-xs font-mono', meta.textColor)}>
                       {Math.round(selected.enrollment.completion_percentage)}%
                     </span>
@@ -342,12 +339,12 @@ export default function TracksPage() {
               {/* Topics grid */}
               <div>
                 <div className="text-xs font-medium text-ghost uppercase tracking-widest mb-3">
-                  What you&apos;ll learn
+                  {t('tracks.learnHeading')}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {meta.topics.map((topic, i) => {
+                  {topics.map((topic, i) => {
                     const pct = selected.enrollment?.completion_percentage ?? 0
-                    const topicsDone = Math.floor(meta.topics.length * pct / 100)
+                    const topicsDone = Math.floor(topics.length * pct / 100)
                     const done = i < topicsDone
                     return (
                       <div
@@ -373,7 +370,7 @@ export default function TracksPage() {
             </Card>
           )}
         </div>
-      </div>
+      </PageBody>
     </AppShell>
   )
 }

@@ -123,7 +123,9 @@ def _source_text(course: Course):
     return src.title, src.title_ar, src.description, src.description_ar
 
 
-def course_summary(bundle: CatalogBundle, course: Course) -> CourseSummary:
+def course_summary(bundle: CatalogBundle, course: Course, *, role_slug: Optional[str] = None) -> CourseSummary:
+    """`role_slug` puts the course in the context of one career goal, which is
+    what fills `track_role`; without it the field stays null."""
     info = bundle.catalog.courses[course.id]
     s_title, s_title_ar, s_desc, s_desc_ar = _source_text(course)
     return CourseSummary(
@@ -138,7 +140,10 @@ def course_summary(bundle: CatalogBundle, course: Course) -> CourseSummary:
         roles=[role_ref(bundle.roles[s]) for s in sorted(info.role_slugs, key=lambda s: bundle.roles[s].position)],
         skills=[skill_out(bundle.skills[s]) for s in sorted(info.teaches) if s in bundle.skills],
         estimated_hours=info.estimated_hours,
+        module_count=info.module_count, lesson_count=info.lesson_count,
         is_available=info.is_available,
+        is_free=course.is_free,
+        track_role=info.relation_for(role_slug) if role_slug else None,
     )
 
 
@@ -223,7 +228,7 @@ def present_plan(
         def course_out(p, s) -> PathCourseOut:
             info = bundle.catalog.courses[p.course_id]
             return PathCourseOut(
-                course=course_summary(bundle, bundle.courses[p.course_id]),
+                course=course_summary(bundle, bundle.courses[p.course_id], role_slug=plan.role_slug),
                 state=s, reason=p.reason,
                 completion_pct=pct(completion.get(p.course_id, 0.0)) if live else None,
                 known_skills=[skill_out(bundle.skills[k]) for k in sorted(info.teaches & declared)
@@ -532,6 +537,7 @@ def profile_out(
         career_goal=role_ref(role) if role else None,
         fields=[field_ref(bundle.fields[s]) for s in (profile.field_slugs or []) if s in bundle.fields],
         known_skills=[skill_out(bundle.skills[s]) for s in known_skills if s in bundle.skills],
+        programming_experience=profile.programming_experience, ai_experience=profile.ai_experience,
         onboarding_completed=completed,
         needs_onboarding=not completed,
         source=profile.source,

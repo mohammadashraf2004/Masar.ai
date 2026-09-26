@@ -1,0 +1,139 @@
+COURSE-014-image-processing-computer-vision-engineering
+├── m014_01_digital-images-and-image-computing-foundations
+│   ├── __init__.py
+│   ├── l014_001_digital-image-processing-computer-vision-and-the-visual-pipeline.py
+│   ├── l014_002_pixels-arrays-image-types-bit-depth-and-numeric-safety.py
+│   ├── l014_003_image-i-o-and-library-interoperability.py
+│   ├── l014_004_color-spaces-for-image-processing.py
+│   ├── l014_005_image-coordinates-indexing-cropping-and-masking.py
+│   ├── l014_006_pixel-mathematics-blending-and-classical-image-effects.py
+│   ├── l014_007_guided-lab-build-and-diagnose-an-image-processing-pipeline.py
+│   └── module_manifest.json
+├── m014_02_image-manipulation-geometry-and-compositing
+│   ├── __init__.py
+│   ├── l014_008_point-transformations-luts-and-color-manipulation.py
+│   ├── l014_009_resizing-interpolation-and-image-scale.py
+│   ├── l014_010_coordinate-mapping-and-inverse-image-warping.py
+│   ├── l014_011_affine-geometry-homography-and-perspective-rectification.py
+│   ├── l014_012_nonlinear-warping-lens-distortion-and-camera-rectification.py
+│   ├── l014_013_image-noise-and-synthetic-corruption.py
+│   ├── l014_014_channels-masks-transparency-and-alpha-compositing.py
+│   ├── l014_015_image-arithmetic-blend-modes-and-annotation.py
+│   ├── l014_016_jpeg-compression-and-image-quality-trade-offs.py
+│   ├── l014_017_guided-lab-geometric-correction-and-compositing-pipeline.py
+│   └── module_manifest.json
+├── m014_03_sampling-quantization-and-frequency-domain-representation
+│   ├── __init__.py
+│   ├── l014_018_sampling-and-image-reconstruction.py
+│   ├── l014_019_downsampling-nyquist-and-aliasing.py
+│   ├── l014_020_quantization-bit-depth-and-image-quality.py
+│   ├── l014_021_2d-fourier-transform-and-fft.py
+│   ├── l014_022_reading-image-spectra-magnitude-phase-and-structure.py
+│   ├── l014_023_fourier-matrices-and-transform-basis-functions.py
+│   ├── l014_024_dct-walsh-hadamard-and-transform-coding.py
+│   ├── l014_025_dft-properties-periodicity-windowing-and-ringing.py
+│   ├── l014_026_guided-lab-sampling-and-frequency-analysis.py
+│   └── module_manifest.json
+├── m014_04_convolution-correlation-and-spatial-filtering
+│   ├── __init__.py
+│   ├── l014_027_convolution-from-first-principles.py
+│   ├── l014_028_padding-borders-and-convolution-modes.py
+│   ├── l014_029_spatial-filters-and-kernel-design.py
+│   ├── l014_030_correlation-vs-convolution.py
+│   ├── l014_031_template-matching-and-normalized-cross-correlation.py
+│   ├── l014_032_the-convolution-theorem-and-fft-based-convolution.py
+│   ├── l014_033_gaussian-filtering-separability-and-performance.py
+│   ├── l014_034_guided-lab-filtering-and-template-matching-engine.py
+│   └── module_manifest.json
+├── m014_05_frequency-domain-filtering-and-noise-analysis
+│   ├── __init__.py
+│   ├── l014_035_frequency-domain-filter-design.py
+│   ├── l014_036_low-pass-filters-ideal-butterworth-and-gaussian.py
+│   ├── l014_037_high-pass-filtering-and-frequency-domain-sharpening.py
+│   ├── l014_038_band-pass-band-stop-and-notch-filters.py
+│   ├── l014_039_periodic-noise-detection-and-removal.py
+│   ├── l014_040_filter-parameters-artifacts-and-quality-evaluation.py
+│   ├── l014_041_optional-advanced-fourier-features-for-neural-image-representation.py
+│   ├── l014_042_guided-lab-frequency-domain-denoising-toolkit.py
+│   └── module_manifest.json
+├── m014_06_image-enhancement-and-computational-photography
+│   ├── __init__.py
+│   ├── l014_043_intensity-tone-and-perceptual-enhancement.py
+│   ├── l014_044_quantization-perception-halftoning-and-dithering.py
+│   ├── l014_045_histogram-based-contrast-enhancement.py
+│   ├── l014_046_color-enhancement-and-white-balance.py
+│   ├── l014_047_linear-and-order-statistic-denoising.py
+│   ├── l014_048_edge-preserving-and-non-local-denoising.py
+│   ├── l014_049_wavelet-fusion-and-multiresolution-enhancement.py
+│   ├── l014_050_modern-task-oriented-image-enhancement.py
+│   ├── l014_051_guided-lab-adaptive-enhancement-workbench.py
+│   └── module_manifest.json
+├── m014_07_gradients-edges-and-multiscale-image-analysis
+│   ├── __init__.py
+│   ├── l014_052_image-derivatives-gradients-and-the-laplacian.py
+│   ├── l014_053_classical-edge-detection-sobel-to-canny.py
+│   ├── l014_054_log-dog-zero-crossings-and-scale-space.py
+│   ├── l014_055_blob-ridge-and-hessian-based-structure-detection.py
+│   ├── l014_056_edge-preserving-structural-enhancement.py
+│   ├── l014_057_derivative-based-sharpening-and-detail-enhancement.py
+│   ├── l014_058_structured-and-learned-edge-detection.py
+│   ├── l014_059_gaussian-and-laplacian-pyramids.py
+│   ├── l014_060_guided-lab-multiscale-structural-analysis-pipeline.py
+│   └── module_manifest.json
+├── m014_08_image-restoration-and-inverse-problems
+│   ├── __init__.py
+│   ├── l014_061_image-restoration-as-an-inverse-problem.py
+│   ├── l014_062_classical-deconvolution-inverse-and-wiener-filtering.py
+│   ├── l014_063_regularized-restoration-tikhonov-and-bayesian-priors.py
+│   ├── l014_064_clean-and-greedy-psf-deconvolution.py
+│   ├── l014_065_sparse-representations-and-dictionary-based-restoration.py
+│   ├── l014_066_deep-restoration-with-pretrained-models.py
+│   ├── l014_067_instruction-guided-image-restoration.py
+│   ├── l014_068_image-inpainting-lama-and-generative-restoration-boundaries.py
+│   ├── l014_069_guided-lab-restoration-method-selection-and-evaluation.py
+│   └── module_manifest.json
+├── m014_09_image-segmentation-engineering
+│   ├── __init__.py
+│   ├── l014_070_segmentation-problems-label-maps-and-evaluation-foundations.py
+│   ├── l014_071_thresholding-morphology-and-connected-components.py
+│   ├── l014_072_watershed-and-topographic-segmentation.py
+│   ├── l014_073_superpixels-graph-segmentation-and-region-merging.py
+│   ├── l014_074_variational-segmentation-and-active-contours.py
+│   ├── l014_075_graph-cuts-grabcut-and-crf-refinement.py
+│   ├── l014_076_trainable-classical-segmentation-and-ensembles.py
+│   ├── l014_077_pretrained-cnn-segmentation-and-practical-applications.py
+│   ├── l014_078_transformer-and-universal-segmentation.py
+│   ├── l014_079_promptable-and-open-vocabulary-segmentation.py
+│   ├── l014_080_segmentation-training-class-imbalance-and-tiled-inference.py
+│   ├── l014_081_domain-and-volumetric-segmentation-engineering.py
+│   ├── l014_082_guided-lab-multi-method-segmentation-benchmark.py
+│   └── module_manifest.json
+├── m014_10_modern-computer-vision-integration-and-capstone
+│   ├── __init__.py
+│   ├── l014_083_monocular-depth-estimation-and-camera-geometry.py
+│   ├── l014_084_semantic-3d-scene-understanding-and-point-clouds.py
+│   ├── l014_085_visual-embeddings-feature-spaces-and-explainability.py
+│   ├── l014_086_data-efficient-and-foundation-vision-representations.py
+│   ├── l014_087_vision-reliability-uncertainty-privacy-and-robustness.py
+│   ├── l014_088_visual-similarity-search-and-embedding-retrieval.py
+│   ├── l014_089_object-detection-engineering.py
+│   ├── l014_090_ocr-and-visual-text-extraction-pipelines.py
+│   ├── l014_091_landmark-based-vision-and-real-time-interaction.py
+│   ├── l014_092_applied-vision-systems-and-domain-integration.py
+│   ├── l014_093_conditional-generative-vision-and-image-translation.py
+│   ├── l014_094_generative-priors-inversion-and-image-restoration.py
+│   ├── l014_095_diffusion-and-latent-diffusion-for-vision.py
+│   ├── l014_096_controllable-image-generation-and-editing.py
+│   ├── l014_097_image-generation-editing-and-inpainting-apis.py
+│   ├── l014_098_hybrid-cv-multimodal-generative-workflows.py
+│   ├── l014_099_capstone-classical-to-modern-computer-vision-system.py
+│   └── module_manifest.json
+├── CAPSTONE.md
+├── FINALIZATION_AUDIT.md
+├── README.md
+├── assets_manifest.json
+├── course_data.py
+├── course_manifest.json
+├── requirements.reference.txt
+├── seed_course_014.py
+└── validate_course.py

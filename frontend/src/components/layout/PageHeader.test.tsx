@@ -1,17 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { useAuthStore } from '@/lib/store'
-import { useLanguageStore } from '@/lib/language'
-import type { User } from '@/types'
-
-vi.mock('@/lib/api', () => ({ api: { getWallet: vi.fn() } }))
-import { api } from '@/lib/api'
-
-beforeEach(() => {
-  vi.mocked(api.getWallet).mockResolvedValue({ credit_balance: 50 })
-})
+import { PAGE_CONTAINER, PageBody } from '@/components/layout/PageContainer'
 
 // jsdom has no layout, so what is pinned here is the structure that lets the
 // title wrap; that it really does at 320px is checked in a real browser.
@@ -31,14 +21,14 @@ describe('PageHeader', () => {
     },
   )
 
-  it('gives every title room on a phone by letting the controls move to their own row', () => {
+  it('gives every title room on a phone by letting the action move to its own row', () => {
     render(<PageHeader title="Career tracks" />)
     const block = screen.getByRole('heading', { level: 1 }).parentElement as HTMLElement
     expect(block).toHaveClass('min-w-[10rem]', 'sm:min-w-0', 'flex-1')
     expect(block.parentElement).toHaveClass('flex-wrap')
   })
 
-  it('does not change the desktop structure: one row, title left, controls right, no clamp', () => {
+  it('does not change the desktop structure: one row, title first, the action after it, no clamp', () => {
     render(<PageHeader title="Explore" action={<button type="button">Go</button>} />)
     const h1 = screen.getByRole('heading', { level: 1 })
     const block = h1.parentElement as HTMLElement
@@ -57,7 +47,7 @@ describe('PageHeader', () => {
     expect(h1.className.split(/\s+/)).not.toContain('sm:truncate')
   })
 
-  it('keeps the action controls in the header on a phone', () => {
+  it('keeps the page action in the header on a phone', () => {
     render(<PageHeader title="Career tracks" action={<button type="button">New</button>} />)
     expect(screen.getByRole('button', { name: 'New' })).toBeInTheDocument()
   })
@@ -68,50 +58,57 @@ describe('PageHeader', () => {
     expect(sub).toHaveClass('line-clamp-2')
     expect(sub.className).not.toMatch(/truncate/)
   })
-})
 
-describe('PageHeader — the account menu', () => {
-  beforeEach(() => {
-    useAuthStore.setState({
-      token: 'tok', expiresAt: null, _hasHydrated: true,
-      user: { full_name: 'Amira Hassan', email: 'amira@example.com', experience_level: 'beginner', role: 'student' } as User,
+  // The header and the content under it share ONE container, so the title's edge is the
+  // content's edge at every width (they used to differ on /tracks, /tools and /learn).
+  describe('contained', () => {
+    it('takes the same container as a PageBody, class for class', () => {
+      render(
+        <>
+          <PageHeader title="Career tracks" contained />
+          <PageBody><p>the content</p></PageBody>
+        </>,
+      )
+      const header = screen.getByRole('heading', { level: 1 }).parentElement!.parentElement!
+      const content = screen.getByText('the content').parentElement!
+      for (const cls of PAGE_CONTAINER.split(' ')) {
+        expect(header).toHaveClass(cls)
+        expect(content).toHaveClass(cls)
+      }
+    })
+
+    it('scrolls the content on its own, under a header that stays put', () => {
+      render(<PageBody><p>the content</p></PageBody>)
+      const scroller = screen.getByText('the content').parentElement!.parentElement!
+      expect(scroller).toHaveClass('flex-1', 'overflow-y-auto')
+    })
+
+    it('leaves a header that did not ask for it spanning the pane, as before', () => {
+      render(<PageHeader title="Explore" />)
+      const header = screen.getByRole('heading', { level: 1 }).parentElement!.parentElement!
+      expect(header).not.toHaveClass('max-w-[1400px]')
+      expect(header).toHaveClass('px-4', 'sm:px-6', 'lg:px-8')
     })
   })
 
-  it('has a name that is not just an initial, and says whether it is open', async () => {
-    const user = userEvent.setup()
+  describe('dirAuto', () => {
+    it('lets a title and subtitle that come from content data pick their own direction', () => {
+      render(<PageHeader title="What is LangChain?" subtitle="Build LLM pipelines." dirAuto />)
+      expect(screen.getByRole('heading', { level: 1 })).toHaveAttribute('dir', 'auto')
+      expect(screen.getByText('Build LLM pipelines.')).toHaveAttribute('dir', 'auto')
+    })
+
+    it("does not force a direction on a title that is the app's own text", () => {
+      render(<PageHeader title="Career tracks" subtitle="Browse." />)
+      expect(screen.getByRole('heading', { level: 1 })).not.toHaveAttribute('dir')
+    })
+  })
+
+  // The language switcher, credit balance and account menu used to live here, and
+  // so followed whichever page was open. They are the shell's now (ShellHeader).
+  it('is only the title block: no language switcher, credits or account menu of its own', () => {
     render(<PageHeader title="Explore" />)
-    const trigger = screen.getByRole('button', { name: 'Profile menu: Amira Hassan' })
-    expect(trigger).toHaveAttribute('type', 'button')
-    expect(trigger).toHaveAttribute('aria-expanded', 'false')
-    await user.click(trigger)
-    expect(trigger).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByRole('link', { name: /Profile & Scorecard/ })).toBeInTheDocument()
-  })
-
-  it('closes on Escape and hands focus back to the avatar', async () => {
-    const user = userEvent.setup()
-    render(<PageHeader title="Explore" />)
-    const trigger = screen.getByRole('button', { name: /Profile menu/ })
-    await user.click(trigger)
-    expect(screen.getByRole('link', { name: /Profile & Scorecard/ })).toBeInTheDocument()
-    await user.keyboard('{Escape}')
-    expect(screen.queryByRole('link', { name: /Profile & Scorecard/ })).toBeNull()
-    expect(trigger).toHaveAttribute('aria-expanded', 'false')
-    expect(trigger).toHaveFocus()
-  })
-
-  it('closes when the pointer goes elsewhere', async () => {
-    const user = userEvent.setup()
-    render(<div><PageHeader title="Explore" /><p>elsewhere</p></div>)
-    await user.click(screen.getByRole('button', { name: /Profile menu/ }))
-    await user.click(screen.getByText('elsewhere'))
-    expect(screen.queryByRole('link', { name: /Profile & Scorecard/ })).toBeNull()
-  })
-
-  it('is named in Arabic for an Arabic reader', () => {
-    useLanguageStore.setState({ language: 'ar' })
-    render(<PageHeader title="استكشف" />)
-    expect(screen.getByRole('button', { name: 'قائمة الحساب: Amira Hassan' })).toBeInTheDocument()
+    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.queryByRole('link')).toBeNull()
   })
 })

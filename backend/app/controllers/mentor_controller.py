@@ -27,6 +27,7 @@ from app.services import (
     roadmap_service,
 )
 from app.services.wallet.wallet_service import deduct_credits, refund_credits
+from app.services.billing.access_service import course_for_track_topic, require_course_access
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +87,10 @@ def chat_with_mentor(
     # deduction and after the provider had already been paid to answer.
     if payload.topic_id is not None and not db.query(Topic.id).filter(Topic.id == payload.topic_id).first():
         raise HTTPException(status_code=404, detail="Topic not found")
+    if payload.topic_id is not None:
+        course = course_for_track_topic(db, payload.topic_id)
+        if course:
+            require_course_access(db, current_user.id, course)
 
     # ── Deduct credits before calling LLM ─────────────────────────────────────
     deduct_credits(current_user.id, "mentor_chat", db)

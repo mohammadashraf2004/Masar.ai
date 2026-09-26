@@ -8,11 +8,11 @@ of that entity, relationship lists included — the same idempotent full-replace
 shape the seed script uses — so an admin UI is a form over one object and a
 repeat submit is harmless.
 """
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
-from app.views.learning_path import Slug
+from app.views.learning_path import Slug, TrackRole
 
 _NAME = 200
 _TEXT = 4000
@@ -73,6 +73,12 @@ class CourseSourceIn(BaseModel):
     level_order: Optional[int] = Field(None, ge=1, le=1000)
 
 
+class CourseRoleIn(BaseModel):
+    """One career goal a course serves, and how much it matters there."""
+    slug: Slug
+    relation: TrackRole = "core"
+
+
 class CourseIn(BaseModel):
     source: CourseSourceIn
     level: Slug
@@ -84,7 +90,10 @@ class CourseIn(BaseModel):
     learning_objectives: Optional[List[str]] = Field(None, max_length=50)
     learning_objectives_ar: Optional[List[str]] = Field(None, max_length=50)
     fields: List[Slug] = Field(default_factory=list, max_length=_MAX_LINKS)
-    roles: List[Slug] = Field(default_factory=list, max_length=_MAX_LINKS)
+    # A bare slug means `core` (what a tag always meant), so existing clients
+    # keep working; {slug, relation} sets the weight. The list is a full
+    # replace like every other relation list: a bare slug resets that goal to core.
+    roles: List[Union[Slug, CourseRoleIn]] = Field(default_factory=list, max_length=_MAX_LINKS)
     teaches: List[Slug] = Field(default_factory=list, max_length=_MAX_LINKS)
     assumes: List[Slug] = Field(default_factory=list, max_length=_MAX_LINKS)
     prerequisites: List[Slug] = Field(default_factory=list, max_length=_MAX_LINKS)
@@ -194,6 +203,11 @@ class TemplateAdminOut(BaseModel):
     is_active: bool
 
 
+class CourseRoleOut(BaseModel):
+    slug: str
+    relation: TrackRole
+
+
 class CourseAdminOut(BaseModel):
     slug: str
     kind: str
@@ -201,6 +215,7 @@ class CourseAdminOut(BaseModel):
     title: Optional[str] = None
     fields: List[str]
     roles: List[str]
+    role_relations: List[CourseRoleOut] = []
     teaches: List[str]
     assumes: List[str]
     prerequisites: List[str]

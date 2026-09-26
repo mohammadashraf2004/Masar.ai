@@ -1,0 +1,17 @@
+"""Masar curriculum seed — L011-028."""
+
+LESSON_META = {'lesson_id': 'L011-028', 'course_id': 'COURSE-011', 'module_id': 'M011-02', 'title': 'Manual Scaling & ECS Service Autoscaling', 'slug': 'manual-scaling-and-ecs-service-autoscaling', 'status': 'approved', 'difficulty': 'intermediate-to-advanced', 'estimated_minutes': None, 'learning_objective': 'Apply manual scaling & ecs service autoscaling concepts to the deployment and operation of an existing production-oriented AI service.'}
+
+TOPICS = ['desired task count', 'horizontal replicas', 'service autoscaling', 'minimum and maximum tasks', 'target tracking and capacity trade-offs']
+
+SOURCE_REFERENCES = ['BOOK-011 Chapters 9 and 10']
+
+FIGURE_REFERENCES = []
+
+LESSON_MARKDOWN = '# L011-028 — Manual Scaling & ECS Service Autoscaling\n\n## Learning objective\n\nApply manual scaling & ecs service autoscaling concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- desired task count\n- horizontal replicas\n- service autoscaling\n- minimum and maximum tasks\n- target tracking and capacity trade-offs\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n'
+
+EXERCISES = [{'id': 'L011-028-EX1', 'title': 'Apply Manual Scaling & ECS Service Autoscaling', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: desired task count, horizontal replicas, service autoscaling. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-028-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to manual scaling & ecs service autoscaling. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
+
+QUIZ = [{'id': 'L011-028-Q1', 'type': 'short_answer', 'question': 'What production problem is manual scaling & ecs service autoscaling intended to solve in an AI-service deployment?', 'answer': 'It addresses the deployment/operations concerns represented by: desired task count, horizontal replicas, service autoscaling.', 'explanation': 'A correct answer should connect the concept to deployment reliability, security, repeatability, scalability, or operability rather than re-explaining AI application fundamentals.'}, {'id': 'L011-028-Q2', 'type': 'true_false', 'question': 'This lesson should be applied without considering security boundaries, failure behavior, or validation.', 'answer': False, 'explanation': 'Production deployment decisions must include security, failure handling, and verification.'}, {'id': 'L011-028-Q3', 'type': 'short_answer', 'question': 'Name two concrete topics covered by Manual Scaling & ECS Service Autoscaling.', 'answer': 'desired task count, horizontal replicas', 'explanation': "The answer should use the lesson's declared core topics."}]
+
+PROJECT = None

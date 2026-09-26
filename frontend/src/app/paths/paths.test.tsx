@@ -194,7 +194,7 @@ describe('Path preview — making it the learner\'s Masar', () => {
     const user = userEvent.setup()
     render(<PathPreviewPage />)
     await user.click(await screen.findByRole('button', { name: 'Make this my Masar' }))
-    await waitFor(() => expect(router.push).toHaveBeenCalledWith('/learn'))
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith('/learn/masar'))
     expect(api.saveMyLearningProfile).toHaveBeenCalledWith({
       level: 'advanced', fields: ['multimodal'], career_goal: 'ai-engineer',
     })

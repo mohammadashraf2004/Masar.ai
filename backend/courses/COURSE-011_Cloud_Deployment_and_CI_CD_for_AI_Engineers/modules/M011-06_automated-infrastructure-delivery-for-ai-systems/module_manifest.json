@@ -1,0 +1,12 @@
+{
+  "module_id": "M011-06",
+  "course_id": "COURSE-011",
+  "title": "Automated Infrastructure Delivery for AI Systems",
+  "slug": "automated-infrastructure-delivery-for-ai-systems",
+  "status": "approved",
+  "lesson_count": 16,
+  "source_references": [
+    "Secondary DevOps source (source ID not provided) — Chapter 7: Automating Infrastructure with Terraform and CI/CD"
+  ],
+  "module_project": "GitOps Infrastructure Delivery Project"
+}

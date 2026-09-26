@@ -1,0 +1,239 @@
+{
+  "course_id": "COURSE-005",
+  "course_title": "Applied LLM Engineering",
+  "source_id": "BOOK-005",
+  "book_title": "SOURCE INFORMATION MISSING",
+  "edition": "SOURCE INFORMATION MISSING",
+  "status": "Curriculum design complete",
+  "approval_status": "Not explicitly approved",
+  "source_review_status": "Complete",
+  "source_chapters_reviewed": "12/12",
+  "level": "Intermediate → Advanced",
+  "difficulty": "Intermediate / Advanced",
+  "guided_minutes": 3055,
+  "guided_time": "50h55m",
+  "modules": 10,
+  "lessons": 70,
+  "prerequisites": [
+    "COURSE-001 — Machine Learning Foundations",
+    "COURSE-002 — Deep Learning Foundations",
+    "COURSE-003 — Applied Deep Learning (core)",
+    "COURSE-004 — Applied NLP with Transformers"
+  ],
+  "track_roles": {
+    "Data Analyst": "Optional",
+    "ML Engineer": "Core",
+    "AI Developer": "Core",
+    "MLOps Engineer": "Supporting",
+    "AI Engineer": "Core"
+  },
+  "professional_capability": "Build, evaluate, and adapt modern LLM applications using embedding models, semantic discovery, retrieval and reranking, prompt engineering, structured generation, conversational memory, tool use, agent loops, embedding-model adaptation, and efficient generative-model fine-tuning.",
+  "learning_loop": "Learn → Practice → Build → Debug → Evaluate",
+  "capstone": "Evaluated Domain LLM Application",
+  "module_inventory": [
+    {
+      "id": "M005-01",
+      "title": "LLM Landscape, Model Selection & Execution",
+      "role": "CORE",
+      "chapters": [
+        1,
+        3,
+        4
+      ],
+      "project": "LLM Execution & Model Selection Lab",
+      "guided_minutes": 370,
+      "lessons": 10,
+      "guided_time": "6h10"
+    },
+    {
+      "id": "M005-02",
+      "title": "Tokenizer & Embedding Engineering for LLM Applications",
+      "role": "CORE",
+      "chapters": [
+        2,
+        4,
+        9
+      ],
+      "project": "Tokenizer & Embedding Engineering Lab",
+      "guided_minutes": 305,
+      "lessons": 8,
+      "guided_time": "5h05"
+    },
+    {
+      "id": "M005-03",
+      "title": "Semantic Clustering & Topic Discovery",
+      "role": "CORE",
+      "chapters": [
+        5
+      ],
+      "project": "Unstructured Corpus Discovery Pipeline",
+      "guided_minutes": 300,
+      "lessons": 7,
+      "guided_time": "5h00"
+    },
+    {
+      "id": "M005-04",
+      "title": "Semantic Search, Reranking & Grounded Generation",
+      "role": "CORE",
+      "chapters": [
+        8
+      ],
+      "project": "Evaluated Semantic Search & Grounded Answering System",
+      "guided_minutes": 320,
+      "lessons": 7,
+      "guided_time": "5h20"
+    },
+    {
+      "id": "M005-05",
+      "title": "Prompt Engineering & Controlled Generation",
+      "role": "CORE",
+      "chapters": [
+        6
+      ],
+      "project": "Reliable Prompt-to-Structured-Output Pipeline",
+      "guided_minutes": 315,
+      "lessons": 7,
+      "guided_time": "5h15"
+    },
+    {
+      "id": "M005-06",
+      "title": "LLM Orchestration, Memory & Tool-Using Agents",
+      "role": "CORE",
+      "chapters": [
+        7
+      ],
+      "project": "Stateful Tool-Using Assistant",
+      "guided_minutes": 325,
+      "lessons": 7,
+      "guided_time": "5h25"
+    },
+    {
+      "id": "M005-07",
+      "title": "Training & Fine-Tuning Embedding Models",
+      "role": "CORE",
+      "chapters": [
+        10
+      ],
+      "project": "Domain-Adapted Retrieval Embedding Model",
+      "guided_minutes": 345,
+      "lessons": 7,
+      "guided_time": "5h45"
+    },
+    {
+      "id": "M005-08",
+      "title": "Efficient Representation-Model Adaptation",
+      "role": "SUPPORTING CORE",
+      "chapters": [
+        11
+      ],
+      "project": "Adaptation Strategy Benchmark",
+      "guided_minutes": 215,
+      "lessons": 5,
+      "guided_time": "3h35"
+    },
+    {
+      "id": "M005-09",
+      "title": "Generative LLM Fine-Tuning & Preference Alignment",
+      "role": "CORE",
+      "chapters": [
+        12
+      ],
+      "project": "Instruction-Tune and Evaluate a Small Generative Model",
+      "guided_minutes": 380,
+      "lessons": 8,
+      "guided_time": "6h20"
+    },
+    {
+      "id": "M005-10",
+      "title": "Applied LLM Engineering Capstone",
+      "role": "CORE / MASAR ADDITION",
+      "chapters": [],
+      "project": "Evaluated Domain LLM Application",
+      "guided_minutes": 180,
+      "lessons": 4,
+      "guided_time": "3h00"
+    }
+  ],
+  "source_chapters": {
+    "1": {
+      "title": "An Introduction to Large Language Models",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "2": {
+      "title": "Tokens and Embeddings",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "3": {
+      "title": "Looking Inside Large Language Models",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "4": {
+      "title": "Text Classification",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "5": {
+      "title": "Text Clustering and Topic Modeling",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "6": {
+      "title": "Prompt Engineering",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "7": {
+      "title": "Advanced Text Generation Techniques and Tools",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "8": {
+      "title": "Semantic Search and Retrieval-Augmented Generation",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "9": {
+      "title": "Multimodal Large Language Models",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "10": {
+      "title": "Creating Text Embedding Models",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "11": {
+      "title": "Fine-Tuning Representation Models for Classification",
+      "pages": "SOURCE INFORMATION MISSING"
+    },
+    "12": {
+      "title": "Fine-Tuning Generation Models",
+      "pages": "SOURCE INFORMATION MISSING"
+    }
+  },
+  "chapter_disposition": {
+    "1": "SELECTIVE / REVISION",
+    "2": "SELECTIVE / REVISION + EXTENSION",
+    "3": "SELECTIVE / HIGH-REVISION",
+    "4": "SELECTIVE / HIGH-REVISION",
+    "5": "CORE",
+    "6": "CORE",
+    "7": "CORE",
+    "8": "CORE",
+    "9": "SELECTIVE / FUTURE MULTIMODAL COURSE",
+    "10": "CORE",
+    "11": "SELECTIVE / SUPPORTING CORE",
+    "12": "CORE"
+  },
+  "boundaries": {
+    "full_rag_system_engineering": "partially_addressed_here; dedicated future course",
+    "deep_multimodal_implementation": "future specialized course",
+    "production_serving_kubernetes_monitoring": "future MLOps / Production ML course",
+    "advanced_agent_engineering": "partially addressed; deeper future source/course",
+    "production_evaluation_observability": "future production/MLOps curriculum"
+  },
+  "implementation_status": {
+    "curriculum_design": "complete",
+    "lesson_seed_export": "generated by this package",
+    "ids_frozen": true,
+    "architecture_frozen": true,
+    "approval": "not explicitly approved",
+    "database_integration": "not verified",
+    "frontend_rendering": "not verified",
+    "all_exercises_e2e": "not verified",
+    "production_deployment": "not verified"
+  }
+}

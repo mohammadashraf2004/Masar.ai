@@ -1,6 +1,6 @@
 'use client'
 import { ListChecks, PenLine } from 'lucide-react'
-import { Badge } from '@/components/ui/index'
+import { DifficultyBadge } from '@/components/ui/index'
 import { MarkdownLesson } from '@/components/ui/MarkdownLesson'
 import { AnswerChat } from '@/components/ui/AnswerChat'
 import { useI18n } from '@/lib/i18n'
@@ -54,10 +54,10 @@ export function ExerciseCard({
       {/* ── Header: what this is, how hard, what it tests ── */}
       <div className="px-5 pt-4 pb-3.5 border-b border-border">
         <div className="flex items-start justify-between gap-3 mb-1.5">
-          <span className="text-[11px] font-mono text-ghost uppercase tracking-wider">
+          <span className="text-lc-label font-mono text-ghost uppercase tracking-wider">
             {counter}
           </span>
-          <Badge variant={exercise.difficulty}>{exercise.difficulty}</Badge>
+          <DifficultyBadge level={exercise.difficulty} />
         </div>
 
         <h3
@@ -69,11 +69,11 @@ export function ExerciseCard({
 
         {exercise.skill_tested.length > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap mt-2.5">
-            <span className="text-[11px] text-ghost">{t('exercise.skills')}:</span>
+            <span className="text-lc-label text-ghost">{t('exercise.skills')}:</span>
             {exercise.skill_tested.map((skill) => (
               <span
                 key={skill}
-                className="text-[10px] px-1.5 py-0.5 rounded border border-border bg-muted/40 text-dim font-mono"
+                className="text-lc-label px-1.5 py-0.5 rounded border border-border bg-muted/40 text-dim font-mono"
                 dir="ltr"
               >
                 {skill}
@@ -124,9 +124,9 @@ function Section({
 }) {
   return (
     <div className={cn('px-5 py-4', !last && 'border-b border-border')}>
-      <div className="flex items-center gap-1.5 mb-2.5 text-amber">
+      <div className="flex items-center gap-1.5 mb-2.5 text-amber-text">
         {icon}
-        <span className="text-[11px] font-medium uppercase tracking-wider">{label}</span>
+        <span className="text-lc-label font-medium uppercase tracking-wider">{label}</span>
       </div>
       {children}
     </div>

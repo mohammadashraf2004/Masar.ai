@@ -29,7 +29,6 @@ docker compose exec api alembic upgrade head
 
 # 4. Seed content (run in this order — later scripts depend on earlier ones)
 docker compose exec api python seed.py                         # 5 career tracks (shells)
-docker compose exec api python seeds/seed_track_ai_developer.py # AI Developer track content
 docker compose exec api python seeds/seed_tool_courses.py       # 16 tool/framework course shells
 docker compose exec api python seeds/seed_tool_langchain.py
 docker compose exec api python seeds/seed_tool_langgraph.py
@@ -38,9 +37,20 @@ docker compose exec api python seeds/seed_tool_qdrant.py
 docker compose exec api python seeds/seed_tool_fastapi.py
 docker compose exec api python seeds/seed_arabic_first_demo.py   # Arabic-first reference lesson
 docker compose exec api python seeds/seed_learning_paths.py       # levels/fields/career-goal relationships, stages, path templates
+docker compose exec api python seeds/import_courses.py            # the curriculum folders under backend/courses/ -> the course catalogue
 ```
 
 All seed scripts are idempotent — safe to re-run any time (e.g. after adding more content to a seed file).
+
+Curriculum source files live under `backend/courses/` and stay the canonical
+source of the lessons: `seeds/import_courses.py` reads them, validates every
+folder (`--validate-only` checks and touches nothing, `--dry-run` runs it all
+and rolls back) and copies modules, lessons, exercises, quizzes and projects
+into the catalogue. It is idempotent and never deletes a row or touches a
+learner's enrollment or progress. `backend/seeds/` contains bootstrap,
+tool/framework, and reference data; curriculum content is not discovered there.
+See [docs/independent-enrollment.md](docs/independent-enrollment.md) for how
+courses, tracks, enrollment and readiness fit together.
 
 Seed scripts only insert/update rows; Alembic owns the schema. Run `alembic upgrade head` first — a seed script run against a database that is not at head stops with a message telling you so, and never creates tables itself.
 
@@ -116,10 +126,9 @@ cp .env.example .env   # set your AI API key, same as the Docker path
 ```bash
 alembic upgrade head
 
-# Seed content — same scripts and order as the Docker path, just without
+# Seed bootstrap/reference data — same scripts and order as the Docker path, just without
 # `docker compose exec api` in front:
 python seed.py
-python seeds/seed_track_ai_developer.py
 python seeds/seed_tool_courses.py
 python seeds/seed_tool_langchain.py
 python seeds/seed_tool_langgraph.py
@@ -174,8 +183,8 @@ Full reference lives in `backend/.env.example` and `frontend/.env.local.example`
 │   │   └── services/           # Business logic & AI services (mentor, wallet, LLM providers)
 │   │
 │   ├── alembic/                # Migrations (source of truth for schema)
-│   ├── seeds/                  # Content seed scripts (career tracks, tool courses)
-│   │   └── track_ai_developer/ # AI Developer track content, one file per level
+│   ├── courses/                # Curriculum source, organized by course
+│   ├── seeds/                  # Database bootstrap, tools, and reference data
 │   ├── tests/
 │   ├── requirements.txt
 │   ├── requirements-dev.txt    # pytest etc. -- not installed in the running container image

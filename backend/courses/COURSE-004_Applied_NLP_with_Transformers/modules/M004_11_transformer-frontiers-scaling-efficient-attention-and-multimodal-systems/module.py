@@ -1,0 +1,2 @@
+MODULE = {'id': 'M004-11', 'title': 'Transformer Frontiers: Scaling, Efficient Attention & Multimodal Systems', 'role': 'REFERENCE / COURSE CLOSING', 'chapter': 11, 'page_start': 345, 'project': None, 'lessons': 3, 'guided_minutes': 130, 'guided_time': '2h10m'}
+LESSON_FILES = ['L004_069_scaling-laws-and-compute-optimal-transformer-training', 'L004_070_efficient-attention-and-long-context-transformers', 'L004_071_beyond-text-multimodal-transformer-systems']

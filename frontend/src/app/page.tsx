@@ -69,7 +69,7 @@ function Landing() {
       </header>
 
       <main className="mx-auto w-full max-w-5xl flex-1 py-16 sm:py-24">
-        <p className="text-xs font-medium uppercase tracking-widest text-amber">{t('landing.tagline')}</p>
+        <p className="text-xs font-medium uppercase tracking-widest text-amber-text">{t('landing.tagline')}</p>
         <h1 className="mt-3 max-w-2xl font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
           {t('reg.title')}
         </h1>
@@ -86,7 +86,7 @@ function Landing() {
         <ul className="mt-16 grid gap-4 sm:grid-cols-3">
           {features.map(({ icon: Icon, title, body }) => (
             <li key={title} className="rounded-lg border border-border bg-panel p-5">
-              <Icon size={18} className="text-amber" aria-hidden="true" />
+              <Icon size={18} className="text-amber-text" aria-hidden="true" />
               <h2 className="mt-3 text-sm font-semibold text-bright">{title}</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-soft">{body}</p>
             </li>

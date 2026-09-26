@@ -1,0 +1,24 @@
+{
+  "module_id": "M014-09",
+  "title": "Image Segmentation Engineering",
+  "description": "Classical, trainable, deep, transformer, promptable, volumetric, and domain segmentation with rigorous evaluation.",
+  "lesson_ids": [
+    "L014-070",
+    "L014-071",
+    "L014-072",
+    "L014-073",
+    "L014-074",
+    "L014-075",
+    "L014-076",
+    "L014-077",
+    "L014-078",
+    "L014-079",
+    "L014-080",
+    "L014-081",
+    "L014-082"
+  ],
+  "lesson_count": 13,
+  "guided_minutes": 810,
+  "module_project": "Multi-Method Image Segmentation Benchmark",
+  "project_lesson_id": "L014-082"
+}

@@ -69,7 +69,7 @@ export function WhatsNewDialog() {
         <>
           <Link
             ref={cta}
-            href={build ? '/onboarding/learning-profile' : '/learn'}
+            href={build ? '/onboarding/learning-profile' : '/learn/masar'}
             onClick={acknowledge}
             className={buttonStyles({ className: 'w-full sm:w-auto' })}
           >
@@ -82,7 +82,7 @@ export function WhatsNewDialog() {
       <ul className="space-y-4">
         {FEATURES.map(({ icon: Icon, title, body }) => (
           <li key={title} className="flex items-start gap-3">
-            <Icon size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-amber" />
+            <Icon size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-amber-text" />
             <div className="min-w-0">
               <h3 className="text-sm font-semibold text-bright">{t(title)}</h3>
               <p className="mt-0.5 text-sm leading-relaxed text-soft">{t(body)}</p>

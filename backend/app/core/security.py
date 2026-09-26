@@ -18,6 +18,9 @@ from app.db.session import get_db
 # turn /auth/login into its own DoS amplifier.
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+# Same scheme, but a missing header is not an error: for public pages that show a
+# little more to a signed-in learner (their own progress on a course card).
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 TOKEN_TYPE_ACCESS = "access"
 
@@ -211,3 +214,18 @@ async def get_current_user(
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return user
+
+
+async def get_optional_user(
+    token: Optional[str] = Depends(oauth2_scheme_optional),
+    db: Session = Depends(get_db),
+):
+    """The signed-in user, or None. A missing, expired or invalid token is
+    treated as anonymous - never as an error - because the caller is a public
+    endpoint that only adds the learner's own data when it can be verified."""
+    if not token:
+        return None
+    try:
+        return await get_current_user(token=token, db=db)
+    except HTTPException:
+        return None

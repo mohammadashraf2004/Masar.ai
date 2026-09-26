@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useGuest } from '@/hooks/useAuth'
 import { useAuthStore } from '@/lib/store'
 import { api } from '@/lib/api'
+import { useI18n, type StringKey } from '@/lib/i18n'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { getErrorMessage } from '@/lib/utils'
 import { ArrowRight, CheckCircle, XCircle, BookOpen, Brain, ShieldCheck } from 'lucide-react'
 import { Logo } from '@/components/layout/Logo'
@@ -14,10 +16,10 @@ import { LegalLinks } from '@/components/legal/LegalLinks'
 
 // What the panel promises has to be something the product actually does —
 // each of these maps to a shipped feature, not a projected number.
-const HIGHLIGHTS: Array<{ icon: React.ElementType; label: string }> = [
-  { icon: BookOpen,    label: 'Arabic-first lessons, English terminology' },
-  { icon: Brain,       label: 'AI-graded exercises and quizzes' },
-  { icon: ShieldCheck, label: 'Proctored exams, verified certificates' },
+const HIGHLIGHTS: Array<{ icon: React.ElementType; label: StringKey }> = [
+  { icon: BookOpen,    label: 'login.hl.lessons' },
+  { icon: Brain,       label: 'login.hl.graded' },
+  { icon: ShieldCheck, label: 'login.hl.exams' },
 ]
 
 export default function LoginPage() {
@@ -33,6 +35,7 @@ type Mode = 'login' | 'forgot' | 'reset'
 function LoginPageInner() {
   useGuest()
   const router = useRouter()
+  const { t } = useI18n()
   const params = useSearchParams()
   const setAuth = useAuthStore(s => s.setAuth)
 
@@ -92,7 +95,7 @@ function LoginPageInner() {
     try {
       await api.resetPassword(resetToken!, newPassword)
       setMode('login')
-      setMessage('Password reset — please log in with your new password.')
+      setMessage(t('login.resetDone'))
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {
@@ -107,7 +110,7 @@ function LoginPageInner() {
         <div
           className="absolute inset-0 opacity-30"
           style={{
-            backgroundImage: 'linear-gradient(rgba(30,37,53,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(30,37,53,0.6) 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(rgb(var(--line) / 0.6) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--line) / 0.6) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -118,23 +121,20 @@ function LoginPageInner() {
         <div className="relative space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber/10 border border-amber/20">
             <span className="w-1.5 h-1.5 rounded-full bg-amber animate-pulse" />
-            <span className="text-xs text-amber font-medium">For AI engineers in MENA</span>
+            <span className="text-xs text-amber-text font-medium">{t('login.panel.badge')}</span>
           </div>
           <h2 className="font-display font-bold text-3xl text-white leading-tight">
-            From student<br />to job-ready<br />
-            <span className="text-amber">AI engineer.</span>
+            {t('login.panel.lead')}<br />
+            <span className="text-amber-text">{t('login.panel.accent')}</span>
           </h2>
-          <p className="text-sm text-dim leading-relaxed max-w-xs">
-            Personalized roadmaps, an AI mentor that actually understands your
-            curriculum, real projects, and career-focused evaluation.
-          </p>
+          <p className="text-sm text-dim leading-relaxed max-w-xs">{t('login.panel.body')}</p>
         </div>
 
         <div className="relative space-y-3">
           {HIGHLIGHTS.map(({ icon: Icon, label }) => (
             <div key={label} className="flex items-center gap-2.5">
-              <Icon size={14} className="text-amber shrink-0" />
-              <span className="text-xs text-dim">{label}</span>
+              <Icon size={14} className="text-amber-text shrink-0" />
+              <span className="text-xs text-dim">{t(label)}</span>
             </div>
           ))}
         </div>
@@ -144,29 +144,34 @@ function LoginPageInner() {
       <div className="flex-1 flex items-center justify-center px-4 sm:px-8">
         <div className="w-full max-w-sm">
           <div className="mb-8">
-            <Logo size={28} className="mb-6 lg:hidden" wordmarkClassName="text-sm" />
+            {/* The language can be changed here, not only after signing in: Arabic is the
+                default, and this is the first page a visitor who reads English lands on. */}
+            <div className="mb-6 flex items-center justify-between gap-3">
+              <Logo size={28} className="lg:hidden" wordmarkClassName="text-sm" />
+              <LanguageSwitcher className="ms-auto" />
+            </div>
             <h1 className="font-display font-bold text-2xl text-white mb-1">
-              {mode === 'forgot' ? 'Reset your password' : mode === 'reset' ? 'Choose a new password' : 'Welcome back'}
+              {mode === 'forgot' ? t('login.forgot.title') : mode === 'reset' ? t('login.reset.title') : t('login.title')}
             </h1>
-            {mode === 'login' && <p className="text-sm text-ghost">Sign in to continue your learning journey.</p>}
-            {mode === 'forgot' && <p className="text-sm text-ghost">We&apos;ll email you a link to reset it.</p>}
-            {mode === 'reset' && <p className="text-sm text-ghost">This link is single-use and expires in an hour.</p>}
+            {mode === 'login' && <p className="text-sm text-ghost">{t('login.subtitle')}</p>}
+            {mode === 'forgot' && <p className="text-sm text-ghost">{t('login.forgot.subtitle')}</p>}
+            {mode === 'reset' && <p className="text-sm text-ghost">{t('login.reset.subtitle')}</p>}
           </div>
 
           {verifyStatus && (
             <div role={verifyStatus === 'failed' ? 'alert' : 'status'} className={`mb-5 flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs ${
               verifyStatus === 'ok' ? 'bg-emerald/10 border-emerald/20 text-emerald' :
               verifyStatus === 'failed' ? 'bg-rose/10 border-rose/20 text-rose' :
-              'bg-amber/10 border-amber/20 text-amber'
+              'bg-amber/10 border-amber/20 text-amber-text'
             }`}>
-              {verifyStatus === 'ok' && <><CheckCircle size={13} /> Email verified — you&apos;re all set.</>}
-              {verifyStatus === 'failed' && <><XCircle size={13} /> That verification link is invalid or expired.</>}
-              {verifyStatus === 'checking' && 'Verifying your email…'}
+              {verifyStatus === 'ok' && <><CheckCircle size={13} /> {t('login.verified')}</>}
+              {verifyStatus === 'failed' && <><XCircle size={13} /> {t('login.verifyFailed')}</>}
+              {verifyStatus === 'checking' && t('login.verifying')}
             </div>
           )}
 
           {message && (
-            <div className="mb-5 px-3 py-2.5 rounded-lg bg-emerald/10 border border-emerald/20 text-xs text-emerald">
+            <div dir="auto" className="mb-5 px-3 py-2.5 rounded-lg bg-emerald/10 border border-emerald/20 text-xs text-emerald">
               {message}
             </div>
           )}
@@ -175,7 +180,7 @@ function LoginPageInner() {
             <>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
-                  label="Email"
+                  label={t('login.email')}
                   type="email"
                   placeholder="you@example.com"
                   value={form.email}
@@ -184,7 +189,7 @@ function LoginPageInner() {
                   required
                 />
                 <Input
-                  label="Password"
+                  label={t('login.password')}
                   type="password"
                   placeholder="••••••••"
                   value={form.password}
@@ -194,26 +199,26 @@ function LoginPageInner() {
                 />
 
                 {error && (
-                  <div role="alert" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
+                  <div role="alert" dir="auto" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
                     {error}
                   </div>
                 )}
 
                 <Button type="submit" className="w-full" size="lg" loading={loading}>
-                  Sign in <ArrowRight size={14} className="rtl:rotate-180" />
+                  {t('login.submit')} <ArrowRight size={14} className="rtl:rotate-180" />
                 </Button>
               </form>
 
               <p className="text-center text-sm text-ghost mt-4">
                 <button onClick={() => { setMode('forgot'); setError(''); setMessage('') }} className="inline-flex min-h-[44px] items-center text-ghost hover:text-soft underline decoration-dotted underline-offset-2 lg:min-h-0">
-                  Forgot your password?
+                  {t('login.forgot')}
                 </button>
               </p>
 
               <p className="text-center text-sm text-ghost mt-2">
-                No account?{' '}
-                <Link href="/auth/register" className="text-amber hover:text-amber2 transition-colors">
-                  Create one
+                {t('login.noAccount')}{' '}
+                <Link href="/auth/register" className="text-amber-text hover:text-amber-text2 transition-colors">
+                  {t('login.createOne')}
                 </Link>
               </p>
               <LegalLinks className="mt-4 justify-center" />
@@ -224,7 +229,7 @@ function LoginPageInner() {
             <>
               <form onSubmit={handleForgotSubmit} className="space-y-4">
                 <Input
-                  label="Email"
+                  label={t('login.email')}
                   type="email"
                   placeholder="you@example.com"
                   value={forgotEmail}
@@ -233,17 +238,17 @@ function LoginPageInner() {
                   required
                 />
                 {error && (
-                  <div role="alert" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
+                  <div role="alert" dir="auto" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
                     {error}
                   </div>
                 )}
                 <Button type="submit" className="w-full" size="lg" loading={loading}>
-                  Send reset link
+                  {t('login.sendReset')}
                 </Button>
               </form>
               <p className="text-center text-sm text-ghost mt-4">
                 <button onClick={() => { setMode('login'); setError(''); setMessage('') }} className="inline-flex min-h-[44px] items-center text-ghost hover:text-soft underline decoration-dotted underline-offset-2 lg:min-h-0">
-                  Back to sign in
+                  {t('login.back')}
                 </button>
               </p>
             </>
@@ -253,9 +258,9 @@ function LoginPageInner() {
             <>
               <form onSubmit={handleResetSubmit} className="space-y-4">
                 <Input
-                  label="New password"
+                  label={t('login.newPassword')}
                   type="password"
-                  placeholder="At least 8 characters"
+                  placeholder={t('login.newPasswordPlaceholder')}
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   autoComplete="new-password"
@@ -263,12 +268,12 @@ function LoginPageInner() {
                   required
                 />
                 {error && (
-                  <div role="alert" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
+                  <div role="alert" dir="auto" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
                     {error}
                   </div>
                 )}
                 <Button type="submit" className="w-full" size="lg" loading={loading}>
-                  Set new password
+                  {t('login.setPassword')}
                 </Button>
               </form>
             </>

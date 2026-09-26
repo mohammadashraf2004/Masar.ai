@@ -1,0 +1,19 @@
+{
+  "module_id": "M014-04",
+  "title": "Convolution, Correlation & Spatial Filtering",
+  "description": "Convolution, correlation, boundary handling, spatial filters, template matching, separability, and FFT-based convolution.",
+  "lesson_ids": [
+    "L014-027",
+    "L014-028",
+    "L014-029",
+    "L014-030",
+    "L014-031",
+    "L014-032",
+    "L014-033",
+    "L014-034"
+  ],
+  "lesson_count": 8,
+  "guided_minutes": 485,
+  "module_project": "Classical Filter & Template-Matching Engine",
+  "project_lesson_id": "L014-034"
+}

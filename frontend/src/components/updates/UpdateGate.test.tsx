@@ -65,7 +65,7 @@ describe('What\'s New — an existing account', () => {
 
   it('leads to the existing roadmap, and offers "Maybe later"', async () => {
     render(<UpdateGate />)
-    expect(await screen.findByRole('link', { name: 'Explore My Skill Gaps' })).toHaveAttribute('href', '/learn')
+    expect(await screen.findByRole('link', { name: 'Explore My Skill Gaps' })).toHaveAttribute('href', '/learn/masar')
     expect(screen.getByRole('button', { name: 'Maybe later' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
   })
@@ -97,7 +97,7 @@ describe('What\'s New — an existing account', () => {
     expect(dialog).toHaveAccessibleDescription('أصبح مسارك التعليمي أكثر تخصيصاً.')
     expect(within(dialog).getByRole('heading', { name: 'تحليل فجوات المهارات' })).toBeInTheDocument()
     expect(within(dialog).getByRole('heading', { name: 'لماذا هذه الدورة؟' })).toBeInTheDocument()   // the same words as the toggle itself
-    expect(within(dialog).getByRole('link', { name: 'استكشف فجوات مهاراتي' })).toHaveAttribute('href', '/learn')
+    expect(within(dialog).getByRole('link', { name: 'استكشف فجوات مهاراتي' })).toHaveAttribute('href', '/learn/masar')
     expect(within(dialog).getByRole('button', { name: 'ربما لاحقاً' })).toBeInTheDocument()
     expect(within(dialog).getByRole('button', { name: 'إغلاق' })).toBeInTheDocument()
   })
@@ -132,7 +132,7 @@ describe('What\'s New — an existing account without a roadmap', () => {
   it('falls back to the roadmap page when it cannot tell — that page decides for itself', async () => {
     vi.mocked(api.getMyLearningProfile).mockRejectedValue(new Error('down'))
     render(<UpdateGate />)
-    expect(await screen.findByRole('link', { name: 'Explore My Skill Gaps' })).toHaveAttribute('href', '/learn')
+    expect(await screen.findByRole('link', { name: 'Explore My Skill Gaps' })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('draws nothing while it works out where the button leads — no flash of the wrong one', async () => {
@@ -302,7 +302,7 @@ describe('the skill-gap introduction — a new account', () => {
     // skillGaps(): 1 in progress + 3 missing = 4 still to gain, of 5 relevant, 1 known — the server's numbers
     expect(within(dialog).getByText('4 skills to gain')).toBeInTheDocument()
     expect(within(dialog).getByText('You know 1 of 5 skills')).toBeInTheDocument()
-    expect(within(dialog).getByRole('link', { name: 'View My Skill Gaps' })).toHaveAttribute('href', '/learn')
+    expect(within(dialog).getByRole('link', { name: 'View My Skill Gaps' })).toHaveAttribute('href', '/learn/masar')
   })
 
   it('uses whatever the backend counted — nothing is hard-coded', async () => {
@@ -334,7 +334,7 @@ describe('the skill-gap introduction — a new account', () => {
     expect(dialog).toHaveAccessibleDescription(/there is nothing left to gain: you have added every skill your roadmap covers/)
     expect(dialog).not.toHaveTextContent(/0 skills? to gain/)
     expect(dialog).not.toHaveTextContent('skills to gain')
-    expect(within(dialog).getByRole('link', { name: 'View My Roadmap' })).toHaveAttribute('href', '/learn')
+    expect(within(dialog).getByRole('link', { name: 'View My Roadmap' })).toHaveAttribute('href', '/learn/masar')
     expect(within(dialog).queryByRole('link', { name: 'View My Skill Gaps' })).toBeNull()
   })
 
@@ -385,7 +385,7 @@ describe('the skill-gap introduction — a new account', () => {
       const { unmount } = render(<UpdateGate />)
       const dialog = await screen.findByRole('dialog', { name: 'فجوات مهاراتك جاهزة' })
       expect(within(dialog).getByText(text)).toBeInTheDocument()
-      expect(within(dialog).getByRole('link', { name: 'عرض فجوات مهاراتي' })).toHaveAttribute('href', '/learn')
+      expect(within(dialog).getByRole('link', { name: 'عرض فجوات مهاراتي' })).toHaveAttribute('href', '/learn/masar')
       unmount()
     }
   })

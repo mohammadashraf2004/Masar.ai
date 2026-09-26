@@ -1,7 +1,7 @@
 import type {
   CareerGoal, CatalogCourse, FieldRef, LearningField, LearningLevel, LearningPath,
   LearningProfile, LevelRef, MySkills, PathCourse, PathStage, PathSummary, RoadmapStep, RoleRef, Skill,
-  SkillOption, CourseWhy, SkillGapItem, SkillGaps,
+  SkillOption, CourseWhy, SkillGapItem, SkillGaps, CatalogCourseDetail, ReadinessReport, Recommendation, Recommendations,
 } from '@/types'
 import type { LearningCatalog } from '@/hooks/useLearningCatalog'
 
@@ -243,4 +243,46 @@ export function skillGaps(over: Partial<SkillGaps> = {}): SkillGaps {
 export const NO_GAPS_YET: SkillGaps = {
   available: false, fields: [], known: [], partial: [], missing: [], groups: [],
   summary: { required: 0, known: 0, partial: 0, missing: 0, immediate: 0, coverage_pct: null },
+}
+
+// ─── Independent enrollment, readiness and recommendations ───────────────────
+
+export const NO_RECOMMENDATIONS: Recommendations = {
+  continue_learning: [], recommended_next: [], build_foundations: [], completed: [], career_goal: null,
+}
+
+export function recommendation(over: Partial<Recommendation> = {}): Recommendation {
+  return {
+    course: course(), reason_code: 'good_place_to_start', params: {},
+    reason: 'A good place to start: it assumes no earlier course.', readiness: 'ready',
+    ...over,
+  }
+}
+
+export function readinessReport(over: Partial<ReadinessReport> = {}): ReadinessReport {
+  return {
+    course_id: 1, course_slug: 'rag-knowledge-systems', state: 'mostly_ready', score: 78,
+    strengths: [{ skill: LLMS_SKILL, standing: 'strong', level: 'intermediate', required: true }],
+    gaps: [{ skill: EMBEDDINGS_SKILL, standing: 'gap', level: 'beginner', required: true }],
+    recommended_review: [{
+      course: { id: 4, slug: 'embeddings-search', title: 'Embeddings & Semantic Search', title_ar: null },
+      skills: [EMBEDDINGS_SKILL], required: true,
+      modules: [{ id: 41, order: 2, title: 'Vector similarity', title_ar: null }],
+    }],
+    has_prerequisites: true, assessment_available: true, last_assessed_at: null,
+    ...over,
+  }
+}
+
+export function courseDetail(over: Partial<CatalogCourseDetail> = {}): CatalogCourseDetail {
+  return {
+    ...course(),
+    assumes: [], prerequisites: [], learning_objectives: ['Build a retrieval pipeline'], learning_objectives_ar: [],
+    modules: [{
+      id: 11, order: 1, title: 'Chunking', title_ar: null, lesson_count: 4, exercise_count: 1, quiz_count: 1, project_count: 0,
+    }],
+    projects: [{ id: 21, title: 'Support bot', title_ar: null, module_order: 1, kind: 'capstone' }],
+    roadmaps: [{ career_goal: AI_ENGINEER, track_role: 'core', position: 3, total: 9 }],
+    ...over,
+  }
 }

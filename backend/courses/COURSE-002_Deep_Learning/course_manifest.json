@@ -1,0 +1,2348 @@
+{
+  "slug": "deep-learning-foundations",
+  "title": "Deep Learning Foundations | أساسيات التعلم العميق",
+  "language": "ar",
+  "book_id": "BOOK-002",
+  "status": "curriculum-and-lesson-seed-package; not deployed",
+  "scope": "theory, concepts, mathematical exercises and design projects",
+  "excluded_chapters": [
+    7
+  ],
+  "chapter_7_policy": "Chapter 7 A Deep Dive on Keras omitted entirely; other Keras APIs are conceptual references only.",
+  "applied_course": "PyTorch-focused Applied Deep Learning will be sourced separately.",
+  "edition": "SOURCE INFORMATION MISSING",
+  "printed_page_numbers": "SOURCE INFORMATION MISSING",
+  "module_count": 19,
+  "lesson_count": 147,
+  "guided_minutes": 6680,
+  "projects_original_to_masar": true,
+  "modules": [
+    {
+      "module_id": "M01",
+      "title": "Introduction to Deep Learning",
+      "arabic_title": "مدخل إلى التعلم العميق",
+      "book_chapter": 1,
+      "learning_objective": "Explain representations, learning and limitations.",
+      "duration_minutes": 115,
+      "lesson_count": 3,
+      "lessons": [
+        {
+          "id": "T001",
+          "title": "Deep Learning and Representation Learning",
+          "minutes": 35,
+          "file": "modules/M01_introduction_to_deep_learning/T001_deep_learning_and_representation_learning.py",
+          "source_line_ranges": [
+            [
+              10,
+              84
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T002",
+          "title": "How Deep Neural Networks Learn",
+          "minutes": 40,
+          "file": "modules/M01_introduction_to_deep_learning/T002_how_deep_neural_networks_learn.py",
+          "source_line_ranges": [
+            [
+              85,
+              153
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T003",
+          "title": "Deep Learning Capabilities, Advantages, and Limitations",
+          "minutes": 40,
+          "file": "modules/M01_introduction_to_deep_learning/T003_deep_learning_capabilities_advantages_and_limitations.py",
+          "source_line_ranges": [
+            [
+              154,
+              228
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M02",
+      "title": "Neural Network Mathematics",
+      "arabic_title": "الرياضيات الأساسية للشبكات العصبية",
+      "book_chapter": 2,
+      "learning_objective": "Trace tensor computations, gradient descent and backpropagation.",
+      "duration_minutes": 340,
+      "lesson_count": 8,
+      "lessons": [
+        {
+          "id": "T004",
+          "title": "Understanding a Neural Network Through MNIST",
+          "minutes": 30,
+          "file": "modules/M02_neural_network_mathematics/T004_understanding_a_neural_network_through_mnist.py",
+          "source_line_ranges": [
+            [
+              23,
+              194
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T005",
+          "title": "Tensors, Shapes, and Data Representation",
+          "minutes": 45,
+          "file": "modules/M02_neural_network_mathematics/T005_tensors_shapes_and_data_representation.py",
+          "source_line_ranges": [
+            [
+              196,
+              438
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T006",
+          "title": "Tensor Operations, Vectorization, and Broadcasting",
+          "minutes": 40,
+          "file": "modules/M02_neural_network_mathematics/T006_tensor_operations_vectorization_and_broadcasting.py",
+          "source_line_ranges": [
+            [
+              439,
+              615
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T007",
+          "title": "Matrix Multiplication and Neural Network Geometry",
+          "minutes": 45,
+          "file": "modules/M02_neural_network_mathematics/T007_matrix_multiplication_and_neural_network_geometry.py",
+          "source_line_ranges": [
+            [
+              616,
+              839
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T008",
+          "title": "Derivatives and Gradients",
+          "minutes": 45,
+          "file": "modules/M02_neural_network_mathematics/T008_derivatives_and_gradients.py",
+          "source_line_ranges": [
+            [
+              841,
+              966
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T009",
+          "title": "Gradient Descent and Optimization",
+          "minutes": 45,
+          "file": "modules/M02_neural_network_mathematics/T009_gradient_descent_and_optimization.py",
+          "source_line_ranges": [
+            [
+              967,
+              1020
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T010",
+          "title": "Backpropagation, Chain Rule, and Computation Graphs",
+          "minutes": 45,
+          "file": "modules/M02_neural_network_mathematics/T010_backpropagation_chain_rule_and_computation_graphs.py",
+          "source_line_ranges": [
+            [
+              1021,
+              1113
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T011",
+          "title": "The Complete Neural Network Training Loop",
+          "minutes": 45,
+          "file": "modules/M02_neural_network_mathematics/T011_the_complete_neural_network_training_loop.py",
+          "source_line_ranges": [
+            [
+              1115,
+              1432
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M03",
+      "title": "Deep Learning Frameworks and Computational Models",
+      "arabic_title": "أطر العمل ونماذج الحوسبة",
+      "book_chapter": 3,
+      "learning_objective": "Compare computational models without requiring a specific API.",
+      "duration_minutes": 335,
+      "lesson_count": 8,
+      "lessons": [
+        {
+          "id": "T012",
+          "title": "Framework Evolution and Computational Architecture",
+          "minutes": 35,
+          "file": "modules/M03_deep_learning_frameworks_and_computational_models/T012_framework_evolution_and_computational_architecture.py",
+          "source_line_ranges": [
+            [
+              16,
+              69
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T013",
+          "title": "TensorFlow Computational Model",
+          "minutes": 45,
+          "file": "modules/M03_deep_learning_frameworks_and_computational_models/T013_tensorflow_computational_model.py",
+          "source_line_ranges": [
+            [
+              71,
+              325
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T014",
+          "title": "PyTorch Dynamic Computation",
+          "minutes": 45,
+          "file": "modules/M03_deep_learning_frameworks_and_computational_models/T014_pytorch_dynamic_computation.py",
+          "source_line_ranges": [
+            [
+              533,
+              856
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T015",
+          "title": "JAX Functional Computation",
+          "minutes": 45,
+          "file": "modules/M03_deep_learning_frameworks_and_computational_models/T015_jax_functional_computation.py",
+          "source_line_ranges": [
+            [
+              872,
+              1160
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T016",
+          "title": "Comparing Neural Network Training Workflows",
+          "minutes": 40,
+          "file": "modules/M03_deep_learning_frameworks_and_computational_models/T016_comparing_neural_network_training_workflows.py",
+          "source_line_ranges": [
+            [
+              327,
+              513
+            ],
+            [
+              695,
+              855
+            ],
+            [
+              1149,
+              1241
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T017",
+          "title": "Framework-Neutral Layers, Models, and Backends",
+          "minutes": 45,
+          "file": "modules/M03_deep_learning_frameworks_and_computational_models/T017_framework_neutral_layers_models_and_backends.py",
+          "source_line_ranges": [
+            [
+              1243,
+              1476
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T018",
+          "title": "Configuring Neural Network Learning",
+          "minutes": 40,
+          "file": "modules/M03_deep_learning_frameworks_and_computational_models/T018_configuring_neural_network_learning.py",
+          "source_line_ranges": [
+            [
+              1478,
+              1558
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T019",
+          "title": "Training, Validation, and Inference Workflows",
+          "minutes": 40,
+          "file": "modules/M03_deep_learning_frameworks_and_computational_models/T019_training_validation_and_inference_workflows.py",
+          "source_line_ranges": [
+            [
+              1560,
+              1669
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M04",
+      "title": "Neural Classification and Regression",
+      "arabic_title": "التصنيف والانحدار بالشبكات العصبية",
+      "book_chapter": 4,
+      "learning_objective": "Match objectives, output layers, metrics and loss functions.",
+      "duration_minutes": 340,
+      "lesson_count": 7,
+      "lessons": [
+        {
+          "id": "T020",
+          "title": "Binary Classification and Data Representation",
+          "minutes": 45,
+          "file": "modules/M04_neural_classification_and_regression/T020_binary_classification_and_data_representation.py",
+          "source_line_ranges": [
+            [
+              47,
+              160
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T021",
+          "title": "Neural Networks for Binary Classification",
+          "minutes": 50,
+          "file": "modules/M04_neural_classification_and_regression/T021_neural_networks_for_binary_classification.py",
+          "source_line_ranges": [
+            [
+              162,
+              245
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T022",
+          "title": "Validation and Overfitting in Neural Networks",
+          "minutes": 45,
+          "file": "modules/M04_neural_classification_and_regression/T022_validation_and_overfitting_in_neural_networks.py",
+          "source_line_ranges": [
+            [
+              247,
+              420
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T023",
+          "title": "Multiclass Classification and Output Architecture",
+          "minutes": 50,
+          "file": "modules/M04_neural_classification_and_regression/T023_multiclass_classification_and_output_architecture.py",
+          "source_line_ranges": [
+            [
+              437,
+              586
+            ],
+            [
+              759,
+              780
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T024",
+          "title": "Multiclass Evaluation and Information Bottlenecks",
+          "minutes": 45,
+          "file": "modules/M04_neural_classification_and_regression/T024_multiclass_evaluation_and_information_bottlenecks.py",
+          "source_line_ranges": [
+            [
+              588,
+              758
+            ],
+            [
+              782,
+              834
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T025",
+          "title": "Designing Neural Networks for Regression",
+          "minutes": 50,
+          "file": "modules/M04_neural_classification_and_regression/T025_designing_neural_networks_for_regression.py",
+          "source_line_ranges": [
+            [
+              836,
+              948
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T026",
+          "title": "Regression Evaluation with Small Datasets",
+          "minutes": 55,
+          "file": "modules/M04_neural_classification_and_regression/T026_regression_evaluation_with_small_datasets.py",
+          "source_line_ranges": [
+            [
+              949,
+              1143
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M05",
+      "title": "Generalization and Model Improvement",
+      "arabic_title": "التعميم وتحسين النماذج",
+      "book_chapter": 5,
+      "learning_objective": "Diagnose fitting, validation and regularization problems.",
+      "duration_minutes": 340,
+      "lesson_count": 7,
+      "lessons": [
+        {
+          "id": "T027",
+          "title": "Optimization, Generalization, and Sources of Overfitting",
+          "minutes": 45,
+          "file": "modules/M05_generalization_and_model_improvement/T027_optimization_generalization_and_sources_of_overfitting.py",
+          "source_line_ranges": [
+            [
+              10,
+              139
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T028",
+          "title": "Manifolds and Interpolation",
+          "minutes": 45,
+          "file": "modules/M05_generalization_and_model_improvement/T028_manifolds_and_interpolation.py",
+          "source_line_ranges": [
+            [
+              140,
+              256
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T029",
+          "title": "Model Evaluation and Data Leakage",
+          "minutes": 55,
+          "file": "modules/M05_generalization_and_model_improvement/T029_model_evaluation_and_data_leakage.py",
+          "source_line_ranges": [
+            [
+              258,
+              386
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T030",
+          "title": "Diagnosing Training Failures",
+          "minutes": 45,
+          "file": "modules/M05_generalization_and_model_improvement/T030_diagnosing_training_failures.py",
+          "source_line_ranges": [
+            [
+              388,
+              473
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T031",
+          "title": "Model Capacity and Fit-Generalization Trade-offs",
+          "minutes": 45,
+          "file": "modules/M05_generalization_and_model_improvement/T031_model_capacity_and_fit_generalization_trade_offs.py",
+          "source_line_ranges": [
+            [
+              475,
+              582
+            ],
+            [
+              637,
+              748
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T032",
+          "title": "Data Strategies and Early Stopping",
+          "minutes": 45,
+          "file": "modules/M05_generalization_and_model_improvement/T032_data_strategies_and_early_stopping.py",
+          "source_line_ranges": [
+            [
+              583,
+              630
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T033",
+          "title": "Regularization: L1, L2, and Dropout",
+          "minutes": 60,
+          "file": "modules/M05_generalization_and_model_improvement/T033_regularization_l1_l2_and_dropout.py",
+          "source_line_ranges": [
+            [
+              631,
+              845
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M06",
+      "title": "The Universal Machine Learning Workflow",
+      "arabic_title": "سير عمل التعلم الآلي",
+      "book_chapter": 6,
+      "learning_objective": "Structure a data-to-deployment plan with appropriate evidence.",
+      "duration_minutes": 270,
+      "lesson_count": 6,
+      "lessons": [
+        {
+          "id": "T034",
+          "title": "Framing a Real-World Deep Learning Problem",
+          "minutes": 45,
+          "file": "modules/M06_the_universal_machine_learning_workflow/T034_framing_a_real_world_deep_learning_problem.py",
+          "source_line_ranges": [
+            [
+              31,
+              65
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T035",
+          "title": "Dataset Strategy, Annotation, and Representativeness",
+          "minutes": 45,
+          "file": "modules/M06_the_universal_machine_learning_workflow/T035_dataset_strategy_annotation_and_representativeness.py",
+          "source_line_ranges": [
+            [
+              67,
+              121
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T036",
+          "title": "Understanding Data and Defining Success",
+          "minutes": 40,
+          "file": "modules/M06_the_universal_machine_learning_workflow/T036_understanding_data_and_defining_success.py",
+          "source_line_ranges": [
+            [
+              123,
+              139
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T037",
+          "title": "Model Development Strategy",
+          "minutes": 45,
+          "file": "modules/M06_the_universal_machine_learning_workflow/T037_model_development_strategy.py",
+          "source_line_ranges": [
+            [
+              140,
+              232
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T038",
+          "title": "From a Baseline to a Generalizable Model",
+          "minutes": 40,
+          "file": "modules/M06_the_universal_machine_learning_workflow/T038_from_a_baseline_to_a_generalizable_model.py",
+          "source_line_ranges": [
+            [
+              234,
+              262
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T039",
+          "title": "Deployment Architecture and Model Lifecycle",
+          "minutes": 55,
+          "file": "modules/M06_the_universal_machine_learning_workflow/T039_deployment_architecture_and_model_lifecycle.py",
+          "source_line_ranges": [
+            [
+              264,
+              386
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M07",
+      "title": "Image Classification and CNN Fundamentals",
+      "arabic_title": "تصنيف الصور وأساسيات الشبكات الالتفافية",
+      "book_chapter": 8,
+      "learning_objective": "Explain CNN features, training and transfer learning.",
+      "duration_minutes": 310,
+      "lesson_count": 7,
+      "lessons": [
+        {
+          "id": "T040",
+          "title": "Understanding CNNs and Image Classification Shapes",
+          "minutes": 40,
+          "file": "modules/M07_image_classification_and_cnn_fundamentals/T040_understanding_cnns_and_image_classification_shapes.py",
+          "source_line_ranges": [
+            [
+              16,
+              117
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T041",
+          "title": "Convolution, Padding, and Strides",
+          "minutes": 45,
+          "file": "modules/M07_image_classification_and_cnn_fundamentals/T041_convolution_padding_and_strides.py",
+          "source_line_ranges": [
+            [
+              119,
+              192
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T042",
+          "title": "Pooling and Feature Hierarchies",
+          "minutes": 45,
+          "file": "modules/M07_image_classification_and_cnn_fundamentals/T042_pooling_and_feature_hierarchies.py",
+          "source_line_ranges": [
+            [
+              194,
+              251
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T043",
+          "title": "Small-Data Image Classification and Baselines",
+          "minutes": 45,
+          "file": "modules/M07_image_classification_and_cnn_fundamentals/T043_small_data_image_classification_and_baselines.py",
+          "source_line_ranges": [
+            [
+              253,
+              471
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T044",
+          "title": "Overfitting, Augmentation, and Dropout in Vision",
+          "minutes": 45,
+          "file": "modules/M07_image_classification_and_cnn_fundamentals/T044_overfitting_augmentation_and_dropout_in_vision.py",
+          "source_line_ranges": [
+            [
+              473,
+              813
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T045",
+          "title": "Pretrained CNNs and Frozen Feature Extraction",
+          "minutes": 45,
+          "file": "modules/M07_image_classification_and_cnn_fundamentals/T045_pretrained_cnns_and_frozen_feature_extraction.py",
+          "source_line_ranges": [
+            [
+              815,
+              996
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T046",
+          "title": "Fine-Tuning and Transfer Learning Trade-offs",
+          "minutes": 45,
+          "file": "modules/M07_image_classification_and_cnn_fundamentals/T046_fine_tuning_and_transfer_learning_trade_offs.py",
+          "source_line_ranges": [
+            [
+              997,
+              1174
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M08",
+      "title": "Advanced CNN Architecture Principles",
+      "arabic_title": "مبادئ معماريات CNN المتقدمة",
+      "book_chapter": 9,
+      "learning_objective": "Reason about CNN blocks, normalization and efficiency.",
+      "duration_minutes": 270,
+      "lesson_count": 6,
+      "lessons": [
+        {
+          "id": "T047",
+          "title": "Modularity, Hierarchy, and Reuse in CNN Architecture",
+          "minutes": 40,
+          "file": "modules/M08_advanced_cnn_architecture_principles/T047_modularity_hierarchy_and_reuse_in_cnn_architecture.py",
+          "source_line_ranges": [
+            [
+              17,
+              47
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T048",
+          "title": "Residual Connections and Gradient Propagation",
+          "minutes": 50,
+          "file": "modules/M08_advanced_cnn_architecture_principles/T048_residual_connections_and_gradient_propagation.py",
+          "source_line_ranges": [
+            [
+              49,
+              224
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T049",
+          "title": "Batch Normalization and Training Dynamics",
+          "minutes": 45,
+          "file": "modules/M08_advanced_cnn_architecture_principles/T049_batch_normalization_and_training_dynamics.py",
+          "source_line_ranges": [
+            [
+              226,
+              283
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T050",
+          "title": "Depthwise Separable Convolutions and Efficiency",
+          "minutes": 50,
+          "file": "modules/M08_advanced_cnn_architecture_principles/T050_depthwise_separable_convolutions_and_efficiency.py",
+          "source_line_ranges": [
+            [
+              285,
+              309
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T051",
+          "title": "Designing an Xception-Like CNN",
+          "minutes": 50,
+          "file": "modules/M08_advanced_cnn_architecture_principles/T051_designing_an_xception_like_cnn.py",
+          "source_line_ranges": [
+            [
+              311,
+              378
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T052",
+          "title": "Introduction to Vision Transformers",
+          "minutes": 35,
+          "file": "modules/M08_advanced_cnn_architecture_principles/T052_introduction_to_vision_transformers.py",
+          "source_line_ranges": [
+            [
+              380,
+              390
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M09",
+      "title": "Understanding and Interpreting CNN Decisions",
+      "arabic_title": "فهم قرارات الشبكات الالتفافية وتفسيرها",
+      "book_chapter": 10,
+      "learning_objective": "Interpret activations, filters and Grad-CAM cautiously.",
+      "duration_minutes": 220,
+      "lesson_count": 5,
+      "lessons": [
+        {
+          "id": "T053",
+          "title": "Visualizing Intermediate CNN Activations",
+          "minutes": 45,
+          "file": "modules/M09_understanding_and_interpreting_cnn_decisions/T053_visualizing_intermediate_cnn_activations.py",
+          "source_line_ranges": [
+            [
+              17,
+              216
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T054",
+          "title": "Interpreting Learned Visual Feature Hierarchies",
+          "minutes": 35,
+          "file": "modules/M09_understanding_and_interpreting_cnn_decisions/T054_interpreting_learned_visual_feature_hierarchies.py",
+          "source_line_ranges": [
+            [
+              218,
+              230
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T055",
+          "title": "Visualizing Filters with Gradient Ascent",
+          "minutes": 50,
+          "file": "modules/M09_understanding_and_interpreting_cnn_decisions/T055_visualizing_filters_with_gradient_ascent.py",
+          "source_line_ranges": [
+            [
+              232,
+              520
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T056",
+          "title": "Class Activation Maps and Grad-CAM",
+          "minutes": 55,
+          "file": "modules/M09_understanding_and_interpreting_cnn_decisions/T056_class_activation_maps_and_grad_cam.py",
+          "source_line_ranges": [
+            [
+              522,
+              794
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T057",
+          "title": "Interpreting CNN Visualizations Responsibly",
+          "minutes": 35,
+          "file": "modules/M09_understanding_and_interpreting_cnn_decisions/T057_interpreting_cnn_visualizations_responsibly.py",
+          "source_line_ranges": [
+            [
+              7,
+              15
+            ],
+            [
+              522,
+              528
+            ],
+            [
+              796,
+              808
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M10",
+      "title": "Image Segmentation and Promptable Vision Models",
+      "arabic_title": "تقسيم الصور ونماذج الرؤية الموجّهة",
+      "book_chapter": 11,
+      "learning_objective": "Reason about masks, segmentation networks and promptable models.",
+      "duration_minutes": 270,
+      "lesson_count": 6,
+      "lessons": [
+        {
+          "id": "T058",
+          "title": "Computer Vision Tasks and Segmentation Types",
+          "minutes": 40,
+          "file": "modules/M10_image_segmentation_and_promptable_vision_models/T058_computer_vision_tasks_and_segmentation_types.py",
+          "source_line_ranges": [
+            [
+              9,
+              39
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T059",
+          "title": "Segmentation Datasets, Masks, and Pixel Labels",
+          "minutes": 45,
+          "file": "modules/M10_image_segmentation_and_promptable_vision_models/T059_segmentation_datasets_masks_and_pixel_labels.py",
+          "source_line_ranges": [
+            [
+              41,
+              169
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T060",
+          "title": "Encoder-Decoder Architectures for Segmentation",
+          "minutes": 50,
+          "file": "modules/M10_image_segmentation_and_promptable_vision_models/T060_encoder_decoder_architectures_for_segmentation.py",
+          "source_line_ranges": [
+            [
+              171,
+              217
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T061",
+          "title": "Segmentation Loss, IoU, and Evaluation",
+          "minutes": 45,
+          "file": "modules/M10_image_segmentation_and_promptable_vision_models/T061_segmentation_loss_iou_and_evaluation.py",
+          "source_line_ranges": [
+            [
+              218,
+              311
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T062",
+          "title": "Pretrained Segmentation and SAM",
+          "minutes": 50,
+          "file": "modules/M10_image_segmentation_and_promptable_vision_models/T062_pretrained_segmentation_and_sam.py",
+          "source_line_ranges": [
+            [
+              313,
+              368
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T063",
+          "title": "Promptable Segmentation with Points and Boxes",
+          "minutes": 40,
+          "file": "modules/M10_image_segmentation_and_promptable_vision_models/T063_promptable_segmentation_with_points_and_boxes.py",
+          "source_line_ranges": [
+            [
+              370,
+              615
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M11",
+      "title": "Object Detection Fundamentals and Architectures",
+      "arabic_title": "أساسيات اكتشاف الأجسام ومعمارياته",
+      "book_chapter": 12,
+      "learning_objective": "Understand boxes, detector structures, targets and limitations.",
+      "duration_minutes": 315,
+      "lesson_count": 7,
+      "lessons": [
+        {
+          "id": "T064",
+          "title": "Object Detection and Bounding Boxes",
+          "minutes": 40,
+          "file": "modules/M11_object_detection_fundamentals_and_architectures/T064_object_detection_and_bounding_boxes.py",
+          "source_line_ranges": [
+            [
+              8,
+              22
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T065",
+          "title": "Single-Stage and Two-Stage Detectors",
+          "minutes": 40,
+          "file": "modules/M11_object_detection_fundamentals_and_architectures/T065_single_stage_and_two_stage_detectors.py",
+          "source_line_ranges": [
+            [
+              24,
+              53
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T066",
+          "title": "Detection Datasets and Coordinates",
+          "minutes": 45,
+          "file": "modules/M11_object_detection_fundamentals_and_architectures/T066_detection_datasets_and_coordinates.py",
+          "source_line_ranges": [
+            [
+              59,
+              214
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T067",
+          "title": "Understanding YOLO Detection Architecture",
+          "minutes": 50,
+          "file": "modules/M11_object_detection_fundamentals_and_architectures/T067_understanding_yolo_detection_architecture.py",
+          "source_line_ranges": [
+            [
+              216,
+              326
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T068",
+          "title": "Detection Targets, Box Losses, and IoU",
+          "minutes": 50,
+          "file": "modules/M11_object_detection_fundamentals_and_architectures/T068_detection_targets_box_losses_and_iou.py",
+          "source_line_ranges": [
+            [
+              328,
+              417
+            ],
+            [
+              448,
+              528
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T069",
+          "title": "Analyzing Detector Training and Predictions",
+          "minutes": 45,
+          "file": "modules/M11_object_detection_fundamentals_and_architectures/T069_analyzing_detector_training_and_predictions.py",
+          "source_line_ranges": [
+            [
+              419,
+              447
+            ],
+            [
+              530,
+              587
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T070",
+          "title": "Pretrained RetinaNet and Feature Pyramids",
+          "minutes": 45,
+          "file": "modules/M11_object_detection_fundamentals_and_architectures/T070_pretrained_retinanet_and_feature_pyramids.py",
+          "source_line_ranges": [
+            [
+              589,
+              665
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M12",
+      "title": "Time-Series Forecasting and Recurrent Networks",
+      "arabic_title": "التنبؤ بالسلاسل الزمنية والشبكات المتكررة",
+      "book_chapter": 13,
+      "learning_objective": "Build temporal baselines and reason about recurrent models.",
+      "duration_minutes": 400,
+      "lesson_count": 9,
+      "lessons": [
+        {
+          "id": "T071",
+          "title": "Time-Series Data and Prediction Tasks",
+          "minutes": 35,
+          "file": "modules/M12_time_series_forecasting_and_recurrent_networks/T071_time_series_data_and_prediction_tasks.py",
+          "source_line_ranges": [
+            [
+              9,
+              28
+            ],
+            [
+              98,
+              130
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T072",
+          "title": "Preparing Time Series Without Future Leakage",
+          "minutes": 50,
+          "file": "modules/M12_time_series_forecasting_and_recurrent_networks/T072_preparing_time_series_without_future_leakage.py",
+          "source_line_ranges": [
+            [
+              132,
+              277
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T073",
+          "title": "Forecasting Baselines and MAE",
+          "minutes": 40,
+          "file": "modules/M12_time_series_forecasting_and_recurrent_networks/T073_forecasting_baselines_and_mae.py",
+          "source_line_ranges": [
+            [
+              279,
+              315
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T074",
+          "title": "Dense Networks and Temporal Convolutions",
+          "minutes": 45,
+          "file": "modules/M12_time_series_forecasting_and_recurrent_networks/T074_dense_networks_and_temporal_convolutions.py",
+          "source_line_ranges": [
+            [
+              317,
+              426
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T075",
+          "title": "RNN State and Computation",
+          "minutes": 55,
+          "file": "modules/M12_time_series_forecasting_and_recurrent_networks/T075_rnn_state_and_computation.py",
+          "source_line_ranges": [
+            [
+              428,
+              559
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T076",
+          "title": "RNN Outputs and Stacked Layers",
+          "minutes": 35,
+          "file": "modules/M12_time_series_forecasting_and_recurrent_networks/T076_rnn_outputs_and_stacked_layers.py",
+          "source_line_ranges": [
+            [
+              560,
+              615
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T077",
+          "title": "LSTM and GRU Gating",
+          "minutes": 55,
+          "file": "modules/M12_time_series_forecasting_and_recurrent_networks/T077_lstm_and_gru_gating.py",
+          "source_line_ranges": [
+            [
+              617,
+              673
+            ],
+            [
+              751,
+              760
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T078",
+          "title": "Recurrent Dropout, Capacity, and Training",
+          "minutes": 45,
+          "file": "modules/M12_time_series_forecasting_and_recurrent_networks/T078_recurrent_dropout_capacity_and_training.py",
+          "source_line_ranges": [
+            [
+              675,
+              792
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T079",
+          "title": "Bidirectional RNNs and Architecture Selection",
+          "minutes": 40,
+          "file": "modules/M12_time_series_forecasting_and_recurrent_networks/T079_bidirectional_rnns_and_architecture_selection.py",
+          "source_line_ranges": [
+            [
+              794,
+              864
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M13",
+      "title": "Text Classification and Neural Representations",
+      "arabic_title": "تصنيف النصوص وتمثيل اللغة",
+      "book_chapter": 14,
+      "learning_objective": "Trace tokenization, text representations and embedding transfer.",
+      "duration_minutes": 450,
+      "lesson_count": 10,
+      "lessons": [
+        {
+          "id": "T080",
+          "title": "Introduction to NLP and Text Classification",
+          "minutes": 30,
+          "file": "modules/M13_text_classification_and_neural_representations/T080_introduction_to_nlp_and_text_classification.py",
+          "source_line_ranges": [
+            [
+              9,
+              35
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T081",
+          "title": "Text Preprocessing Pipeline",
+          "minutes": 50,
+          "file": "modules/M13_text_classification_and_neural_representations/T081_text_preprocessing_pipeline.py",
+          "source_line_ranges": [
+            [
+              37,
+              145
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T082",
+          "title": "Character, Word, and Subword Tokenization",
+          "minutes": 55,
+          "file": "modules/M13_text_classification_and_neural_representations/T082_character_word_and_subword_tokenization.py",
+          "source_line_ranges": [
+            [
+              147,
+              527
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T083",
+          "title": "Preparing a Text Classification Dataset",
+          "minutes": 35,
+          "file": "modules/M13_text_classification_and_neural_representations/T083_preparing_a_text_classification_dataset.py",
+          "source_line_ranges": [
+            [
+              529,
+              637
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T084",
+          "title": "Bag-of-Words, N-grams, and Classifiers",
+          "minutes": 50,
+          "file": "modules/M13_text_classification_and_neural_representations/T084_bag_of_words_n_grams_and_classifiers.py",
+          "source_line_ranges": [
+            [
+              639,
+              903
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T085",
+          "title": "Ordered Sequences, Padding, and Masking",
+          "minutes": 40,
+          "file": "modules/M13_text_classification_and_neural_representations/T085_ordered_sequences_padding_and_masking.py",
+          "source_line_ranges": [
+            [
+              905,
+              980
+            ],
+            [
+              1159,
+              1173
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T086",
+          "title": "Recurrent Networks for Text Classification",
+          "minutes": 40,
+          "file": "modules/M13_text_classification_and_neural_representations/T086_recurrent_networks_for_text_classification.py",
+          "source_line_ranges": [
+            [
+              982,
+              1093
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T087",
+          "title": "Word Embeddings and Vector Spaces",
+          "minutes": 50,
+          "file": "modules/M13_text_classification_and_neural_representations/T087_word_embeddings_and_vector_spaces.py",
+          "source_line_ranges": [
+            [
+              1094,
+              1224
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T088",
+          "title": "CBOW Self-Supervised Pretraining",
+          "minutes": 55,
+          "file": "modules/M13_text_classification_and_neural_representations/T088_cbow_self_supervised_pretraining.py",
+          "source_line_ranges": [
+            [
+              1236,
+              1433
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T089",
+          "title": "Evaluating Text Representations and Complexity",
+          "minutes": 45,
+          "file": "modules/M13_text_classification_and_neural_representations/T089_evaluating_text_representations_and_complexity.py",
+          "source_line_ranges": [
+            [
+              797,
+              823
+            ],
+            [
+              1217,
+              1234
+            ],
+            [
+              1423,
+              1452
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M14",
+      "title": "Language Models, Attention, and Transformers",
+      "arabic_title": "النماذج اللغوية والانتباه والمحوّلات",
+      "book_chapter": 15,
+      "learning_objective": "Derive attention and trace sequence-model information flow.",
+      "duration_minutes": 660,
+      "lesson_count": 14,
+      "lessons": [
+        {
+          "id": "T090",
+          "title": "Language Modeling and Next-Token Prediction",
+          "minutes": 45,
+          "file": "modules/M14_language_models_attention_and_transformers/T090_language_modeling_and_next_token_prediction.py",
+          "source_line_ranges": [
+            [
+              9,
+              193
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T091",
+          "title": "Autoregressive Generation and Training-Inference Differences",
+          "minutes": 45,
+          "file": "modules/M14_language_models_attention_and_transformers/T091_autoregressive_generation_and_training_inference_differences.py",
+          "source_line_ranges": [
+            [
+              195,
+              303
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T092",
+          "title": "Sequence-to-Sequence Translation Data",
+          "minutes": 45,
+          "file": "modules/M14_language_models_attention_and_transformers/T092_sequence_to_sequence_translation_data.py",
+          "source_line_ranges": [
+            [
+              304,
+              467
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T093",
+          "title": "RNN Encoder-Decoder and Limitations",
+          "minutes": 50,
+          "file": "modules/M14_language_models_attention_and_transformers/T093_rnn_encoder_decoder_and_limitations.py",
+          "source_line_ranges": [
+            [
+              469,
+              636
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T094",
+          "title": "Attention and Contextual Selection",
+          "minutes": 45,
+          "file": "modules/M14_language_models_attention_and_transformers/T094_attention_and_contextual_selection.py",
+          "source_line_ranges": [
+            [
+              638,
+              707
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T095",
+          "title": "Dot-Product Attention and QKV",
+          "minutes": 55,
+          "file": "modules/M14_language_models_attention_and_transformers/T095_dot_product_attention_and_qkv.py",
+          "source_line_ranges": [
+            [
+              686,
+              759
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T096",
+          "title": "Scaled Dot-Product and Multi-Head Attention",
+          "minutes": 50,
+          "file": "modules/M14_language_models_attention_and_transformers/T096_scaled_dot_product_and_multi_head_attention.py",
+          "source_line_ranges": [
+            [
+              761,
+              803
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T097",
+          "title": "Transformer Encoder Internals",
+          "minutes": 50,
+          "file": "modules/M14_language_models_attention_and_transformers/T097_transformer_encoder_internals.py",
+          "source_line_ranges": [
+            [
+              805,
+              890
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T098",
+          "title": "Transformer Decoder Causal and Cross Attention",
+          "minutes": 55,
+          "file": "modules/M14_language_models_attention_and_transformers/T098_transformer_decoder_causal_and_cross_attention.py",
+          "source_line_ranges": [
+            [
+              892,
+              959
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T099",
+          "title": "Positional Embeddings and Sequence Order",
+          "minutes": 40,
+          "file": "modules/M14_language_models_attention_and_transformers/T099_positional_embeddings_and_sequence_order.py",
+          "source_line_ranges": [
+            [
+              1051,
+              1118
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T100",
+          "title": "Complete Transformer Translation Pipeline",
+          "minutes": 45,
+          "file": "modules/M14_language_models_attention_and_transformers/T100_complete_transformer_translation_pipeline.py",
+          "source_line_ranges": [
+            [
+              961,
+              1189
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T101",
+          "title": "Causal Versus Masked Language-Model Pretraining",
+          "minutes": 45,
+          "file": "modules/M14_language_models_attention_and_transformers/T101_causal_versus_masked_language_model_pretraining.py",
+          "source_line_ranges": [
+            [
+              1190,
+              1211
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T102",
+          "title": "Pretrained RoBERTa Classification Adaptation",
+          "minutes": 50,
+          "file": "modules/M14_language_models_attention_and_transformers/T102_pretrained_roberta_classification_adaptation.py",
+          "source_line_ranges": [
+            [
+              1212,
+              1425
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T103",
+          "title": "Transformer Capabilities and Limitations",
+          "minutes": 40,
+          "file": "modules/M14_language_models_attention_and_transformers/T103_transformer_capabilities_and_limitations.py",
+          "source_line_ranges": [
+            [
+              1427,
+              1479
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M15",
+      "title": "Generative Language Models and LLM Foundations",
+      "arabic_title": "النماذج اللغوية التوليدية وأساسيات LLM",
+      "book_chapter": 16,
+      "learning_objective": "Explain decoder-only models, adaptation and generative inference.",
+      "duration_minutes": 660,
+      "lesson_count": 14,
+      "lessons": [
+        {
+          "id": "T104",
+          "title": "Sequence Generation and Generative Pretraining",
+          "minutes": 35,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T104_sequence_generation_and_generative_pretraining.py",
+          "source_line_ranges": [
+            [
+              1,
+              79
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T105",
+          "title": "Decoder-Only Transformer Architecture",
+          "minutes": 50,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T105_decoder_only_transformer_architecture.py",
+          "source_line_ranges": [
+            [
+              202,
+              307
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T106",
+          "title": "Preparing Language-Model Pretraining Data",
+          "minutes": 45,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T106_preparing_language_model_pretraining_data.py",
+          "source_line_ranges": [
+            [
+              81,
+              200
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T107",
+          "title": "Understanding LLM Pretraining",
+          "minutes": 45,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T107_understanding_llm_pretraining.py",
+          "source_line_ranges": [
+            [
+              280,
+              386
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T108",
+          "title": "Autoregressive Inference and KV Caching",
+          "minutes": 45,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T108_autoregressive_inference_and_kv_caching.py",
+          "source_line_ranges": [
+            [
+              389,
+              464
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T109",
+          "title": "Greedy, Temperature, and Top-k Sampling",
+          "minutes": 55,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T109_greedy_temperature_and_top_k_sampling.py",
+          "source_line_ranges": [
+            [
+              465,
+              594
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T110",
+          "title": "Pretrained LLMs, Prompting, and Reliability",
+          "minutes": 55,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T110_pretrained_llms_prompting_and_reliability.py",
+          "source_line_ranges": [
+            [
+              596,
+              729
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T111",
+          "title": "Supervised Instruction Fine-Tuning",
+          "minutes": 40,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T111_supervised_instruction_fine_tuning.py",
+          "source_line_ranges": [
+            [
+              730,
+              816
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T112",
+          "title": "LoRA and Parameter-Efficient Fine-Tuning",
+          "minutes": 50,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T112_lora_and_parameter_efficient_fine_tuning.py",
+          "source_line_ranges": [
+            [
+              817,
+              929
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T113",
+          "title": "Reinforcement Learning from Human Feedback",
+          "minutes": 55,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T113_reinforcement_learning_from_human_feedback.py",
+          "source_line_ranges": [
+            [
+              996,
+              1100
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T114",
+          "title": "Multimodal LLMs: Images and Text",
+          "minutes": 45,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T114_multimodal_llms_images_and_text.py",
+          "source_line_ranges": [
+            [
+              1101,
+              1177
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T115",
+          "title": "Foundation Models and RAG",
+          "minutes": 50,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T115_foundation_models_and_rag.py",
+          "source_line_ranges": [
+            [
+              1178,
+              1214
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T116",
+          "title": "Reasoning-Oriented Language Models",
+          "minutes": 45,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T116_reasoning_oriented_language_models.py",
+          "source_line_ranges": [
+            [
+              1215,
+              1283
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T117",
+          "title": "LLM Scaling, Resources, and Limitations",
+          "minutes": 45,
+          "file": "modules/M15_generative_language_models_and_llm_foundations/T117_llm_scaling_resources_and_limitations.py",
+          "source_line_ranges": [
+            [
+              1285,
+              1323
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M16",
+      "title": "Generative Image Models and Latent Spaces",
+      "arabic_title": "نماذج توليد الصور والفضاءات الكامنة",
+      "book_chapter": 17,
+      "learning_objective": "Explain VAEs, diffusion, text conditioning and interpolation.",
+      "duration_minutes": 515,
+      "lesson_count": 11,
+      "lessons": [
+        {
+          "id": "T118",
+          "title": "Generative Image Models and Latent Spaces",
+          "minutes": 40,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T118_generative_image_models_and_latent_spaces.py",
+          "source_line_ranges": [
+            [
+              10,
+              38
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T119",
+          "title": "From Autoencoders to VAEs",
+          "minutes": 45,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T119_from_autoencoders_to_vaes.py",
+          "source_line_ranges": [
+            [
+              40,
+              58
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T120",
+          "title": "VAE Reparameterization and KL Divergence",
+          "minutes": 55,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T120_vae_reparameterization_and_kl_divergence.py",
+          "source_line_ranges": [
+            [
+              60,
+              85
+            ],
+            [
+              149,
+              174
+            ],
+            [
+              265,
+              281
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T121",
+          "title": "Understanding a VAE Architecture",
+          "minutes": 50,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T121_understanding_a_vae_architecture.py",
+          "source_line_ranges": [
+            [
+              87,
+              357
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T122",
+          "title": "Diffusion and Iterative Denoising",
+          "minutes": 45,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T122_diffusion_and_iterative_denoising.py",
+          "source_line_ranges": [
+            [
+              361,
+              380
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T123",
+          "title": "U-Net Architecture for Noise Prediction",
+          "minutes": 45,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T123_u_net_architecture_for_noise_prediction.py",
+          "source_line_ranges": [
+            [
+              383,
+              512
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T124",
+          "title": "Diffusion Time, Schedules, and Signal Mixing",
+          "minutes": 50,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T124_diffusion_time_schedules_and_signal_mixing.py",
+          "source_line_ranges": [
+            [
+              514,
+              565
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T125",
+          "title": "Diffusion Noise-Prediction Training",
+          "minutes": 50,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T125_diffusion_noise_prediction_training.py",
+          "source_line_ranges": [
+            [
+              567,
+              651
+            ],
+            [
+              719,
+              775
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T126",
+          "title": "Reverse Diffusion Sampling and Evaluation",
+          "minutes": 45,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T126_reverse_diffusion_sampling_and_evaluation.py",
+          "source_line_ranges": [
+            [
+              652,
+              785
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T127",
+          "title": "Text-to-Image Diffusion and Conditioning",
+          "minutes": 50,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T127_text_to_image_diffusion_and_conditioning.py",
+          "source_line_ranges": [
+            [
+              787,
+              859
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T128",
+          "title": "Generative Representation Interpolation",
+          "minutes": 40,
+          "file": "modules/M16_generative_image_models_and_latent_spaces/T128_generative_representation_interpolation.py",
+          "source_line_ranges": [
+            [
+              861,
+              1004
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M17",
+      "title": "Model Optimization and Efficient Deep Learning",
+      "arabic_title": "تحسين النماذج وكفاءة التعلم العميق",
+      "book_chapter": 18,
+      "learning_objective": "Reason about tuning, distribution, precision and quantization.",
+      "duration_minutes": 470,
+      "lesson_count": 10,
+      "lessons": [
+        {
+          "id": "T129",
+          "title": "Understanding Hyperparameter Optimization",
+          "minutes": 45,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T129_understanding_hyperparameter_optimization.py",
+          "source_line_ranges": [
+            [
+              15,
+              44
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T130",
+          "title": "Reliable Hyperparameter Search Experiments",
+          "minutes": 50,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T130_reliable_hyperparameter_search_experiments.py",
+          "source_line_ranges": [
+            [
+              46,
+              310
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T131",
+          "title": "Model Ensembling and Diversity",
+          "minutes": 45,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T131_model_ensembling_and_diversity.py",
+          "source_line_ranges": [
+            [
+              312,
+              354
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T132",
+          "title": "Distributed Training and Data Parallelism",
+          "minutes": 50,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T132_distributed_training_and_data_parallelism.py",
+          "source_line_ranges": [
+            [
+              355,
+              389
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T133",
+          "title": "Model Parallelism, Sharding, and Meshes",
+          "minutes": 55,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T133_model_parallelism_sharding_and_meshes.py",
+          "source_line_ranges": [
+            [
+              390,
+              432
+            ],
+            [
+              482,
+              627
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T134",
+          "title": "Training Throughput and TPUs",
+          "minutes": 40,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T134_training_throughput_and_tpus.py",
+          "source_line_ranges": [
+            [
+              434,
+              481
+            ],
+            [
+              629,
+              654
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T135",
+          "title": "Floating-Point Precision Trade-offs",
+          "minutes": 45,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T135_floating_point_precision_trade_offs.py",
+          "source_line_ranges": [
+            [
+              656,
+              715
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T136",
+          "title": "Mixed-Precision Training and Loss Scaling",
+          "minutes": 55,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T136_mixed_precision_training_and_loss_scaling.py",
+          "source_line_ranges": [
+            [
+              717,
+              760
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T137",
+          "title": "Understanding Float8 Training",
+          "minutes": 35,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T137_understanding_float8_training.py",
+          "source_line_ranges": [
+            [
+              762,
+              771
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T138",
+          "title": "Quantization and Efficient Inference",
+          "minutes": 50,
+          "file": "modules/M17_model_optimization_and_efficient_deep_learning/T138_quantization_and_efficient_inference.py",
+          "source_line_ranges": [
+            [
+              772,
+              843
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M18",
+      "title": "Deep Learning Limitations and Future Directions",
+      "arabic_title": "حدود التعلم العميق واتجاهات البحث",
+      "book_chapter": 19,
+      "learning_objective": "Analyze claims about generalization, adaptation and symbolic reasoning.",
+      "duration_minutes": 315,
+      "lesson_count": 7,
+      "lessons": [
+        {
+          "id": "T139",
+          "title": "Failure Modes: Novelty, Sensitivity, and Algorithms",
+          "minutes": 50,
+          "file": "modules/M18_deep_learning_limitations_and_future_directions/T139_failure_modes_novelty_sensitivity_and_algorithms.py",
+          "source_line_ranges": [
+            [
+              10,
+              82
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T140",
+          "title": "Model Scaling and the Spectrum of Generalization",
+          "minutes": 45,
+          "file": "modules/M18_deep_learning_limitations_and_future_directions/T140_model_scaling_and_the_spectrum_of_generalization.py",
+          "source_line_ranges": [
+            [
+              84,
+              153
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T141",
+          "title": "Abstraction Acquisition and Recombination",
+          "minutes": 45,
+          "file": "modules/M18_deep_learning_limitations_and_future_directions/T141_abstraction_acquisition_and_recombination.py",
+          "source_line_ranges": [
+            [
+              154,
+              213
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T142",
+          "title": "Test-Time Adaptation and ARC-AGI",
+          "minutes": 45,
+          "file": "modules/M18_deep_learning_limitations_and_future_directions/T142_test_time_adaptation_and_arc_agi.py",
+          "source_line_ranges": [
+            [
+              214,
+              272
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T143",
+          "title": "Value-Centric and Program-Centric Abstraction",
+          "minutes": 45,
+          "file": "modules/M18_deep_learning_limitations_and_future_directions/T143_value_centric_and_program_centric_abstraction.py",
+          "source_line_ranges": [
+            [
+              273,
+              339
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T144",
+          "title": "Program Synthesis and Hybrid AI",
+          "minutes": 45,
+          "file": "modules/M18_deep_learning_limitations_and_future_directions/T144_program_synthesis_and_hybrid_ai.py",
+          "source_line_ranges": [
+            [
+              340,
+              392
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T145",
+          "title": "Modular Recombination and Lifelong Learning",
+          "minutes": 40,
+          "file": "modules/M18_deep_learning_limitations_and_future_directions/T145_modular_recombination_and_lifelong_learning.py",
+          "source_line_ranges": [
+            [
+              393,
+              421
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    },
+    {
+      "module_id": "M19",
+      "title": "Deep Learning Synthesis and Course Completion",
+      "arabic_title": "مراجعة شاملة وإتمام المساق",
+      "book_chapter": 20,
+      "learning_objective": "Synthesize concepts and prepare for applied study.",
+      "duration_minutes": 85,
+      "lesson_count": 2,
+      "lessons": [
+        {
+          "id": "T146",
+          "title": "Deep Learning Knowledge Map and Architecture Review",
+          "minutes": 45,
+          "file": "modules/M19_deep_learning_synthesis_and_course_completion/T146_deep_learning_knowledge_map_and_architecture_review.py",
+          "source_line_ranges": [
+            [
+              10,
+              61
+            ],
+            [
+              74,
+              260
+            ]
+          ],
+          "project_defined": false
+        },
+        {
+          "id": "T147",
+          "title": "From Foundations to Practice and Research Literacy",
+          "minutes": 40,
+          "file": "modules/M19_deep_learning_synthesis_and_course_completion/T147_from_foundations_to_practice_and_research_literacy.py",
+          "source_line_ranges": [
+            [
+              62,
+              73
+            ],
+            [
+              261,
+              309
+            ]
+          ],
+          "project_defined": true
+        }
+      ]
+    }
+  ],
+  "book_chapters": [
+    {
+      "chapter": 1,
+      "title": "What is deep learning?",
+      "source_file": "تم لصق markdown(20260923-014224).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 2,
+      "title": "Mathematical building blocks of neural networks",
+      "source_file": "تم لصق markdown(20260923-014326).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 3,
+      "title": "Introduction to TensorFlow, PyTorch, JAX, and Keras",
+      "source_file": "تم لصق markdown(20260923-014500).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 4,
+      "title": "Classification and regression",
+      "source_file": "تم لصق markdown(20260923-014601).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 5,
+      "title": "Fundamentals of machine learning",
+      "source_file": "تم لصق markdown(20260923-014728).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 6,
+      "title": "The universal workflow of machine learning",
+      "source_file": "تم لصق markdown(20260923-014830).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 8,
+      "title": "Image classification",
+      "source_file": "تم لصق markdown(20260923-015008).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 9,
+      "title": "ConvNet architecture patterns",
+      "source_file": "تم لصق markdown(20260923-015121).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 10,
+      "title": "Interpreting what ConvNets learn",
+      "source_file": "تم لصق markdown(20260923-015219).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 11,
+      "title": "Image segmentation",
+      "source_file": "تم لصق markdown(20260923-015315).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 12,
+      "title": "Object detection",
+      "source_file": "تم لصق markdown(20260923-015421).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 13,
+      "title": "Timeseries forecasting",
+      "source_file": "تم لصق markdown(20260923-015526).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 14,
+      "title": "Text classification",
+      "source_file": "تم لصق markdown(20260923-015643).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 15,
+      "title": "Language models and the Transformer",
+      "source_file": "تم لصق markdown(20260923-015925).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 16,
+      "title": "Text generation",
+      "source_file": "تم لصق markdown(20260923-020108).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 17,
+      "title": "Image generation",
+      "source_file": "تم لصق markdown(20260923-020252).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 18,
+      "title": "Best practices for the real world",
+      "source_file": "تم لصق markdown(20260923-020454).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 19,
+      "title": "The future of AI",
+      "source_file": "تم لصق markdown(20260923-020653).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 20,
+      "title": "Conclusion",
+      "source_file": "تم لصق markdown (2).md",
+      "status": "reviewed, incorporated"
+    },
+    {
+      "chapter": 7,
+      "title": "A Deep Dive on Keras",
+      "status": "excluded; no lessons"
+    }
+  ],
+  "source_boundary": "Only uploaded chapter excerpts and prior source-reviewed course plans. Citation ranges are source-file lines, not printed pages.",
+  "note": "Difficulty is a portable string; map to app.models.learning.DifficultyLevel when adapting to the actual backend."
+}

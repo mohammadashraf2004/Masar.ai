@@ -43,7 +43,7 @@ export function SkillGapIntroDialog() {
         <>
           <Link
             ref={cta}
-            href="/learn"
+            href="/learn/masar"
             onClick={acknowledge}
             className={buttonStyles({ className: 'w-full sm:w-auto' })}
           >

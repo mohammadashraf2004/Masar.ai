@@ -1,0 +1,106 @@
+[
+  {
+    "priority": "required",
+    "figure": "1.20",
+    "title": "RGB versus HSV color space",
+    "target_lesson": "L014-004",
+    "suggested_asset": "assets/m014-01/rgb-vs-hsv-color-space.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "1.33",
+    "title": "Image vs NumPy 2D array coordinates",
+    "target_lesson": "L014-005",
+    "suggested_asset": "assets/m014-01/image-array-coordinates.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "optional",
+    "figure": "1.1",
+    "title": "Images as multimodal arrays and matrices",
+    "target_lesson": "L014-002",
+    "suggested_asset": "assets/m014-01/image-as-array.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "2.5",
+    "title": "Forward vs backward/inverse warping",
+    "target_lesson": "L014-010",
+    "suggested_asset": "assets/m014-02/forward-vs-inverse-warping.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "2.27",
+    "title": "Center-rotation transform composition",
+    "target_lesson": "L014-011",
+    "suggested_asset": "assets/m014-02/center-rotation-transform-composition.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "4.42",
+    "title": "Repeated image / DFT periodic extension",
+    "target_lesson": "L014-025",
+    "suggested_asset": "assets/m014-03/dft-periodic-extension.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "optional",
+    "figure": "4.15",
+    "title": "DFT and IDFT",
+    "target_lesson": "L014-021",
+    "suggested_asset": "assets/m014-03/spatial-frequency-transform-flow.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "5.1",
+    "title": "Convolution of an image with a kernel",
+    "target_lesson": "L014-027",
+    "suggested_asset": "assets/m014-04/convolution-sliding-window.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "5.9",
+    "title": "2D correlation versus convolution numeric example",
+    "target_lesson": "L014-030",
+    "suggested_asset": "assets/m014-04/convolution-vs-correlation.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "7.9",
+    "title": "Floyd–Steinberg error-diffusion neighborhood",
+    "target_lesson": "L014-044",
+    "suggested_asset": "assets/m014-06/floyd-steinberg-error-diffusion.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "8.1",
+    "title": "Partial derivatives and gradient of image",
+    "target_lesson": "L014-052",
+    "suggested_asset": "assets/m014-07/image-gradient-geometry.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "8.3",
+    "title": "Second-order derivatives and the Laplacian",
+    "target_lesson": "L014-052",
+    "suggested_asset": "assets/m014-07/first-second-derivatives-zero-crossing.svg",
+    "preference": "Masar-original redraw"
+  },
+  {
+    "priority": "required",
+    "figure": "9.1",
+    "title": "Image restoration process",
+    "target_lesson": "L014-061",
+    "suggested_asset": "assets/m014-08/image-degradation-restoration-model.svg",
+    "preference": "Masar-original redraw"
+  }
+]

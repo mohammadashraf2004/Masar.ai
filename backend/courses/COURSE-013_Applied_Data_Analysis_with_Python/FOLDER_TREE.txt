@@ -1,0 +1,131 @@
+COURSE-013_Applied_Data_Analysis_with_Python/
+├── M013-01_data_analysis_workflow_roles_python_workspace/
+│   ├── module_manifest.json
+│   ├── module_project.py
+│   └── L013-001_from_business_questions_to_data_insights.py
+│   └── L013-002_choosing_a_data_analysis_methodology.py
+│   └── L013-003_roles_in_a_modern_data_team.py
+│   └── L013-004_the_python_data_analysis_ecosystem.py
+│   └── L013-005_build_a_reproducible_python_analytics_environment.py
+│   └── L013-006_jupyter_ipython_vs_code_for_analytical_work.py
+├── M013-02_numpy_pandas_for_analytical_data_work/
+│   ├── module_manifest.json
+│   ├── module_project.py
+│   └── L013-007_numpy_arrays_shapes_data_types.py
+│   └── L013-008_reshaping_combining_splitting_arrays.py
+│   └── L013-009_numpy_indexing_slicing_filtering.py
+│   └── L013-010_views_copies_vectorization_broadcasting.py
+│   └── L013-011_pandas_series_dataframes.py
+│   └── L013-012_selecting_filtering_querying_tabular_data.py
+│   └── L013-013_groupby_aggregation_pivot_tables.py
+│   └── L013-014_combining_dataframes_with_merge_join_concat.py
+│   └── L013-015_missing_data_foundations.py
+│   └── L013-016_datetime_data_for_analysts.py
+├── M013-03_practical_statistics_experimentation_for_data_analysts/
+│   ├── module_manifest.json
+│   ├── module_project.py
+│   └── L013-017_data_types_measurement_scales_analytical_choices.py
+│   └── L013-018_describing_data_center_spread_robust_summaries.py
+│   └── L013-019_understanding_distribution_shape_skew_outliers.py
+│   └── L013-020_covariance_correlation_association.py
+│   └── L013-021_sampling_sampling_bias_statistical_uncertainty.py
+│   └── L013-022_hypothesis_testing_without_the_common_mistakes.py
+│   └── L013-023_choosing_the_right_statistical_test.py
+│   └── L013-024_a_b_testing_product_experimentation.py
+│   └── L013-025_bayesian_reasoning_for_analysts.py
+│   └── L013-026_probability_distributions_simulation.py
+│   └── L013-027_distribution_diagnostics_normality.py
+├── M013-04_linear_algebra_essentials_for_data_analysis/
+│   ├── module_manifest.json
+│   ├── guided_lab.py
+│   └── L013-028_thinking_in_scalars_vectors_matrices_tensors.py
+│   └── L013-029_matrix_operations_for_analytical_computation.py
+│   └── L013-030_eigenvalues_svd_dimensionality_reduction_intuition.py
+├── M013-05_visual_analysis_interactive_dashboards/
+│   ├── module_manifest.json
+│   ├── module_project.py
+│   └── L013-031_from_analytical_question_to_the_right_chart.py
+│   └── L013-032_matplotlib_fundamentals_for_analytical_graphics.py
+│   └── L013-033_honest_accessible_decision_ready_visual_design.py
+│   └── L013-034_rapid_eda_with_pandas_seaborn.py
+│   └── L013-035_statistical_visualization_for_eda.py
+│   └── L013-036_interactive_analytics_with_plotly.py
+│   └── L013-037_interactive_controls_layers_analytical_timelines.py
+│   └── L013-038_building_analytical_applications_with_dash.py
+│   └── L013-039_dashboard_design_state_stakeholder_delivery.py
+├── M013-06_data_retrieval_storage_ingestion/
+│   ├── module_manifest.json
+│   ├── module_project.py
+│   └── L013-040_choosing_the_right_data_source_storage_format.py
+│   └── L013-041_csv_excel_ingestion_for_business_data.py
+│   └── L013-042_json_html_tables_semi_structured_data.py
+│   └── L013-043_parquet_hdf5_analytical_persistence.py
+│   └── L013-044_sql_databases_from_pandas.py
+│   └── L013-045_understanding_the_nosql_landscape.py
+│   └── L013-046_cloud_object_storage_for_analytics.py
+│   └── L013-047_apis_pagination_reliable_data_ingestion.py
+├── M013-07_data_cleaning_quality_feature_engineering/
+│   ├── module_manifest.json
+│   ├── module_project.py
+│   └── L013-048_data_quality_auditing_before_cleaning.py
+│   └── L013-049_understanding_missing_data.py
+│   └── L013-050_missing_data_treatment_imputation.py
+│   └── L013-051_detecting_outliers_without_automatically_deleting_them.py
+│   └── L013-052_treating_outliers_skewed_features.py
+│   └── L013-053_cleaning_encoding_categorical_data.py
+│   └── L013-054_feature_transformation_business_feature_engineering.py
+│   └── L013-055_reproducible_cleaning_pipelines_ai_assisted_review.py
+├── M013-08_time_series_analysis_forecasting/
+│   ├── module_manifest.json
+│   ├── module_project.py
+│   └── L013-056_time_series_data_frequency_temporal_structure.py
+│   └── L013-057_lags_rolling_windows_autocorrelation.py
+│   └── L013-058_trend_seasonality_cycles_decomposition.py
+│   └── L013-059_stationarity_differencing_transformations.py
+│   └── L013-060_forecasting_baselines_exponential_smoothing.py
+│   └── L013-061_ar_ma_arima_sarima_intuition.py
+│   └── L013-062_exogenous_variables_with_arimax_sarimax.py
+│   └── L013-063_temporal_validation_forecast_accuracy.py
+│   └── L013-064_forecast_diagnostics_business_communication.py
+├── M013-09_applied_predictive_analytics/
+│   ├── module_manifest.json
+│   ├── module_project.py
+│   └── L013-065_from_business_question_to_predictive_problem.py
+│   └── L013-066_linear_regression_for_explanation_prediction.py
+│   └── L013-067_multiple_regression_diagnostics_model_complexity.py
+│   └── L013-068_logistic_regression_probabilistic_classification.py
+│   └── L013-069_comparing_practical_classifier_families.py
+│   └── L013-070_leakage_safe_preprocessing_with_pipelines.py
+│   └── L013-071_evaluating_regression_models.py
+│   └── L013-072_classification_metrics_imbalance_decision_thresholds.py
+│   └── L013-073_train_test_splits_cross_validation_final_model_comparison.py
+│   └── L013-082_why_ensembles_work_bias_variance_bagging_boosting.py
+│   └── L013-083_random_forest_extra_trees_for_tabular_analytics.py
+│   └── L013-084_gradient_boosting_regularization_xgboost.py
+│   └── L013-085_voting_stacking_when_combining_different_models_helps.py
+│   └── L013-086_selecting_validating_explaining_ensemble_models.py
+│   └── L013-087_neural_networks_for_tabular_data_analyst_level_literacy.py
+│   └── L013-088_deep_learning_architecture_literacy_for_data_analysts.py
+├── M013-10_segmentation_dimensionality_reduction_anomaly_detection/
+│   ├── module_manifest.json
+│   ├── module_project.py
+│   └── L013-074_finding_structure_without_labels.py
+│   └── L013-075_pca_from_correlated_features_to_principal_components.py
+│   └── L013-076_interpreting_pca_loadings_low_dimensional_maps.py
+│   └── L013-077_customer_segmentation_with_k_means.py
+│   └── L013-078_choosing_between_k_means_hierarchical_clustering_dbscan.py
+│   └── L013-079_evaluating_validating_customer_segments.py
+│   └── L013-080_global_local_anomaly_detection.py
+│   └── L013-081_investigating_anomalies_building_a_review_workflow.py
+├── final_capstone/
+│   ├── capstone.py
+│   └── README.md
+├── assets_manifest.json
+├── course_manifest.json
+├── modules_manifest.json
+├── course_data.py
+├── load_course.py
+├── seed_course_013.py
+├── validate_course.py
+├── requirements.txt
+└── README.md

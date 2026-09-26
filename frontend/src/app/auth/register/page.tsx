@@ -30,7 +30,6 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const legalId = useId()
-  const hintId = useId()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -42,7 +41,7 @@ export default function RegisterPage() {
       // decided by the server, never by this page.
       const data = await api.register({ ...form, accept_terms: true, accept_privacy: true })
       setAuth(data.access_token, data.user, data.expires_in)
-      router.replace('/onboarding/learning-profile')
+      router.replace('/onboarding/quick')
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {
@@ -50,7 +49,7 @@ export default function RegisterPage() {
     }
   }
 
-  const link = 'text-amber underline underline-offset-2 hover:text-amber2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber'
+  const link = 'text-amber-text underline underline-offset-2 hover:text-amber-text2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring'
 
   return (
     <div className="min-h-dvh bg-void flex items-center justify-center px-6 py-12">
@@ -93,16 +92,19 @@ export default function RegisterPage() {
             required
           />
 
-          {/* A real checkbox with its own label. The two documents open in a
-              new tab so the form (and what was typed into it) is not lost. */}
+          {/* A real checkbox with its own label; the label is the only place the agreement
+              is stated. (A second line under it used to say the same thing again, as the
+              reason the button was disabled - the checkbox is that reason, and `required`
+              tells a screen reader so.) The two documents open in a new tab so the form
+              (and what was typed into it) is not lost. */}
           <div className="flex items-start gap-3">
             <input
               id={legalId}
               type="checkbox"
               checked={accepted}
               onChange={e => setAccepted(e.target.checked)}
-              aria-describedby={hintId}
-              className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded border-border accent-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+              required
+              className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded border-border accent-amber focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             />
             <label htmlFor={legalId} className="min-h-[44px] flex-1 cursor-pointer py-0.5 text-sm leading-relaxed text-soft">
               {t('legal.agree.prefix')}
@@ -112,11 +114,6 @@ export default function RegisterPage() {
               {t('legal.agree.suffix')}
             </label>
           </div>
-          {/* Why the button is disabled, for anyone who cannot see that it is. */}
-          <p id={hintId} className="-mt-3 text-xs text-soft" aria-live="polite">
-            {accepted ? '' : t('legal.required')}
-          </p>
-
           {error && (
             <div role="alert" className="px-3 py-2.5 rounded bg-rose/10 border border-rose/20 text-xs text-rose">
               {error}
@@ -130,7 +127,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-soft mt-6">
           {t('reg.haveAccount')}{' '}
-          <Link href="/auth/login" className="text-amber hover:text-amber2 transition-colors">
+          <Link href="/auth/login" className="text-amber-text hover:text-amber-text2 transition-colors">
             {t('reg.signIn')}
           </Link>
         </p>

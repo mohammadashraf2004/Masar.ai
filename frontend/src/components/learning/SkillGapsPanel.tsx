@@ -30,7 +30,7 @@ function GapSkill({ item }: { item: SkillGapItem }) {
   const hasMeta = partial || item.is_immediate || notes.length > 0
   return (
     <li data-status={item.status} className="flex items-start gap-2 py-2 text-sm">
-      <Icon size={15} aria-hidden="true" className={cn('mt-[3px] shrink-0', partial ? 'text-amber' : 'text-dim')} />
+      <Icon size={15} aria-hidden="true" className={cn('mt-[3px] shrink-0', partial ? 'text-amber-text' : 'text-dim')} />
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-1">
         <span className="min-w-0 break-words text-bright"><LearningLabel parts={skillLabel(item, ctx)} /></span>
         {hasMeta && (
@@ -76,7 +76,7 @@ function GapGroups({ groups, count }: { groups: SkillGapGroup[]; count: number }
         aria-expanded={open}
         aria-controls={listId}
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex min-h-[44px] items-center gap-1.5 rounded text-xs font-medium text-amber hover:text-amber2 lg:min-h-[36px]"
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded text-xs font-medium text-amber-text hover:text-amber-text2 lg:min-h-[36px]"
       >
         {open ? t('gap.hide') : t('gap.show')}
         <span className="font-normal text-soft">({count})</span>
@@ -180,7 +180,7 @@ export function SkillGapsPanel({ variant = 'roadmap', reloadKey = 0, className }
             {stillToGain.length > shown.length && (
               <p className="mt-1 text-xs text-soft">
                 {tf('gap.more', { n: stillToGain.length - shown.length })}{' '}
-                <Link href="/learn" className="text-amber underline">{t('gap.seeAll')}</Link>
+                <Link href="/learn/masar" className="text-amber-text underline">{t('gap.seeAll')}</Link>
               </p>
             )}
           </section>
@@ -194,7 +194,7 @@ export function SkillGapsPanel({ variant = 'roadmap', reloadKey = 0, className }
     <Card className={className ?? 'p-5 sm:p-6'}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4">
         <h2 className="text-sm font-semibold text-bright">{t('gap.title')}</h2>
-        <Link href="/profile/learning" className="-my-3 inline-flex min-h-[44px] items-center text-xs font-medium text-amber hover:text-amber2 lg:my-0 lg:min-h-0">
+        <Link href="/profile/learning" className="-my-3 inline-flex min-h-[44px] items-center text-xs font-medium text-amber-text hover:text-amber-text2 lg:my-0 lg:min-h-0">
           {t('mys.edit')}
         </Link>
       </div>

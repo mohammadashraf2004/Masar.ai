@@ -1,0 +1,21 @@
+{
+  "module_id": "M013-01",
+  "title": "Data Analysis Workflow, Roles & Python Workspace",
+  "role": "Core / Foundations",
+  "status": "finalized",
+  "description": "Frame analytical problems, understand team roles, and work in a reproducible Python environment.",
+  "learning_outcomes": [
+    "Frame analytical problems, understand team roles, and work in a reproducible Python environment."
+  ],
+  "prerequisites": [],
+  "estimated_minutes": 235,
+  "lessons": [
+    "L013-001",
+    "L013-002",
+    "L013-003",
+    "L013-004",
+    "L013-005",
+    "L013-006"
+  ],
+  "project": "Analyst Workspace & Business Problem Framing Sprint"
+}

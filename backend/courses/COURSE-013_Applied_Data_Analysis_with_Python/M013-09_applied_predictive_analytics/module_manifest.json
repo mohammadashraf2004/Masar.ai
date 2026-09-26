@@ -1,0 +1,34 @@
+{
+  "module_id": "M013-09",
+  "title": "Applied Predictive Analytics",
+  "role": "Core / Applied Modeling",
+  "status": "finalized",
+  "description": "Build, validate, compare, and explain predictive models for regression and classification business problems.",
+  "learning_outcomes": [
+    "Build, validate, compare, and explain predictive models for regression and classification business problems."
+  ],
+  "prerequisites": [
+    "M013-03",
+    "M013-07"
+  ],
+  "estimated_minutes": 840,
+  "lessons": [
+    "L013-065",
+    "L013-066",
+    "L013-067",
+    "L013-068",
+    "L013-069",
+    "L013-070",
+    "L013-071",
+    "L013-072",
+    "L013-073",
+    "L013-082",
+    "L013-083",
+    "L013-084",
+    "L013-085",
+    "L013-086",
+    "L013-087",
+    "L013-088"
+  ],
+  "project": "Regression & Churn Prediction Business Case"
+}

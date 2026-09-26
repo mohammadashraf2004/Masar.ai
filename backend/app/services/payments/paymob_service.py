@@ -126,16 +126,24 @@ _DEFAULT_BILLING = {
 }
 
 
-def init_payment(
-    amount_egp: float,
+def init_payment_minor(
+    amount_minor: int,
     merchant_order_id: str,
     method: Literal["card", "wallet"],
     full_name: str,
     email: str,
     phone_number: str,
+    currency: str = "EGP",
 ) -> dict:
-    """High-level entry point used by the controller.
+    """Create a checkout using an integer minor-unit amount.
+
+    Course commerce calls this directly so money never passes through a
+    binary float.  The legacy exam/wallet wrapper below keeps its API intact.
     Returns {"checkout_url": ..., "paymob_order_id": ...}."""
+    if currency != "EGP":
+        raise ValueError("Only EGP payments are supported")
+    if not isinstance(amount_minor, int) or isinstance(amount_minor, bool) or amount_minor < 0:
+        raise ValueError("amount_minor must be a non-negative integer")
     integration_id = (
         settings.PAYMOB_INTEGRATION_ID_CARD if method == "card"
         else settings.PAYMOB_INTEGRATION_ID_WALLET
@@ -143,7 +151,6 @@ def init_payment(
     if not integration_id:
         raise PaymobConfigError(f"No Paymob integration id configured for method={method}")
 
-    amount_cents = round(amount_egp * 100)
     first, _, last = full_name.partition(" ")
     billing = {
         **_DEFAULT_BILLING,
@@ -154,14 +161,33 @@ def init_payment(
     }
 
     token = authenticate()
-    order_id = create_order(token, amount_cents, merchant_order_id)
-    payment_token = request_payment_key(token, order_id, amount_cents, integration_id, billing)
+    order_id = create_order(token, amount_minor, merchant_order_id)
+    payment_token = request_payment_key(token, order_id, amount_minor, integration_id, billing)
 
     checkout_url = (
         card_iframe_url(payment_token) if method == "card"
         else pay_with_wallet(payment_token, phone_number)
     )
     return {"checkout_url": checkout_url, "paymob_order_id": order_id}
+
+
+def init_payment(
+    amount_egp: float,
+    merchant_order_id: str,
+    method: Literal["card", "wallet"],
+    full_name: str,
+    email: str,
+    phone_number: str,
+) -> dict:
+    """Backward-compatible wrapper for the existing exam and wallet flow."""
+    return init_payment_minor(
+        amount_minor=round(amount_egp * 100),
+        merchant_order_id=merchant_order_id,
+        method=method,
+        full_name=full_name,
+        email=email,
+        phone_number=phone_number,
+    )
 
 
 # ─── Webhook HMAC verification ──────────────────────────────────────────────

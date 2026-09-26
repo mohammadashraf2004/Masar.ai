@@ -1,0 +1,264 @@
+[
+  {
+    "module_id": "M013-01",
+    "title": "Data Analysis Workflow, Roles & Python Workspace",
+    "role": "Core / Foundations",
+    "status": "finalized",
+    "description": "Frame analytical problems, understand team roles, and work in a reproducible Python environment.",
+    "learning_outcomes": [
+      "Frame analytical problems, understand team roles, and work in a reproducible Python environment."
+    ],
+    "prerequisites": [],
+    "estimated_minutes": 235,
+    "lessons": [
+      "L013-001",
+      "L013-002",
+      "L013-003",
+      "L013-004",
+      "L013-005",
+      "L013-006"
+    ],
+    "project": "Analyst Workspace & Business Problem Framing Sprint"
+  },
+  {
+    "module_id": "M013-02",
+    "title": "NumPy & pandas for Analytical Data Work",
+    "role": "Core / Data Manipulation",
+    "status": "finalized",
+    "description": "Manipulate numerical and tabular data accurately with NumPy and pandas.",
+    "learning_outcomes": [
+      "Manipulate numerical and tabular data accurately with NumPy and pandas."
+    ],
+    "prerequisites": [
+      "M013-01"
+    ],
+    "estimated_minutes": 430,
+    "lessons": [
+      "L013-007",
+      "L013-008",
+      "L013-009",
+      "L013-010",
+      "L013-011",
+      "L013-012",
+      "L013-013",
+      "L013-014",
+      "L013-015",
+      "L013-016"
+    ],
+    "project": "Multi-Source Retail Data Preparation & Analysis"
+  },
+  {
+    "module_id": "M013-03",
+    "title": "Practical Statistics & Experimentation for Data Analysts",
+    "role": "Core / Analytical Reasoning",
+    "status": "finalized",
+    "description": "Use descriptive and inferential statistics to quantify uncertainty and support business experiments.",
+    "learning_outcomes": [
+      "Use descriptive and inferential statistics to quantify uncertainty and support business experiments."
+    ],
+    "prerequisites": [
+      "M013-02"
+    ],
+    "estimated_minutes": 525,
+    "lessons": [
+      "L013-017",
+      "L013-018",
+      "L013-019",
+      "L013-020",
+      "L013-021",
+      "L013-022",
+      "L013-023",
+      "L013-024",
+      "L013-025",
+      "L013-026",
+      "L013-027"
+    ],
+    "project": "Business Experiment & Statistical Insight Report"
+  },
+  {
+    "module_id": "M013-04",
+    "title": "Linear Algebra Essentials for Data Analysis",
+    "role": "Supporting Foundation",
+    "status": "finalized",
+    "description": "Use essential linear-algebra concepts to understand analytical computations and dimensionality reduction.",
+    "learning_outcomes": [
+      "Use essential linear-algebra concepts to understand analytical computations and dimensionality reduction."
+    ],
+    "prerequisites": [
+      "M013-02"
+    ],
+    "estimated_minutes": 125,
+    "lessons": [
+      "L013-028",
+      "L013-029",
+      "L013-030"
+    ],
+    "project": null
+  },
+  {
+    "module_id": "M013-05",
+    "title": "Visual Analysis & Interactive Dashboards",
+    "role": "Core / Portfolio",
+    "status": "finalized",
+    "description": "Select, build, and communicate static and interactive analytical visualizations and dashboards.",
+    "learning_outcomes": [
+      "Select, build, and communicate static and interactive analytical visualizations and dashboards."
+    ],
+    "prerequisites": [
+      "M013-02",
+      "M013-03"
+    ],
+    "estimated_minutes": 420,
+    "lessons": [
+      "L013-031",
+      "L013-032",
+      "L013-033",
+      "L013-034",
+      "L013-035",
+      "L013-036",
+      "L013-037",
+      "L013-038",
+      "L013-039"
+    ],
+    "project": "Executive EDA & Interactive Analytics Dashboard"
+  },
+  {
+    "module_id": "M013-06",
+    "title": "Data Retrieval, Storage & Ingestion",
+    "role": "Core / Data Acquisition",
+    "status": "finalized",
+    "description": "Retrieve, validate, and persist data from files, databases, object storage, and APIs.",
+    "learning_outcomes": [
+      "Retrieve, validate, and persist data from files, databases, object storage, and APIs."
+    ],
+    "prerequisites": [
+      "M013-02"
+    ],
+    "estimated_minutes": 390,
+    "lessons": [
+      "L013-040",
+      "L013-041",
+      "L013-042",
+      "L013-043",
+      "L013-044",
+      "L013-045",
+      "L013-046",
+      "L013-047"
+    ],
+    "project": "Multi-Source Data Ingestion Pipeline"
+  },
+  {
+    "module_id": "M013-07",
+    "title": "Data Cleaning, Quality & Feature Engineering",
+    "role": "Core / Hands-on",
+    "status": "finalized",
+    "description": "Audit, clean, transform, and feature-engineer messy real-world datasets reproducibly.",
+    "learning_outcomes": [
+      "Audit, clean, transform, and feature-engineer messy real-world datasets reproducibly."
+    ],
+    "prerequisites": [
+      "M013-02",
+      "M013-06"
+    ],
+    "estimated_minutes": 410,
+    "lessons": [
+      "L013-048",
+      "L013-049",
+      "L013-050",
+      "L013-051",
+      "L013-052",
+      "L013-053",
+      "L013-054",
+      "L013-055"
+    ],
+    "project": "Customer Data Quality & Feature Engineering Pipeline"
+  },
+  {
+    "module_id": "M013-08",
+    "title": "Time-Series Analysis & Forecasting",
+    "role": "Core / Applied Analytics",
+    "status": "finalized",
+    "description": "Analyze temporal structure, build forecasting baselines/models, and evaluate forecasts without leakage.",
+    "learning_outcomes": [
+      "Analyze temporal structure, build forecasting baselines/models, and evaluate forecasts without leakage."
+    ],
+    "prerequisites": [
+      "M013-03",
+      "M013-05",
+      "M013-07"
+    ],
+    "estimated_minutes": 460,
+    "lessons": [
+      "L013-056",
+      "L013-057",
+      "L013-058",
+      "L013-059",
+      "L013-060",
+      "L013-061",
+      "L013-062",
+      "L013-063",
+      "L013-064"
+    ],
+    "project": "Business Sales Forecasting & Forecast Evaluation"
+  },
+  {
+    "module_id": "M013-09",
+    "title": "Applied Predictive Analytics",
+    "role": "Core / Applied Modeling",
+    "status": "finalized",
+    "description": "Build, validate, compare, and explain predictive models for regression and classification business problems.",
+    "learning_outcomes": [
+      "Build, validate, compare, and explain predictive models for regression and classification business problems."
+    ],
+    "prerequisites": [
+      "M013-03",
+      "M013-07"
+    ],
+    "estimated_minutes": 840,
+    "lessons": [
+      "L013-065",
+      "L013-066",
+      "L013-067",
+      "L013-068",
+      "L013-069",
+      "L013-070",
+      "L013-071",
+      "L013-072",
+      "L013-073",
+      "L013-082",
+      "L013-083",
+      "L013-084",
+      "L013-085",
+      "L013-086",
+      "L013-087",
+      "L013-088"
+    ],
+    "project": "Regression & Churn Prediction Business Case"
+  },
+  {
+    "module_id": "M013-10",
+    "title": "Segmentation, Dimensionality Reduction & Anomaly Detection",
+    "role": "Core / Analytical Pattern Discovery",
+    "status": "finalized",
+    "description": "Discover unlabeled structure using PCA, clustering, and anomaly detection, then translate outputs into analyst investigations.",
+    "learning_outcomes": [
+      "Discover unlabeled structure using PCA, clustering, and anomaly detection, then translate outputs into analyst investigations."
+    ],
+    "prerequisites": [
+      "M013-03",
+      "M013-07"
+    ],
+    "estimated_minutes": 420,
+    "lessons": [
+      "L013-074",
+      "L013-075",
+      "L013-076",
+      "L013-077",
+      "L013-078",
+      "L013-079",
+      "L013-080",
+      "L013-081"
+    ],
+    "project": "Customer Segmentation & Behavioral Anomaly Investigation"
+  }
+]

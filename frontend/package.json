@@ -24,6 +24,7 @@
     "react-simple-code-editor": "^0.14.1",
     "prismjs": "^1.30.0",
     "lucide-react": "^0.400.0",
+    "qrcode.react": "^4.2.0",
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.4.0"
   },

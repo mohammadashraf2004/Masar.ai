@@ -1,0 +1,36 @@
+{
+  "module_id": "M012-07",
+  "title": "Agent Evaluation, Feedback & Test-Driven Development",
+  "source_id": "BOOK-012",
+  "source_chapter": 7,
+  "role": "Core + Reliability + Evaluation",
+  "guided_time_declared": "9h 15m",
+  "lesson_count": 8,
+  "lesson_ids": [
+    "L012-052",
+    "L012-053",
+    "L012-054",
+    "L012-055",
+    "L012-056",
+    "L012-057",
+    "L012-058",
+    "L012-059"
+  ],
+  "project": {
+    "title": "Build an Evaluation Harness for the COURSE-012 Research Agent",
+    "summary": "Create a repeatable benchmark, evaluator, grounding, rubric, tracing, annotation, and regression workflow for an agent.",
+    "deliverables": [
+      "At least 20 benchmark cases",
+      "Expected and forbidden tool behavior",
+      "Repeated stochastic runs",
+      "Typed evaluator",
+      "Grounding evaluator",
+      "Rubric evaluator",
+      "Latency/token/cost metrics",
+      "Trace metadata",
+      "Human annotation",
+      "Failed-run regression dataset"
+    ]
+  },
+  "duration_note": "Included in the frozen module-level planning estimate; detailed historical lesson/project estimates were not fully arithmetic-consistent."
+}

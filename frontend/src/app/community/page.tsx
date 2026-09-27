@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Badge, Spinner } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
@@ -509,8 +510,8 @@ export default function CommunityPage() {
         <CreatePostModal onClose={() => setShowCreate(false)} onCreated={handleCreated} />
       )}
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex flex-1 flex-col overflow-y-auto">
+        <div className="mx-auto w-full max-w-5xl px-4 pt-6 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {/* ── Main feed ── */}
@@ -719,6 +720,7 @@ export default function CommunityPage() {
 
           </div>
         </div>
+        <LegalFooter className="mx-auto w-full max-w-5xl px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8" />
       </div>
     </AppShell>
   )

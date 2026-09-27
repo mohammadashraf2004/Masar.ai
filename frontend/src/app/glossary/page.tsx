@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Search, Briefcase } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Spinner, ProgressBar, EmptyState } from '@/components/ui/index'
 import { TermDetailModal } from '@/components/ui/TechnicalTerm'
@@ -63,8 +64,8 @@ export default function GlossaryPage() {
 
       {selected && <TermDetailModal term={selected} onClose={() => setSelected(null)} />}
 
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="max-w-5xl mx-auto space-y-6">
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-5xl space-y-6">
           {/* ── Progress ── */}
           <Card className="p-5">
             <div className="flex items-baseline justify-between mb-2">
@@ -217,6 +218,7 @@ export default function GlossaryPage() {
             </div>
           </div>
         </div>
+        <LegalFooter className="mx-auto w-full max-w-5xl" />
       </div>
     </AppShell>
   )

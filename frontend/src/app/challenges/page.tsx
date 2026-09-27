@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, DifficultyBadge, Spinner, ProgressBar } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
@@ -329,7 +330,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
   const canRetry  = ch.is_enrolled && (ch.status === 'failed') && (ch.attempts_used < ch.max_attempts)
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
       {showEnroll && <EnrollModal challenge={ch} onClose={() => setShowEnroll(false)} onSuccess={load} />}
       {showSubmit && <SubmitModal challenge={ch} onClose={() => setShowSubmit(false)} onSuccess={r => { setResult(r); load() }} />}
 
@@ -337,7 +338,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
         ← Back to challenges
       </button>
 
-      <div className="max-w-4xl space-y-6">
+      <div className="w-full max-w-4xl space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -551,6 +552,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
           )}
         </div>
       </div>
+      <LegalFooter className="w-full max-w-4xl" />
     </div>
   )
 }
@@ -600,7 +602,7 @@ export default function ChallengesPage() {
         title="Challenge Projects"
         subtitle="Unlock real-world dirty data challenges. Pay with credits, submit your pipeline, get AI-graded feedback."
       />
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
 
         {/* Filter tabs */}
         <div className="flex items-center gap-2 mb-6 flex-wrap">
@@ -634,6 +636,7 @@ export default function ChallengesPage() {
             ))}
           </div>
         )}
+        <LegalFooter />
       </div>
     </AppShell>
   )

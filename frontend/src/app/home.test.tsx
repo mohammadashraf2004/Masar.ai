@@ -115,15 +115,15 @@ describe('home — a visitor who is not signed in', () => {
   it('carries the Terms and Privacy links in its footer', () => {
     render(<Home />)
     const footer = screen.getByRole('contentinfo')
-    expect(within(footer).getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms')
-    expect(within(footer).getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy')
+    expect(within(footer).getByRole('link', { name: 'Terms of Use' })).toHaveAttribute('href', '/terms')
+    expect(within(footer).getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
   })
 
   it('is written in Arabic for an Arabic reader', () => {
     useLanguageStore.setState({ language: 'ar', mode: 'arabic_first' })
     render(<Home />)
     expect(screen.getByText('هندسة الذكاء الاصطناعي بالعربية أولاً')).toBeInTheDocument()
-    expect(within(screen.getByRole('contentinfo')).getByRole('link', { name: 'الشروط' })).toHaveAttribute('href', '/terms')
+    expect(within(screen.getByRole('contentinfo')).getByRole('link', { name: 'شروط الاستخدام' })).toHaveAttribute('href', '/terms')
   })
 })
 

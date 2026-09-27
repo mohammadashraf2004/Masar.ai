@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import RegisterPage from '@/app/auth/register/page'
@@ -40,7 +40,7 @@ describe('the Terms and Privacy acknowledgement', () => {
   it('links "Terms of Service" and "Privacy Policy" to the actual documents, in a new tab', () => {
     render(<RegisterPage />)
     const terms = screen.getByRole('link', { name: 'Terms of Service' })
-    const privacy = screen.getByRole('link', { name: 'Privacy Policy' })
+    const privacy = screen.getAllByRole('link', { name: 'Privacy Policy' }).find((link) => link.getAttribute('target') === '_blank')!
     expect(terms).toHaveAttribute('href', '/terms')
     expect(privacy).toHaveAttribute('href', '/privacy')
     for (const link of [terms, privacy]) {
@@ -114,7 +114,7 @@ describe('the Terms and Privacy acknowledgement', () => {
 
   it('offers the documents from the footer too', () => {
     render(<RegisterPage />)
-    const footer = screen.getByRole('navigation', { name: /Terms/ })
+    const footer = screen.getByRole('contentinfo', { name: 'Legal information' })
     expect(footer.querySelector('a[href="/terms"]')).not.toBeNull()
     expect(footer.querySelector('a[href="/privacy"]')).not.toBeNull()
   })
@@ -147,7 +147,7 @@ describe('Arabic (RTL)', () => {
     const checkbox = screen.getByRole('checkbox', { name: /^أوافق على شروط الخدمة و ?سياسة الخصوصية ?\.$/ })
     expect(checkbox).not.toBeChecked()
     expect(screen.getByRole('link', { name: 'شروط الخدمة' })).toHaveAttribute('href', '/terms')
-    expect(screen.getByRole('link', { name: 'سياسة الخصوصية' })).toHaveAttribute('href', '/privacy')
+    expect(within(checkbox.closest('div')!).getByRole('link', { name: 'سياسة الخصوصية' })).toHaveAttribute('href', '/privacy')
     expect(screen.getByRole('button', { name: /إنشاء حساب/ })).toBeDisabled()
     expect(screen.queryByText('وافق على شروط الخدمة وسياسة الخصوصية لإنشاء حسابك.')).toBeNull()
   })

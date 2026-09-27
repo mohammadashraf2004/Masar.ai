@@ -5,10 +5,10 @@ import { Logo } from '@/components/layout/Logo'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/index'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { api } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
 import type { LegalDocument } from '@/types'
-import { LegalLinks } from './LegalLinks'
 
 type Load = { key: string; doc: LegalDocument | null }
 
@@ -41,13 +41,13 @@ export function LegalDocumentPage({ kind }: { kind: 'terms' | 'privacy' }) {
   const current = load?.key === key ? load : null
 
   return (
-    <div className="min-h-dvh bg-void px-4 py-8 sm:px-6">
+    <div className="flex min-h-dvh flex-col bg-void px-4 pt-8 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6">
       <div className="mx-auto mb-10 flex max-w-3xl items-center justify-between">
         <Link href="/" aria-label="Masar" className="inline-flex min-h-[44px] items-center lg:min-h-0"><Logo size={28} wordmarkClassName="text-sm" /></Link>
         <LanguageSwitcher />
       </div>
 
-      <main className="mx-auto max-w-3xl">
+      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
         {!current && (
           <div className="flex justify-center py-24" role="status" aria-label={t('common.loading')}>
             <Spinner className="h-6 w-6" />
@@ -79,12 +79,12 @@ export function LegalDocumentPage({ kind }: { kind: 'terms' | 'privacy' }) {
           </article>
         )}
 
-        <footer className="mt-14 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+        <div className="mt-14 flex flex-wrap items-center gap-3">
           <Link href="/" className="inline-flex min-h-[44px] items-center text-xs text-soft hover:text-bright lg:min-h-0">
             {t('legal.back')}
           </Link>
-          <LegalLinks />
-        </footer>
+        </div>
+        <LegalFooter />
       </main>
     </div>
   )

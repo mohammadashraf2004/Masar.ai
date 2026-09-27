@@ -5,6 +5,7 @@ import { ArrowRight, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useLearningCatalog } from '@/hooks/useLearningCatalog'
 import { AppShell } from '@/components/layout/AppShell'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { CourseCard } from '@/components/learning/CourseCard'
 import { LearningLabel, useLabelContext } from '@/components/learning/LearningLabel'
@@ -84,8 +85,8 @@ export default function ExplorePage() {
   return (
     <AppShell>
       <PageHeader title={t('nav.explore')} subtitle={t('explore.subtitle')} />
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl space-y-8">
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-5xl space-y-8">
           {error || failed ? (
             <p role="alert" className="text-sm text-rose">{t('explore.loadError')}</p>
           ) : !catalog ? (
@@ -169,6 +170,7 @@ export default function ExplorePage() {
             </>
           )}
         </div>
+        <LegalFooter className="mx-auto w-full max-w-5xl" />
       </div>
     </AppShell>
   )

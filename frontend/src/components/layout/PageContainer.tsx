@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from 'react'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { cn } from '@/lib/utils'
 
 /**
@@ -25,10 +26,22 @@ export function PageContainer({ className, ...props }: HTMLAttributes<HTMLDivEle
  * (the header stays put above it), which is why it is a separate element from the
  * container rather than one div doing both jobs.
  */
-export function PageBody({ className, children }: { className?: string; children: React.ReactNode }) {
+export function PageBody({
+  className,
+  children,
+  footer = true,
+}: {
+  className?: string
+  children: React.ReactNode
+  /** Full-height focus views keep their pinned controls instead of a site footer. */
+  footer?: boolean
+}) {
   return (
     <div className="flex-1 overflow-y-auto">
-      <PageContainer className={cn('py-6', className)}>{children}</PageContainer>
+      <PageContainer className="flex min-h-full flex-col pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+        <div className={cn('flex-1', className)}>{children}</div>
+        {footer && <LegalFooter />}
+      </PageContainer>
     </div>
   )
 }

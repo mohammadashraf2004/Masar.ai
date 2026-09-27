@@ -8,7 +8,6 @@ import { AltWordmark, LogoMark, Wordmark } from '@/components/layout/Logo'
 import { Avatar } from '@/components/layout/AccountMenu'
 import { LOW_CREDITS, useCreditBalance } from '@/components/layout/WalletContext'
 import { isActive, navFor } from '@/components/layout/nav'
-import { LegalLinks } from '@/components/legal/LegalLinks'
 
 /** The wallet: what is left to spend, and the way to add to it. */
 function WalletCard() {
@@ -70,7 +69,7 @@ export function Sidebar() {
       <Link href="/dashboard" className="flex shrink-0 items-center gap-2.5 px-1.5">
         <LogoMark size={28} label={null} />
         <Wordmark className="text-[17px] text-white" />
-        <AltWordmark className="ms-auto text-xs text-ghost" />
+        <AltWordmark className="ms-auto text-[17px] text-ghost" />
       </Link>
 
       <nav aria-label={t('nav.menu')} className="min-h-0 flex-1 overflow-y-auto">
@@ -104,8 +103,6 @@ export function Sidebar() {
         <UserRow />
       </div>
 
-      {/* The documents are one click away from every page. */}
-      <LegalLinks className="shrink-0 px-1.5" />
     </aside>
   )
 }

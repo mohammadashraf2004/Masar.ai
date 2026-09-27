@@ -136,7 +136,7 @@ describe('the certificates page', () => {
       await screen.findByText('No certificates yet')
       expect(screen.queryByRole('button', { name: /Copy verification link/ })).toBeNull()
       expect(screen.queryByRole('button', { name: /Download PDF/ })).toBeNull()
-      expect(screen.queryByRole('link', { name: /LinkedIn/ })).toBeNull()
+      expect(screen.queryByRole('link', { name: /Share on LinkedIn/ })).toBeNull()
     })
 
     it('says it in Arabic too', async () => {

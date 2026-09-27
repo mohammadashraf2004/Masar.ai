@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useLearningCatalog } from '@/hooks/useLearningCatalog'
 import { Logo } from '@/components/layout/Logo'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { OnboardingFlow, type OnboardingAnswers } from '@/components/learning/OnboardingFlow'
 import { Spinner } from '@/components/ui/index'
@@ -51,29 +52,32 @@ export default function LearningOnboardingPage() {
       : null
 
   return (
-    <div className="min-h-dvh bg-void px-4 py-8 sm:px-6">
+    <div className="flex min-h-dvh flex-col bg-void px-4 pt-8 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6">
       <div className="mx-auto mb-8 flex max-w-2xl items-center justify-between">
         <Logo size={28} wordmarkClassName="text-sm" />
         <LanguageSwitcher />
       </div>
 
-      {error ? (
-        <div className="mx-auto max-w-2xl text-center">
-          <p role="alert" className="mb-4 text-sm text-rose">{t('onb.loadError')}</p>
-          <Button variant="ghost" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
-        </div>
-      ) : !ready ? (
-        <div className="flex justify-center py-24"><Spinner announce className="h-6 w-6" /></div>
-      ) : (
-        <>
-          {carriedGoal && (
-            <p className="mx-auto mb-4 max-w-2xl rounded-md border border-sky/20 bg-sky/5 px-3 py-2.5 text-xs text-soft">
-              {tf('banner.onboard.carried', { goal: carriedGoal })}
-            </p>
-          )}
-          <OnboardingFlow catalog={catalog} initial={initial} onDone={() => router.replace('/learn/masar')} />
-        </>
-      )}
+      <div className="flex-1">
+        {error ? (
+          <div className="mx-auto max-w-2xl text-center">
+            <p role="alert" className="mb-4 text-sm text-rose">{t('onb.loadError')}</p>
+            <Button variant="ghost" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
+          </div>
+        ) : !ready ? (
+          <div className="flex justify-center py-24"><Spinner announce className="h-6 w-6" /></div>
+        ) : (
+          <>
+            {carriedGoal && (
+              <p className="mx-auto mb-4 max-w-2xl rounded-md border border-sky/20 bg-sky/5 px-3 py-2.5 text-xs text-soft">
+                {tf('banner.onboard.carried', { goal: carriedGoal })}
+              </p>
+            )}
+            <OnboardingFlow catalog={catalog} initial={initial} onDone={() => router.replace('/learn/masar')} />
+          </>
+        )}
+      </div>
+      <LegalFooter className="mx-auto w-full max-w-2xl" />
     </div>
   )
 }

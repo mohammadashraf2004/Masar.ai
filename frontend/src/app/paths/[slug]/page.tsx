@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useLearningCatalog } from '@/hooks/useLearningCatalog'
 import { AppShell } from '@/components/layout/AppShell'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { LearningLabel, useLabelContext } from '@/components/learning/LearningLabel'
 import { AdvisoryList, MasarSummary, PathRoadmap } from '@/components/learning/PathRoadmap'
@@ -112,8 +113,8 @@ function PathPreview() {
   return (
     <AppShell>
       <PageHeader title={t('paths.title')} />
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl space-y-6">
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-3xl space-y-6">
           {state === 'loading' && <div className="flex justify-center py-16"><Spinner announce className="h-6 w-6" /></div>}
 
           {state === 'missing' && (
@@ -168,6 +169,7 @@ function PathPreview() {
             </>
           )}
         </div>
+        <LegalFooter className="mx-auto w-full max-w-3xl" />
       </div>
     </AppShell>
   )

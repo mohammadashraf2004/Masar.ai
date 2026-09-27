@@ -6,6 +6,7 @@ import { CheckCircle, XCircle } from 'lucide-react'
 import axios from 'axios'
 import { CourseCertificate } from '@/components/certificates/CourseCertificate'
 import { Logo } from '@/components/layout/Logo'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { buttonStyles } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/index'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
@@ -44,8 +45,8 @@ export default function VerifyCertificatePage() {
   }, [id])
 
   return (
-    <div className="min-h-dvh bg-void">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="flex min-h-dvh flex-col bg-void px-4 pt-8 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8">
         <div className="flex items-center justify-between gap-3">
           <Link href="/" aria-label={t('cert.verify.home')}><Logo size={28} wordmarkClassName="text-sm" /></Link>
           <LanguageSwitcher />
@@ -89,6 +90,7 @@ export default function VerifyCertificatePage() {
 
         <Link href="/" className={buttonStyles({ variant: 'ghost', className: 'self-start' })}>{t('cert.verify.home')}</Link>
       </div>
+      <LegalFooter className="mx-auto w-full max-w-5xl" />
     </div>
   )
 }

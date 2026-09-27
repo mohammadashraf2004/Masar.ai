@@ -12,7 +12,7 @@ import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { getErrorMessage } from '@/lib/utils'
 import { ArrowRight, CheckCircle, XCircle, BookOpen, Brain, ShieldCheck } from 'lucide-react'
 import { Logo } from '@/components/layout/Logo'
-import { LegalLinks } from '@/components/legal/LegalLinks'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 
 // What the panel promises has to be something the product actually does —
 // each of these maps to a shipped feature, not a projected number.
@@ -141,8 +141,9 @@ function LoginPageInner() {
       </div>
 
       {/* Right: form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-8">
-        <div className="w-full max-w-sm">
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-8">
+        <div className="flex flex-1 items-center justify-center py-12">
+          <div className="w-full max-w-sm">
           <div className="mb-8">
             {/* The language can be changed here, not only after signing in: Arabic is the
                 default, and this is the first page a visitor who reads English lands on. */}
@@ -221,7 +222,6 @@ function LoginPageInner() {
                   {t('login.createOne')}
                 </Link>
               </p>
-              <LegalLinks className="mt-4 justify-center" />
             </>
           )}
 
@@ -278,7 +278,9 @@ function LoginPageInner() {
               </form>
             </>
           )}
+          </div>
         </div>
+        <LegalFooter className="mx-auto w-full max-w-sm" />
       </div>
     </div>
   )

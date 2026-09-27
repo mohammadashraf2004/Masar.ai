@@ -2,9 +2,9 @@
 import Link from 'next/link'
 import { ArrowRight, Compass, Languages, Target } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { Logo } from '@/components/layout/Logo'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { LegalLinks } from '@/components/legal/LegalLinks'
 import { YourMasarCard } from '@/components/learning/YourMasarCard'
 import { buttonStyles } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/index'
@@ -37,13 +37,14 @@ function MemberHome() {
   return (
     <AppShell>
       <PageHeader title={first ? tf('home.welcome', { name: first }) : t('home.title')} wrapTitle />
-      <div className="flex-1 space-y-6 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl space-y-4">
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-2xl space-y-4">
           <YourMasarCard variant="home" />
           <Link href="/dashboard" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
             {t('home.dashboard')} <ArrowRight size={12} className="rtl:rotate-180" aria-hidden="true" />
           </Link>
         </div>
+        <LegalFooter className="mx-auto w-full max-w-2xl" />
       </div>
     </AppShell>
   )
@@ -68,7 +69,7 @@ function Landing() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 py-16 sm:py-24">
+      <main className="mx-auto w-full max-w-5xl flex-1 pt-16 pb-5 sm:pt-24">
         <p className="text-xs font-medium uppercase tracking-widest text-amber-text">{t('landing.tagline')}</p>
         <h1 className="mt-3 max-w-2xl font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
           {t('reg.title')}
@@ -94,10 +95,7 @@ function Landing() {
         </ul>
       </main>
 
-      <footer className="mx-auto flex w-full max-w-5xl items-center justify-between border-t border-border pt-4">
-        <span className="text-xs text-soft">Masar · مسار</span>
-        <LegalLinks />
-      </footer>
+      <LegalFooter className="mx-auto w-full max-w-5xl pb-[env(safe-area-inset-bottom)]" />
     </div>
   )
 }

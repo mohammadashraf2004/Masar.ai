@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Badge, Spinner } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
@@ -360,8 +361,8 @@ export default function AdminAnalyticsPage() {
           owns its own scroll container — without `flex-1 overflow-y-auto`
           everything below the fold is simply clipped. Same structure the
           dashboard and community pages use. */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="max-w-5xl space-y-8">
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="w-full max-w-5xl space-y-8">
           {/* Operations first: this is the one thing on the page you come
               here to *do*, rather than read. */}
           <GrantCredits />
@@ -474,6 +475,7 @@ export default function AdminAnalyticsPage() {
             </Card>
           </section>
         </div>
+        <LegalFooter className="w-full max-w-5xl" />
       </div>
     </AppShell>
   )

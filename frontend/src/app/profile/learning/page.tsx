@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { useLearningCatalog } from '@/hooks/useLearningCatalog'
 import { AppShell } from '@/components/layout/AppShell'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { FieldPicker, GoalPicker, LevelPicker } from '@/components/learning/Pickers'
 import { MySkillsSection } from '@/components/learning/MySkills'
@@ -65,8 +66,8 @@ export default function LearningProfilePage() {
   return (
     <AppShell>
       <PageHeader title={t('plp.title')} subtitle={t('plp.subtitle')} />
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl space-y-6">
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-3xl space-y-6">
           {error ? (
             <p role="alert" className="text-sm text-rose">{t('onb.loadError')}</p>
           ) : !catalog || !loaded ? (
@@ -105,6 +106,7 @@ export default function LearningProfilePage() {
             </>
           )}
         </div>
+        <LegalFooter className="mx-auto w-full max-w-3xl" />
       </div>
     </AppShell>
   )

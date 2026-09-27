@@ -35,7 +35,7 @@ const NEW_SURFACES = [
   join(SRC, 'components', 'layout', 'LegalGate.tsx'),
   // The shell every signed-in page sits in: the sidebar sits on the right in Arabic and the
   // left in English only because none of this says "left" or "right".
-  ...['AppShell', 'Sidebar', 'ShellHeader', 'MobileMenu', 'AccountMenu', 'CreditsBadge', 'GlobalSearch', 'PageHeader', 'ThemeToggle']
+  ...['AppShell', 'Sidebar', 'ShellHeader', 'MobileMenu', 'AccountMenu', 'CreditsBadge', 'GlobalSearch', 'PageHeader', 'ThemeToggle', 'LegalFooter']
     .map((name) => join(SRC, 'components', 'layout', `${name}.tsx`)),
   join(SRC, 'components', 'brand', 'MasarMark.tsx'),
 ]
@@ -61,7 +61,7 @@ describe('right-to-left safety of the learning screens', () => {
       'app/courses/[slug]/page.tsx', 'app/onboarding/learning-profile/page.tsx', 'app/profile/learning/page.tsx',
       'components/learning/SkillPicker.tsx', 'components/learning/SkillsStep.tsx', 'components/learning/MySkills.tsx',
       'components/learning/YourMasarCard.tsx', 'components/legal/LegalDocumentPage.tsx',
-      'components/legal/LegalLinks.tsx', 'components/layout/LegalGate.tsx',
+      'components/layout/LegalFooter.tsx', 'components/layout/LegalGate.tsx',
       'app/page.tsx', 'app/auth/register/page.tsx', 'app/terms/page.tsx', 'app/privacy/page.tsx',
       'components/layout/Sidebar.tsx', 'components/layout/ShellHeader.tsx', 'components/layout/MobileMenu.tsx',
       'components/layout/GlobalSearch.tsx',

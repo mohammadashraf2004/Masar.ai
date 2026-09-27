@@ -72,7 +72,7 @@ function MentorScreen() {
           </div>
         }
       />
-      <PageBody>
+      <PageBody footer={false}>
         <div className="flex flex-wrap items-start gap-5">
           {mode === 'chat' ? <ChatMode /> : <InterviewMode />}
         </div>

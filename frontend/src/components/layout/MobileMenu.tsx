@@ -9,7 +9,6 @@ import { Avatar } from '@/components/layout/AccountMenu'
 import { useMobileNav } from '@/components/layout/MobileNavContext'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { isActive, navFor } from '@/components/layout/nav'
-import { LegalLinks } from '@/components/legal/LegalLinks'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { useTours } from '@/features/tours/TourProvider'
 
@@ -113,7 +112,6 @@ export function MobileMenu() {
             </button>
           )}
 
-          <LegalLinks />
         </div>
       </nav>
     </>

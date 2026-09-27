@@ -70,7 +70,7 @@ describe('PageHeader', () => {
         </>,
       )
       const header = screen.getByRole('heading', { level: 1 }).parentElement!.parentElement!
-      const content = screen.getByText('the content').parentElement!
+      const content = screen.getByText('the content').parentElement!.parentElement!
       for (const cls of PAGE_CONTAINER.split(' ')) {
         expect(header).toHaveClass(cls)
         expect(content).toHaveClass(cls)
@@ -79,7 +79,7 @@ describe('PageHeader', () => {
 
     it('scrolls the content on its own, under a header that stays put', () => {
       render(<PageBody><p>the content</p></PageBody>)
-      const scroller = screen.getByText('the content').parentElement!.parentElement!
+      const scroller = screen.getByText('the content').parentElement!.parentElement!.parentElement!
       expect(scroller).toHaveClass('flex-1', 'overflow-y-auto')
     })
 

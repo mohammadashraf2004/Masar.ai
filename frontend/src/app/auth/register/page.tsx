@@ -9,7 +9,7 @@ import { useI18n } from '@/lib/i18n'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
-import { LegalLinks } from '@/components/legal/LegalLinks'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { getErrorMessage } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
 import { Logo } from '@/components/layout/Logo'
@@ -52,8 +52,9 @@ export default function RegisterPage() {
   const link = 'text-amber-text underline underline-offset-2 hover:text-amber-text2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring'
 
   return (
-    <div className="min-h-dvh bg-void flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md">
+    <div className="flex min-h-dvh flex-col overflow-y-auto bg-void px-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+      <div className="flex flex-1 items-center justify-center py-12">
+        <div className="w-full max-w-md">
         <div className="mb-8 flex items-center justify-between">
           <Logo size={28} wordmarkClassName="text-sm" />
           <LanguageSwitcher />
@@ -131,8 +132,9 @@ export default function RegisterPage() {
             {t('reg.signIn')}
           </Link>
         </p>
-        <LegalLinks className="mt-4 justify-center" />
+        </div>
       </div>
+      <LegalFooter className="mx-auto w-full max-w-md" />
     </div>
   )
 }

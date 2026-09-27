@@ -69,6 +69,8 @@ describe('the sidebar', () => {
     // Both scripts are in the DOM (CSS shows one); the second copy is hidden from assistive technology.
     expect(brand).toHaveAccessibleName(/^Masar\s*مسار$/)
     expect(brand.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThanOrEqual(2)
+    expect(brand.querySelector('.brand-en')?.parentElement).toHaveClass('text-[17px]')
+    expect(brand.querySelector('.brand-alt-ar')?.parentElement).toHaveClass('text-[17px]')
   })
 
   it('shows the wallet: the balance, with thousands separated, and the way to top up', async () => {
@@ -92,10 +94,10 @@ describe('the sidebar', () => {
     expect(row).toHaveTextContent('beginner')
   })
 
-  it('keeps the Terms and Privacy links one click away from every page', () => {
+  it('does not carry legal links; they live in the page footer', () => {
     renderShell()
-    expect(within(sidebar()).getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms')
-    expect(within(sidebar()).getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy')
+    expect(within(sidebar()).queryByRole('link', { name: 'Terms of Use' })).toBeNull()
+    expect(within(sidebar()).queryByRole('link', { name: 'Privacy Policy' })).toBeNull()
   })
 
   // The handoff's sidebar is the brand, the navigation, the wallet and the account. The
@@ -168,6 +170,8 @@ describe('the mobile menu', () => {
     expect(panel.getByRole('group', { name: 'Theme' })).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /EN/ })).toBeInTheDocument() // the language switcher
     expect(panel.getByRole('button', { name: 'Sign out' })).toHaveClass('min-h-[44px]')
+    expect(panel.queryByRole('link', { name: 'Terms of Use' })).toBeNull()
+    expect(panel.queryByRole('link', { name: 'Privacy Policy' })).toBeNull()
   })
 
   it('closes when a row is chosen', async () => {

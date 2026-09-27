@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/lib/store'
 import { AppShell } from '@/components/layout/AppShell'
+import { LegalFooter } from '@/components/layout/LegalFooter'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, Badge, ProgressBar, Spinner } from '@/components/ui/index'
 import { Button, buttonStyles } from '@/components/ui/Button'
@@ -221,8 +222,8 @@ export default function ProfilePage() {
     <AppShell>
       <PageHeader title="Profile" subtitle="Your account, preferences, and verified engineer scorecard." />
 
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="max-w-4xl space-y-6">
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="w-full max-w-4xl space-y-6">
 
           {/* ── Top: avatar + grade badge ── */}
           <Card className="p-6">
@@ -644,6 +645,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+        <LegalFooter className="w-full max-w-4xl" />
       </div>
     </AppShell>
   )

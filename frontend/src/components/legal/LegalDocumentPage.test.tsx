@@ -60,13 +60,13 @@ describe('a legal document page', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Terms of Service' })).toBeInTheDocument()
   })
 
-  it('links the two documents to each other from the footer, and back home', async () => {
+  it('links the two documents from the footer, and links back home', async () => {
     render(<LegalDocumentPage kind="terms" />)
     await screen.findByRole('heading', { level: 1 })
     const footer = screen.getByRole('contentinfo')
-    expect(within(footer).getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms')
-    expect(within(footer).getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy')
-    expect(within(footer).getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/')
+    expect(within(footer).getByRole('link', { name: 'Terms of Use' })).toHaveAttribute('href', '/terms')
+    expect(within(footer).getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/')
   })
 
   it('needs no account: it renders for a signed-out visitor without asking for a session', async () => {

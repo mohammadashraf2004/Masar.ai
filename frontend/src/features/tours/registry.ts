@@ -47,7 +47,16 @@ export interface TourDef {
  * date when it ships.
  */
 // TODO(product): set real release date
-export const TOURS_RELEASED_AT = '2026-09-27T00:00:00Z'
+const PLACEHOLDER_TOURS_RELEASED_AT = '2026-09-27T00:00:00Z'
+export const TOURS_RELEASED_AT = PLACEHOLDER_TOURS_RELEASED_AT
+
+// Dev-only: a placeholder release date silently mis-sorts every account into the wrong
+// onboarding/"New"-tag bucket, so flag it loudly rather than let it ship unnoticed.
+if (process.env.NODE_ENV === 'development' && TOURS_RELEASED_AT === PLACEHOLDER_TOURS_RELEASED_AT) {
+  console.warn(
+    '[tours] TOURS_RELEASED_AT is still the placeholder date from the TODO(product) comment in registry.ts — set the real release date before this ships.',
+  )
+}
 
 export const TOURS: readonly TourDef[] = [
   {

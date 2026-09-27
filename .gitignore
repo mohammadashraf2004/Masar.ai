@@ -28,3 +28,7 @@ backend/C:/
 # (files kept on disk) so runs stop dirtying the working tree.
 __pycache__/
 *.py[cod]
+
+# QA screenshots from the tours E2E matrix (2026-09-27): local reference only,
+# the repo has no other tracked QA screenshots to join.
+/walkthrough-handoff/screenshots/

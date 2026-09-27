@@ -75,12 +75,13 @@ export function Sidebar() {
 
       <nav aria-label={t('nav.menu')} className="min-h-0 flex-1 overflow-y-auto">
         <ul className="flex flex-col gap-1">
-          {items.map(({ href, icon: Icon, label }) => {
+          {items.map(({ href, icon: Icon, label, tour }) => {
             const active = isActive(pathname, href)
             return (
               <li key={href}>
                 <Link
                   href={href}
+                  data-tour={tour}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors',

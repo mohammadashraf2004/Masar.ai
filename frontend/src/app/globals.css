@@ -645,3 +645,99 @@ html[lang="ar"] .text-lc-title { line-height: var(--lc-lh-head-rtl); }
     print-color-adjust: exact;
   }
 }
+
+/* ── Walkthroughs (src/features/tours) ────────────────────────────────────
+   The spotlight, the four blur panels around it, the card and its arrow. Their
+   positions are inline (they follow the target); everything else is here. The
+   colours are the handoff's tour palette for each theme, defined once on the
+   layer, so the layer follows data-theme like the rest of the app. */
+.tour-layer {
+  --tc: #111620; --tl: #1E2535; --th: #F7FAFC; --tt: #C9D1DD; --tm: #8A94A6;
+  --ta: #F59E0B; --tat: #F59E0B; --ton: #080A0E; --tsoft: #161C28;
+  --dim: rgba(5, 7, 10, 0.58);
+  --tour-ease: cubic-bezier(.2, .7, .2, 1);
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  outline: none;
+  /* The layer itself lets everything through, so the target stays clickable;
+     the panels and the card opt back in. */
+  pointer-events: none;
+}
+[data-theme="light"] .tour-layer {
+  --tc: #FFFFFF; --tl: #E2DFD7; --th: #0E1116; --tt: #2A2F3A; --tm: #5D6472;
+  --ta: #F59E0B; --tat: #9A5800; --ton: #080A0E; --tsoft: #EFEDE8;
+  --dim: rgba(14, 17, 22, 0.42);
+}
+.tour-blur {
+  position: absolute;
+  pointer-events: auto;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.tour-ring {
+  position: absolute;
+  pointer-events: none;
+}
+.tour-card {
+  position: absolute;
+  pointer-events: auto;
+  box-sizing: border-box;
+  background: var(--tc);
+  border: 1px solid var(--tl);
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.30), 0 2px 6px rgba(0, 0, 0, 0.16);
+  outline: none;
+}
+.tour-arrow {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  background: var(--tc);
+  transform: rotate(45deg);
+}
+.tour-content { transition: opacity .14s ease, transform .14s ease; }
+.tour-next:hover { background: #FBBF24; }
+.tour-ghost:hover { background: var(--tsoft); }
+.tour-skip:hover { color: var(--th); background: var(--tsoft); }
+
+/* Motion is off for the first placement (the card must not fly in from nowhere) and
+   for anyone who asked for less of it. */
+.tour-layer[data-placed] .tour-blur,
+.tour-layer[data-placed] .tour-ring {
+  transition: top .38s var(--tour-ease), left .38s var(--tour-ease), width .38s var(--tour-ease), height .38s var(--tour-ease), border-radius .38s;
+}
+.tour-layer[data-placed] .tour-card {
+  transition: top .38s var(--tour-ease), left .38s var(--tour-ease), width .38s var(--tour-ease), opacity .2s ease;
+}
+.tour-layer[data-placed] .tour-arrow {
+  transition: top .38s var(--tour-ease), left .38s var(--tour-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour-layer *, .tour-layer { transition: none !important; }
+}
+
+/* "You can replay this tour" - what is left when a tour ends. */
+.tour-replay {
+  --tc: #111620; --tl: #1E2535; --th: #F7FAFC; --tt: #C9D1DD;
+  position: fixed;
+  inset-inline: 16px;
+  bottom: 16px;
+  z-index: 80;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 460px;
+  box-sizing: border-box;
+  padding-block: 10px;
+  padding-inline: 16px 10px;
+  background: var(--tc);
+  border: 1px solid var(--tl);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+}
+[data-theme="light"] .tour-replay { --tc: #FFFFFF; --tl: #E2DFD7; --th: #0E1116; --tt: #2A2F3A; }
+@media (min-width: 640px) { .tour-replay { margin-inline: auto; } }

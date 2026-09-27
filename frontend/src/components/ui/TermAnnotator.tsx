@@ -52,6 +52,8 @@ function annotateString(text: string, scope: TermScope): ReactNode {
     if (match.start > cursor) out.push(text.slice(cursor, match.start))
 
     const isFirst = !scope.seen.has(match.term.id)
+    // The lesson's first term of all, in document order: where the language walkthrough points.
+    const firstOfLesson = scope.seen.size === 0
     scope.seen.add(match.term.id)
 
     out.push(
@@ -59,6 +61,7 @@ function annotateString(text: string, scope: TermScope): ReactNode {
         key={`${match.term.id}-${match.start}-${i}`}
         term={match.term.id}
         firstMention={isFirst}
+        tourTarget={firstOfLesson}
       />
     )
     cursor = match.end

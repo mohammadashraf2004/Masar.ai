@@ -57,6 +57,7 @@ export function ShellHeader() {
           aria-label={open ? t('nav.closeMenu') : t('nav.openMenu')}
           aria-expanded={open}
           aria-controls={MOBILE_MENU_ID}
+          data-tour="menu-button"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-white transition-colors hover:border-amber/30 lg:hidden"
         >
           {open ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}

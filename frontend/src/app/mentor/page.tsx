@@ -58,6 +58,7 @@ function MentorScreen() {
                 key={value}
                 type="button"
                 aria-pressed={mode === value}
+                data-tour={value === 'interview' ? 'interview-tab' : undefined}
                 onClick={() => router.replace(value === 'chat' ? '/mentor' : `/mentor?mode=${value}`, { scroll: false })}
                 className={cn(
                   'min-h-[44px] rounded-[7px] border px-3.5 py-2 text-[13px] transition-colors lg:min-h-0',

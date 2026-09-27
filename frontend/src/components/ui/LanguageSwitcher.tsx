@@ -66,6 +66,7 @@ export function LanguageSwitcher({
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
+        data-tour="lang-switch"
         title={t('lang.title')}
         className={cn(
           'flex min-h-[44px] items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all lg:min-h-0',

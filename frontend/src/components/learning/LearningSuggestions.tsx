@@ -52,8 +52,10 @@ export function LearningSuggestions() {
 
   return (
     <section aria-label={t('hub.title')} className="grid gap-4 md:grid-cols-2">
-      {groups.map((g) => (
-        <Card key={g.key} className="p-5">
+      {groups.map((g, i) => (
+        // The first card is the walkthrough's "learn" step: what to continue, or for an account
+        // with nothing under way yet, what to start.
+        <Card key={g.key} data-tour={i === 0 ? 'learn' : undefined} className="p-5">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-bright">{g.title}</h2>
             <Link href="/learn" className="inline-flex items-center gap-1 text-xs text-amber-text hover:text-amber-text2">

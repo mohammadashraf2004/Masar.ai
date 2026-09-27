@@ -227,7 +227,7 @@ export function ChatCard({ chat }: { chat: Chat }) {
           </Button>
         </form>
         {(left !== null || (chat.quotaStatus && !exhausted)) && (
-          <div className="mt-1 flex items-center justify-between gap-x-3 text-xs text-ghost">
+          <div data-tour="credits" className="mt-1 flex items-center justify-between gap-x-3 text-xs text-ghost">
             <span className="flex min-w-0 flex-1 flex-wrap gap-x-3">
               {left !== null && (
                 <span data-testid="credit-line">{tf('mentor.credits.line', { n: left })}</span>

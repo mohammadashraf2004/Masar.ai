@@ -400,7 +400,7 @@ describe('what the mentor knows', () => {
   it('lists exactly the five things the API is given, then says the lesson and exercise are not sent', async () => {
     await renderChat()
     const card = screen.getByRole('heading', { name: STRINGS.en['mentor.known.title'] }).closest('div') as HTMLElement
-    const rows = Array.from(card.querySelectorAll('dl > div')).map((row) => [row.querySelector('dt')?.textContent, row.querySelector('dd')?.textContent])
+    const rows = Array.from(card.querySelectorAll('dt')).map((dt) => [dt.textContent, dt.nextElementSibling?.textContent])
     expect(rows).toEqual([
       [STRINGS.en['mentor.known.name'], 'Amira Hassan'],
       [STRINGS.en['mentor.known.level'], 'Intermediate'],
@@ -562,5 +562,19 @@ describe('the top-up link sits after the credit text, at the trailing end', () =
     const row = link.parentElement as HTMLElement
     expect(row.className).toContain('justify-between')
     expect(row.className).not.toMatch(/\b(pl|pr|ml|mr|text-left|text-right|flex-row-reverse)\b/)
+  })
+})
+
+describe('what the walkthroughs point at', () => {
+  it('tags the interview tab, the credit line and the language rows', async () => {
+    await renderChat()
+    const tagged = (id: string) => document.querySelector<HTMLElement>(`[data-tour="${id}"]`)
+    expect(tagged('interview-tab')).toHaveTextContent(STRINGS.en['mentor.mode.interview'])
+    expect(tagged('credits')).toContainElement(await screen.findByTestId('credit-line'))
+    // Reply language and terminology, together, and nothing else.
+    const rows = tagged('mentor-lang')!
+    expect(Array.from(rows.querySelectorAll('dt')).map((dt) => dt.textContent)).toEqual([
+      STRINGS.en['mentor.known.language'], STRINGS.en['mentor.known.terms'],
+    ])
   })
 })

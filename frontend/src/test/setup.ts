@@ -3,6 +3,7 @@ import { createElement, forwardRef } from 'react'
 import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
 import { resetLearningCatalogCache } from '@/hooks/learningCatalogCache'
+import { resetTourSession, setToursEnabled } from '@/features/tours/session'
 import { useLanguageStore } from '@/lib/language'
 import { resetNav } from './nav'
 
@@ -32,6 +33,10 @@ beforeEach(() => {
   // the ones about Arabic switch explicitly.
   useLanguageStore.setState({ language: 'en', mode: 'arabic_first', annotateTerms: true })
   resetLearningCatalogCache()
+  // A walkthrough would appear over whatever an unrelated test is looking at; the tours' own
+  // tests turn them back on.
+  setToursEnabled(false)
+  resetTourSession()
 })
 
 afterEach(() => {

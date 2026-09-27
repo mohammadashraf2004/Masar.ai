@@ -6,6 +6,7 @@ import { ShellHeader } from '@/components/layout/ShellHeader'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { WalletProvider } from '@/components/layout/WalletContext'
 import { UpdateGate } from '@/components/updates/UpdateGate'
+import { TourProvider } from '@/features/tours/TourProvider'
 
 /**
  * The frame every signed-in page sits in: the sidebar (from `lg`), the header,
@@ -19,7 +20,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <MobileNavProvider>
       <WalletProvider>
-        <AppShellFrame>{children}</AppShellFrame>
+        {/* Walkthroughs: starts the one that is due on this page, and offers "Replay tour" to the Help menus. */}
+        <TourProvider>
+          <AppShellFrame>{children}</AppShellFrame>
+        </TourProvider>
       </WalletProvider>
     </MobileNavProvider>
   )

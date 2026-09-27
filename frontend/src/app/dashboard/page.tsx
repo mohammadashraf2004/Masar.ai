@@ -102,6 +102,18 @@ export default function DashboardPage() {
             new onboarding is prompted here rather than redirected. */}
         <YourMasarCard />
 
+        {/* A phone has no sidebar to find the challenges in; the desktop has it there. The
+            walkthrough's "practice" step points at this on a phone. */}
+        <Card data-tour="practice" className="flex items-center justify-between gap-3 p-4 lg:hidden">
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-bright">{t('nav.challenges')}</h2>
+            <p className="mt-0.5 text-xs leading-relaxed text-soft">{t('dash.challenges.body')}</p>
+          </div>
+          <Link href="/challenges" className={buttonStyles({ variant: 'outline', size: 'sm', className: 'shrink-0' })}>
+            {t('dash.challenges.cta')} <ArrowRight size={12} className="rtl:rotate-180" aria-hidden="true" />
+          </Link>
+        </Card>
+
         {/* Continue / recommended next: works with no career goal or roadmap at all. */}
         <LearningSuggestions />
 
@@ -260,7 +272,7 @@ export default function DashboardPage() {
               <p className="text-xs text-dim mb-4 leading-relaxed">
                 {t('dash.mentorBody')}
               </p>
-              <Link href="/mentor" className={buttonStyles({ variant: 'outline', size: 'sm', className: 'w-full' })}>
+              <Link href="/mentor" data-tour="mentor" className={buttonStyles({ variant: 'outline', size: 'sm', className: 'w-full' })}>
                 <Zap size={12} /> {t('dash.openMentor')}
               </Link>
             </Card>

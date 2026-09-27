@@ -11,6 +11,8 @@ export interface NavItem {
   /** An i18n key, not a string: the sidebar is the one piece of chrome on every
    *  page, so it has to follow the reader's language like the content does. */
   label: StringKey
+  /** The walkthrough's handle for this item (`data-tour`), where a tour points at it. */
+  tour?: string
 }
 
 /**
@@ -38,9 +40,11 @@ export const NAV: NavItem[] = [
   { href: '/billing',      icon: CreditCard,      label: 'nav.billing' },
   { href: '/glossary',     icon: BookMarked,      label: 'nav.glossary' },
   // A speech bubble with a dot in it, as the handoff draws the mentor.
-  { href: '/mentor',       icon: MessageSquareDot, label: 'nav.mentor' },
+  { href: '/mentor',       icon: MessageSquareDot, label: 'nav.mentor', tour: 'nav-mentor' },
   { href: '/community',    icon: Users,           label: 'nav.community' },
-  { href: '/challenges',   icon: Flame,           label: 'nav.challenges' },
+  // The graded challenges are where practice lives (there is no separate Exercises page), so the
+  // walkthrough's "practice" step points here.
+  { href: '/challenges',   icon: Flame,           label: 'nav.challenges', tour: 'nav-practice' },
 ]
 
 // Appended for admins only. Kept separate from NAV rather than filtered out

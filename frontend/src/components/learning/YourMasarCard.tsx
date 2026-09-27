@@ -100,7 +100,8 @@ export function YourMasarCard({ variant = 'dashboard', className }: YourMasarCar
         ? labelText(roleLabel(profile.career_goal, { language, mode }))
         : null
     return (
-      <Card className={cn('border-amber/30 bg-gradient-to-br from-amber/5 to-transparent p-5', className)}>
+      // A roadmap that has not started is still where the path begins: the walkthrough's first stop.
+      <Card data-tour="path" className={cn('border-amber/30 bg-gradient-to-br from-amber/5 to-transparent p-5', className)}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="min-w-0 max-w-xl">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-bright">
@@ -131,7 +132,7 @@ export function YourMasarCard({ variant = 'dashboard', className }: YourMasarCar
     : tf('card.skillsToGain', { n: gain })
 
   return (
-    <Card glow className={cn('p-5 sm:p-6', className)}>
+    <Card glow data-tour="path" className={cn('p-5 sm:p-6', className)}>
       <p className="text-xs font-medium uppercase tracking-widest text-soft">
         {home ? t('card.masar') : t('card.roadmap')}
       </p>

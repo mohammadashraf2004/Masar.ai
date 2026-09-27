@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LogOut } from 'lucide-react'
+import { CircleHelp, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 import { useI18n } from '@/lib/i18n'
@@ -11,6 +11,7 @@ import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { isActive, navFor } from '@/components/layout/nav'
 import { LegalLinks } from '@/components/legal/LegalLinks'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { useTours } from '@/features/tours/TourProvider'
 
 /** What the header's menu button controls. */
 export const MOBILE_MENU_ID = 'mobile-menu'
@@ -31,6 +32,7 @@ export function MobileMenu() {
   const pathname = usePathname()
   const { user, logout } = useAuthStore()
   const { t } = useI18n()
+  const tours = useTours()
 
   if (!open) return null
   const close = () => setOpen(false)
@@ -98,6 +100,18 @@ export function MobileMenu() {
               </button>
             )}
           </div>
+
+          {/* The help menu: for now, the walkthrough. */}
+          {tours && (
+            <button
+              type="button"
+              onClick={() => { close(); tours.replay() }}
+              className="inline-flex min-h-[44px] items-center gap-2 self-start px-2 text-sm text-soft transition-colors hover:text-bright"
+            >
+              <CircleHelp size={14} className="shrink-0" aria-hidden="true" />
+              {t('tour.replay')}
+            </button>
+          )}
 
           <LegalLinks />
         </div>

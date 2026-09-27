@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { BarChart3, LogOut, User, Zap } from 'lucide-react'
+import { BarChart3, CircleHelp, LogOut, User, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 import { useI18n } from '@/lib/i18n'
+import { useTours } from '@/features/tours/TourProvider'
 
 /** The account's initial in a neutral 34px circle (the handoff's avatar). */
 export function Avatar({ name, size = 34, className }: { name: string; size?: number; className?: string }) {
@@ -30,6 +31,7 @@ export function Avatar({ name, size = 34, className }: { name: string; size?: nu
 export function AccountMenu({ className }: { className?: string }) {
   const { user, logout } = useAuthStore()
   const { t } = useI18n()
+  const tours = useTours()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
@@ -110,6 +112,21 @@ export function AccountMenu({ className }: { className?: string }) {
               </Link>
             )}
           </div>
+
+          {/* The help menu: for now, the walkthrough. */}
+          {tours && (
+            <div role="group" aria-label={t('nav.help')} className="border-t border-border py-1.5">
+              <p className="px-4 pb-1 pt-1.5 text-[11px] font-medium text-ghost">{t('nav.help')}</p>
+              <button
+                type="button"
+                onClick={() => { setOpen(false); tours.replay() }}
+                className="flex w-full items-center gap-2.5 px-4 py-2 text-xs text-soft transition-colors hover:bg-surface hover:text-bright"
+              >
+                <CircleHelp size={13} className="text-ghost" aria-hidden="true" />
+                {t('tour.replay')}
+              </button>
+            </div>
+          )}
 
           <div className="border-t border-border py-1.5">
             <button

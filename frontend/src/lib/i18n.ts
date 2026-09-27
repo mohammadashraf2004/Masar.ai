@@ -592,6 +592,8 @@ const EN = {
   'dash.mentor': 'AI Mentor',
   'dash.mentorBody': 'Ready to explain concepts, quiz you, or review your code.',
   'dash.openMentor': 'Open mentor',
+  'dash.challenges.body': 'Graded practice, with feedback on your work.',
+  'dash.challenges.cta': 'Open',
 
   // Certificates page and public verification. (The certificate itself is
   // English-only by design and is not in this table.)
@@ -1063,6 +1065,37 @@ const EN = {
   'viewer.notPublished': 'The lessons of this course are not published yet.',
   'viewer.selectModule': 'Choose a module to start.',
   'viewer.about': 'Course details',
+
+  // ─── Walkthroughs (src/features/tours) ─────────────────────────────────
+  'tour.stepOf': '{n} of {total}',
+  'tour.new': 'New',
+  'tour.skip': 'Skip tour',
+  'tour.back': 'Back',
+  'tour.next': 'Next',
+  'tour.start': 'Get started',
+  'tour.got': 'Got it',
+  'tour.done': 'You can replay this tour anytime from Help.',
+  'tour.replay': 'Replay tour',
+  'nav.help': 'Help',
+  'tour.onboarding.path.title': 'Your path starts here',
+  'tour.onboarding.path.body': 'Follow your personalized learning path and see what to learn next.',
+  'tour.onboarding.learn.title': 'Learn at your pace',
+  'tour.onboarding.learn.body': 'Build your knowledge through structured lessons designed around your career goal.',
+  'tour.onboarding.practice.title': 'Practice what you learn',
+  'tour.onboarding.practice.body': 'Test your understanding and get feedback as you progress.',
+  'tour.onboarding.mentor.title': 'Your AI Mentor is always here',
+  'tour.onboarding.mentor.body': 'Ask questions, get explanations, receive hints, and debug your work without being given the answer directly.',
+  'tour.interview.tab.title': 'New: mock interviews',
+  'tour.interview.tab.body': 'Rehearse AI Engineer interview questions on camera, one question at a time.',
+  'tour.interview.credits.title': 'Clear costs, always visible',
+  'tour.interview.credits.body': 'Mentor messages cost 2 credits and interview questions 3. Your balance always shows here.',
+  'tour.language.switch.title': 'Arabic first, English anytime',
+  'tour.language.switch.body': 'Masar runs in Arabic by default. Switch to English here anytime; your progress stays the same.',
+  'tour.language.switch.mobile.body': 'Switch the interface language from the menu anytime; your progress stays the same.',
+  'tour.language.terms.title': 'Explained in Arabic, named like the industry',
+  'tour.language.terms.body': "Concepts are taught in Arabic, while technical terms like RAG and Embeddings stay in English — the words you'll see in docs and interviews.",
+  'tour.language.mentor.title': 'Choose how your mentor talks',
+  'tour.language.mentor.body': "Set the mentor's reply language and whether it keeps terms in English or translates them. Change it anytime in Settings.",
 } as const
 
 export type StringKey = keyof typeof EN
@@ -1624,6 +1657,8 @@ const AR: Record<StringKey, string> = {
   'dash.mentor': 'المرشد الذكي',
   'dash.mentorBody': 'جاهز لشرح المفاهيم واختبارك ومراجعة كودك.',
   'dash.openMentor': 'افتح المرشد',
+  'dash.challenges.body': 'تمارين مقيَّمة مع ملاحظات على عملك.',
+  'dash.challenges.cta': 'افتح',
 
   'cert.subtitle': 'كل شهادة تحمل رابط تحقّق عامّاً يمكن لأصحاب العمل فتحه.',
   'cert.copyLink': 'نسخ رابط التحقّق',
@@ -2089,6 +2124,37 @@ const AR: Record<StringKey, string> = {
   'viewer.notPublished': 'دروس هذه الدورة لم تُنشر بعد.',
   'viewer.selectModule': 'اختر وحدة لتبدأ.',
   'viewer.about': 'تفاصيل الدورة',
+
+  // ─── Walkthroughs (src/features/tours) ─────────────────────────────────
+  'tour.stepOf': '{n} من {total}',
+  'tour.new': 'جديد',
+  'tour.skip': 'تخطّي الجولة',
+  'tour.back': 'السابق',
+  'tour.next': 'التالي',
+  'tour.start': 'ابدأ الآن',
+  'tour.got': 'فهمت',
+  'tour.done': 'يمكنك إعادة الجولة في أي وقت من قائمة المساعدة.',
+  'tour.replay': 'إعادة الجولة',
+  'nav.help': 'المساعدة',
+  'tour.onboarding.path.title': 'مسارك يبدأ من هنا',
+  'tour.onboarding.path.body': 'اتّبع مسار التعلّم المخصّص لك، واعرف ما الذي تتعلّمه بعد ذلك.',
+  'tour.onboarding.learn.title': 'تعلّم بالسرعة التي تناسبك',
+  'tour.onboarding.learn.body': 'ابنِ معرفتك عبر دروس منظّمة مصمَّمة حول هدفك المهني.',
+  'tour.onboarding.practice.title': 'طبّق ما تتعلّمه',
+  'tour.onboarding.practice.body': 'اختبر فهمك واحصل على تقييم وملاحظات مع كل خطوة تتقدّمها.',
+  'tour.onboarding.mentor.title': 'مرشدك الذكي معك دائماً',
+  'tour.onboarding.mentor.body': 'اسأل، واطلب شرحاً أو تلميحاً، وتتبّع أخطاء كودك — دون أن يعطيك الحل مباشرة.',
+  'tour.interview.tab.title': 'جديد: المقابلة التجريبية',
+  'tour.interview.tab.body': 'تدرّب على أسئلة مقابلات AI Engineer أمام الكاميرا، سؤالاً بعد سؤال.',
+  'tour.interview.credits.title': 'تكلفة واضحة لكل خطوة',
+  'tour.interview.credits.body': 'رسالة المرشد برصيدين، وسؤال المقابلة بثلاثة. رصيدك المتبقّي يظهر هنا دائماً.',
+  'tour.language.switch.title': 'عربي أولاً، وبالإنجليزية متى شئت',
+  'tour.language.switch.body': 'واجهة مسار بالعربية افتراضياً. بدّل إلى الإنجليزية من هنا في أي وقت، وسيبقى تقدّمك كما هو.',
+  'tour.language.switch.mobile.body': 'بدّل لغة الواجهة من القائمة في أي وقت، وسيبقى تقدّمك كما هو.',
+  'tour.language.terms.title': 'الشرح بالعربية، والمصطلحات كما في سوق العمل',
+  'tour.language.terms.body': 'نشرح المفاهيم بالعربية ونُبقي المصطلحات التقنية بالإنجليزية، مثل RAG و Embeddings، لأنها ما ستراه في الوثائق والمقابلات.',
+  'tour.language.mentor.title': 'اختر كيف يحدّثك المرشد',
+  'tour.language.mentor.body': 'حدّد لغة ردود المرشد، وهل يكتب المصطلحات بالإنجليزية أو يترجمها. يمكنك تغييرها من الإعدادات.',
 }
 
 export const STRINGS: Record<UiLanguage, Record<StringKey, string>> = { en: EN, ar: AR }

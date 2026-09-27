@@ -218,3 +218,28 @@ describe('the mobile menu', () => {
     expect(within(document.getElementById('mobile-menu') as HTMLElement).getByRole('group', { name: 'المظهر' })).toBeInTheDocument()
   })
 })
+
+describe('what the walkthroughs point at', () => {
+  it('tags the practice and mentor items in the sidebar', () => {
+    renderShell()
+    const item = (id: string) => within(sidebar()).getByRole('link', { name: id === 'nav-mentor' ? 'AI mentor' : 'Challenges' })
+    expect(item('nav-mentor')).toHaveAttribute('data-tour', 'nav-mentor')
+    expect(item('nav-practice')).toHaveAttribute('data-tour', 'nav-practice')
+    // Nothing else in the rail is a target.
+    expect(within(sidebar()).getAllByRole('link').filter((a) => a.hasAttribute('data-tour'))).toHaveLength(2)
+  })
+
+  it('has a language switch in the header for the language walkthrough', () => {
+    renderShell()
+    expect(document.querySelectorAll('header [data-tour="lang-switch"]').length).toBeGreaterThan(0)
+  })
+})
+
+describe('the walkthrough\'s phone target', () => {
+  it('tags the menu button, and the tour never opens the menu itself', () => {
+    renderShell()
+    const button = screen.getByRole('button', { name: 'Open navigation menu' })
+    expect(button).toHaveAttribute('data-tour', 'menu-button')
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+  })
+})

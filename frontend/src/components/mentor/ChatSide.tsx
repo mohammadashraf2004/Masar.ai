@@ -27,21 +27,26 @@ export function ChatSide({ chat, name, level, readiness }: { chat: Chat; name: s
     { label: 'mentor.known.name', value: name, auto: true },
     { label: 'mentor.known.level', value: t(`level.${level}` as StringKey) },
     { label: 'mentor.known.readiness', value: `${readiness}%`, accent: true },
+  ]
+  // The two rows the learner controls; the language walkthrough points at them together.
+  const chosen: typeof known = [
     { label: 'mentor.known.language', value: t(language === 'ar' ? 'lang.arabic' : 'lang.english') },
     { label: 'mentor.known.terms', value: t(`lang.mode.${mode}` as StringKey) },
   ]
+  const row = (r: (typeof known)[number]) => (
+    <div key={r.label} className="flex items-baseline justify-between gap-3">
+      <dt className="text-dim">{t(r.label)}</dt>
+      <dd dir={r.auto ? 'auto' : undefined} className={cn('min-w-0 truncate text-end font-medium', r.accent ? 'font-mono text-amber-text' : 'text-bright')}>{r.value}</dd>
+    </div>
+  )
 
   return (
     <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-5">
       <Card className="p-5">
         <h2 className="mb-3 text-sm font-semibold text-white">{t('mentor.known.title')}</h2>
         <dl className="space-y-2.5 text-[13px]">
-          {known.map((row) => (
-            <div key={row.label} className="flex items-baseline justify-between gap-3">
-              <dt className="text-dim">{t(row.label)}</dt>
-              <dd dir={row.auto ? 'auto' : undefined} className={cn('min-w-0 truncate text-end font-medium', row.accent ? 'font-mono text-amber-text' : 'text-bright')}>{row.value}</dd>
-            </div>
-          ))}
+          {known.map(row)}
+          <div data-tour="mentor-lang" className="space-y-2.5">{chosen.map(row)}</div>
         </dl>
         <p className="mt-3.5 text-xs leading-relaxed text-ghost">{t('mentor.known.note')}</p>
       </Card>

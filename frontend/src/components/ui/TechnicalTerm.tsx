@@ -123,6 +123,8 @@ interface TechnicalTermProps extends TermLookupProps {
    * first-mention rule. Later mentions render the English term alone.
    */
   firstMention?: boolean
+  /** The first term in the lesson: the language walkthrough points at it. */
+  tourTarget?: boolean
   className?: string
 }
 
@@ -131,6 +133,7 @@ export function TechnicalTerm({
   arabic,
   category,
   firstMention = false,
+  tourTarget = false,
   className,
 }: TechnicalTermProps) {
   const entry = resolve(term)
@@ -171,6 +174,7 @@ export function TechnicalTerm({
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
+        data-tour={tourTarget ? 'lesson-terms' : undefined}
         className={cn(
           'inline items-baseline text-start font-medium transition-colors',
           'text-amber-text2 hover:text-amber-text border-b border-dotted border-amber/40 hover:border-amber',

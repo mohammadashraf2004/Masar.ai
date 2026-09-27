@@ -164,3 +164,41 @@ design has only chat and interview, so neither is reachable from the UI now. `PO
 and `POST /mentor/skill-gap` and their `api.reviewCode` / `api.analyzeSkillGap` client methods are
 untouched; the chat's "attach code" covers the first, and the learning-path
 skill-gap panel covers the second.
+
+## 6. Walkthrough (tour) records per account
+
+**Today:** no endpoint. The frontend (`frontend/src/features/tours/`) remembers what each account
+did with each tour in **this browser**: `localStorage["masar.tours"]`, keyed by account id then tour
+id, each value `{ "status": "done" | "skipped", "version": <int>, "at": <ISO time> }`. So the same
+account on another device, or after clearing site data, sees its tours again. "Never two tours in one
+session" is per browser tab (`sessionStorage`) and stays client-side.
+
+**Asked for:** the same record on the account, so it follows it.
+
+Fields of a tour record:
+
+| Field     | Type                    | Notes |
+|-----------|-------------------------|-------|
+| `tour_id` | string                  | `onboarding`, `mentor-interview` or `language` today. Free-form: the server does not need to know the list. |
+| `status`  | `"done"` \| `"skipped"` | Skipping counts as seen. |
+| `version` | integer                 | The tour's version when it was seen. A tour is due when there is no record for its **current** version, so the server stores the number it is given and never compares versions itself, except below. |
+| `at`      | ISO 8601 timestamp      | Set by the server on write. |
+
+Endpoints (for the signed-in account; no account id in the path):
+
+- `GET /me/tours/:id` -> `{ "tour_id", "status", "version", "at" }`, or `404` when the account has
+  never seen that tour. (The client asks once per tour on the page that runs it. A `GET /me/tours`
+  returning all of them would save requests, but is not needed.)
+- `PUT /me/tours/:id` with `{ "status": "done" | "skipped", "version": <int> }` upserts the record and
+  returns it. Idempotent. A `version` lower than the stored one is ignored (the stored record is
+  returned), so an out-of-date tab cannot make a newer tour show again.
+- Nothing else is needed: which tour runs where, and the "New" tag (an account created before
+  `TOURS_RELEASED_AT` in `registry.ts` is "existing"), are decided in the client from `created_at`.
+
+**What the frontend does when it lands:** only `records.ts` changes (read and write through the
+endpoints, keep localStorage as the offline fallback). The eligibility rules, the tests and the UI do
+not.
+
+**Set at release:** `TOURS_RELEASED_AT` (`registry.ts`) is a placeholder (2026-09-27, marked
+`TODO(product)`). Accounts created before it get feature tours with the "New" tag and are not given the
+first-run onboarding; accounts created after it get the opposite. Change it to the real release date.

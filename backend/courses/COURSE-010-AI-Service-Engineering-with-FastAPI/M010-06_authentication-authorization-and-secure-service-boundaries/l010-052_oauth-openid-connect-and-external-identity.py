@@ -24,10 +24,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 8,
-                       'figure': 'Figure 8-8',
-                       'title': 'OAuth authentication flow',
-                       'filename': 'fig_08_08_oauth_flow.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'OAuth, OpenID Connect & External Identity',
@@ -83,6 +79,8 @@ TOPIC = {'title': 'OAuth, OpenID Connect & External Identity',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:oauth-flow}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

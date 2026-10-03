@@ -23,16 +23,6 @@ LESSON_META = {'lesson_id': 'L008-094',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 50,
  'prerequisites': ['L008-093', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'generator-conditioning.png',
-              'path': '../../assets/generator-conditioning.png',
-              'caption': 'Conditioning paths for diffusion and other modality-specific generators.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'qwen-image-edit-architecture.png',
-              'path': '../../assets/qwen-image-edit-architecture.png',
-              'caption': 'Dual semantic and spatial conditioning for multimodal image editing.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -77,14 +67,7 @@ TOPIC = {'title': 'Multimodal Connectors & Conditioning Interfaces',
                        '- **unified representations**\n'
                        '- **modality-specific generation**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **generator-conditioning.png** — Conditioning paths for diffusion and other '
-                       'modality-specific generators. (package path: `../../assets/generator-conditioning.png`)\n'
-                       '- **qwen-image-edit-architecture.png** — Dual semantic and spatial conditioning for multimodal '
-                       'image editing. (package path: `../../assets/qwen-image-edit-architecture.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:generator-conditioning}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -96,6 +79,8 @@ TOPIC = {'title': 'Multimodal Connectors & Conditioning Interfaces',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:qwen-image-edit-architecture}}\n'
                        '\n'
                        '## Practice\n'
                        'Prototype the architecture with pretrained components or simplified modules, explicitly '

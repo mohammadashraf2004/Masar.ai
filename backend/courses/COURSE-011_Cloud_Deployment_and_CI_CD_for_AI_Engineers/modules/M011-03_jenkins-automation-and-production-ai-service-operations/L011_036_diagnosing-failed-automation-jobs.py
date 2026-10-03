@@ -6,9 +6,33 @@ TOPICS = ['failed builds', 'console logs', 'cloud exceptions', 'missing dependen
 
 SOURCE_REFERENCES = ['BOOK-011 Chapters 11, 12, 13']
 
-FIGURE_REFERENCES = [{'source_figure': 'Figure 11-6', 'title': 'Failed Jenkins execution', 'priority': 'required', 'suggested_path': 'assets/m011-03/fig-11-6-jenkins-failure.png'}]
-
-LESSON_MARKDOWN = '# L011-036 — Diagnosing Failed Automation Jobs\n\n## Learning objective\n\nApply diagnosing failed automation jobs concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- failed builds\n- console logs\n- cloud exceptions\n- missing dependencies/resources\n- fix-rerun-verify loop\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n\n## Manual visual references\n- `Figure 11-6` — Failed Jenkins execution (required); add manually at `assets/m011-03/fig-11-6-jenkins-failure.png`.\n'
+LESSON_MARKDOWN = ('# L011-036 — Diagnosing Failed Automation Jobs\n'
+                   '\n'
+                   '## Learning objective\n'
+                   '\n'
+                   'Apply diagnosing failed automation jobs concepts to the deployment and operation of an existing production-oriented AI service.\n'
+                   '\n'
+                   '## Core topics\n'
+                   '\n'
+                   '- failed builds\n'
+                   '- console logs\n'
+                   '- cloud exceptions\n'
+                   '- missing dependencies/resources\n'
+                   '- fix-rerun-verify loop\n'
+                   '\n'
+                   '{{figure:jenkins-failure}}\n'
+                   '\n'
+                   '## AI-engineering context\n'
+                   '\n'
+                   'Use these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n'
+                   '\n'
+                   '## Practice\n'
+                   '\n'
+                   'Apply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n'
+                   '\n'
+                   '## Assessment focus\n'
+                   '\n'
+                   'The learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n')
 
 EXERCISES = [{'id': 'L011-036-EX1', 'title': 'Apply Diagnosing Failed Automation Jobs', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: failed builds, console logs, cloud exceptions. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-036-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to diagnosing failed automation jobs. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
 

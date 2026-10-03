@@ -478,6 +478,8 @@ const EN = {
   // Lesson meta. One template per phrase: a number and its unit are never joined
   // from pieces, because the pieces reorder inside a right-to-left line.
   'lesson.readTime': '{n} min read',
+  'lesson.figureZoom': 'Enlarge figure',
+  'lesson.figureUnavailable': 'This figure could not be loaded.',
   'course.drafting': 'Content for {title} is being drafted. Check back soon.',
   'course.estimatedHours': '{n}h estimated',
   'tracks.notFound': 'Track not found.',
@@ -1549,6 +1551,8 @@ const AR: Record<StringKey, string> = {
   'level.advanced': 'متقدم',
 
   'lesson.readTime': '{n} د للقراءة',
+  'lesson.figureZoom': 'تكبير الصورة',
+  'lesson.figureUnavailable': 'تعذّر تحميل هذه الصورة.',
   'course.drafting': 'المحتوى الخاص بـ {title} قيد الإعداد. عُد قريباً.',
   'course.estimatedHours': '{n} ساعة تقديرية',
   'tracks.notFound': 'المسار غير موجود.',

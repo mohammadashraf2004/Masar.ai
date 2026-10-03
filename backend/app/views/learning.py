@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import Annotated, Optional, List, Any
+from typing import Annotated, Literal, Optional, List, Any, Union
 from datetime import datetime
 from app.models.learning import DifficultyLevel
 
@@ -32,16 +32,47 @@ def _strip_answer_key(questions):
     ]
 
 
+class MarkdownBlock(BaseModel):
+    """A run of lesson Markdown, exactly as authored (fenced code, tables, callouts
+    and equations are all still inside it)."""
+    type: Literal["markdown"] = "markdown"
+    content: str
+
+
+class ImageBlock(BaseModel):
+    """A figure, placed where the lesson's `{{figure:<key>}}` marker was. `url` is
+    relative to the API root (or absolute, once figures move to a CDN); the client
+    never builds a path itself. Nothing about where the figure came from is here."""
+    type: Literal["image"] = "image"
+    asset_key: str
+    url: str
+    alt: str
+    caption: Optional[str] = None
+    figure_number: Optional[str] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
+
+
+LessonBlock = Annotated[Union[MarkdownBlock, ImageBlock], Field(discriminator="type")]
+
+
 class LessonResponse(BaseModel):
     """The Arabic twins are optional on every content model: a lesson that
     has no Arabic version returns null and the client falls back to the
     English original (and says so). Code fields have no twin — see
-    docs/content/ARABIC_FIRST_GUIDELINES.md."""
+    docs/content/ARABIC_FIRST_GUIDELINES.md.
+
+    `blocks` / `blocks_ar` are the body as ordered blocks, present only when the
+    body places at least one figure; a lesson without figures has null and is
+    rendered from `content` exactly as before. The blocks carry the same text as
+    `content`, split around the figures."""
     id: int
     title: str
     content: str
     title_ar: Optional[str] = None
     content_ar: Optional[str] = None
+    blocks: Optional[List[LessonBlock]] = None
+    blocks_ar: Optional[List[LessonBlock]] = None
     order: int
     # None when the course does not state a duration (curriculum imported without one).
     estimated_minutes: Optional[int] = None

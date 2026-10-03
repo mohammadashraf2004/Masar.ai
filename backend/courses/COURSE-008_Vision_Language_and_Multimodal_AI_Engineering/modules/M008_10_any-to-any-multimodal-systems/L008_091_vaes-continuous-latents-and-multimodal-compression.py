@@ -29,16 +29,6 @@ LESSON_META = {'lesson_id': 'L008-091',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-090', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'multimodal-vae-comparison.png',
-              'path': '../../assets/multimodal-vae-comparison.png',
-              'caption': 'Image, video, and audio latent-compression examples.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'multimodal-vae.png',
-              'path': '../../assets/multimodal-vae.png',
-              'caption': 'VAE compression and reconstruction across image, audio, and action modalities.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -82,14 +72,7 @@ TOPIC = {'title': 'VAEs, Continuous Latents & Multimodal Compression',
                        '- **multimodal input**\n'
                        '- **multimodal output**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **multimodal-vae-comparison.png** — Image, video, and audio latent-compression examples. '
-                       '(package path: `../../assets/multimodal-vae-comparison.png`)\n'
-                       '- **multimodal-vae.png** — VAE compression and reconstruction across image, audio, and action '
-                       'modalities. (package path: `../../assets/multimodal-vae.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:multimodal-vae-comparison}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -101,6 +84,8 @@ TOPIC = {'title': 'VAEs, Continuous Latents & Multimodal Compression',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:multimodal-vae}}\n'
                        '\n'
                        '## Practice\n'
                        'Prototype the architecture with pretrained components or simplified modules, explicitly '

@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-032',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 70,
  'prerequisites': ['L008-031', 'M008-01'],
- 'visuals': [{'filename': 'docmatix-synthesis-pipeline.png',
-              'path': '../../assets/docmatix-synthesis-pipeline.png',
-              'caption': 'Synthetic document Q&A generation and hallucination-filtering pipeline.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,13 +64,7 @@ TOPIC = {'title': 'Synthetic Annotation & Multimodal Quality Validation',
                        '- **metadata**\n'
                        '- **mixture design**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **docmatix-synthesis-pipeline.png** — Synthetic document Q&A generation and '
-                       'hallucination-filtering pipeline. (package path: '
-                       '`../../assets/docmatix-synthesis-pipeline.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:docmatix-synthesis-pipeline}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

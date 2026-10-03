@@ -1,106 +1,108 @@
-[
-  {
-    "priority": "required",
-    "figure": "1.20",
-    "title": "RGB versus HSV color space",
-    "target_lesson": "L014-004",
-    "suggested_asset": "assets/m014-01/rgb-vs-hsv-color-space.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "1.33",
-    "title": "Image vs NumPy 2D array coordinates",
-    "target_lesson": "L014-005",
-    "suggested_asset": "assets/m014-01/image-array-coordinates.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "optional",
-    "figure": "1.1",
-    "title": "Images as multimodal arrays and matrices",
-    "target_lesson": "L014-002",
-    "suggested_asset": "assets/m014-01/image-as-array.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "2.5",
-    "title": "Forward vs backward/inverse warping",
-    "target_lesson": "L014-010",
-    "suggested_asset": "assets/m014-02/forward-vs-inverse-warping.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "2.27",
-    "title": "Center-rotation transform composition",
-    "target_lesson": "L014-011",
-    "suggested_asset": "assets/m014-02/center-rotation-transform-composition.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "4.42",
-    "title": "Repeated image / DFT periodic extension",
-    "target_lesson": "L014-025",
-    "suggested_asset": "assets/m014-03/dft-periodic-extension.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "optional",
-    "figure": "4.15",
-    "title": "DFT and IDFT",
-    "target_lesson": "L014-021",
-    "suggested_asset": "assets/m014-03/spatial-frequency-transform-flow.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "5.1",
-    "title": "Convolution of an image with a kernel",
-    "target_lesson": "L014-027",
-    "suggested_asset": "assets/m014-04/convolution-sliding-window.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "5.9",
-    "title": "2D correlation versus convolution numeric example",
-    "target_lesson": "L014-030",
-    "suggested_asset": "assets/m014-04/convolution-vs-correlation.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "7.9",
-    "title": "Floyd–Steinberg error-diffusion neighborhood",
-    "target_lesson": "L014-044",
-    "suggested_asset": "assets/m014-06/floyd-steinberg-error-diffusion.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "8.1",
-    "title": "Partial derivatives and gradient of image",
-    "target_lesson": "L014-052",
-    "suggested_asset": "assets/m014-07/image-gradient-geometry.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "8.3",
-    "title": "Second-order derivatives and the Laplacian",
-    "target_lesson": "L014-052",
-    "suggested_asset": "assets/m014-07/first-second-derivatives-zero-crossing.svg",
-    "preference": "Masar-original redraw"
-  },
-  {
-    "priority": "required",
-    "figure": "9.1",
-    "title": "Image restoration process",
-    "target_lesson": "L014-061",
-    "suggested_asset": "assets/m014-08/image-degradation-restoration-model.svg",
-    "preference": "Masar-original redraw"
-  }
-]
+{
+  "version": 1,
+  "course_id": "COURSE-014",
+  "assets": [
+    {
+      "key": "center-rotation-transform-composition",
+      "type": "image",
+      "file": "B19751_02_27.png",
+      "alt": "Three homogeneous transforms for rotating an image about its center: translate the center to the origin with T1, rotate with R, then translate back with T2, composed as T2 R T1.",
+      "caption": "Rotation about an image center requires translate-to-origin, rotate, then translate-back composition.",
+      "source_reference": "Figure 2.27; source file B19751_02_27.png"
+    },
+    {
+      "key": "convolution-sliding-window",
+      "type": "image",
+      "file": "B19751_05_01.png",
+      "alt": "A 3-by-3 averaging kernel slides over a 10-by-10 image in valid mode; the first weighted sum produces the top-left pixel of an 8-by-8 output.",
+      "caption": "Valid convolution applies the kernel only where its full neighborhood fits, so a 10×10 input becomes an 8×8 output.",
+      "source_reference": "Figure 5.1; source file B19751_05_01.png"
+    },
+    {
+      "key": "convolution-vs-correlation",
+      "type": "image",
+      "file": "B19751_05_09.png",
+      "alt": "Numeric comparison using a 4-by-4 input and a 2-by-2 kernel: correlation uses the original kernel, while convolution flips it in both dimensions and produces different output values.",
+      "caption": "Convolution flips the kernel before sliding; correlation uses the kernel as given.",
+      "source_reference": "Figure 5.9; source file B19751_05_09.png"
+    },
+    {
+      "key": "dft-periodic-extension",
+      "type": "image",
+      "file": "B19751_04_42.png",
+      "alt": "A photograph of colored pencils repeated in a 3-by-3 tiled grid, illustrating the periodic extension assumed by the discrete Fourier transform.",
+      "caption": "The DFT treats a finite image as one tile of an infinitely repeated periodic signal.",
+      "source_reference": "Figure 4.42; source file B19751_04_42.png"
+    },
+    {
+      "key": "first-second-derivatives-zero-crossing",
+      "type": "image",
+      "file": "B19751_08_03.png",
+      "alt": "Equations for second derivatives in x and y, their sum as the Laplacian, and the corresponding five-point convolution kernel with center minus four and four neighboring ones.",
+      "caption": "The discrete Laplacian sums second derivatives and can be implemented with a five-point convolution kernel.",
+      "source_reference": "Figure 8.3; source file B19751_08_03.png"
+    },
+    {
+      "key": "floyd-steinberg-error-diffusion",
+      "type": "image",
+      "file": "B19751_07_09.png",
+      "alt": "Floyd–Steinberg error-diffusion stencil distributing quantization error to four future pixels with weights 7/16, 3/16, 5/16, and 1/16.",
+      "caption": "Floyd–Steinberg dithering diffuses each pixel's quantization error to four unprocessed neighbors.",
+      "source_reference": "Figure 7.9; source file B19751_07_09.png"
+    },
+    {
+      "key": "forward-vs-inverse-warping",
+      "type": "image",
+      "file": "B19751_02_05.png",
+      "alt": "Two image grids showing forward warping mapping a source pixel p to output position p-prime, and backward warping tracing an output pixel p-prime back to its source coordinate p.",
+      "caption": "Forward warping pushes source pixels outward; inverse warping samples each destination pixel from the source.",
+      "source_reference": "Figure 2.5; source file B19751_02_05.png"
+    },
+    {
+      "key": "image-array-coordinates",
+      "type": "image",
+      "file": "B19751_01_33.png",
+      "alt": "Mona Lisa image annotated with x increasing downward along rows and y increasing rightward along columns, matching two-dimensional array indexing.",
+      "caption": "Image arrays index rows downward first and columns rightward second, which can differ from Cartesian x-y intuition.",
+      "source_reference": "Figure 1.33; source file B19751_01_33.png"
+    },
+    {
+      "key": "image-degradation-restoration-model",
+      "type": "image",
+      "file": "B19751_09_01.png",
+      "alt": "Image degradation and restoration model where original f(x,y) is blurred by h(x,y) and combined with additive noise n(x,y) to form g(x,y), then restoration estimates f-hat(x,y); spatial and Fourier equations are shown.",
+      "caption": "Restoration estimates the original image by modeling both the degradation filter and additive noise.",
+      "source_reference": "Figure 9.1; source file B19751_09_01.png"
+    },
+    {
+      "key": "image-gradient-geometry",
+      "type": "image",
+      "file": "B19751_08_01.png",
+      "alt": "Forward- and central-difference formulas and kernels for first image derivatives, alongside the gradient vector, magnitude, and direction equations.",
+      "caption": "Horizontal and vertical finite differences combine into a gradient whose magnitude and direction describe local intensity change.",
+      "source_reference": "Figure 8.1; source file B19751_08_01.png"
+    },
+    {
+      "key": "rgb-vs-hsv-color-space",
+      "type": "image",
+      "file": "B19751_01_20.png",
+      "alt": "Side-by-side 3D representations of an RGB color cube with red, green, and blue axes and an HSV cylinder organized by hue angle, saturation radius, and value height.",
+      "caption": "RGB mixes color channels directly, while HSV separates hue, saturation, and brightness into more intuitive dimensions.",
+      "source_reference": "Figure 1.20; source file B19751_01_20.png"
+    }
+  ],
+  "pending": [
+    {
+      "figure": "1.1",
+      "title": "Images as multimodal arrays and matrices",
+      "lesson_id": "L014-002",
+      "priority": "optional"
+    },
+    {
+      "figure": "4.15",
+      "title": "DFT and IDFT",
+      "lesson_id": "L014-021",
+      "priority": "optional"
+    }
+  ]
+}

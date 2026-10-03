@@ -26,11 +26,6 @@ LESSON_META = {'lesson_id': 'L008-015',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 45,
  'prerequisites': ['L008-014'],
- 'visuals': [{'filename': 'paligemma-segmentation.png',
-              'path': '../../assets/paligemma-segmentation.png',
-              'caption': 'Text-guided segmentation using location/segment tokens and decoding.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -75,12 +70,7 @@ TOPIC = {'title': 'Text-Guided Segmentation & Structured Visual Outputs',
                        '- **multimodal engineering**\n'
                        '- **controlled experiments**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **paligemma-segmentation.png** — Text-guided segmentation using location/segment tokens and '
-                       'decoding. (package path: `../../assets/paligemma-segmentation.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:paligemma-segmentation}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

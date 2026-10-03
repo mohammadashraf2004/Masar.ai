@@ -23,10 +23,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 11,
-                       'figure': 'Figure 11-11',
-                       'title': 'E2E test boundaries visualized on the RAG data pipeline diagram',
-                       'filename': 'fig_11_11_e2e_boundaries.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'End-to-End AI Service Workflow Testing',
@@ -81,6 +77,8 @@ TOPIC = {'title': 'End-to-End AI Service Workflow Testing',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:e2e-boundaries}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

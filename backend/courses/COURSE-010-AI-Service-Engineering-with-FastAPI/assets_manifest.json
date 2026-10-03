@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "course_id": "COURSE-010",
+  "assets": [
+    {
+      "key": "ai-service-architecture",
+      "type": "image",
+      "file": "assets/bgai_0104.png",
+      "alt": "Layered FastAPI generative AI service with API routers, controls, and data-source integrations connected to models, a database, and external applications.",
+      "caption": "The service boundary coordinates HTTP controls, models, persistence, and third-party integrations without collapsing them into one layer.",
+      "source_reference": "Figure 1-4; source file bgai_0104.png"
+    },
+    {
+      "key": "async-event-loop",
+      "type": "image",
+      "file": "assets/bgai_0504.png",
+      "alt": "An event loop receives requests from four clients, delegates work to workers, and routes callbacks and responses back to each client.",
+      "caption": "The event loop keeps many requests moving by delegating work and resuming each request when its result is ready.",
+      "source_reference": "Figure 5-4; source file bgai_0504.png"
+    },
+    {
+      "key": "authorization-models",
+      "type": "image",
+      "file": "assets/bgai_0811.png",
+      "alt": "Nested comparison of RBAC, ReBAC, and ABAC using roles, team relationships, and subscription attributes to control access to text and image models.",
+      "caption": "RBAC grants by role, ReBAC by relationship, and ABAC by attributes such as subscription tier.",
+      "source_reference": "Figure 8-11; source file bgai_0811.png"
+    },
+    {
+      "key": "communication-mechanisms",
+      "type": "image",
+      "file": "assets/bgai_0607.png",
+      "alt": "Sequence diagrams comparing HTTP request-response, short polling, long polling, server-sent events, and bidirectional WebSocket communication.",
+      "caption": "Choose a communication pattern by update direction, latency needs, and connection lifetime—not by novelty.",
+      "source_reference": "Figure 6-7; source file bgai_0607.png"
+    },
+    {
+      "key": "concurrency-vs-parallelism",
+      "type": "image",
+      "file": "assets/bgai_0501.png",
+      "alt": "Nested boxes showing multiprocessing parallelism as one way to execute work within the broader concept of concurrency, which also includes threading and async I/O.",
+      "caption": "Concurrency coordinates overlapping work; parallelism executes work simultaneously, often across processes.",
+      "source_reference": "Figure 5-1; source file bgai_0501.png"
+    },
+    {
+      "key": "containers-vs-vms",
+      "type": "image",
+      "file": "assets/bgai_1203.png",
+      "alt": "Side-by-side stacks showing virtual machines with a guest OS per application and containers sharing the host operating system while packaging their own libraries.",
+      "caption": "Containers share the host OS, while virtual machines package a separate guest OS for each workload.",
+      "source_reference": "Figure 12-3; source file bgai_1203.png"
+    },
+    {
+      "key": "context-caching",
+      "type": "image",
+      "file": "assets/bgai_1003.png",
+      "alt": "A video-summary query sends an LLM a cache reference while files are stored once in a multimodal cache containing video, image, audio, and document content.",
+      "caption": "Context caching lets repeated requests reference previously uploaded multimodal content instead of resending it.",
+      "source_reference": "Figure 10-3; source file bgai_1003.png"
+    },
+    {
+      "key": "continuous-batching",
+      "type": "image",
+      "file": "assets/bgai_0516.png",
+      "alt": "Two token grids showing continuous batching filling open sequence slots with new prompt tokens as other sequences emit output or stop tokens.",
+      "caption": "Continuous batching replaces finished sequences immediately, keeping more accelerator slots productive.",
+      "source_reference": "Figure 5-16; source file bgai_0516.png"
+    },
+    {
+      "key": "controllers-services-providers-repositories",
+      "type": "image",
+      "file": "assets/bgai_0205.png",
+      "alt": "Layer diagram showing a controller calling services that use a repository and database, and providers that connect to email, GitHub, and other external applications.",
+      "caption": "Controllers coordinate use cases; repositories isolate persistence, and providers isolate external systems.",
+      "source_reference": "Figure 2-5; source file bgai_0205.png"
+    },
+    {
+      "key": "course-service-architecture",
+      "type": "image",
+      "file": "assets/bgai_0209.png",
+      "alt": "FastAPI service architecture with API routers and authentication guards, modality-specific resource controllers, shared services, storage systems, and text, image, video, audio, geometry, and embedding models.",
+      "caption": "A modular AI service can expose many modalities while keeping routing, resource control, services, storage, and models separate.",
+      "source_reference": "Figure 2-9; source file bgai_0209.png"
+    },
+    {
+      "key": "dependency-injection",
+      "type": "image",
+      "file": "assets/bgai_0202.png",
+      "alt": "Dependency graph where get_db feeds get_user, and get_user feeds both a user endpoint and get_user_message for a messages endpoint.",
+      "caption": "FastAPI resolves shared dependencies as a graph, reusing upstream results across endpoint-specific logic.",
+      "source_reference": "Figure 2-2; source file bgai_0202.png"
+    },
+    {
+      "key": "docker-platform",
+      "type": "image",
+      "file": "assets/bgai_1204.png",
+      "alt": "Docker client commands communicate with the Docker daemon, which builds and runs containers from images pulled from a registry.",
+      "caption": "The Docker client directs the daemon, while registries distribute the images from which containers run.",
+      "source_reference": "Figure 12-4; source file bgai_1204.png"
+    },
+    {
+      "key": "e2e-boundaries",
+      "type": "image",
+      "file": "assets/bgai_1111.png",
+      "alt": "RAG pipeline from file upload through extraction, transformation, vector storage, retrieval, and generation, overlaid with separate upload, generation, and full-workflow end-to-end test boundaries.",
+      "caption": "End-to-end tests should cover both individual API workflows and the complete upload-to-answer path.",
+      "source_reference": "Figure 11-11; source file bgai_1111.png"
+    },
+    {
+      "key": "external-authorization-service",
+      "type": "image",
+      "file": "assets/bgai_0817.png",
+      "alt": "A client calls a FastAPI service that asks separate authorization logic to decide an actor-resource-action tuple, then enforces the allow or deny result.",
+      "caption": "Keep policy decisions separate from enforcement: the authorization service decides, and the API applies the result.",
+      "source_reference": "Figure 8-17; source file bgai_0817.png"
+    },
+    {
+      "key": "io-guardrails",
+      "type": "image",
+      "file": "assets/bgai_0901.png",
+      "alt": "Comparison of a direct prompt-to-LLM path with a guarded path that checks inputs for PII, off-topic requests, and jailbreaks and checks outputs for hallucinations, profanity, and competitor mentions.",
+      "caption": "Guardrails constrain both sides of the model boundary: unsafe inputs before inference and unacceptable outputs afterward.",
+      "source_reference": "Figure 9-1; source file bgai_0901.png"
+    },
+    {
+      "key": "isolated-bridge-networks",
+      "type": "image",
+      "file": "assets/bgai_1210.png",
+      "alt": "Docker host with two separate bridge networks, docker0 and genai-net, each assigning its own subnet addresses to connected containers.",
+      "caption": "Separate bridge networks create explicit connectivity boundaries between groups of containers.",
+      "source_reference": "Figure 12-10; source file bgai_1210.png"
+    },
+    {
+      "key": "jwt-auth-architecture",
+      "type": "image",
+      "file": "assets/bgai_0805.png",
+      "alt": "FastAPI authentication architecture showing login, registration, and password reset routes, password and token services, user persistence, token issuance, and token-protected resource requests.",
+      "caption": "Authentication verifies credentials and issues tokens; protected resource routes validate those tokens on later requests.",
+      "source_reference": "Figure 8-5; source file bgai_0805.png"
+    },
+    {
+      "key": "lifespan-model-preloading",
+      "type": "image",
+      "file": "assets/bgai_0329.png",
+      "alt": "A model-loading timeline showing a generative model loaded from disk into memory during a request, used for inference, and then unloaded after that request.",
+      "caption": "Loading a model inside every request repeats expensive disk-to-memory work and makes latency unpredictable.",
+      "source_reference": "Figure 3-29; source file bgai_0329.png"
+    },
+    {
+      "key": "model-lifespan-startup-shutdown",
+      "type": "image",
+      "file": "assets/bgai_0330.png",
+      "alt": "Application lifespan timeline showing a generative model loaded from disk into RAM at startup, reused for each inference request, and unloaded only after the shutdown signal.",
+      "caption": "FastAPI lifespan loads the model once, reuses it across requests, and releases it during shutdown.",
+      "source_reference": "Figure 3-30; source file bgai_0330.png"
+    },
+    {
+      "key": "oauth-flow",
+      "type": "image",
+      "file": "assets/bgai_0808.png",
+      "alt": "OAuth authorization-code flow where a client requests consent and scopes, exchanges the returned grant code for an access token, and uses the token to call a resource server.",
+      "caption": "OAuth keeps resource-owner consent, token issuance, and protected-resource access as distinct steps.",
+      "source_reference": "Figure 8-8; source file bgai_0808.png"
+    },
+    {
+      "key": "onion-architecture",
+      "type": "image",
+      "file": "assets/bgai_0203.png",
+      "alt": "Concentric application layers with models and repositories at the center, services, providers, and dependencies around them, and controllers, routers, guards, mappers, and exception filters at the edge.",
+      "caption": "Onion architecture keeps domain and persistence abstractions inside, with transport and framework concerns at the edge.",
+      "source_reference": "Figure 2-3; source file bgai_0203.png"
+    },
+    {
+      "key": "rate-limit-strategies",
+      "type": "image",
+      "file": "assets/bgai_0902.png",
+      "alt": "Side-by-side diagrams of a token bucket that admits traffic when tokens are available and a leaky bucket that emits packets at a constant rate and drops overflow.",
+      "caption": "Token buckets permit controlled bursts; leaky buckets smooth output to a steady rate and discard overflow.",
+      "source_reference": "Figure 9-2; source file bgai_0902.png"
+    },
+    {
+      "key": "repository-layer",
+      "type": "image",
+      "file": "assets/bgai_0704.png",
+      "alt": "Onion architecture with repositories beside models in the center, separating database access from services and outer transport concerns.",
+      "caption": "Repositories keep persistence details behind an inner interface that services can use without depending on the database implementation.",
+      "source_reference": "Figure 7-4; source file bgai_0704.png"
+    },
+    {
+      "key": "sse",
+      "type": "image",
+      "file": "assets/bgai_0604.png",
+      "alt": "Sequence diagram showing an HTTP handshake and acknowledgment followed by a one-way stream of server-sent messages from server to client.",
+      "caption": "Server-sent events use one persistent HTTP connection for server-to-client updates.",
+      "source_reference": "Figure 6-4; source file bgai_0604.png"
+    },
+    {
+      "key": "storage-mounts",
+      "type": "image",
+      "file": "assets/bgai_1207.png",
+      "alt": "A container connected to three storage choices on the host: a bind mount in the host filesystem, a Docker-managed volume, and an in-memory tmpfs mount.",
+      "caption": "Bind mounts, managed volumes, and tmpfs provide different persistence, ownership, and lifecycle trade-offs.",
+      "source_reference": "Figure 12-7; source file bgai_1207.png"
+    },
+    {
+      "key": "test-boundaries",
+      "type": "image",
+      "file": "assets/bgai_1101.png",
+      "alt": "Three testing scopes: unit tests isolate small code units, integration tests connect code to services or databases, and end-to-end tests exercise a user flow across multiple services.",
+      "caption": "Unit, integration, and end-to-end tests trade isolation for progressively broader system confidence.",
+      "source_reference": "Figure 11-1; source file bgai_1101.png"
+    },
+    {
+      "key": "test-doubles",
+      "type": "image",
+      "file": "assets/bgai_1109.png",
+      "alt": "Inheritance-style diagram showing fake, dummy, stub, spy, and mock as specialized forms of the general test-double concept.",
+      "caption": "Fakes, dummies, stubs, spies, and mocks replace collaborators for different testing purposes.",
+      "source_reference": "Figure 11-9; source file bgai_1109.png"
+    },
+    {
+      "key": "threadpool-vs-async",
+      "type": "image",
+      "file": "assets/bgai_0505.png",
+      "alt": "Timeline comparing serial single-threaded requests, multithreaded requests that alternate CPU ownership under the GIL, and asyncio requests that overlap while waiting for I/O.",
+      "caption": "Threads and asyncio both overlap I/O waits, but they schedule work through different execution models.",
+      "source_reference": "Figure 5-5; source file bgai_0505.png"
+    },
+    {
+      "key": "traffic-shaping",
+      "type": "image",
+      "file": "assets/bgai_0903.png",
+      "alt": "Before-and-after traffic plots showing irregular bursts buffered into an ordered queue and released at a stable target rate.",
+      "caption": "Traffic shaping absorbs bursts and releases work near a target rate that downstream capacity can sustain.",
+      "source_reference": "Figure 9-3; source file bgai_0903.png"
+    },
+    {
+      "key": "websocket-communication",
+      "type": "image",
+      "file": "assets/bgai_0605.png",
+      "alt": "Sequence diagram showing a client opening GET /ws, completing an HTTP handshake with the server, and then exchanging bidirectional messages.",
+      "caption": "A WebSocket begins with an HTTP upgrade and then supports messages in both directions over one connection.",
+      "source_reference": "Figure 6-5; source file bgai_0605.png"
+    },
+    {
+      "key": "websocket-lifecycle",
+      "type": "image",
+      "file": "assets/bgai_0606.png",
+      "alt": "WebSocket lifecycle from connecting through the HTTP upgrade and 101 response, to bidirectional data frames in the open state, close frames, and TCP termination.",
+      "caption": "The WebSocket lifecycle has explicit upgrade, open data-transfer, closing-handshake, and closed states.",
+      "source_reference": "Figure 6-6; source file bgai_0606.png"
+    }
+  ],
+  "pending": [
+    {
+      "figure": "Figure 3-28",
+      "title": "Loading and using models on every request",
+      "lesson_id": "L010-015",
+      "priority": "required"
+    }
+  ]
+}

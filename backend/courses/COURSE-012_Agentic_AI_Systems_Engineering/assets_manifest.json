@@ -1,579 +1,400 @@
 {
-  "policy": "Source-book figures are references only and are not bundled in this export.",
-  "required_count": 39,
-  "optional_count": 13,
+  "version": 1,
+  "course_id": "COURSE-012",
   "assets": [
     {
-      "source_id": "BOOK-012",
-      "figure": "1.3",
-      "priority": "required",
-      "module_id": "M012-01",
-      "lesson_id": "L012-003",
-      "purpose": "SPAL cycle",
-      "destination": "assets/course_012/m012_01/fig_1_3_spal_cycle.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "key": "agent-collaboration",
+      "type": "image",
+      "file": "assets/CH01_F14_Lanham4.png",
+      "alt": "A proxy or manager agent exchanges work with product, developer, and QA agents, which can also communicate directly with one another before a report is produced.",
+      "caption": "In collaboration, team agents can communicate laterally while a manager remains the user-facing entry point.",
+      "source_reference": "Figure 1.14; source file CH01_F14_Lanham4.png"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "1.5",
-      "priority": "required",
-      "module_id": "M012-01",
-      "lesson_id": "L012-005",
-      "purpose": "MCP tool discovery",
-      "destination": "assets/course_012/m012_01/fig_1_5_mcp_tool_discovery.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "key": "agent-communication-patterns",
+      "type": "image",
+      "file": "assets/CH04_F03_Lanham4.png",
+      "alt": "Three agent communication patterns: direct message passing, shared conversational memory with handoff control, and agents exposed as MCP tools to an orchestrator.",
+      "caption": "Agents can coordinate through explicit messages, shared state, or tool-style calls with different visibility and control trade-offs.",
+      "source_reference": "Figure 4.3; source file CH04_F03_Lanham4.png"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "1.6",
-      "priority": "required",
-      "module_id": "M012-01",
-      "lesson_id": "L012-006",
-      "purpose": "Five functional agent layers",
-      "destination": "assets/course_012/m012_01/fig_1_6_agent_layers.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "key": "agent-evaluation-feedback",
+      "type": "image",
+      "file": "assets/CH07_F01_Lanham4.png",
+      "alt": "Agent evaluation ecosystem connecting red-team tests, critics, grounding, benchmarks, users, a feedback store, and a monitoring agent to the primary agent.",
+      "caption": "Reliable agents combine internal feedback with red-team, grounding, benchmark, human, and operational evaluation signals.",
+      "source_reference": "Figure 7.1; source file CH07_F01_Lanham4.png"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "1.12",
-      "priority": "required",
-      "module_id": "M012-01",
-      "lesson_id": "L012-008",
-      "purpose": "Agent flow",
-      "destination": "assets/course_012/m012_01/fig_1_12_agent_flow.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "key": "agent-flow",
+      "type": "image",
+      "file": "assets/CH01_F12_Lanham4.png",
+      "alt": "Sequential agent flow in which specialized planning, research, and content agents pass control and information forward to produce a report.",
+      "caption": "An agent flow assigns each stage to a specialist and passes the evolving task state along a defined sequence.",
+      "source_reference": "Figure 1.12; source file CH01_F12_Lanham4.png"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "1.13",
-      "priority": "required",
-      "module_id": "M012-01",
-      "lesson_id": "L012-008",
-      "purpose": "Hub-and-spoke orchestration",
-      "destination": "assets/course_012/m012_01/fig_1_13_agent_orchestration.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "key": "agent-guardrails",
+      "type": "image",
+      "file": "assets/CH04_F09_Lanham4.png",
+      "alt": "Research agent workflow with an input guard before tool use and an output guard validating a typed research plan before a filesystem tool writes the output file.",
+      "caption": "Input and output guardrails validate the agent boundary before tools act and before results leave the workflow.",
+      "source_reference": "Figure 4.9; source file CH04_F09_Lanham4.png"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "1.14",
-      "priority": "required",
-      "module_id": "M012-01",
-      "lesson_id": "L012-008",
-      "purpose": "Collaborative agent team",
-      "destination": "assets/course_012/m012_01/fig_1_14_agent_collaboration.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "key": "agent-layers",
+      "type": "image",
+      "file": "assets/CH01_F06_Lanham4.png",
+      "alt": "Five nested agent layers: persona at the core, then tools and actions, reasoning and planning, knowledge and memory, and evaluation and feedback.",
+      "caption": "Agent capability grows from persona through action, planning, memory, and finally evaluation and feedback.",
+      "source_reference": "Figure 1.6; source file CH01_F06_Lanham4.png"
     },
     {
-      "source_id": "BOOK-012",
+      "key": "agent-orchestration",
+      "type": "image",
+      "file": "assets/CH01_F13_Lanham4.png",
+      "alt": "An orchestration agent delegates to knowledge, video-search, and web-search workers, gathers their outputs, and returns a report through the central orchestrator.",
+      "caption": "Hub-and-spoke orchestration funnels delegation and result synthesis through one coordinating agent.",
+      "source_reference": "Figure 1.13; source file CH01_F13_Lanham4.png"
+    },
+    {
+      "key": "agent-runtime-decision",
+      "type": "image",
+      "file": "assets/CH08_F08_Lanham4.png",
+      "alt": "Deployment decision tree routing low-latency agents to edge clients, medium-latency work to synchronous or asynchronous APIs, and long jobs to event-driven workers, all connected to tools and telemetry.",
+      "caption": "Latency and tool requirements determine whether an agent belongs at the edge, behind an API, or in an event-driven worker.",
+      "source_reference": "Figure 8.8; source file CH08_F08_Lanham4.png"
+    },
+    {
+      "key": "agent-tool-patterns",
+      "type": "image",
+      "file": "assets/CH02_F08_Lanham4.png",
+      "alt": "Planning agent exposing internal tools and equivalent external tools through local MCP-stdio and remote MCP-SSE servers, with JSON tool descriptions sent to the LLM.",
+      "caption": "The same tool contract can be implemented in-process, on a local MCP server, or on a remote MCP server.",
+      "source_reference": "Figure 2.8; source file CH02_F08_Lanham4.png"
+    },
+    {
+      "key": "attention-routing",
+      "type": "image",
+      "file": "assets/CH10_F06_Lanham4.png",
+      "alt": "Decision tree reading workspace signals and routing by complexity, task phase, stagnation, contradiction, knowledge gap, completion, or low confidence to response, planning, memory, evaluation, or escalation modules.",
+      "caption": "Attention routing converts workspace signals into the next cognitive module, including escalation when confidence is too low.",
+      "source_reference": "Figure 10.6; source file CH10_F06_Lanham4.png"
+    },
+    {
+      "key": "cognitive-agentic-loop",
+      "type": "image",
+      "file": "assets/CH10_F08_Lanham4.png",
+      "alt": "A cognitive cycle executes a module, updates workspace, evaluates results, and raises signals inside an outer agentic loop that controls iterations, convergence, and budget limits.",
+      "caption": "The inner cognitive cycle selects and evaluates steps; the outer agentic loop controls continuation, convergence, and budgets.",
+      "source_reference": "Figure 10.8; source file CH10_F08_Lanham4.png"
+    },
+    {
+      "key": "cognitive-architecture",
+      "type": "image",
+      "file": "assets/CH10_F04_Lanham4.png",
+      "alt": "Cognitive agent architecture linking perception, memory, attention, planning, execution, evaluation, a shared workspace, and a confidence gate that can respond, continue, replan, or escalate.",
+      "caption": "A shared cognitive workspace lets perception, memory, planning, execution, and evaluation coordinate through explicit state.",
+      "source_reference": "Figure 10.4; source file CH10_F04_Lanham4.png"
+    },
+    {
+      "key": "cognitive-failure-map",
+      "type": "image",
+      "file": "assets/CH10_F01_Lanham4.png",
+      "alt": "Mapping from agent failure modes to cognitive deficits and architecture fixes: wrong answers to evaluation, loops to attention, rigid plans to replanning, overconfidence to confidence gating, and shallow composition to perception.",
+      "caption": "Each recurring failure mode points to a missing cognitive capability and a corresponding architectural control.",
+      "source_reference": "Figure 10.1; source file CH10_F01_Lanham4.png"
+    },
+    {
+      "key": "collaboration-loop",
+      "type": "image",
+      "file": "assets/CH09_F07_Lanham4.png",
+      "alt": "Collaborative agent loop where a turn manager selects researcher, critic, or synthesizer agents, each contributes to shared state, and the process rotates until a consensus check produces final synthesis.",
+      "caption": "A collaboration loop rotates contributors and critics over shared state until the team reaches a synthesis threshold.",
+      "source_reference": "Figure 9.7; source file CH09_F07_Lanham4.png"
+    },
+    {
+      "key": "coordination-strategies",
+      "type": "image",
+      "file": "assets/CH04_F04_Lanham4.png",
+      "alt": "Four multi-agent coordination layouts: sequential handoff, parallel delegation, hierarchical coordination, and an iterative generate-critique-refine loop.",
+      "caption": "Sequential, parallel, hierarchical, and iterative coordination patterns fit different task dependencies and review needs.",
+      "source_reference": "Figure 4.4; source file CH04_F04_Lanham4.png"
+    },
+    {
+      "key": "customer-support-system",
+      "type": "image",
+      "file": "assets/CH11_F03_Lanham4.png",
+      "alt": "Customer-support flow from triage through retrieval and grounding, optional scoped API action with guardrails, answer composition, feedback logging, or handoff to a human.",
+      "caption": "A production support agent separates triage, evidence retrieval, grounding, guarded actions, response composition, and human escalation.",
+      "source_reference": "Figure 11.3; source file CH11_F03_Lanham4.png"
+    },
+    {
+      "key": "deep-research-loop",
+      "type": "image",
+      "file": "assets/CH09_F04_Lanham4.png",
+      "alt": "Deep-research state machine that initializes a plan, connects search tools, iterates through questions, updates findings and the plan, checks goal completion, and sends results to a synthesis agent.",
+      "caption": "Deep research externalizes questions, findings, and plan state so the loop can stop, replan, or synthesize deliberately.",
+      "source_reference": "Figure 9.4; source file CH09_F04_Lanham4.png"
+    },
+    {
+      "key": "deep-research-system",
+      "type": "image",
+      "file": "assets/CH11_F05_Lanham4.png",
+      "alt": "Research planner orchestrating web-search, extraction, and analysis workers, with a critic returning gaps and a writer producing a cited final report.",
+      "caption": "A deep-research system separates evidence gathering, analysis, critique, gap filling, and cited synthesis.",
+      "source_reference": "Figure 11.5; source file CH11_F05_Lanham4.png"
+    },
+    {
+      "key": "evaluator-patterns",
+      "type": "image",
+      "file": "assets/CH07_F04_Lanham4.png",
+      "alt": "Comparison of grounding, critic, and evaluation agents: grounding checks an answer against retrieved context, a critic applies a rubric and feedback, and an evaluator assigns a score or assessment.",
+      "caption": "Grounders verify evidence, critics drive revision, and evaluators grade outputs without necessarily blocking them.",
+      "source_reference": "Figure 7.4; source file CH07_F04_Lanham4.png"
+    },
+    {
+      "key": "front-door-topology",
+      "type": "image",
+      "file": "assets/CH08_F09_Lanham4.png",
+      "alt": "A user-facing front-door orchestrator routes work through APIs, MCP services, or an event hub to microservice agents and scalable long-running worker agents.",
+      "caption": "A front-door agent can route interactive work to services and long-running work to a scalable event-driven worker pool.",
+      "source_reference": "Figure 8.9; source file CH08_F09_Lanham4.png"
+    },
+    {
+      "key": "graph-memory",
+      "type": "image",
+      "file": "assets/CH06_F10_Lanham4.png",
+      "alt": "Simple and expanded memory graphs representing Back to the Future entities such as people, places, and items with typed relationships including mentored_by, child_of, and located_in.",
+      "caption": "Graph memory preserves entities, attributes, and typed relationships that flat conversation history cannot express directly.",
+      "source_reference": "Figure 6.10; source file CH06_F10_Lanham4.png"
+    },
+    {
+      "key": "grounding-agent",
+      "type": "image",
+      "file": "assets/CH07_F05_Lanham4.png",
+      "alt": "RAG agent receives context from a knowledge store and sends its answer plus the same context to a grounding agent, which returns a final answer or feedback.",
+      "caption": "A grounding agent checks the generated answer against the exact evidence used by the RAG agent.",
+      "source_reference": "Figure 7.5; source file CH07_F05_Lanham4.png"
+    },
+    {
+      "key": "handoff-patterns",
+      "type": "image",
+      "file": "assets/CH04_F07_Lanham4.png",
+      "alt": "Comparison of a shared conversational flow, a controlled pass-off flow, and a guarded handoff flow with filtered context and input-output checks between agents.",
+      "caption": "Handoffs differ in how much conversation state moves forward and where control and guardrails are applied.",
+      "source_reference": "Figure 4.7; source file CH04_F07_Lanham4.png"
+    },
+    {
+      "key": "mcp-agent-layers",
+      "type": "image",
+      "file": "assets/CH03_F07_Lanham4.png",
+      "alt": "MCP tools and resources mapped across agent layers: application APIs for persona, tools and workflows for action and planning, data stores for memory, and evaluation tools for feedback.",
+      "caption": "MCP can support every functional agent layer, not only direct tool execution.",
+      "source_reference": "Figure 3.7; source file CH03_F07_Lanham4.png"
+    },
+    {
+      "key": "mcp-architecture",
+      "type": "image",
+      "file": "assets/CH03_F04_Lanham4.png",
+      "alt": "MCP architecture where AI agents, LLM applications, desktop clients, and editors connect through an MCP client and JSON-RPC transport to servers wrapping files, databases, web APIs, and other agents.",
+      "caption": "MCP standardizes how many client types discover and invoke services across local and remote transports.",
+      "source_reference": "Figure 3.4; source file CH03_F04_Lanham4.png"
+    },
+    {
+      "key": "mcp-capabilities",
+      "type": "image",
+      "file": "assets/CH03_F05_Lanham4.png",
+      "alt": "MCP server exposing three capability groups: prompt templates, data resources such as files and databases, and actionable tools such as search, email, database queries, and agent invocation.",
+      "caption": "MCP distinguishes reusable prompt templates, readable resources, and callable tools.",
+      "source_reference": "Figure 3.5; source file CH03_F05_Lanham4.png"
+    },
+    {
+      "key": "mcp-tool-discovery",
+      "type": "image",
+      "file": "assets/CH01_F05_Lanham4.png",
+      "alt": "An agent calls list_tools on a search MCP server, receives JSON tool descriptions, then invokes a web-search tool over local stdio or remote HTTP transport.",
+      "caption": "MCP tool discovery gives an agent machine-readable schemas before it chooses and invokes a tool.",
+      "source_reference": "Figure 1.5; source file CH01_F05_Lanham4.png"
+    },
+    {
+      "key": "memory-compression",
+      "type": "image",
+      "file": "assets/CH06_F12_Lanham4.png",
+      "alt": "Memory-compression pipeline clustering repetitive time-travel preferences, summarizing them into consolidated knowledge, embedding the summary, and storing it in a vector database.",
+      "caption": "Memory compression turns redundant observations into a compact, retrievable summary instead of storing every repetition.",
+      "source_reference": "Figure 6.12; source file CH06_F12_Lanham4.png"
+    },
+    {
+      "key": "memory-types",
+      "type": "image",
+      "file": "assets/CH06_F08_Lanham4.png",
+      "alt": "Memory taxonomy dividing sensory, short-term, and long-term memory; long-term memory further branches into explicit episodic and semantic memory and implicit procedural memory.",
+      "caption": "Agents most often model conversational short-term memory and explicit long-term episodic or semantic memory.",
+      "source_reference": "Figure 6.8; source file CH06_F08_Lanham4.png"
+    },
+    {
+      "key": "monolith-to-agent-flow",
+      "type": "image",
+      "file": "assets/CH04_F05_Lanham4.png",
+      "alt": "Comparison of one agent using three MCP tool servers with a three-agent flow in which research, planning, and filesystem agents each own one tool set and pass work sequentially.",
+      "caption": "Splitting a monolithic agent into specialists narrows each role, tool set, and handoff contract.",
+      "source_reference": "Figure 4.5; source file CH04_F05_Lanham4.png"
+    },
+    {
+      "key": "orchestrator-meta-loop",
+      "type": "image",
+      "file": "assets/CH09_F06_Lanham4.png",
+      "alt": "Orchestrator loop that decomposes a complex goal, tracks subtask state, delegates pending work to a worker, evaluates results, replans when needed, and synthesizes final output.",
+      "caption": "The orchestrator owns plan and state, while worker agents execute bounded subtasks and return results for evaluation.",
+      "source_reference": "Figure 9.6; source file CH09_F06_Lanham4.png"
+    },
+    {
+      "key": "phoenix-observability",
+      "type": "image",
+      "file": "assets/CH07_F06_Lanham4.png",
+      "alt": "RAG, research, and support agents sending traces to Phoenix for monitoring, token cost, latency, session metadata, experiments, and custom or agent evaluators.",
+      "caption": "Phoenix centralizes agent traces, costs, latency, session metadata, experiments, and evaluation results.",
+      "source_reference": "Figure 7.6; source file CH07_F06_Lanham4.png"
+    },
+    {
+      "key": "react-loop",
+      "type": "image",
+      "file": "assets/CH05_F03_Lanham4.png",
+      "alt": "Sequence diagram where an LLM alternates thought, tool action, and observation until it reaches the goal and returns a final answer to the user.",
+      "caption": "ReAct interleaves reasoning with tool actions and observations until the agent can answer or must continue.",
+      "source_reference": "Figure 5.3; source file CH05_F03_Lanham4.png"
+    },
+    {
+      "key": "reflexion-loop",
+      "type": "image",
+      "file": "assets/CH05_F05_Lanham4.png",
+      "alt": "Reflexion flow from an initial attempt through evaluation and critique; failed attempts generate a reflection stored in context and guide retries until success or a maximum-iteration limit.",
+      "caption": "Reflexion converts evaluation feedback into remembered guidance for the next attempt, bounded by a retry limit.",
+      "source_reference": "Figure 5.5; source file CH05_F05_Lanham4.png"
+    },
+    {
+      "key": "semantic-memory-workflow",
+      "type": "image",
+      "file": "assets/CH06_F09_Lanham4.png",
+      "alt": "Two-part memory workflow: conversations are distilled into preference facts and embedded in a vector database; later queries retrieve those facts and add them to the LLM prompt.",
+      "caption": "Semantic memory stores distilled facts, then retrieves the relevant ones to augment a later prompt.",
+      "source_reference": "Figure 6.9; source file CH06_F09_Lanham4.png"
+    },
+    {
+      "key": "spal-cycle",
+      "type": "image",
+      "file": "assets/CH01_F03_Lanham4.png",
+      "alt": "Sense-Plan-Act-Learn cycle illustrated by a travel agent that receives a booking goal, plans tasks, calls a flight tool, observes failure, and revises the plan.",
+      "caption": "The SPAL cycle turns tool feedback into a revised plan instead of treating execution as a one-shot action.",
+      "source_reference": "Figure 1.3; source file CH01_F03_Lanham4.png"
+    },
+    {
+      "key": "task-loop-layers",
+      "type": "image",
+      "file": "assets/CH09_F02_Lanham4.png",
+      "alt": "Comparison of short-horizon goals handled by an internal sense-plan-act-learn loop and long-horizon goals handled by an external decide-plan-tool-state loop.",
+      "caption": "Long-horizon work externalizes decisions, state, plans, and tools beyond the agent's internal task loop.",
+      "source_reference": "Figure 9.2; source file CH09_F02_Lanham4.png"
+    },
+    {
+      "key": "tdad-cycle",
+      "type": "image",
+      "file": "assets/CH07_F02_Lanham4.png",
+      "alt": "Test-driven agent development cycle of Think, Test, Prompt, and Refactor, with expected and wrong benchmark outputs and an evaluator agent checking results.",
+      "caption": "Test-driven agent development iterates over goals, evaluations, prompts, tools, and regression checks.",
+      "source_reference": "Figure 7.2; source file CH07_F02_Lanham4.png"
+    },
+    {
+      "key": "tree-of-thought",
+      "type": "image",
+      "file": "assets/CH05_F04_Lanham4.png",
+      "alt": "Tree-of-Thought flow branching an initial thought into alternative next steps, evaluating whether a solution is found, and continuing with new branches when needed.",
+      "caption": "Tree-of-Thought explores and evaluates alternative reasoning branches instead of committing to one linear path.",
+      "source_reference": "Figure 5.4; source file CH05_F04_Lanham4.png"
+    },
+    {
+      "key": "typed-agent-workflow",
+      "type": "image",
+      "file": "assets/CH02_F05_Lanham4.png",
+      "alt": "Comparison of an untyped planning-agent output whose format varies with a typed ResearchPlanModel whose fixed task list can pass directly to an execution agent.",
+      "caption": "Typed outputs replace fragile free-form handoffs with a schema the next agent can validate and consume directly.",
+      "source_reference": "Figure 2.5; source file CH02_F05_Lanham4.png"
+    }
+  ],
+  "pending": [
+    {
       "figure": "1.2",
-      "priority": "optional",
-      "module_id": "M012-01",
+      "title": "Assistant vs agent approval boundary",
       "lesson_id": "L012-002",
-      "purpose": "Assistant vs agent approval boundary",
-      "destination": "assets/course_012/m012_01/fig_1_2_assistant_vs_agent.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "2.5",
-      "priority": "required",
-      "module_id": "M012-02",
-      "lesson_id": "L012-013",
-      "purpose": "Typed agent input/output workflow",
-      "destination": "assets/course_012/m012_02/fig_2_5_typed_agent_workflow.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "2.8",
-      "priority": "required",
-      "module_id": "M012-02",
-      "lesson_id": "L012-015",
-      "purpose": "Internal/local/external/MCP tool patterns",
-      "destination": "assets/course_012/m012_02/fig_2_8_agent_tool_patterns.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
       "figure": "2.9",
-      "priority": "optional",
-      "module_id": "M012-02",
+      "title": "Tool trace",
       "lesson_id": "L012-016",
-      "purpose": "Tool trace",
-      "destination": "assets/course_012/m012_02/fig_2_9_tool_trace.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "3.4",
-      "priority": "required",
-      "module_id": "M012-03",
-      "lesson_id": "L012-018",
-      "purpose": "MCP client-server-service architecture",
-      "destination": "assets/course_012/m012_03/fig_3_4_mcp_architecture.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "3.5",
-      "priority": "required",
-      "module_id": "M012-03",
-      "lesson_id": "L012-018",
-      "purpose": "MCP tools/resources/prompts",
-      "destination": "assets/course_012/m012_03/fig_3_5_mcp_capabilities.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "3.7",
-      "priority": "required",
-      "module_id": "M012-03",
-      "lesson_id": "L012-018",
-      "purpose": "MCP mapped to agent layers",
-      "destination": "assets/course_012/m012_03/fig_3_7_mcp_agent_layers.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
       "figure": "3.14",
-      "priority": "optional",
-      "module_id": "M012-03",
+      "title": "Internal time-tracker tools before MCP extraction",
       "lesson_id": "L012-025",
-      "purpose": "Internal time-tracker tools before MCP extraction",
-      "destination": "assets/course_012/m012_03/fig_3_14_internal_tool_architecture.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "4.3",
-      "priority": "required",
-      "module_id": "M012-04",
-      "lesson_id": "L012-028",
-      "purpose": "Agent communication patterns",
-      "destination": "assets/course_012/m012_04/fig_4_3_agent_communication_patterns.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "4.4",
-      "priority": "required",
-      "module_id": "M012-04",
-      "lesson_id": "L012-029",
-      "purpose": "Coordination strategies",
-      "destination": "assets/course_012/m012_04/fig_4_4_coordination_strategies.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "4.5",
-      "priority": "required",
-      "module_id": "M012-04",
-      "lesson_id": "L012-031",
-      "purpose": "Monolithic agent to specialized flow",
-      "destination": "assets/course_012/m012_04/fig_4_5_monolith_to_agent_flow.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "4.7",
-      "priority": "required",
-      "module_id": "M012-04",
-      "lesson_id": "L012-034",
-      "purpose": "Handoff patterns",
-      "destination": "assets/course_012/m012_04/fig_4_7_handoff_patterns.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "4.9",
-      "priority": "required",
-      "module_id": "M012-04",
-      "lesson_id": "L012-035",
-      "purpose": "Agent guardrails",
-      "destination": "assets/course_012/m012_04/fig_4_9_agent_guardrails.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
       "figure": "4.6",
-      "priority": "optional",
-      "module_id": "M012-04",
+      "title": "Deterministic checkpoint",
       "lesson_id": "L012-033",
-      "purpose": "Deterministic checkpoint",
-      "destination": "assets/course_012/m012_04/fig_4_6_deterministic_checkpoint.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "5.3",
-      "priority": "required",
-      "module_id": "M012-05",
-      "lesson_id": "L012-038",
-      "purpose": "ReAct loop",
-      "destination": "assets/course_012/m012_05/fig_5_3_react_loop.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "5.4",
-      "priority": "required",
-      "module_id": "M012-05",
-      "lesson_id": "L012-040",
-      "purpose": "Tree-of-Thought branching/pruning",
-      "destination": "assets/course_012/m012_05/fig_5_4_tree_of_thought.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "5.5",
-      "priority": "required",
-      "module_id": "M012-05",
-      "lesson_id": "L012-041",
-      "purpose": "Reflexion critique/retry loop",
-      "destination": "assets/course_012/m012_05/fig_5_5_reflexion_loop.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
       "figure": "5.1",
-      "priority": "optional",
-      "module_id": "M012-05",
+      "title": "Ordinary vs extended reasoning behavior",
       "lesson_id": "L012-037",
-      "purpose": "Ordinary vs extended reasoning behavior",
-      "destination": "assets/course_012/m012_05/fig_5_1_reasoning_models.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "6.8",
-      "priority": "required",
-      "module_id": "M012-06",
-      "lesson_id": "L012-046",
-      "purpose": "Memory taxonomy",
-      "destination": "assets/course_012/m012_06/fig_6_8_memory_types.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "6.9",
-      "priority": "required",
-      "module_id": "M012-06",
-      "lesson_id": "L012-046",
-      "purpose": "Semantic-memory storage/retrieval workflow",
-      "destination": "assets/course_012/m012_06/fig_6_9_semantic_memory_workflow.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "6.10",
-      "priority": "required",
-      "module_id": "M012-06",
-      "lesson_id": "L012-047",
-      "purpose": "Graph-memory representation",
-      "destination": "assets/course_012/m012_06/fig_6_10_graph_memory.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "6.12",
-      "priority": "required",
-      "module_id": "M012-06",
-      "lesson_id": "L012-051",
-      "purpose": "Memory compression",
-      "destination": "assets/course_012/m012_06/fig_6_12_memory_compression.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
       "figure": "6.1",
-      "priority": "optional",
-      "module_id": "M012-06",
+      "title": "Knowledge and memory retrieval",
       "lesson_id": "L012-044",
-      "purpose": "Knowledge and memory retrieval",
-      "destination": "assets/course_012/m012_06/fig_6_1_knowledge_memory_retrieval.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
       "figure": "6.11",
-      "priority": "optional",
-      "module_id": "M012-06",
+      "title": "Semantic augmentation of memories",
       "lesson_id": "L012-049",
-      "purpose": "Semantic augmentation of memories",
-      "destination": "assets/course_012/m012_06/fig_6_11_memory_augmentation.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "7.1",
-      "priority": "required",
-      "module_id": "M012-07",
-      "lesson_id": "L012-052",
-      "purpose": "Agent evaluation and feedback architecture",
-      "destination": "assets/course_012/m012_07/fig_7_1_agent_evaluation_feedback.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "7.2",
-      "priority": "required",
-      "module_id": "M012-07",
-      "lesson_id": "L012-054",
-      "purpose": "TDAD cycle",
-      "destination": "assets/course_012/m012_07/fig_7_2_tdad_cycle.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "7.4",
-      "priority": "required",
-      "module_id": "M012-07",
-      "lesson_id": "L012-056",
-      "purpose": "Evaluator/critic/grounding patterns",
-      "destination": "assets/course_012/m012_07/fig_7_4_evaluator_patterns.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "7.5",
-      "priority": "required",
-      "module_id": "M012-07",
-      "lesson_id": "L012-057",
-      "purpose": "Grounding agent architecture",
-      "destination": "assets/course_012/m012_07/fig_7_5_grounding_agent.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "7.6",
-      "priority": "optional",
-      "module_id": "M012-07",
-      "lesson_id": "L012-059",
-      "purpose": "Phoenix observability overview",
-      "destination": "assets/course_012/m012_07/fig_7_6_phoenix_observability.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "8.8",
-      "priority": "required",
-      "module_id": "M012-10",
-      "lesson_id": "L012-060",
-      "purpose": "Agent runtime deployment decision",
-      "destination": "assets/course_012/m012_10/fig_8_8_agent_runtime_decision.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "8.9",
-      "priority": "required",
-      "module_id": "M012-10",
-      "lesson_id": "L012-062",
-      "purpose": "Front-door agent topology",
-      "destination": "assets/course_012/m012_10/fig_8_9_front_door_topology.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
       "figure": "8.1",
-      "priority": "optional",
-      "module_id": "M012-10",
+      "title": "Agent consumption/deployment patterns",
       "lesson_id": "L012-060",
-      "purpose": "Agent consumption/deployment patterns",
-      "destination": "assets/course_012/m012_10/fig_8_1_agent_consumption_patterns.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "9.2",
-      "priority": "required",
-      "module_id": "M012-08",
-      "lesson_id": "L012-069",
-      "purpose": "Task-loop layers",
-      "destination": "assets/course_012/m012_08/fig_9_2_task_loop_layers.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "9.4",
-      "priority": "required",
-      "module_id": "M012-08",
-      "lesson_id": "L012-073",
-      "purpose": "Deep-research loop architecture",
-      "destination": "assets/course_012/m012_08/fig_9_4_deep_research_loop.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "9.6",
-      "priority": "required",
-      "module_id": "M012-08",
-      "lesson_id": "L012-076",
-      "purpose": "Orchestrator meta-loop",
-      "destination": "assets/course_012/m012_08/fig_9_6_orchestrator_meta_loop.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "9.7",
-      "priority": "required",
-      "module_id": "M012-08",
-      "lesson_id": "L012-077",
-      "purpose": "Collaboration meta-loop",
-      "destination": "assets/course_012/m012_08/fig_9_7_collaboration_loop.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
       "figure": "9.3",
-      "priority": "optional",
-      "module_id": "M012-08",
+      "title": "Orchestration vs collaboration meta-loop comparison",
       "lesson_id": "L012-069",
-      "purpose": "Orchestration vs collaboration meta-loop comparison",
-      "destination": "assets/course_012/m012_08/fig_9_3_meta_loop_comparison.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
       "figure": "9.5",
-      "priority": "optional",
-      "module_id": "M012-08",
+      "title": "Repetitive task queue loop",
       "lesson_id": "L012-075",
-      "purpose": "Repetitive task queue loop",
-      "destination": "assets/course_012/m012_08/fig_9_5_task_queue_loop.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
-      "figure": "10.1",
-      "priority": "required",
-      "module_id": "M012-09",
-      "lesson_id": "L012-078",
-      "purpose": "Failure-to-capability cognitive map",
-      "destination": "assets/course_012/m012_09/fig_10_1_cognitive_failure_map.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "10.4",
-      "priority": "required",
-      "module_id": "M012-09",
-      "lesson_id": "L012-079",
-      "purpose": "Cognitive agent architecture",
-      "destination": "assets/course_012/m012_09/fig_10_4_cognitive_architecture.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "10.6",
-      "priority": "required",
-      "module_id": "M012-09",
-      "lesson_id": "L012-081",
-      "purpose": "Attention routing decision tree",
-      "destination": "assets/course_012/m012_09/fig_10_6_attention_routing.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "10.8",
-      "priority": "required",
-      "module_id": "M012-09",
-      "lesson_id": "L012-083",
-      "purpose": "Cognitive loop layered on agentic loop",
-      "destination": "assets/course_012/m012_09/fig_10_8_cognitive_agentic_loop.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
       "figure": "10.3",
-      "priority": "optional",
-      "module_id": "M012-09",
+      "title": "Theory-to-architecture mapping",
       "lesson_id": "L012-078",
-      "purpose": "Theory-to-architecture mapping",
-      "destination": "assets/course_012/m012_09/fig_10_3_theory_to_architecture.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     },
     {
-      "source_id": "BOOK-012",
       "figure": "10.7",
-      "priority": "optional",
-      "module_id": "M012-09",
+      "title": "Cognitive memory behaviors",
       "lesson_id": "L012-082",
-      "purpose": "Cognitive memory behaviors",
-      "destination": "assets/course_012/m012_09/fig_10_7_cognitive_memory.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "11.3",
-      "priority": "required",
-      "module_id": "M012-11",
-      "lesson_id": "L012-089",
-      "purpose": "Customer support agentic system",
-      "destination": "assets/course_012/m012_11/fig_11_3_customer_support_system.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
-    },
-    {
-      "source_id": "BOOK-012",
-      "figure": "11.5",
-      "priority": "required",
-      "module_id": "M012-11",
-      "lesson_id": "L012-091",
-      "purpose": "Deep research system",
-      "destination": "assets/course_012/m012_11/fig_11_5_deep_research_system.png",
-      "bundled": false,
-      "action": "Add manually from the source book if desired/required."
+      "priority": "optional"
     }
   ]
 }

@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-033',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-032', 'M008-01'],
- 'visuals': [{'filename': 'data-delivery-formats.png',
-              'path': '../../assets/data-delivery-formats.png',
-              'caption': 'Raw, preprocessed, and embedding delivery trade-offs.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Packaging Multimodal Datasets for Distributed Training',
                        '- **metadata**\n'
                        '- **mixture design**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **data-delivery-formats.png** — Raw, preprocessed, and embedding delivery trade-offs. '
-                       '(package path: `../../assets/data-delivery-formats.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:data-delivery-formats}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

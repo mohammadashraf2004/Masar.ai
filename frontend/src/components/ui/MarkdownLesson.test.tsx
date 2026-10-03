@@ -69,3 +69,54 @@ describe('MarkdownLesson typography structure', () => {
     expect(renderLesson().classList.contains('lesson-content--compact')).toBe(false)
   })
 })
+
+describe('MarkdownLesson with blocks', () => {
+  const figure = {
+    type: 'image' as const, asset_key: 'fig', url: '/learning/courses/c/assets/fig?exp=1&sig=x', alt: 'A diagram', caption: 'A caption',
+  }
+
+  it('renders text runs and figures in the order given, inside one dir-carrying column', () => {
+    const { container } = render(
+      <MarkdownLesson
+        content="ignored"
+        dir="rtl"
+        blocks={[
+          { type: 'markdown', content: 'First run.' },
+          figure,
+          { type: 'markdown', content: 'Second run.' },
+        ]}
+      />,
+    )
+    const column = container.querySelector('.lesson-blocks') as HTMLElement
+    expect(column.getAttribute('dir')).toBe('rtl')
+    expect(Array.from(column.children).map((el) => el.tagName)).toEqual(['DIV', 'FIGURE', 'DIV'])
+    expect(column.children[0].textContent).toBe('First run.')
+    expect(column.children[2].textContent).toBe('Second run.')
+    expect(container.querySelector('figure img')).toHaveAttribute('alt', 'A diagram')
+  })
+
+  it('falls back to the plain content when there are no blocks (null or empty)', () => {
+    for (const blocks of [null, undefined, []]) {
+      const { container, unmount } = render(<MarkdownLesson content="Plain body." blocks={blocks} dir="ltr" />)
+      expect(container.querySelector('.lesson-blocks')).toBeNull()
+      expect(container.querySelector('.lesson-content')?.textContent).toBe('Plain body.')
+      unmount()
+    }
+  })
+})
+
+describe('what the language walkthrough points at', () => {
+  it('tags the first technical term of the lesson, and only that one', () => {
+    const { container } = render(<MarkdownLesson content={'Retrieval uses Embeddings.\n\nRAG builds on Embeddings again, with RAG named twice.'} />)
+    const tagged = container.querySelectorAll('[data-tour="lesson-terms"]')
+    expect(tagged).toHaveLength(1)
+    // The term itself, set left to right inside the (possibly Arabic) paragraph.
+    expect(tagged[0]).toHaveAttribute('dir', 'ltr')
+    expect(tagged[0].textContent).toMatch(/^[A-Za-z][\w -]*$/)
+  })
+
+  it('tags nothing when the lesson names no term', () => {
+    const { container } = render(<MarkdownLesson content={'Nothing technical here.'} />)
+    expect(container.querySelector('[data-tour="lesson-terms"]')).toBeNull()
+  })
+})

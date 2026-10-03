@@ -26,11 +26,6 @@ LESSON_META = {'lesson_id': 'L008-008',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-007'],
- 'visuals': [{'filename': 'huggingface-inference-pipeline.png',
-              'path': '../../assets/huggingface-inference-pipeline.png',
-              'caption': 'Preprocessor, model, and postprocessor in a practical multimodal inference pipeline.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -75,13 +70,7 @@ TOPIC = {'title': 'Practical Multimodal Workflows with Hugging Face',
                        '- **controlled experiments**\n'
                        '- **failure analysis**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **huggingface-inference-pipeline.png** — Preprocessor, model, and postprocessor in a '
-                       'practical multimodal inference pipeline. (package path: '
-                       '`../../assets/huggingface-inference-pipeline.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:huggingface-inference-pipeline}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

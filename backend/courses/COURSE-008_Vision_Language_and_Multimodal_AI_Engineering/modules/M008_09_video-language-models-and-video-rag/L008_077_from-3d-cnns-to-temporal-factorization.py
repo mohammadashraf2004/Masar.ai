@@ -23,16 +23,6 @@ LESSON_META = {'lesson_id': 'L008-077',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-076', 'M008-01', 'M008-03', 'COURSE-007 — Advanced RAG prerequisite concepts'],
- 'visuals': [{'filename': 'factorized-3d-convolution.png',
-              'path': '../../assets/factorized-3d-convolution.png',
-              'caption': 'Factorizing 3D convolution into spatial and temporal stages.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'two-stream-video-cnn.png',
-              'path': '../../assets/two-stream-video-cnn.png',
-              'caption': 'Spatial RGB and temporal optical-flow streams for video understanding.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -74,14 +64,7 @@ TOPIC = {'title': 'From 3D CNNs to Temporal Factorization',
                        '- **video tokens**\n'
                        '- **temporal context**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **factorized-3d-convolution.png** — Factorizing 3D convolution into spatial and temporal '
-                       'stages. (package path: `../../assets/factorized-3d-convolution.png`)\n'
-                       '- **two-stream-video-cnn.png** — Spatial RGB and temporal optical-flow streams for video '
-                       'understanding. (package path: `../../assets/two-stream-video-cnn.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:factorized-3d-convolution}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -93,6 +76,8 @@ TOPIC = {'title': 'From 3D CNNs to Temporal Factorization',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:two-stream-video-cnn}}\n'
                        '\n'
                        '## Practice\n'
                        'Process a short video corpus or clip set, vary frame/segment strategy, and evaluate temporal '

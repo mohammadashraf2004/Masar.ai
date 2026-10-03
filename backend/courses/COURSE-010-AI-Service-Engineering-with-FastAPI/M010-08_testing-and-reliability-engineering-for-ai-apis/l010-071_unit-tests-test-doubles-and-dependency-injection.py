@@ -18,10 +18,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 11,
-                       'figure': 'Figure 11-9',
-                       'title': 'Test doubles',
-                       'filename': 'fig_11_09_test_doubles.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Unit Tests, Test Doubles & Dependency Injection',
@@ -77,6 +73,8 @@ TOPIC = {'title': 'Unit Tests, Test Doubles & Dependency Injection',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:test-doubles}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

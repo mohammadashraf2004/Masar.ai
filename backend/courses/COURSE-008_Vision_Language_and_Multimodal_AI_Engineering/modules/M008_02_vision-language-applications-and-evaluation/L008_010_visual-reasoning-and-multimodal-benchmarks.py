@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-010',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 50,
  'prerequisites': ['L008-009'],
- 'visuals': [{'filename': 'visual-reasoning-example.png',
-              'path': '../../assets/visual-reasoning-example.png',
-              'caption': 'Visual reasoning example requiring interaction-aware reasoning over image content.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -72,12 +67,7 @@ TOPIC = {'title': 'Visual Reasoning & Multimodal Benchmarks',
                        '- **multimodal engineering**\n'
                        '- **controlled experiments**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **visual-reasoning-example.png** — Visual reasoning example requiring interaction-aware '
-                       'reasoning over image content. (package path: `../../assets/visual-reasoning-example.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:visual-reasoning-example}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

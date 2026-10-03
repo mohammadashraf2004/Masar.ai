@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-071',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-070', 'M008-01', 'M008-03', 'COURSE-007 — Advanced RAG prerequisite concepts'],
- 'visuals': [{'filename': 'standard-retrieval-vs-colpali.png',
-              'path': '../../assets/standard-retrieval-vs-colpali.png',
-              'caption': 'OCR-heavy standard retrieval versus direct visual late-interaction retrieval.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -71,12 +66,7 @@ TOPIC = {'title': 'Late Interaction, MaxSim & ColPali-Style Retrieval',
                        '- **multivector retrieval**\n'
                        '- **late interaction**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **standard-retrieval-vs-colpali.png** — OCR-heavy standard retrieval versus direct visual '
-                       'late-interaction retrieval. (package path: `../../assets/standard-retrieval-vs-colpali.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:standard-retrieval-vs-colpali}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

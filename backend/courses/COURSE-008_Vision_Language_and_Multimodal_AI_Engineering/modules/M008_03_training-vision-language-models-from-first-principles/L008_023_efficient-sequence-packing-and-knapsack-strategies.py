@@ -23,21 +23,6 @@ LESSON_META = {'lesson_id': 'L008-023',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-022', 'M008-01'],
- 'visuals': [{'filename': 'naive-packing.png',
-              'path': '../../assets/naive-packing.png',
-              'caption': 'Naive sequence packing with residual padding.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'greedy-knapsack-packing.png',
-              'path': '../../assets/greedy-knapsack-packing.png',
-              'caption': 'Greedy knapsack sequence packing.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'balanced-knapsack-packing.png',
-              'path': '../../assets/balanced-knapsack-packing.png',
-              'caption': 'Balanced knapsack packing for better utilization.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -78,16 +63,7 @@ TOPIC = {'title': 'Efficient Sequence Packing & Knapsack Strategies',
                        '- **knapsack packing**\n'
                        '- **multi-sample batches**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **naive-packing.png** — Naive sequence packing with residual padding. (package path: '
-                       '`../../assets/naive-packing.png`)\n'
-                       '- **greedy-knapsack-packing.png** — Greedy knapsack sequence packing. (package path: '
-                       '`../../assets/greedy-knapsack-packing.png`)\n'
-                       '- **balanced-knapsack-packing.png** — Balanced knapsack packing for better utilization. '
-                       '(package path: `../../assets/balanced-knapsack-packing.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:naive-packing}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -100,12 +76,16 @@ TOPIC = {'title': 'Efficient Sequence Packing & Knapsack Strategies',
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
                        '\n'
+                       '{{figure:greedy-knapsack-packing}}\n'
+                       '\n'
                        '## Practice\n'
                        'Implement the smallest training artifact that exposes the relevant tensor, batching, loss, '
                        'packing, or generation behavior; compare against a baseline.\n'
                        '\n'
                        '**Lesson-specific goal:** demonstrate **Efficient Sequence Packing & Knapsack Strategies** '
                        'with a controlled input set and at least one difficult example.\n'
+                       '\n'
+                       '{{figure:balanced-knapsack-packing}}\n'
                        '\n'
                        '## Debug / evaluate\n'
                        'Check label shifts, masking, padding, image-token placement, EOS handling, and gradient flow '

@@ -19,7 +19,6 @@ LESSON_META = {'course_id': 'COURSE-009',
                           'COURSE-007 — Advanced LLM Systems & Application Architecture',
                           'COURSE-008 — Vision-Language & Multimodal AI Engineering (specialized '
                           'supporting background)'],
- 'visual_reference': None,
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Correction, Verification & Citation Checks',
@@ -79,6 +78,10 @@ TOPIC = {'title': 'Correction, Verification & Citation Checks',
                        'leaves it, and how failures are surfaced. Hidden fallbacks are dangerous '
                        'because they can make an answer look successful while the retrieval path '
                        'is incomplete or degraded.\n'
+                       '\n'
+                       'The correction flow below makes the retrieved evidence an explicit input to the final check.\n'
+                       '\n'
+                       '{{figure:hallucination-correction-flow}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

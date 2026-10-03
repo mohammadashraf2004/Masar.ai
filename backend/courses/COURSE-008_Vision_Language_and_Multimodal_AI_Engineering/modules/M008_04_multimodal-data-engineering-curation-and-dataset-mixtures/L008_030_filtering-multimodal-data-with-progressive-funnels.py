@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-030',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-029', 'M008-01'],
- 'visuals': [{'filename': 'finevideo-data-pipeline.png',
-              'path': '../../assets/finevideo-data-pipeline.png',
-              'caption': 'Large-scale video data sourcing, filtering, taxonomy, annotation, and validation pipeline.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,13 +64,7 @@ TOPIC = {'title': 'Filtering Multimodal Data with Progressive Funnels',
                        '- **metadata**\n'
                        '- **mixture design**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **finevideo-data-pipeline.png** — Large-scale video data sourcing, filtering, taxonomy, '
-                       'annotation, and validation pipeline. (package path: '
-                       '`../../assets/finevideo-data-pipeline.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:finevideo-data-pipeline}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

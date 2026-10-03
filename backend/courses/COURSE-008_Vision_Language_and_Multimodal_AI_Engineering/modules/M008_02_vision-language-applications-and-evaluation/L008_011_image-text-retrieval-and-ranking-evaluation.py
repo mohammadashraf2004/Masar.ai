@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-011',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-010'],
- 'visuals': [{'filename': 'ndcg-ranking-example.png',
-              'path': '../../assets/ndcg-ranking-example.png',
-              'caption': 'Worked DCG, IDCG, and NDCG ranking example.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Image-Text Retrieval & Ranking Evaluation',
                        '- **top-k**\n'
                        '- **retrieval evaluation**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **ndcg-ranking-example.png** — Worked DCG, IDCG, and NDCG ranking example. (package path: '
-                       '`../../assets/ndcg-ranking-example.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:ndcg-ranking-example}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

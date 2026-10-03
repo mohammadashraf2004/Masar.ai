@@ -6,9 +6,33 @@ TOPICS = ['workflow_dispatch', 'manual production trigger', 'plan review', 'appr
 
 SOURCE_REFERENCES = ['Secondary DevOps source (source ID not provided) — Chapter 7: Automating Infrastructure with Terraform and CI/CD']
 
-FIGURE_REFERENCES = [{'source_figure': 'Figure 7.4', 'title': 'Review and approve deployment popup', 'priority': 'required', 'suggested_path': 'assets/m011-06/fig-7-4-production-approval.png'}]
-
-LESSON_MARKDOWN = '# L011-081 — Manual Production Deployment & Approval Gates\n\n## Learning objective\n\nApply manual production deployment & approval gates concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- workflow_dispatch\n- manual production trigger\n- plan review\n- approve and deploy\n- safe production automation\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n\n## Manual visual references\n- `Figure 7.4` — Review and approve deployment popup (required); add manually at `assets/m011-06/fig-7-4-production-approval.png`.\n'
+LESSON_MARKDOWN = ('# L011-081 — Manual Production Deployment & Approval Gates\n'
+                   '\n'
+                   '## Learning objective\n'
+                   '\n'
+                   'Apply manual production deployment & approval gates concepts to the deployment and operation of an existing production-oriented AI service.\n'
+                   '\n'
+                   '## Core topics\n'
+                   '\n'
+                   '- workflow_dispatch\n'
+                   '- manual production trigger\n'
+                   '- plan review\n'
+                   '- approve and deploy\n'
+                   '- safe production automation\n'
+                   '\n'
+                   '{{figure:production-approval}}\n'
+                   '\n'
+                   '## AI-engineering context\n'
+                   '\n'
+                   'Use these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n'
+                   '\n'
+                   '## Practice\n'
+                   '\n'
+                   'Apply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n'
+                   '\n'
+                   '## Assessment focus\n'
+                   '\n'
+                   'The learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n')
 
 EXERCISES = [{'id': 'L011-081-EX1', 'title': 'Apply Manual Production Deployment & Approval Gates', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: workflow_dispatch, manual production trigger, plan review. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-081-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to manual production deployment & approval gates. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
 

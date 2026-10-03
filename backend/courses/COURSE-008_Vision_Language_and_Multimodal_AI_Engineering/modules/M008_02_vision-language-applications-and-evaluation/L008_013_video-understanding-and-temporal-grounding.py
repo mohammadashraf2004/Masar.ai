@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-013',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 50,
  'prerequisites': ['L008-012'],
- 'visuals': [{'filename': 'video-question-answering.png',
-              'path': '../../assets/video-question-answering.png',
-              'caption': 'Video question answering with sampled frames and timestamps.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Video Understanding & Temporal Grounding',
                        '- **video tokens**\n'
                        '- **temporal context**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **video-question-answering.png** — Video question answering with sampled frames and '
-                       'timestamps. (package path: `../../assets/video-question-answering.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:video-question-answering}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

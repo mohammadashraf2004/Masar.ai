@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-060',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 50,
  'prerequisites': ['L008-059', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'vlm-bf16-int4-memory-efficiency.png',
-              'path': '../../assets/vlm-bf16-int4-memory-efficiency.png',
-              'caption': 'Memory usage and tokens-per-second-per-GB across VLM precisions.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Benchmarking VLM Latency, Memory & Efficiency',
                        '- **decode**\n'
                        '- **throughput**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **vlm-bf16-int4-memory-efficiency.png** — Memory usage and tokens-per-second-per-GB across '
-                       'VLM precisions. (package path: `../../assets/vlm-bf16-int4-memory-efficiency.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:vlm-bf16-int4-memory-efficiency}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

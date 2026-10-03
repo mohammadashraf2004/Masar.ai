@@ -18,10 +18,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 5,
-                       'figure': 'Figure 5-4',
-                       'title': 'Async IO event loop',
-                       'filename': 'fig_05_04_async_event_loop.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Asyncio, Coroutines & the Event Loop',
@@ -76,6 +72,8 @@ TOPIC = {'title': 'Asyncio, Coroutines & the Event Loop',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:async-event-loop}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

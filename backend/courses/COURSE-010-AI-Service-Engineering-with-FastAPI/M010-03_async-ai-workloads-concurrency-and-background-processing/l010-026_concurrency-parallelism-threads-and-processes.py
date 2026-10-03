@@ -24,10 +24,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 5,
-                       'figure': 'Figure 5-1',
-                       'title': 'Concurrency and parallelism',
-                       'filename': 'fig_05_01_concurrency_vs_parallelism.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Concurrency, Parallelism, Threads & Processes',
@@ -83,6 +79,8 @@ TOPIC = {'title': 'Concurrency, Parallelism, Threads & Processes',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:concurrency-vs-parallelism}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

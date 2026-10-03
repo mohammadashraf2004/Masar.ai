@@ -23,10 +23,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 8,
-                       'figure': 'Figure 8-17',
-                       'title': 'Separating the authorization service from the GenAI service',
-                       'filename': 'fig_08_17_external_authorization_service.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Authorization Guards & Policy Enforcement for AI Resources',
@@ -81,6 +77,8 @@ TOPIC = {'title': 'Authorization Guards & Policy Enforcement for AI Resources',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:external-authorization-service}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

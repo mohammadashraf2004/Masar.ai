@@ -23,10 +23,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 2,
-                       'figure': 'Figure 2-2',
-                       'title': 'Dependency injection in FastAPI',
-                       'filename': 'fig_02_02_dependency_injection.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Dependency Injection for AI Services',
@@ -81,6 +77,8 @@ TOPIC = {'title': 'Dependency Injection for AI Services',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:dependency-injection}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

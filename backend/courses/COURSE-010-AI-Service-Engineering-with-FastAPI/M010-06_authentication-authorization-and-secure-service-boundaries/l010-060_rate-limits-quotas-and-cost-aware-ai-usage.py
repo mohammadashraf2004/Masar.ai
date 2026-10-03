@@ -24,10 +24,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 9,
-                       'figure': 'Figure 9-2',
-                       'title': 'Comparison of rate-limiting strategies',
-                       'filename': 'fig_09_02_rate_limit_strategies.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Rate Limits, Quotas & Cost-Aware AI Usage',
@@ -84,6 +80,8 @@ TOPIC = {'title': 'Rate Limits, Quotas & Cost-Aware AI Usage',
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
                        '\n'
+                       '{{figure:rate-limit-strategies}}\n'
+                       '\n'
                        '## Engineering workflow\n'
                        '\n'
                        '1. **State the contract.** Write down the expected input, output, side '
@@ -113,6 +111,10 @@ TOPIC = {'title': 'Rate Limits, Quotas & Cost-Aware AI Usage',
                        'The snippet is intentionally small. The course capstone grows the same '
                        'boundary through later modules rather than replacing it with unrelated '
                        'demos.\n'
+                       '\n'
+                       'The shaping example shows how buffering turns bursty arrivals into a steadier downstream rate.\n'
+                       '\n'
+                       '{{figure:traffic-shaping}}\n'
                        '\n'
                        '## Common failure modes\n'
                        '\n'

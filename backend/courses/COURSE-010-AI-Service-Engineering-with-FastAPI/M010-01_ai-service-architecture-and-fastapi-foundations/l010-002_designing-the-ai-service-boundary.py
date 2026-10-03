@@ -23,11 +23,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 1,
-                       'figure': 'Figure 1-4',
-                       'title': 'FastAPI web server with data source integrations that serve a '
-                                'generative model',
-                       'filename': 'fig_01_04_ai_service_architecture.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Designing the AI Service Boundary',
@@ -82,6 +77,8 @@ TOPIC = {'title': 'Designing the AI Service Boundary',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:ai-service-architecture}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

@@ -14,7 +14,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import or_
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from typing import List
 
 from app.db.session import get_db
@@ -30,6 +30,7 @@ from app.views.tool_course import (
 from app.core.security import get_current_user
 from app.models.learning_path import Course
 from app.services.learning import enrollment as course_enrollment
+from app.services.learning.lesson_content import attach_lesson_blocks
 from app.services.billing.access_service import (
     course_access, course_for_tool_topic, require_content_access,
     require_course_access, require_lesson_access,
@@ -189,18 +190,26 @@ def get_tool_course(
     carries the course's full lesson bodies, not a catalogue entry."""
     course = (
         db.query(ToolCourse)
+        # One query per collection. Joining all four in one statement returns
+        # lessons x exercises x quizzes x projects rows for every topic: a 21-lesson
+        # module of COURSE-011 is ~18,000 rows, each carrying whole lesson bodies,
+        # and one request took the API past 2 GB.
         .options(
-            joinedload(ToolCourse.topics).joinedload(ToolTopic.lessons),
-            joinedload(ToolCourse.topics).joinedload(ToolTopic.exercises),
-            joinedload(ToolCourse.topics).joinedload(ToolTopic.quizzes),
-            joinedload(ToolCourse.topics).joinedload(ToolTopic.projects),
+            selectinload(ToolCourse.topics).selectinload(ToolTopic.lessons),
+            selectinload(ToolCourse.topics).selectinload(ToolTopic.exercises),
+            selectinload(ToolCourse.topics).selectinload(ToolTopic.quizzes),
+            selectinload(ToolCourse.topics).selectinload(ToolTopic.projects),
         )
         .filter(ToolCourse.slug == slug, ToolCourse.is_active == True)
         .first()
     )
     if not course:
         raise HTTPException(status_code=404, detail="Tool course not found")
-    return _redact_locked_tool_course(course, current_user.id, db)
+    data = _redact_locked_tool_course(course, current_user.id, db)
+    # After redaction: a locked lesson's body is already empty, so it gets no blocks
+    # and no figure URL.
+    attach_lesson_blocks(db, course.id, course.slug, (l for t in data["topics"] for l in t["lessons"]))
+    return data
 
 
 # ─── Topic detail ────────────────────────────────────────────────────────
@@ -214,10 +223,10 @@ def get_tool_topic(
     topic = (
         db.query(ToolTopic)
         .options(
-            joinedload(ToolTopic.lessons),
-            joinedload(ToolTopic.exercises),
-            joinedload(ToolTopic.quizzes),
-            joinedload(ToolTopic.projects),
+            selectinload(ToolTopic.lessons),
+            selectinload(ToolTopic.exercises),
+            selectinload(ToolTopic.quizzes),
+            selectinload(ToolTopic.projects),
         )
         .filter(ToolTopic.id == topic_id)
         .first()
@@ -225,8 +234,8 @@ def get_tool_topic(
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
     course = course_for_tool_topic(db, topic.id)
+    data = ToolTopicResponse.model_validate(topic).model_dump()
     if course and not course_access(db, current_user.id, course).has_access:
-        data = ToolTopicResponse.model_validate(topic).model_dump()
         for lesson in data["lessons"]:
             if not lesson.get("is_preview"):
                 lesson.update(content="", content_ar=None, is_locked=True)
@@ -240,8 +249,9 @@ def get_tool_topic(
         for quiz in data["quizzes"]:
             quiz.update(questions=[], questions_ar=None)
             quiz.update(is_locked=True, course_slug=course.slug)
-        return data
-    return topic
+    tool_slug = db.query(ToolCourse.slug).filter(ToolCourse.id == topic.tool_course_id).scalar()
+    attach_lesson_blocks(db, topic.tool_course_id, tool_slug, data["lessons"])
+    return data
 
 
 # ─── Progress tracking ────────────────────────────────────────────────────

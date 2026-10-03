@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-085',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-084', 'M008-01', 'M008-03', 'COURSE-007 — Advanced RAG prerequisite concepts'],
- 'visuals': [{'filename': 'videoagent-adaptive-frame-retrieval.png',
-              'path': '../../assets/videoagent-adaptive-frame-retrieval.png',
-              'caption': 'Adaptive frame retrieval in a long-video reasoning agent.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Long-Video Reasoning & Efficient Video Systems',
                        '- **video tokens**\n'
                        '- **temporal context**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **videoagent-adaptive-frame-retrieval.png** — Adaptive frame retrieval in a long-video '
-                       'reasoning agent. (package path: `../../assets/videoagent-adaptive-frame-retrieval.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:videoagent-adaptive-frame-retrieval}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

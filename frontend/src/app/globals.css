@@ -595,6 +595,14 @@ html[lang="ar"] .text-lc-title { line-height: var(--lc-lh-head-rtl); }
 /* Tables: scroll in their own wrapper, keep columns readable instead of
    crushing them, and may be wider than prose. */
 .lesson-table-wrap { overflow-x: auto; max-inline-size: 100%; }
+
+/* A lesson that places figures is a column of blocks: text runs (each its own
+   `.lesson-content`) and figures, in the author's order. The gap is the same
+   16px rhythm the prose uses between elements, widened to the sub-heading step
+   so a figure has air on both sides. */
+.lesson-blocks { display: flex; flex-direction: column; gap: var(--lc-space-sub); min-width: 0; }
+.lesson-figure { margin: 0; min-width: 0; }
+.lesson-figure img { max-inline-size: 100%; block-size: auto; }
 .lesson-content table {
   width: max-content;
   min-width: 100%;

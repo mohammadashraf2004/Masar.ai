@@ -32,6 +32,30 @@ class CurriculumError(Exception):
 
 
 @dataclass
+class AssetSpec:
+    """One figure a course's lessons can place with `{{figure:<key>}}`.
+
+    `file` is relative to the course folder; `storage_key` is relative to the
+    courses root (what the asset store resolves). Type, size, hash and dimensions
+    are read from the file itself when the manifest is loaded, never trusted from
+    the manifest."""
+    key: str
+    file: str
+    alt: str
+    caption: Optional[str] = None
+    # Shown to learners only when the manifest sets it.
+    figure_number: Optional[str] = None
+    # Where the figure came from in the source material; for authors only.
+    source_reference: Optional[str] = None
+    storage_key: str = ""
+    mime_type: str = ""
+    byte_size: int = 0
+    sha256: str = ""
+    width: Optional[int] = None
+    height: Optional[int] = None
+
+
+@dataclass
 class QuestionSpec:
     question: str
     # None for an open-ended question (graded through the AI answer chat).
@@ -147,6 +171,10 @@ class CourseSpec:
     # the loader so validation can fail on them.
     unloaded_files: List[str] = field(default_factory=list)
     missing_files: List[str] = field(default_factory=list)
+    # The figures the course ships (`assets_manifest.json`), and anything wrong
+    # with that manifest, reported by validation like every other structural fault.
+    assets: List[AssetSpec] = field(default_factory=list)
+    asset_problems: List[str] = field(default_factory=list)
 
     @property
     def slug(self) -> str:

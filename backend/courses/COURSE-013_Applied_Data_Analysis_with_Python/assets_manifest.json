@@ -1,79 +1,90 @@
 {
+  "version": 1,
   "course_id": "COURSE-013",
-  "required": [
+  "assets": [
     {
-      "figure": "Figure 1.1",
-      "title": "Song recommendation using CRISP-DM",
-      "target_lesson": "L013-002",
-      "path": "assets/m013-01/figure-01-01-crisp-dm.png"
+      "key": "analysis-process",
+      "type": "image",
+      "file": "assets/B33146_01_02.png",
+      "alt": "Five-stage data-analysis process for customer purchases: collect transaction, product, and customer data; preprocess KPIs; analyze trends and segments; interpret visualized insights; and tell the resulting story.",
+      "caption": "Data analysis moves from collection and preparation through insight finding, interpretation, and communication.",
+      "source_reference": "Figure 1.2; source file B33146_01_02.png"
     },
     {
-      "figure": "Figure 1.2",
-      "title": "Customer purchase behavior standard process",
-      "target_lesson": "L013-001",
-      "path": "assets/m013-01/figure-01-02-analysis-process.png"
+      "key": "clustering-shapes",
+      "type": "image",
+      "file": "assets/B33146_10_15.png",
+      "alt": "Nine scatter plots comparing K-means, agglomerative clustering, and DBSCAN on moon-shaped, concentric-circle, and compact blob datasets.",
+      "caption": "Cluster shape matters: centroid, hierarchical, and density-based methods partition nonlinear and compact data differently.",
+      "source_reference": "Figure 10.15; source file B33146_10_15.png"
     },
     {
-      "figure": "Figure 2.8",
-      "title": "Fancy indexing pairs",
-      "target_lesson": "L013-009",
-      "path": "assets/m013-02/figure-02-08-fancy-index-pairs.png"
+      "key": "crisp-dm",
+      "type": "image",
+      "file": "assets/B33146_01_01.png",
+      "alt": "Circular CRISP-DM workflow for a song recommender: business understanding, data understanding, data preparation, modeling, model evaluation, and deployment.",
+      "caption": "CRISP-DM treats analysis as an iterative cycle from the business question through deployment and renewed understanding.",
+      "source_reference": "Figure 1.1; source file B33146_01_01.png"
     },
     {
-      "figure": "Figure 10.15",
-      "title": "Clustering algorithms comparison of various data shapes",
-      "target_lesson": "L013-078",
-      "path": "assets/m013-10/figure-10-15-clustering-shapes.png"
+      "key": "fancy-index-pairs",
+      "type": "image",
+      "file": "assets/B33146_02_08.png",
+      "alt": "A 5-by-4 NumPy array with row indices 1 and 2 paired position-wise with column indices 2 and 3, selecting values 7 and 12.",
+      "caption": "With paired fancy indices, NumPy selects coordinate pairs `(1, 2)` and `(2, 3)` rather than a rectangular block.",
+      "source_reference": "Figure 2.8; source file B33146_02_08.png"
+    },
+    {
+      "key": "fancy-indexing",
+      "type": "image",
+      "file": "assets/B33146_02_07.png",
+      "alt": "A 5-by-4 NumPy array showing arr[[1, 2]] selecting rows 1 and 2 and arr[[2, 3]] selecting rows 2 and 3.",
+      "caption": "A list of row indices returns the selected rows in the order requested.",
+      "source_reference": "Figure 2.7; source file B33146_02_07.png"
     }
   ],
-  "optional": [
-    {
-      "figure": "Figure 2.7",
-      "title": "Fancy Indexing",
-      "target_lesson": "L013-009",
-      "path": "assets/m013-02/figure-02-07-fancy-indexing.png"
-    },
+  "pending": [
     {
       "figure": "Figure 3.2",
       "title": "Which sample size should you choose?",
-      "target_lesson": "L013-021",
-      "path": "assets/m013-03/figure-03-02-clt-sample-size.png"
+      "lesson_id": "L013-021",
+      "priority": "optional"
     },
     {
       "figure": "Figure 4.1",
       "title": "Examples of scalar, vector, matrix, and tensors",
-      "target_lesson": "L013-028",
-      "path": "assets/m013-04/figure-04-01-data-structures.png"
+      "lesson_id": "L013-028",
+      "priority": "optional"
     },
     {
       "figure": "Figure 10.1",
       "title": "PCA projection from 3D onto a 2D plane",
-      "target_lesson": "L013-075",
-      "path": "assets/m013-10/figure-10-01-pca-projection.png"
+      "lesson_id": "L013-075",
+      "priority": "optional"
     },
     {
       "figure": "Figure 10.11",
       "title": "Agglomerative clustering dendrogram",
-      "target_lesson": "L013-078",
-      "path": "assets/m013-10/figure-10-11-dendrogram.png"
+      "lesson_id": "L013-078",
+      "priority": "optional"
     },
     {
       "figure": "Figure 11.2",
       "title": "Bagging method visual representation",
-      "target_lesson": "L013-082",
-      "path": "assets/m013-09/figure-11-02-bagging.png"
+      "lesson_id": "L013-082",
+      "priority": "optional"
     },
     {
       "figure": "Figure 11.7",
       "title": "Boosting method visual representation",
-      "target_lesson": "L013-084",
-      "path": "assets/m013-09/figure-11-07-boosting.png"
+      "lesson_id": "L013-084",
+      "priority": "optional"
     },
     {
       "figure": "Figure 12.2",
       "title": "Artificial neural network",
-      "target_lesson": "L013-087",
-      "path": "assets/m013-09/figure-12-02-ann-architecture.png"
+      "lesson_id": "L013-087",
+      "priority": "optional"
     }
   ]
 }

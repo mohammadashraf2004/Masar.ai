@@ -11,16 +11,17 @@ everything that is wrong.
   no lesson file the manifest lists is missing, none on disk is unlisted
   declared module / lesson counts match what was loaded
   no lesson without a title or (where bodies exist) a body
-  every prerequisite refers to a course that exists, never itself
+  every figure a lesson places exists      the asset manifest is sound
   every track mapping refers to a real career goal and a real course
 
 `warnings()` lists what is worth knowing but is not wrong (a course that states
-no lesson durations).
+no lesson durations, a figure no lesson places).
 """
 from __future__ import annotations
 
 from typing import Iterable, List, Mapping, Sequence
 
+from app.services.content.lesson_blocks import figure_keys, malformed_markers
 from app.services.curriculum.spec import CourseSpec, CurriculumError
 
 
@@ -70,6 +71,15 @@ def problems_in_course(course: CourseSpec) -> List[str]:
         out.append(f"{cid}: manifest declares {course.declared_modules} modules, {loaded_modules} loaded")
     if course.declared_lessons is not None and course.declared_lessons != loaded_lessons:
         out.append(f"{cid}: manifest declares {course.declared_lessons} lessons, {loaded_lessons} loaded")
+    out += course.asset_problems
+    asset_keys = {a.key for a in course.assets}
+    for lesson in course.lessons:
+        where = f"{cid} {lesson.lesson_id}"
+        out += [f"{where}: figure marker is not on a line of its own or is malformed: {m}"
+                for m in malformed_markers(lesson.content)]
+        for key in dict.fromkeys(figure_keys(lesson.content)):
+            if key not in asset_keys:
+                out.append(f"{where}: references figure '{key}' but no corresponding asset exists in {cid}'s assets_manifest.json")
     out += [f"{cid}: manifest lists a file that does not exist: {f}" for f in course.missing_files]
     out += [f"{cid}: file is not listed by the course and was not imported: {f}" for f in course.unloaded_files]
     return out
@@ -146,6 +156,11 @@ def warnings(courses: Sequence[CourseSpec]) -> List[str]:
         unstated = [l.lesson_id for l in course.lessons if l.estimated_minutes is None]
         if unstated:
             notes.append(f"{course.course_id}: {len(unstated)} of {len(course.lessons)} lessons state no duration")
+        placed = {k for l in course.lessons for k in figure_keys(l.content)}
+        unused = sorted(a.key for a in course.assets if a.key not in placed)
+        if unused:
+            notes.append(f"{course.course_id}: unused asset{'s' if len(unused) != 1 else ''} (no lesson places "
+                         f"{'them' if len(unused) != 1 else 'it'}): {', '.join(unused)}")
         no_quiz = [l.lesson_id for l in course.lessons if not l.questions]
         if no_quiz:
             notes.append(f"{course.course_id}: {len(no_quiz)} lessons have no quiz questions")

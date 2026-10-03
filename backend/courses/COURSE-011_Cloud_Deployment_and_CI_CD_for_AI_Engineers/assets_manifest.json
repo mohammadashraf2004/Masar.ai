@@ -1,191 +1,178 @@
-[
-  {
-    "id": "FIG-011-001",
-    "module_id": "M011-01",
-    "lesson_id": "L011-002",
-    "source_figure": "Figure 1-3",
-    "title": "Creating a key pair",
-    "priority": "required",
-    "suggested_path": "assets/m011-01/fig-1-3-ec2-key-pair.png"
-  },
-  {
-    "id": "FIG-011-002",
-    "module_id": "M011-01",
-    "lesson_id": "L011-005",
-    "source_figure": "Figure 6-4",
-    "title": "Final state of the infrastructure with subdomains",
-    "priority": "required",
-    "suggested_path": "assets/m011-01/fig-6-4-final-subdomain-infrastructure.png"
-  },
-  {
-    "id": "FIG-011-003",
-    "module_id": "M011-01",
-    "lesson_id": "L011-002",
-    "source_figure": "Figure 1-2",
-    "title": "Selecting the Amazon Linux AMI",
-    "priority": "optional",
-    "suggested_path": "assets/m011-01/fig-1-2-ec2-ami.png"
-  },
-  {
-    "id": "FIG-011-004",
-    "module_id": "M011-02",
-    "lesson_id": "L011-014",
-    "source_figure": "Figure 9-2",
-    "title": "Cloud Run service metrics dashboard",
-    "priority": "required",
-    "suggested_path": "assets/m011-02/fig-9-2-cloud-run-metrics.png"
-  },
-  {
-    "id": "FIG-011-005",
-    "module_id": "M011-02",
-    "lesson_id": "L011-016",
-    "source_figure": "Figure 9-6",
-    "title": "Adjusting load-balancer routing rules",
-    "priority": "required",
-    "suggested_path": "assets/m011-02/fig-9-6-routing-rules.png"
-  },
-  {
-    "id": "FIG-011-006",
-    "module_id": "M011-02",
-    "lesson_id": "L011-022",
-    "source_figure": "Figure 10-6",
-    "title": "ECS security group",
-    "priority": "required",
-    "suggested_path": "assets/m011-02/fig-10-6-ecs-security-group.png"
-  },
-  {
-    "id": "FIG-011-007",
-    "module_id": "M011-02",
-    "lesson_id": "L011-023",
-    "source_figure": "Figure 10-15",
-    "title": "ALB listener rules final result",
-    "priority": "required",
-    "suggested_path": "assets/m011-02/fig-10-15-alb-listener-rules.png"
-  },
-  {
-    "id": "FIG-011-008",
-    "module_id": "M011-02",
-    "lesson_id": "L011-025",
-    "source_figure": "Figure 10-16",
-    "title": "ECS/Fargate cluster",
-    "priority": "required",
-    "suggested_path": "assets/m011-02/fig-10-16-ecs-cluster.png"
-  },
-  {
-    "id": "FIG-011-009",
-    "module_id": "M011-02",
-    "lesson_id": "L011-014",
-    "source_figure": "Figure 9-3",
-    "title": "Cloud Run minimum autoscaling instances",
-    "priority": "optional",
-    "suggested_path": "assets/m011-02/fig-9-3-cloud-run-min-instances.png"
-  },
-  {
-    "id": "FIG-011-010",
-    "module_id": "M011-02",
-    "lesson_id": "L011-017",
-    "source_figure": "Figure 9-9",
-    "title": "Restricted direct Cloud Run URL",
-    "priority": "optional",
-    "suggested_path": "assets/m011-02/fig-9-9-cloud-run-restricted-url.png"
-  },
-  {
-    "id": "FIG-011-011",
-    "module_id": "M011-02",
-    "lesson_id": "L011-021",
-    "source_figure": "Figure 10-3",
-    "title": "ECR repositories",
-    "priority": "optional",
-    "suggested_path": "assets/m011-02/fig-10-3-ecr-repositories.png"
-  },
-  {
-    "id": "FIG-011-012",
-    "module_id": "M011-02",
-    "lesson_id": "L011-023",
-    "source_figure": "Figure 10-7",
-    "title": "Target-group configuration",
-    "priority": "optional",
-    "suggested_path": "assets/m011-02/fig-10-7-target-group.png"
-  },
-  {
-    "id": "FIG-011-013",
-    "module_id": "M011-03",
-    "lesson_id": "L011-035",
-    "source_figure": "Figure 11-5",
-    "title": "Jenkins schedule and shell commands",
-    "priority": "required",
-    "suggested_path": "assets/m011-03/fig-11-5-jenkins-schedule.png"
-  },
-  {
-    "id": "FIG-011-014",
-    "module_id": "M011-03",
-    "lesson_id": "L011-036",
-    "source_figure": "Figure 11-6",
-    "title": "Failed Jenkins execution",
-    "priority": "required",
-    "suggested_path": "assets/m011-03/fig-11-6-jenkins-failure.png"
-  },
-  {
-    "id": "FIG-011-015",
-    "module_id": "M011-04",
-    "lesson_id": "L011-044",
-    "source_figure": "Figure 3.1",
-    "title": "Git workflow: working directory, staging area, repository",
-    "priority": "required",
-    "suggested_path": "assets/m011-04/fig-3-1-git-three-trees.png"
-  },
-  {
-    "id": "FIG-011-016",
-    "module_id": "M011-04",
-    "lesson_id": "L011-048",
-    "source_figure": "Figure 3.2",
-    "title": "GitFlow model",
-    "priority": "required",
-    "suggested_path": "assets/m011-04/fig-3-2-gitflow.png"
-  },
-  {
-    "id": "FIG-011-017",
-    "module_id": "M011-04",
-    "lesson_id": "L011-049",
-    "source_figure": "Figure 3.4",
-    "title": "Open a pull request page",
-    "priority": "optional",
-    "suggested_path": "assets/m011-04/fig-3-4-pull-request.png"
-  },
-  {
-    "id": "FIG-011-018",
-    "module_id": "M011-05",
-    "lesson_id": "L011-055",
-    "source_figure": "Figure 6.1",
-    "title": "CI/CD pipeline",
-    "priority": "required",
-    "suggested_path": "assets/m011-05/fig-6-1-ci-cd-pipeline.png"
-  },
-  {
-    "id": "FIG-011-019",
-    "module_id": "M011-06",
-    "lesson_id": "L011-075",
-    "source_figure": "Figure 7.1",
-    "title": "Terraform state flow",
-    "priority": "required",
-    "suggested_path": "assets/m011-06/fig-7-1-terraform-state-flow.png"
-  },
-  {
-    "id": "FIG-011-020",
-    "module_id": "M011-06",
-    "lesson_id": "L011-081",
-    "source_figure": "Figure 7.4",
-    "title": "Review and approve deployment popup",
-    "priority": "required",
-    "suggested_path": "assets/m011-06/fig-7-4-production-approval.png"
-  },
-  {
-    "id": "FIG-011-021",
-    "module_id": "M011-06",
-    "lesson_id": "L011-080",
-    "source_figure": "Figure 7.2",
-    "title": "Creating a GitHub environment",
-    "priority": "optional",
-    "suggested_path": "assets/m011-06/fig-7-2-github-environment.png"
-  }
-]
+{
+  "version": 1,
+  "course_id": "COURSE-011",
+  "assets": [
+    {
+      "key": "ci-cd-pipeline",
+      "type": "image",
+      "file": "B21848_6_1.png",
+      "alt": "Pipeline from code through build and test in continuous integration, then release, deploy, and operate in continuous delivery or deployment; production deployment may be manual or automatic.",
+      "caption": "CI validates code through build and test; CD carries a release toward production, manually or automatically.",
+      "source_reference": "Figure 6-1; source file B21848_6_1.png"
+    },
+    {
+      "key": "ec2-key-pair",
+      "type": "image",
+      "file": "979-8-8688-1715-1_1_Fig3_HTML.jpg",
+      "alt": "AWS EC2 Create key pair dialog with a key-pair name, RSA selected, and PEM private-key format selected for OpenSSH.",
+      "caption": "An EC2 key pair provides the private credential needed for secure administrative access to the instance.",
+      "source_reference": "Figure 1-3; source file 979-8-8688-1715-1_1_Fig3_HTML.jpg"
+    },
+    {
+      "key": "final-subdomain-infrastructure",
+      "type": "image",
+      "file": "979-8-8688-1715-1_6_Fig4_HTML.jpg",
+      "alt": "AWS VPC architecture where a public load balancer routes HTTPS, HTTP, and SSH target groups to one EC2 instance, with security groups restricting traffic by source address.",
+      "caption": "The load balancer exposes named endpoints while security groups restrict which traffic can reach the EC2 instance.",
+      "source_reference": "Figure 6-4; source file 979-8-8688-1715-1_6_Fig4_HTML.jpg"
+    },
+    {
+      "key": "gcp-global-load-balancer",
+      "type": "image",
+      "file": "979-8-8688-1715-1_8_Fig12_HTML.jpg",
+      "alt": "Google Cloud load-balancer details page showing an HTTPS frontend, a default routing rule, and a backend service with its health check and security policy.",
+      "caption": "A global application load balancer connects the public HTTPS frontend and routing rules to a health-checked backend service.",
+      "source_reference": "Figure 8-12; source file 979-8-8688-1715-1_8_Fig12_HTML.jpg"
+    },
+    {
+      "key": "gcp-instance-group-autoscaling",
+      "type": "image",
+      "file": "979-8-8688-1715-1_8_Fig4_HTML.jpg",
+      "alt": "Google Cloud managed instance group form with autoscaling enabled, minimum and maximum instance counts, an HTTP load-balancing utilization target, and an initialization period.",
+      "caption": "Managed instance groups scale between explicit limits in response to a chosen utilization signal.",
+      "source_reference": "Figure 8-4; source file 979-8-8688-1715-1_8_Fig4_HTML.jpg"
+    },
+    {
+      "key": "gcp-instance-group-health-check",
+      "type": "image",
+      "file": "979-8-8688-1715-1_8_Fig5_HTML.jpg",
+      "alt": "Google Cloud instance-group autohealing settings with a global TCP health check on port 443 and configured interval, timeout, healthy, and unhealthy thresholds.",
+      "caption": "Autohealing depends on a concrete health check whose interval, timeout, and thresholds define when an instance is replaced.",
+      "source_reference": "Figure 8-5; source file 979-8-8688-1715-1_8_Fig5_HTML.jpg"
+    },
+    {
+      "key": "git-three-trees",
+      "type": "image",
+      "file": "B21848_3_1.png",
+      "alt": "Three Git states showing files moving from the working directory to the staging area with git add and into the repository with git commit.",
+      "caption": "Git separates local edits, the staged snapshot, and committed history into three distinct states.",
+      "source_reference": "Figure 3-1; source file B21848_3_1.png"
+    },
+    {
+      "key": "gitflow",
+      "type": "image",
+      "file": "B21848_3_2.png",
+      "alt": "GitFlow branch diagram with main, develop, feature, release, and hotfix branches and their merge paths.",
+      "caption": "GitFlow uses long-lived main and develop branches, with short-lived feature, release, and hotfix branches.",
+      "source_reference": "Figure 3-2; source file B21848_3_2.png"
+    },
+    {
+      "key": "jenkins-failure",
+      "type": "image",
+      "file": "979-8-8688-1715-1_11_Fig6_HTML.jpg",
+      "alt": "Jenkins job page for payment-transactions-etl showing a red failed status and links to the last build, failed build, unsuccessful build, and completed build.",
+      "caption": "A failed Jenkins run is the starting point for diagnosis through build history and execution logs.",
+      "source_reference": "Figure 11-6; source file 979-8-8688-1715-1_11_Fig6_HTML.jpg"
+    },
+    {
+      "key": "jenkins-schedule",
+      "type": "image",
+      "file": "979-8-8688-1715-1_11_Fig5_HTML.jpg",
+      "alt": "Jenkins job configuration with Build periodically enabled using a cron schedule and an Execute shell step that runs a Python ETL job.",
+      "caption": "A scheduled Jenkins job combines a cron trigger with a reproducible non-interactive command.",
+      "source_reference": "Figure 11-5; source file 979-8-8688-1715-1_11_Fig5_HTML.jpg"
+    },
+    {
+      "key": "production-approval",
+      "type": "image",
+      "file": "B21848_7_4.png",
+      "alt": "GitHub production-environment dialog for a pending deployment with a comment field and Reject or Approve and deploy actions.",
+      "caption": "A protected production environment inserts a human approval gate before deployment proceeds.",
+      "source_reference": "Figure 7-4; source file B21848_7_4.png"
+    },
+    {
+      "key": "pull-request",
+      "type": "image",
+      "file": "B21848_3_4.png",
+      "alt": "GitHub Open a pull request page comparing a feature branch with main and providing title, description, reviewer, assignee, label, and project fields.",
+      "caption": "A pull request packages a branch comparison with review context before changes reach the deployment branch.",
+      "source_reference": "Figure 3-4; source file B21848_3_4.png"
+    },
+    {
+      "key": "terraform-state-flow",
+      "type": "image",
+      "file": "B21848_7_1.png",
+      "alt": "GitHub Actions workflow running Terraform init, plan, and apply against an S3 remote-state bucket while a DynamoDB table acquires and releases state locks.",
+      "caption": "Remote state in S3 and locking in DynamoDB keep automated Terraform runs consistent and serialized.",
+      "source_reference": "Figure 7-1; source file B21848_7_1.png"
+    }
+  ],
+  "pending": [
+    {
+      "figure": "Figure 1-2",
+      "title": "Selecting the Amazon Linux AMI",
+      "lesson_id": "L011-002",
+      "priority": "optional"
+    },
+    {
+      "figure": "Figure 9-2",
+      "title": "Cloud Run service metrics dashboard",
+      "lesson_id": "L011-014",
+      "priority": "required"
+    },
+    {
+      "figure": "Figure 9-6",
+      "title": "Adjusting load-balancer routing rules",
+      "lesson_id": "L011-016",
+      "priority": "required"
+    },
+    {
+      "figure": "Figure 10-6",
+      "title": "ECS security group",
+      "lesson_id": "L011-022",
+      "priority": "required"
+    },
+    {
+      "figure": "Figure 10-15",
+      "title": "ALB listener rules final result",
+      "lesson_id": "L011-023",
+      "priority": "required"
+    },
+    {
+      "figure": "Figure 10-16",
+      "title": "ECS/Fargate cluster",
+      "lesson_id": "L011-025",
+      "priority": "required"
+    },
+    {
+      "figure": "Figure 9-3",
+      "title": "Cloud Run minimum autoscaling instances",
+      "lesson_id": "L011-014",
+      "priority": "optional"
+    },
+    {
+      "figure": "Figure 9-9",
+      "title": "Restricted direct Cloud Run URL",
+      "lesson_id": "L011-017",
+      "priority": "optional"
+    },
+    {
+      "figure": "Figure 10-3",
+      "title": "ECR repositories",
+      "lesson_id": "L011-021",
+      "priority": "optional"
+    },
+    {
+      "figure": "Figure 10-7",
+      "title": "Target-group configuration",
+      "lesson_id": "L011-023",
+      "priority": "optional"
+    },
+    {
+      "figure": "Figure 7.2",
+      "title": "Creating a GitHub environment",
+      "lesson_id": "L011-080",
+      "priority": "optional"
+    }
+  ]
+}

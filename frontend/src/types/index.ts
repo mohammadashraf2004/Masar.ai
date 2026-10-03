@@ -59,12 +59,37 @@ export type Difficulty = 'beginner' | 'intermediate' | 'advanced'
 // Nothing in `code`-shaped fields has a twin — code is identical in every
 // language.
 
+/** A run of lesson Markdown, exactly as authored (code, tables, callouts and equations are inside it). */
+export interface MarkdownBlock {
+  type: 'markdown'
+  content: string
+}
+
+/** A figure, placed where the lesson's author put it. `url` is relative to the API root (or absolute). */
+export interface ImageBlock {
+  type: 'image'
+  asset_key: string
+  url: string
+  alt: string
+  caption?: string | null
+  /** Shown before the caption when the course sets one ("Figure 4.2"). */
+  figure_number?: string | null
+  width?: number | null
+  height?: number | null
+}
+
+/** A lesson body is an ordered list of these; the browser renders them in the order given. */
+export type LessonBlock = MarkdownBlock | ImageBlock
+
 export interface Lesson {
   id: number
   title: string
   content: string
   title_ar?: string | null
   content_ar?: string | null
+  /** The body as ordered blocks; null for a lesson that places no figure (render `content`). */
+  blocks?: LessonBlock[] | null
+  blocks_ar?: LessonBlock[] | null
   order: number
   /** Null when the course does not state a duration. */
   estimated_minutes?: number | null

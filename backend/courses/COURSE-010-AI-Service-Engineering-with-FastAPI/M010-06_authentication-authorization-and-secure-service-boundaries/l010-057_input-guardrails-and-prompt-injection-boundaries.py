@@ -23,10 +23,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 9,
-                       'figure': 'Figure 9-1',
-                       'title': 'Comparison of an LLM system without and with guardrails',
-                       'filename': 'fig_09_01_io_guardrails.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Input Guardrails & Prompt-Injection Boundaries',
@@ -81,6 +77,8 @@ TOPIC = {'title': 'Input Guardrails & Prompt-Injection Boundaries',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:io-guardrails}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

@@ -36,6 +36,7 @@ from typing import Any, Dict, List, Mapping, Optional
 from sqlalchemy import null
 from sqlalchemy.orm import Session
 
+from app.models.course_asset import CourseAsset
 from app.models.learning import DifficultyLevel, Exercise, Lesson, Project, Quiz, Topic
 from app.models.learning_path import COURSE_KIND_TOOL, Course
 from app.models.tool_course import CURRICULUM_CATEGORY, ToolCourse, ToolTopic
@@ -79,12 +80,13 @@ class CourseReport:
     exercises: Tally = field(default_factory=Tally)
     quizzes: Tally = field(default_factory=Tally)
     projects: Tally = field(default_factory=Tally)
+    assets: Tally = field(default_factory=Tally)
     stale: List[str] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
 
     @property
     def changed(self) -> bool:
-        tallies = (self.modules, self.lessons, self.exercises, self.quizzes, self.projects)
+        tallies = (self.modules, self.lessons, self.exercises, self.quizzes, self.projects, self.assets)
         return any(t.created or t.updated for t in tallies)
 
 
@@ -337,8 +339,34 @@ def import_content(db: Session, spec: CourseSpec, tool_course: ToolCourse) -> Co
     return report
 
 
+def import_assets(db: Session, spec: CourseSpec, tool_course: ToolCourse, report: CourseReport) -> None:
+    """Create or update the course's figures, keyed by (course, asset key). A figure
+    the folder no longer lists is reported as stale and kept: a lesson written
+    earlier may still place it."""
+    existing = {a.key: a for a in db.query(CourseAsset).filter(CourseAsset.tool_course_id == tool_course.id).all()}
+    for asset in spec.assets:
+        values = {
+            "tool_course_id": tool_course.id, "asset_type": "image", "storage_key": asset.storage_key,
+            "mime_type": asset.mime_type, "byte_size": asset.byte_size, "width": asset.width, "height": asset.height,
+            "sha256": asset.sha256, "alt": asset.alt, "caption": asset.caption,
+            "figure_number": asset.figure_number, "source_reference": asset.source_reference,
+        }
+        row = existing.get(asset.key)
+        if row is None:
+            db.add(CourseAsset(key=asset.key, **values))
+            report.assets.add("created")
+        elif _assign(row, values):
+            report.assets.add("updated")
+        else:
+            report.assets.add("unchanged")
+    report.stale += sorted(f"{spec.course_id}/asset/{k}" for k in existing if k not in {a.key for a in spec.assets})
+    db.flush()
+
+
 def import_course(db: Session, spec: CourseSpec, definition: Mapping[str, Any]) -> CourseReport:
     """Course record + content for one folder. Does not commit."""
     course = ensure_course_record(db, definition, spec)
     tool_course = course.tool_course
-    return import_content(db, spec, tool_course)
+    report = import_content(db, spec, tool_course)
+    import_assets(db, spec, tool_course, report)
+    return report

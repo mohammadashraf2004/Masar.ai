@@ -26,16 +26,6 @@ LESSON_META = {'lesson_id': 'L008-043',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-042', 'M008-01'],
- 'visuals': [{'filename': 'multimodal-preference-dataset.png',
-              'path': '../../assets/multimodal-preference-dataset.png',
-              'caption': 'Image, question, chosen, and rejected preference-data schema.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'rlhf-vs-dpo.png',
-              'path': '../../assets/rlhf-vs-dpo.png',
-              'caption': 'RLHF versus direct preference optimization.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -80,14 +70,7 @@ TOPIC = {'title': 'Multimodal Preference Data & Direct Preference Optimization',
                        '- **multimodal engineering**\n'
                        '- **controlled experiments**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **multimodal-preference-dataset.png** — Image, question, chosen, and rejected '
-                       'preference-data schema. (package path: `../../assets/multimodal-preference-dataset.png`)\n'
-                       '- **rlhf-vs-dpo.png** — RLHF versus direct preference optimization. (package path: '
-                       '`../../assets/rlhf-vs-dpo.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:multimodal-preference-dataset}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -99,6 +82,8 @@ TOPIC = {'title': 'Multimodal Preference Data & Direct Preference Optimization',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:rlhf-vs-dpo}}\n'
                        '\n'
                        '## Practice\n'
                        'Adapt a small/open VLM with the target post-training method or a faithful miniature '

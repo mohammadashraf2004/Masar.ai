@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-045',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-044', 'M008-01'],
- 'visuals': [{'filename': 'ppo-vs-grpo.png',
-              'path': '../../assets/ppo-vs-grpo.png',
-              'caption': 'PPO and group-relative policy optimization structures.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -68,12 +63,7 @@ TOPIC = {'title': 'GRPO, RLVR & Verifiable Multimodal Rewards',
                        '- **verifiable rewards**\n'
                        '- **RLVR**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **ppo-vs-grpo.png** — PPO and group-relative policy optimization structures. (package path: '
-                       '`../../assets/ppo-vs-grpo.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:ppo-vs-grpo}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

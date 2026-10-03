@@ -24,10 +24,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 5,
-                       'figure': 'Figure 5-5',
-                       'title': 'How multithreading and Async IO handle I/O blocking operations',
-                       'filename': 'fig_05_05_threadpool_vs_async.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'FastAPI Event Loop, Thread Pool & Blocking Bugs',
@@ -83,6 +79,8 @@ TOPIC = {'title': 'FastAPI Event Loop, Thread Pool & Blocking Bugs',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:threadpool-vs-async}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

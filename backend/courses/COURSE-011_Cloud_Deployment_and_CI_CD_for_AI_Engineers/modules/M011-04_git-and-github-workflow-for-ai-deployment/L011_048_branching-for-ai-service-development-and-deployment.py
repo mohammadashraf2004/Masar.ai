@@ -6,9 +6,33 @@ TOPICS = ['branch isolation', 'main branch stability', 'feature/fix/release/hotf
 
 SOURCE_REFERENCES = ['Secondary DevOps source (source ID not provided) — Chapter 3: Mastering Version Control with Git and GitHub']
 
-FIGURE_REFERENCES = [{'source_figure': 'Figure 3.2', 'title': 'GitFlow model', 'priority': 'required', 'suggested_path': 'assets/m011-04/fig-3-2-gitflow.png'}]
-
-LESSON_MARKDOWN = '# L011-048 — Branching for AI Service Development & Deployment\n\n## Learning objective\n\nApply branching for ai service development & deployment concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- branch isolation\n- main branch stability\n- feature/fix/release/hotfix branches\n- GitFlow concepts\n- simpler deployment-oriented branching awareness\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n\n## Manual visual references\n- `Figure 3.2` — GitFlow model (required); add manually at `assets/m011-04/fig-3-2-gitflow.png`.\n'
+LESSON_MARKDOWN = ('# L011-048 — Branching for AI Service Development & Deployment\n'
+                   '\n'
+                   '## Learning objective\n'
+                   '\n'
+                   'Apply branching for ai service development & deployment concepts to the deployment and operation of an existing production-oriented AI service.\n'
+                   '\n'
+                   '## Core topics\n'
+                   '\n'
+                   '- branch isolation\n'
+                   '- main branch stability\n'
+                   '- feature/fix/release/hotfix branches\n'
+                   '- GitFlow concepts\n'
+                   '- simpler deployment-oriented branching awareness\n'
+                   '\n'
+                   '{{figure:gitflow}}\n'
+                   '\n'
+                   '## AI-engineering context\n'
+                   '\n'
+                   'Use these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n'
+                   '\n'
+                   '## Practice\n'
+                   '\n'
+                   'Apply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n'
+                   '\n'
+                   '## Assessment focus\n'
+                   '\n'
+                   'The learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n')
 
 EXERCISES = [{'id': 'L011-048-EX1', 'title': 'Apply Branching for AI Service Development & Deployment', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: branch isolation, main branch stability, feature/fix/release/hotfix branches. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-048-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to branching for ai service development & deployment. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
 

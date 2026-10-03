@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-025',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-024', 'M008-01'],
- 'visuals': [{'filename': 'baby-vlm-inference-failure.png',
-              'path': '../../assets/baby-vlm-inference-failure.png',
-              'caption': 'Small VLM generation failure used for debugging practice.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'VLM Inference, Debugging & KV-Cache Acceleration',
                        '- **decode**\n'
                        '- **throughput**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **baby-vlm-inference-failure.png** — Small VLM generation failure used for debugging '
-                       'practice. (package path: `../../assets/baby-vlm-inference-failure.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:baby-vlm-inference-failure}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

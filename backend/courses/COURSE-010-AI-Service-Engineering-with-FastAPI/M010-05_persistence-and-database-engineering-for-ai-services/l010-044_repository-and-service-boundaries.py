@@ -23,11 +23,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 7,
-                       'figure': 'Figure 7-4',
-                       'title': 'The repository pattern within the onion/layered application '
-                                'architecture',
-                       'filename': 'fig_07_04_repository_layer.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Repository & Service Boundaries',
@@ -82,6 +77,8 @@ TOPIC = {'title': 'Repository & Service Boundaries',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:repository-layer}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

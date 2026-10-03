@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-088',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-087', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'janus-pro-architecture.png',
-              'path': '../../assets/janus-pro-architecture.png',
-              'caption': 'Janus-style decoupled visual understanding and image generation.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -72,12 +67,7 @@ TOPIC = {'title': 'Monolithic Multimodal Models & Janus-Style Architectures',
                        '- **unified representations**\n'
                        '- **modality-specific generation**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **janus-pro-architecture.png** — Janus-style decoupled visual understanding and image '
-                       'generation. (package path: `../../assets/janus-pro-architecture.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:janus-pro-architecture}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

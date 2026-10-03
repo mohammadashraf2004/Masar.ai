@@ -27,11 +27,6 @@ LESSON_META = {'lesson_id': 'L008-006',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-005'],
- 'visuals': [{'filename': 'siglip-image-text-retrieval.png',
-              'path': '../../assets/siglip-image-text-retrieval.png',
-              'caption': 'Shared image-text embedding space for semantic retrieval.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -77,12 +72,7 @@ TOPIC = {'title': 'CLIP & Shared Image-Text Representation Spaces',
                        '- **shared representation space**\n'
                        '- **similarity**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **siglip-image-text-retrieval.png** — Shared image-text embedding space for semantic '
-                       'retrieval. (package path: `../../assets/siglip-image-text-retrieval.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:siglip-image-text-retrieval}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

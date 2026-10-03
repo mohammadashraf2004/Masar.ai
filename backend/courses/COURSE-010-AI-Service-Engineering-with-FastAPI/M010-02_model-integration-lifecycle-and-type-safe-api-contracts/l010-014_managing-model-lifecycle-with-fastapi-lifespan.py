@@ -24,10 +24,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 3,
-                       'figure': 'Figure 3-29',
-                       'title': 'Using the FastAPI application lifespan to preload models',
-                       'filename': 'fig_03_29_lifespan_model_preloading.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Managing Model Lifecycle with FastAPI Lifespan',
@@ -84,6 +80,8 @@ TOPIC = {'title': 'Managing Model Lifecycle with FastAPI Lifespan',
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
                        '\n'
+                       '{{figure:lifespan-model-preloading}}\n'
+                       '\n'
                        '## Engineering workflow\n'
                        '\n'
                        '1. **State the contract.** Write down the expected input, output, side '
@@ -117,6 +115,10 @@ TOPIC = {'title': 'Managing Model Lifecycle with FastAPI Lifespan',
                        'The snippet is intentionally small. The course capstone grows the same '
                        'boundary through later modules rather than replacing it with unrelated '
                        'demos.\n'
+                       '\n'
+                       'The lifecycle below shows where model loading, reuse, and cleanup belong.\n'
+                       '\n'
+                       '{{figure:model-lifespan-startup-shutdown}}\n'
                        '\n'
                        '## Common failure modes\n'
                        '\n'

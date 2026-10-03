@@ -6,9 +6,33 @@ TOPICS = ['Continuous Integration', 'Continuous Delivery', 'Continuous Deploymen
 
 SOURCE_REFERENCES = ['Secondary DevOps source (source ID not provided) — Chapter 6: Constructing Your First CI/CD Pipeline']
 
-FIGURE_REFERENCES = [{'source_figure': 'Figure 6.1', 'title': 'CI/CD pipeline', 'priority': 'required', 'suggested_path': 'assets/m011-05/fig-6-1-ci-cd-pipeline.png'}]
-
-LESSON_MARKDOWN = '# L011-055 — Continuous Integration, Delivery & Deployment\n\n## Learning objective\n\nApply continuous integration, delivery & deployment concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- Continuous Integration\n- Continuous Delivery\n- Continuous Deployment\n- fast feedback\n- staging and production release control\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n\n## Manual visual references\n- `Figure 6.1` — CI/CD pipeline (required); add manually at `assets/m011-05/fig-6-1-ci-cd-pipeline.png`.\n'
+LESSON_MARKDOWN = ('# L011-055 — Continuous Integration, Delivery & Deployment\n'
+                   '\n'
+                   '## Learning objective\n'
+                   '\n'
+                   'Apply continuous integration, delivery & deployment concepts to the deployment and operation of an existing production-oriented AI service.\n'
+                   '\n'
+                   '## Core topics\n'
+                   '\n'
+                   '- Continuous Integration\n'
+                   '- Continuous Delivery\n'
+                   '- Continuous Deployment\n'
+                   '- fast feedback\n'
+                   '- staging and production release control\n'
+                   '\n'
+                   '{{figure:ci-cd-pipeline}}\n'
+                   '\n'
+                   '## AI-engineering context\n'
+                   '\n'
+                   'Use these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n'
+                   '\n'
+                   '## Practice\n'
+                   '\n'
+                   'Apply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n'
+                   '\n'
+                   '## Assessment focus\n'
+                   '\n'
+                   'The learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n')
 
 EXERCISES = [{'id': 'L011-055-EX1', 'title': 'Apply Continuous Integration, Delivery & Deployment', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: Continuous Integration, Continuous Delivery, Continuous Deployment. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-055-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to continuous integration, delivery & deployment. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
 

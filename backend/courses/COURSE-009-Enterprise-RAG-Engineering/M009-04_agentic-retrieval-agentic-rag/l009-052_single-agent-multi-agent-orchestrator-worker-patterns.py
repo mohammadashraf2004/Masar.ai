@@ -20,7 +20,6 @@ LESSON_META = {'course_id': 'COURSE-009',
                           'COURSE-007 — Advanced LLM Systems & Application Architecture',
                           'COURSE-008 — Vision-Language & Multimodal AI Engineering (specialized '
                           'supporting background)'],
- 'visual_reference': 'Figure 7-4',
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Single-Agent, Multi-Agent & Orchestrator–Worker Patterns',
@@ -82,6 +81,8 @@ TOPIC = {'title': 'Single-Agent, Multi-Agent & Orchestrator–Worker Patterns',
                        'leaves it, and how failures are surfaced. Hidden fallbacks are dangerous '
                        'because they can make an answer look successful while the retrieval path '
                        'is incomplete or degraded.\n'
+                       '\n'
+                       '{{figure:orchestrator-worker}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'
@@ -161,14 +162,7 @@ TOPIC = {'title': 'Single-Agent, Multi-Agent & Orchestrator–Worker Patterns',
                        '\n'
                        'Treat **Single-Agent, Multi-Agent & Orchestrator–Worker Patterns** as an '
                        'engineering capability with measurable inputs, outputs, failure modes, and '
-                       'regression protection—not as a one-time configuration choice.\n'
-                       '\n'
-                       '\n'
-                       '## Visual reference\n'
-                       '\n'
-                       'Manually add **Figure 7-4** from BOOK-009 to the asset path listed in '
-                       '`visual_assets_manifest.json`. The source image is a reference; use an '
-                       'original Masar redraw for publication when reuse rights are unclear.\n',
+                       'regression protection—not as a one-time configuration choice.\n',
             'estimated_minutes': 55,
             'has_code_examples': True},
  'exercises': [{'title': 'Trace and Diagnose: Single-Agent, Multi-Agent & Orchestrator–Worker '

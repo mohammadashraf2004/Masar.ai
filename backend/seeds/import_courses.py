@@ -116,8 +116,9 @@ def main() -> None:
 
     print(f"\n{'DRY RUN - nothing written.' if args.dry_run else 'Imported.'}")
     for r in reports:
+        figures = f"  figures {r.assets}" if r.assets.created or r.assets.updated or r.assets.unchanged else ""
         print(f"  {r.course_id}: modules {r.modules}  lessons {r.lessons}  exercises {r.exercises}  "
-              f"quizzes {r.quizzes}  projects {r.projects}")
+              f"quizzes {r.quizzes}  projects {r.projects}{figures}")
         for note in r.notes:
             print(f"      note: {note}")
         for key in r.stale:

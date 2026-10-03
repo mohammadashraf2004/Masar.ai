@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-035',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-034', 'M008-01'],
- 'visuals': [{'filename': 'scaling-consistency.png',
-              'path': '../../assets/scaling-consistency.png',
-              'caption': 'Scaling-consistency experiments across model and dataset sizes.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Scaling-Consistent Mixture Experiments',
                        '- **metadata**\n'
                        '- **mixture design**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **scaling-consistency.png** — Scaling-consistency experiments across model and dataset '
-                       'sizes. (package path: `../../assets/scaling-consistency.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:scaling-consistency}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

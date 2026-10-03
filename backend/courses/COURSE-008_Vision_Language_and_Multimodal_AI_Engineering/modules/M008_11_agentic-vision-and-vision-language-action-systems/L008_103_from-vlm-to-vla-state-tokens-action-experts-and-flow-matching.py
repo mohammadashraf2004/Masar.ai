@@ -30,11 +30,6 @@ LESSON_META = {'lesson_id': 'L008-103',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 65,
  'prerequisites': ['L008-102', 'M008-01', 'M008-03', 'COURSE-007 — Agent/tool prerequisite concepts'],
- 'visuals': [{'filename': 'groot-dual-system-vla.png',
-              'path': '../../assets/groot-dual-system-vla.png',
-              'caption': 'Dual-system VLM reasoning and diffusion action generation.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -79,12 +74,7 @@ TOPIC = {'title': 'From VLM to VLA: State Tokens, Action Experts & Flow Matching
                        '- **vision-language-action**\n'
                        '- **proprioception**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **groot-dual-system-vla.png** — Dual-system VLM reasoning and diffusion action generation. '
-                       '(package path: `../../assets/groot-dual-system-vla.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:groot-dual-system-vla}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

@@ -23,21 +23,6 @@ LESSON_META = {'lesson_id': 'L008-070',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-069', 'M008-01', 'M008-03', 'COURSE-007 — Advanced RAG prerequisite concepts'],
- 'visuals': [{'filename': 'single-vs-multivector-retrieval.png',
-              'path': '../../assets/single-vs-multivector-retrieval.png',
-              'caption': 'Single-vector versus multivector document retrieval trade-offs.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'document-page-retrieval.png',
-              'path': '../../assets/document-page-retrieval.png',
-              'caption': 'Page-query relevance scoring for visual document retrieval.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'document-screenshot-embedding.png',
-              'path': '../../assets/document-screenshot-embedding.png',
-              'caption': 'Document and query encoders producing comparable retrieval representations.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -81,16 +66,7 @@ TOPIC = {'title': 'Visual Document Retrieval: Single vs Multivector Representati
                        '- **embedding representations**\n'
                        '- **similarity**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **single-vs-multivector-retrieval.png** — Single-vector versus multivector document '
-                       'retrieval trade-offs. (package path: `../../assets/single-vs-multivector-retrieval.png`)\n'
-                       '- **document-page-retrieval.png** — Page-query relevance scoring for visual document '
-                       'retrieval. (package path: `../../assets/document-page-retrieval.png`)\n'
-                       '- **document-screenshot-embedding.png** — Document and query encoders producing comparable '
-                       'retrieval representations. (package path: `../../assets/document-screenshot-embedding.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:single-vs-multivector-retrieval}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -103,12 +79,16 @@ TOPIC = {'title': 'Visual Document Retrieval: Single vs Multivector Representati
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
                        '\n'
+                       '{{figure:document-page-retrieval}}\n'
+                       '\n'
                        '## Practice\n'
                        'Build a document-processing or visual-retrieval experiment over several pages and evaluate '
                        'both retrieval/extraction quality and grounding failures.\n'
                        '\n'
                        '**Lesson-specific goal:** demonstrate **Visual Document Retrieval: Single vs Multivector '
                        'Representations** with a controlled input set and at least one difficult example.\n'
+                       '\n'
+                       '{{figure:document-screenshot-embedding}}\n'
                        '\n'
                        '## Debug / evaluate\n'
                        'Separate OCR/parsing, representation, retrieval, and answer-generation failure; preserve '

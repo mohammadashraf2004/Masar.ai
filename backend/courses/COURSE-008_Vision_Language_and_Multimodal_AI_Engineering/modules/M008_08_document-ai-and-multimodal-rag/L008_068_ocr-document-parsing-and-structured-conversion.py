@@ -23,16 +23,6 @@ LESSON_META = {'lesson_id': 'L008-068',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-067', 'M008-01', 'M008-03', 'COURSE-007 — Advanced RAG prerequisite concepts'],
- 'visuals': [{'filename': 'document-to-markdown-anchoring.png',
-              'path': '../../assets/document-to-markdown-anchoring.png',
-              'caption': 'Document anchoring from PDF layout to structured Markdown.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'smoldocling-otsl-structure.png',
-              'path': '../../assets/smoldocling-otsl-structure.png',
-              'caption': 'Structured document and table representation with OTSL-style tags.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -74,14 +64,7 @@ TOPIC = {'title': 'OCR, Document Parsing & Structured Conversion',
                        '- **tables**\n'
                        '- **page images**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **document-to-markdown-anchoring.png** — Document anchoring from PDF layout to structured '
-                       'Markdown. (package path: `../../assets/document-to-markdown-anchoring.png`)\n'
-                       '- **smoldocling-otsl-structure.png** — Structured document and table representation with '
-                       'OTSL-style tags. (package path: `../../assets/smoldocling-otsl-structure.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:document-to-markdown-anchoring}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -93,6 +76,8 @@ TOPIC = {'title': 'OCR, Document Parsing & Structured Conversion',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:smoldocling-otsl-structure}}\n'
                        '\n'
                        '## Practice\n'
                        'Build a document-processing or visual-retrieval experiment over several pages and evaluate '

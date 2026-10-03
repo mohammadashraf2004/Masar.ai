@@ -26,11 +26,6 @@ LESSON_META = {'lesson_id': 'L008-005',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 40,
  'prerequisites': ['L008-004'],
- 'visuals': [{'filename': 'masked-autoencoder.png',
-              'path': '../../assets/masked-autoencoder.png',
-              'caption': 'Masked image reconstruction and self-supervised visual representation learning.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -75,12 +70,7 @@ TOPIC = {'title': 'Self-Supervised Visual Representation Learning',
                        '- **controlled experiments**\n'
                        '- **failure analysis**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **masked-autoencoder.png** — Masked image reconstruction and self-supervised visual '
-                       'representation learning. (package path: `../../assets/masked-autoencoder.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:masked-autoencoder}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

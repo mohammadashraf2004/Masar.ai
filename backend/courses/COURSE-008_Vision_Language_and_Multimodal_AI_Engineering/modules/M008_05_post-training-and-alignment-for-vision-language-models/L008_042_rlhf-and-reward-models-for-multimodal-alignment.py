@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-042',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 50,
  'prerequisites': ['L008-041', 'M008-01'],
- 'visuals': [{'filename': 'rlhf-training-pipeline.png',
-              'path': '../../assets/rlhf-training-pipeline.png',
-              'caption': 'Supervised tuning, reward modeling, and PPO-based RLHF pipeline.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -68,12 +63,7 @@ TOPIC = {'title': 'RLHF & Reward Models for Multimodal Alignment',
                        '- **policy optimization**\n'
                        '- **KL regularization**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **rlhf-training-pipeline.png** — Supervised tuning, reward modeling, and PPO-based RLHF '
-                       'pipeline. (package path: `../../assets/rlhf-training-pipeline.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:rlhf-training-pipeline}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

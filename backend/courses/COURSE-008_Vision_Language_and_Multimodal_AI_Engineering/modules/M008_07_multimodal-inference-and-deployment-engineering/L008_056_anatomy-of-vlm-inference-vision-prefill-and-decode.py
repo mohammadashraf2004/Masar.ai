@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-056',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['M008-01', 'M008-03'],
- 'visuals': [{'filename': 'vlm-inference-pipeline.png',
-              'path': '../../assets/vlm-inference-pipeline.png',
-              'caption': 'Vision encoding, projection, prefill, and decode latency pipeline.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Anatomy of VLM Inference: Vision, Prefill & Decode',
                        '- **decode**\n'
                        '- **throughput**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **vlm-inference-pipeline.png** — Vision encoding, projection, prefill, and decode latency '
-                       'pipeline. (package path: `../../assets/vlm-inference-pipeline.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:vlm-inference-pipeline}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

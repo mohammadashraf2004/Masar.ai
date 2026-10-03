@@ -14,7 +14,7 @@ import { api } from '@/lib/api'
 import type { ToolCourse, ToolTopic, ToolEnrollment, Lesson } from '@/types'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
-import { localizedTitle, localizedDescription, localizedContent } from '@/lib/content-language'
+import { localizedTitle, localizedDescription, localizedBody } from '@/lib/content-language'
 import { CourseVocabulary } from '@/components/ui/TechnicalTerm'
 import { rolesForTerms } from '@/content/terminology'
 import {
@@ -355,7 +355,7 @@ function LessonCard({ lesson, index, topicId }: {
   // The body the reader gets, and whether it is the language they asked for.
   // A lesson with no Arabic version still renders — in English, with a note
   // saying so, rather than an empty page.
-  const body = localizedContent(lesson, language)
+  const body = localizedBody(lesson, language)
 
   if (lesson.is_locked) return <LockedContent courseSlug={lesson.course_slug} />
 
@@ -400,6 +400,7 @@ function LessonCard({ lesson, index, topicId }: {
                 reader's preference: an English fallback body stays LTR. */}
             <MarkdownLesson
               content={body.text}
+              blocks={body.blocks}
               dir={body.shownIn === 'ar' ? 'rtl' : 'ltr'}
             />
           </div>

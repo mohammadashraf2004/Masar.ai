@@ -45,7 +45,8 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isProd ? '' : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
+  // Lesson figures are served by the API (a different origin in development).
+  `img-src 'self' data: blob: https: ${API_ORIGIN}`,
   // Every typeface is committed under src/fonts and served from
   // /_next/static/media by next/font/local, so 'self' is the whole policy —
   // no fonts.googleapis.com in style-src, no fonts.gstatic.com here. That

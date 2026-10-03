@@ -29,16 +29,6 @@ LESSON_META = {'lesson_id': 'L008-105',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-104', 'M008-01', 'M008-03', 'COURSE-007 — Agent/tool prerequisite concepts'],
- 'visuals': [{'filename': 'pi06-advantage-conditioning.png',
-              'path': '../../assets/pi06-advantage-conditioning.png',
-              'caption': 'Advantage-conditioned VLA with pretrained VLM, action expert, and value function.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'groot-n15-action-expert.png',
-              'path': '../../assets/groot-n15-action-expert.png',
-              'caption': 'Frozen VLM with state/action encoders and diffusion-transformer action expert.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -82,15 +72,7 @@ TOPIC = {'title': 'Modern VLA Architectures: π0.6, GR00T & SmolVLA',
                        '- **vision-language-action**\n'
                        '- **proprioception**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **pi06-advantage-conditioning.png** — Advantage-conditioned VLA with pretrained VLM, action '
-                       'expert, and value function. (package path: `../../assets/pi06-advantage-conditioning.png`)\n'
-                       '- **groot-n15-action-expert.png** — Frozen VLM with state/action encoders and '
-                       'diffusion-transformer action expert. (package path: '
-                       '`../../assets/groot-n15-action-expert.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:pi06-advantage-conditioning}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -102,6 +84,8 @@ TOPIC = {'title': 'Modern VLA Architectures: π0.6, GR00T & SmolVLA',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:groot-n15-action-expert}}\n'
                        '\n'
                        '## Practice\n'
                        'Use a sandboxed GUI, simulator, or offline trace to build an observe-decide-act experiment '

@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 from app.services.curriculum import normalize as N
+from app.services.curriculum.assets import load_assets
 from app.services.curriculum.spec import (
     CourseSpec, CurriculumError, LessonSpec, ModuleSpec, ProjectSpec,
 )
@@ -563,7 +564,10 @@ def _layout(root: Path) -> Callable[[Path, str], CourseSpec]:
 
 
 def load_course_dir(root: Path) -> CourseSpec:
-    return _layout(root)(root, course_id_of(root))
+    spec = _layout(root)(root, course_id_of(root))
+    # Figures are course-level, whatever the lesson layout: one manifest per folder.
+    spec.assets, spec.asset_problems = load_assets(root)
+    return spec
 
 
 def load_all_courses(root: Path = COURSES_ROOT) -> List[CourseSpec]:

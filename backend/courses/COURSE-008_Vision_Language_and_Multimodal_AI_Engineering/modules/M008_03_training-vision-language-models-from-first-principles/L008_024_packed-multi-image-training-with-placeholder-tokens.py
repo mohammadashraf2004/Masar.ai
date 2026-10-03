@@ -26,11 +26,6 @@ LESSON_META = {'lesson_id': 'L008-024',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 65,
  'prerequisites': ['L008-023', 'M008-01'],
- 'visuals': [{'filename': 'packed-training-loss.png',
-              'path': '../../assets/packed-training-loss.png',
-              'caption': 'Training-loss comparison before and after packed batching.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -75,12 +70,7 @@ TOPIC = {'title': 'Packed Multi-Image Training with Placeholder Tokens',
                        '- **controlled experiments**\n'
                        '- **failure analysis**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **packed-training-loss.png** — Training-loss comparison before and after packed batching. '
-                       '(package path: `../../assets/packed-training-loss.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:packed-training-loss}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

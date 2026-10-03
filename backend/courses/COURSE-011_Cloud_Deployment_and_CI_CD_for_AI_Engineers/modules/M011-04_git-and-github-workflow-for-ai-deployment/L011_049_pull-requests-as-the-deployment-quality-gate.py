@@ -6,9 +6,33 @@ TOPICS = ['pull requests', 'base and compare branches', 'reviewers', 'change des
 
 SOURCE_REFERENCES = ['Secondary DevOps source (source ID not provided) — Chapter 3: Mastering Version Control with Git and GitHub']
 
-FIGURE_REFERENCES = [{'source_figure': 'Figure 3.4', 'title': 'Open a pull request page', 'priority': 'optional', 'suggested_path': 'assets/m011-04/fig-3-4-pull-request.png'}]
-
-LESSON_MARKDOWN = '# L011-049 — Pull Requests as the Deployment Quality Gate\n\n## Learning objective\n\nApply pull requests as the deployment quality gate concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- pull requests\n- base and compare branches\n- reviewers\n- change descriptions\n- merge workflow\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n\n## Manual visual references\n- `Figure 3.4` — Open a pull request page (optional); add manually at `assets/m011-04/fig-3-4-pull-request.png`.\n'
+LESSON_MARKDOWN = ('# L011-049 — Pull Requests as the Deployment Quality Gate\n'
+                   '\n'
+                   '## Learning objective\n'
+                   '\n'
+                   'Apply pull requests as the deployment quality gate concepts to the deployment and operation of an existing production-oriented AI service.\n'
+                   '\n'
+                   '## Core topics\n'
+                   '\n'
+                   '- pull requests\n'
+                   '- base and compare branches\n'
+                   '- reviewers\n'
+                   '- change descriptions\n'
+                   '- merge workflow\n'
+                   '\n'
+                   '{{figure:pull-request}}\n'
+                   '\n'
+                   '## AI-engineering context\n'
+                   '\n'
+                   'Use these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n'
+                   '\n'
+                   '## Practice\n'
+                   '\n'
+                   'Apply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n'
+                   '\n'
+                   '## Assessment focus\n'
+                   '\n'
+                   'The learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n')
 
 EXERCISES = [{'id': 'L011-049-EX1', 'title': 'Apply Pull Requests as the Deployment Quality Gate', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: pull requests, base and compare branches, reviewers. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-049-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to pull requests as the deployment quality gate. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
 

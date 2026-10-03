@@ -29,11 +29,6 @@ LESSON_META = {'lesson_id': 'L008-028',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-027', 'M008-01'],
- 'visuals': [{'filename': 'vla-dataset-comparison.png',
-              'path': '../../assets/vla-dataset-comparison.png',
-              'caption': 'Vision-language-action dataset scale, effort, and quality trade-offs.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -77,12 +72,7 @@ TOPIC = {'title': 'Image-Text, Video-Text & Vision-Language-Action Data',
                        '- **observation**\n'
                        '- **policy**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **vla-dataset-comparison.png** — Vision-language-action dataset scale, effort, and quality '
-                       'trade-offs. (package path: `../../assets/vla-dataset-comparison.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:vla-dataset-comparison}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

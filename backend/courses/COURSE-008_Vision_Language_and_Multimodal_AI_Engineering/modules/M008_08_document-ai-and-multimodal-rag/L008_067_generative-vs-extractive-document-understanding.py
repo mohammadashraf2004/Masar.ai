@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-067',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-066', 'M008-01', 'M008-03', 'COURSE-007 — Advanced RAG prerequisite concepts'],
- 'visuals': [{'filename': 'extractive-document-understanding.png',
-              'path': '../../assets/extractive-document-understanding.png',
-              'caption': 'Extractive document answer with score and span information.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Generative vs Extractive Document Understanding',
                        '- **tables**\n'
                        '- **page images**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **extractive-document-understanding.png** — Extractive document answer with score and span '
-                       'information. (package path: `../../assets/extractive-document-understanding.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:extractive-document-understanding}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

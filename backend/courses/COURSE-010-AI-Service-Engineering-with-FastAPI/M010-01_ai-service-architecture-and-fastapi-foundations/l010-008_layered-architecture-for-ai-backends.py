@@ -25,14 +25,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 2,
-                       'figure': 'Figure 2-3',
-                       'title': 'Onion design pattern',
-                       'filename': 'fig_02_03_onion_architecture.png'},
-                      {'chapter': 2,
-                       'figure': 'Figure 2-9',
-                       'title': 'Generative AI service you’ll build with FastAPI',
-                       'filename': 'fig_02_09_course_service_architecture.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Layered Architecture for AI Backends',
@@ -90,6 +82,8 @@ TOPIC = {'title': 'Layered Architecture for AI Backends',
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
                        '\n'
+                       '{{figure:onion-architecture}}\n'
+                       '\n'
                        '## Engineering workflow\n'
                        '\n'
                        '1. **State the contract.** Write down the expected input, output, side '
@@ -123,6 +117,10 @@ TOPIC = {'title': 'Layered Architecture for AI Backends',
                        'boundary through later modules rather than replacing it with unrelated '
                        'demos.\n'
                        '\n'
+                       'The next diagram makes the controller, service, provider, and repository responsibilities concrete.\n'
+                       '\n'
+                       '{{figure:controllers-services-providers-repositories}}\n'
+                       '\n'
                        '## Common failure modes\n'
                        '\n'
                        'Mixing transport, provider, persistence, and policy code in one route '
@@ -140,6 +138,8 @@ TOPIC = {'title': 'Layered Architecture for AI Backends',
                        'Record both the successful path and one intentionally broken case. Explain '
                        'what signal—test result, status code, trace, database row, metric, or '
                        'deployment check—proves that your fix works.\n'
+                       '\n'
+                       '{{figure:course-service-architecture}}\n'
                        '\n'
                        '## Source mapping\n'
                        '\n'

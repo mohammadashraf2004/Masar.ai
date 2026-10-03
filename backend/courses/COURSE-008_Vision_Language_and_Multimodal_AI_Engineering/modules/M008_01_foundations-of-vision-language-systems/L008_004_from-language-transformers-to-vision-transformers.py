@@ -23,16 +23,6 @@ LESSON_META = {'lesson_id': 'L008-004',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 45,
  'prerequisites': ['L008-003'],
- 'visuals': [{'filename': 'bert-pretraining-finetuning.png',
-              'path': '../../assets/bert-pretraining-finetuning.png',
-              'caption': 'BERT pretraining and fine-tuning as a concise Transformer prerequisite refresher.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'vision-transformer-vit.png',
-              'path': '../../assets/vision-transformer-vit.png',
-              'caption': 'Vision Transformer patches, positional embeddings, encoder, and prediction head.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -74,15 +64,7 @@ TOPIC = {'title': 'From Language Transformers to Vision Transformers',
                        '- **self-attention**\n'
                        '- **vision backbone**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **bert-pretraining-finetuning.png** — BERT pretraining and fine-tuning as a concise '
-                       'Transformer prerequisite refresher. (package path: '
-                       '`../../assets/bert-pretraining-finetuning.png`)\n'
-                       '- **vision-transformer-vit.png** — Vision Transformer patches, positional embeddings, encoder, '
-                       'and prediction head. (package path: `../../assets/vision-transformer-vit.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:bert-pretraining-finetuning}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -94,6 +76,8 @@ TOPIC = {'title': 'From Language Transformers to Vision Transformers',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:vision-transformer-vit}}\n'
                        '\n'
                        '## Practice\n'
                        'Inspect a small open VLM or reference implementation, trace image and text representations '

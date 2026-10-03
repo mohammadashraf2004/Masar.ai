@@ -29,16 +29,6 @@ LESSON_META = {'lesson_id': 'L008-039',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-038', 'M008-01'],
- 'visuals': [{'filename': 'lora-low-rank-adaptation.png',
-              'path': '../../assets/lora-low-rank-adaptation.png',
-              'caption': 'Low-rank adapter path around frozen pretrained weights.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'dora-weight-decomposition.png',
-              'path': '../../assets/dora-weight-decomposition.png',
-              'caption': 'DoRA decomposition into magnitude and direction with low-rank adaptation.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -82,14 +72,7 @@ TOPIC = {'title': 'LoRA & DoRA for Vision-Language Models',
                        '- **direction**\n'
                        '- **low-rank adaptation**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **lora-low-rank-adaptation.png** — Low-rank adapter path around frozen pretrained weights. '
-                       '(package path: `../../assets/lora-low-rank-adaptation.png`)\n'
-                       '- **dora-weight-decomposition.png** — DoRA decomposition into magnitude and direction with '
-                       'low-rank adaptation. (package path: `../../assets/dora-weight-decomposition.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:lora-low-rank-adaptation}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -101,6 +84,8 @@ TOPIC = {'title': 'LoRA & DoRA for Vision-Language Models',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:dora-weight-decomposition}}\n'
                        '\n'
                        '## Practice\n'
                        'Adapt a small/open VLM with the target post-training method or a faithful miniature '

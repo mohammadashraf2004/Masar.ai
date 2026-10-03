@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-034',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-033', 'M008-01'],
- 'visuals': [{'filename': 'smolvlm-data-mixture-comparison.png',
-              'path': '../../assets/smolvlm-data-mixture-comparison.png',
-              'caption': 'Example multimodal dataset-mixture proportions across model sizes.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Dataset Mixtures, Specialization & Catastrophic Forgetting',
                        '- **metadata**\n'
                        '- **mixture design**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **smolvlm-data-mixture-comparison.png** — Example multimodal dataset-mixture proportions '
-                       'across model sizes. (package path: `../../assets/smolvlm-data-mixture-comparison.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:smolvlm-data-mixture-comparison}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

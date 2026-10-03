@@ -24,10 +24,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 5,
-                       'figure': 'Figure 5-16',
-                       'title': 'Dynamic/continuous batching with variable batch size',
-                       'filename': 'fig_05_16_continuous_batching.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'External Inference, Throughput & Request Batching',
@@ -83,6 +79,8 @@ TOPIC = {'title': 'External Inference, Throughput & Request Batching',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:continuous-batching}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

@@ -23,16 +23,6 @@ LESSON_META = {'lesson_id': 'L008-079',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-078', 'M008-01', 'M008-03', 'COURSE-007 — Advanced RAG prerequisite concepts'],
- 'visuals': [{'filename': 'video-language-evolution.png',
-              'path': '../../assets/video-language-evolution.png',
-              'caption': 'Evolution from CLIP/video adaptation to modern video-language models.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'videollama3-dynamic-vision-tokens.png',
-              'path': '../../assets/videollama3-dynamic-vision-tokens.png',
-              'caption': 'Dynamic resolution and video-token compression in a modern Video-LM.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -74,14 +64,7 @@ TOPIC = {'title': 'Modern Video-Language Architectures & Dynamic Vision Tokens',
                        '- **video tokens**\n'
                        '- **temporal context**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **video-language-evolution.png** — Evolution from CLIP/video adaptation to modern '
-                       'video-language models. (package path: `../../assets/video-language-evolution.png`)\n'
-                       '- **videollama3-dynamic-vision-tokens.png** — Dynamic resolution and video-token compression '
-                       'in a modern Video-LM. (package path: `../../assets/videollama3-dynamic-vision-tokens.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:video-language-evolution}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -93,6 +76,8 @@ TOPIC = {'title': 'Modern Video-Language Architectures & Dynamic Vision Tokens',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:videollama3-dynamic-vision-tokens}}\n'
                        '\n'
                        '## Practice\n'
                        'Process a short video corpus or clip set, vary frame/segment strategy, and evaluate temporal '

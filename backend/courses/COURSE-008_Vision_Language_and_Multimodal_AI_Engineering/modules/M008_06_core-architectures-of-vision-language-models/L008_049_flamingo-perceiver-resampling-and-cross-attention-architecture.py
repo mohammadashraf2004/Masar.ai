@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-049',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-048', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'flamingo-architecture.png',
-              'path': '../../assets/flamingo-architecture.png',
-              'caption': 'Flamingo-style perceiver resampling and gated cross-attention.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -71,12 +66,7 @@ TOPIC = {'title': 'Flamingo: Perceiver Resampling & Cross-Attention Architecture
                        '- **vision encoder**\n'
                        '- **perceiver resampler**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **flamingo-architecture.png** — Flamingo-style perceiver resampling and gated '
-                       'cross-attention. (package path: `../../assets/flamingo-architecture.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:flamingo-architecture}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

@@ -24,14 +24,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 6,
-                       'figure': 'Figure 6-5',
-                       'title': 'WS communication',
-                       'filename': 'fig_06_05_websocket_communication.png'},
-                      {'chapter': 6,
-                       'figure': 'Figure 6-6',
-                       'title': 'WebSocket connection lifecycle',
-                       'filename': 'fig_06_06_websocket_lifecycle.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'WebSocket Protocol & Connection Lifecycle',
@@ -88,6 +80,8 @@ TOPIC = {'title': 'WebSocket Protocol & Connection Lifecycle',
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
                        '\n'
+                       '{{figure:websocket-communication}}\n'
+                       '\n'
                        '## Engineering workflow\n'
                        '\n'
                        '1. **State the contract.** Write down the expected input, output, side '
@@ -118,6 +112,8 @@ TOPIC = {'title': 'WebSocket Protocol & Connection Lifecycle',
                        'The snippet is intentionally small. The course capstone grows the same '
                        'boundary through later modules rather than replacing it with unrelated '
                        'demos.\n'
+                       '\n'
+                       '{{figure:websocket-lifecycle}}\n'
                        '\n'
                        '## Common failure modes\n'
                        '\n'

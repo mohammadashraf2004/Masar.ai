@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-080',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-079', 'M008-01', 'M008-03', 'COURSE-007 — Advanced RAG prerequisite concepts'],
- 'visuals': [{'filename': 'video-token-reduction-strategies.png',
-              'path': '../../assets/video-token-reduction-strategies.png',
-              'caption': 'Spatial pooling, temporal pooling, and temporal sampling strategies.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Frame Sampling, Token Budgets & Video Efficiency',
                        '- **video tokens**\n'
                        '- **temporal context**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **video-token-reduction-strategies.png** — Spatial pooling, temporal pooling, and temporal '
-                       'sampling strategies. (package path: `../../assets/video-token-reduction-strategies.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:video-token-reduction-strategies}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

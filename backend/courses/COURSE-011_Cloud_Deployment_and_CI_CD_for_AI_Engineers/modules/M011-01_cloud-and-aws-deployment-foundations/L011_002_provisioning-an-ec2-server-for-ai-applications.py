@@ -6,9 +6,33 @@ TOPICS = ['EC2 deployment host', 'Amazon Linux', 'instance sizing', 'storage siz
 
 SOURCE_REFERENCES = ['BOOK-011 Chapters 1, 4, 5, 6, 7, 8']
 
-FIGURE_REFERENCES = [{'source_figure': 'Figure 1-3', 'title': 'Creating a key pair', 'priority': 'required', 'suggested_path': 'assets/m011-01/fig-1-3-ec2-key-pair.png'}, {'source_figure': 'Figure 1-2', 'title': 'Selecting the Amazon Linux AMI', 'priority': 'optional', 'suggested_path': 'assets/m011-01/fig-1-2-ec2-ami.png'}]
-
-LESSON_MARKDOWN = '# L011-002 — Provisioning an EC2 Server for AI Applications\n\n## Learning objective\n\nApply provisioning an ec2 server for ai applications concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- EC2 deployment host\n- Amazon Linux\n- instance sizing\n- storage sizing for container workloads\n- SSH key pairs and private-key handling\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n\n## Manual visual references\n- `Figure 1-3` — Creating a key pair (required); add manually at `assets/m011-01/fig-1-3-ec2-key-pair.png`.\n- `Figure 1-2` — Selecting the Amazon Linux AMI (optional); add manually at `assets/m011-01/fig-1-2-ec2-ami.png`.\n'
+LESSON_MARKDOWN = ('# L011-002 — Provisioning an EC2 Server for AI Applications\n'
+                   '\n'
+                   '## Learning objective\n'
+                   '\n'
+                   'Apply provisioning an ec2 server for ai applications concepts to the deployment and operation of an existing production-oriented AI service.\n'
+                   '\n'
+                   '## Core topics\n'
+                   '\n'
+                   '- EC2 deployment host\n'
+                   '- Amazon Linux\n'
+                   '- instance sizing\n'
+                   '- storage sizing for container workloads\n'
+                   '- SSH key pairs and private-key handling\n'
+                   '\n'
+                   '{{figure:ec2-key-pair}}\n'
+                   '\n'
+                   '## AI-engineering context\n'
+                   '\n'
+                   'Use these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n'
+                   '\n'
+                   '## Practice\n'
+                   '\n'
+                   'Apply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n'
+                   '\n'
+                   '## Assessment focus\n'
+                   '\n'
+                   'The learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n')
 
 EXERCISES = [{'id': 'L011-002-EX1', 'title': 'Apply Provisioning an EC2 Server for AI Applications', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: EC2 deployment host, Amazon Linux, instance sizing. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-002-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to provisioning an ec2 server for ai applications. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
 

@@ -24,10 +24,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 6,
-                       'figure': 'Figure 6-7',
-                       'title': 'Comparison of web communication mechanisms',
-                       'filename': 'fig_06_07_communication_mechanisms.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Choosing a Real-Time Communication Pattern',
@@ -83,6 +79,8 @@ TOPIC = {'title': 'Choosing a Real-Time Communication Pattern',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:communication-mechanisms}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

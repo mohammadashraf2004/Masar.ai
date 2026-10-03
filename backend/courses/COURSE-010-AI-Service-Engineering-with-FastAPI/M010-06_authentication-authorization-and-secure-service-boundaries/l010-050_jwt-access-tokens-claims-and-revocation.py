@@ -27,10 +27,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 8,
-                       'figure': 'Figure 8-5',
-                       'title': 'JWT authentication system architecture',
-                       'filename': 'fig_08_05_jwt_auth_architecture.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'JWT Access Tokens, Claims & Revocation',
@@ -89,6 +85,8 @@ TOPIC = {'title': 'JWT Access Tokens, Claims & Revocation',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:jwt-auth-architecture}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

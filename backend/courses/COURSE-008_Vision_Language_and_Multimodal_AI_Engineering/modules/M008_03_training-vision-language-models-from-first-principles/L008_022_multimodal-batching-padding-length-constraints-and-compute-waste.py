@@ -23,16 +23,6 @@ LESSON_META = {'lesson_id': 'L008-022',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-021', 'M008-01'],
- 'visuals': [{'filename': 'naive-padding.png',
-              'path': '../../assets/naive-padding.png',
-              'caption': 'Naive padding to the longest sequence in a batch.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'constrained-padding-512.png',
-              'path': '../../assets/constrained-padding-512.png',
-              'caption': 'Constrained padding with a fixed maximum token length.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -73,14 +63,7 @@ TOPIC = {'title': 'Multimodal Batching: Padding, Length Constraints & Compute Wa
                        '- **batch utilization**\n'
                        '- **max length**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **naive-padding.png** — Naive padding to the longest sequence in a batch. (package path: '
-                       '`../../assets/naive-padding.png`)\n'
-                       '- **constrained-padding-512.png** — Constrained padding with a fixed maximum token length. '
-                       '(package path: `../../assets/constrained-padding-512.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:naive-padding}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -92,6 +75,8 @@ TOPIC = {'title': 'Multimodal Batching: Padding, Length Constraints & Compute Wa
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:constrained-padding-512}}\n'
                        '\n'
                        '## Practice\n'
                        'Implement the smallest training artifact that exposes the relevant tensor, batching, loss, '

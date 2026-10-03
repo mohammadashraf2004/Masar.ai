@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-050',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-049', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'gated-cross-attention.png',
-              'path': '../../assets/gated-cross-attention.png',
-              'caption': 'Gated cross-attention injecting visual information into language hidden states.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -69,12 +64,7 @@ TOPIC = {'title': 'Gated Cross-Attention & Safe Visual Injection into Frozen LLM
                        '- **visual conditioning**\n'
                        '- **gating**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **gated-cross-attention.png** — Gated cross-attention injecting visual information into '
-                       'language hidden states. (package path: `../../assets/gated-cross-attention.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:gated-cross-attention}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

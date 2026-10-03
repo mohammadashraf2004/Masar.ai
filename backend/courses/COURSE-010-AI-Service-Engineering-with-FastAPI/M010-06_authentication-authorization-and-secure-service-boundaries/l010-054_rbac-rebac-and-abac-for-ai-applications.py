@@ -18,10 +18,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 8,
-                       'figure': 'Figure 8-11',
-                       'title': 'Authorization models',
-                       'filename': 'fig_08_11_authorization_models.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'RBAC, ReBAC & ABAC for AI Applications',
@@ -77,6 +73,8 @@ TOPIC = {'title': 'RBAC, ReBAC & ABAC for AI Applications',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:authorization-models}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

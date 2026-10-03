@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-104',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 50,
  'prerequisites': ['L008-103', 'M008-01', 'M008-03', 'COURSE-007 — Agent/tool prerequisite concepts'],
- 'visuals': [{'filename': 'vla-asynchronous-control.png',
-              'path': '../../assets/vla-asynchronous-control.png',
-              'caption': 'Asynchronous policy-server and robot-client action chunking loop.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -71,12 +66,7 @@ TOPIC = {'title': 'Action Chunks & Asynchronous Robot Control',
                        '- **observe-act loop**\n'
                        '- **tools**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **vla-asynchronous-control.png** — Asynchronous policy-server and robot-client action '
-                       'chunking loop. (package path: `../../assets/vla-asynchronous-control.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:vla-asynchronous-control}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

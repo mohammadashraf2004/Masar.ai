@@ -20,7 +20,6 @@ LESSON_META = {'course_id': 'COURSE-009',
                           'COURSE-007 — Advanced LLM Systems & Application Architecture',
                           'COURSE-008 — Vision-Language & Multimodal AI Engineering (specialized '
                           'supporting background)'],
- 'visual_reference': None,
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Candidate Depth, Recall & Retrieval Budgets',
@@ -81,6 +80,10 @@ TOPIC = {'title': 'Candidate Depth, Recall & Retrieval Budgets',
                        'leaves it, and how failures are surfaced. Hidden fallbacks are dangerous '
                        'because they can make an answer look successful while the retrieval path '
                        'is incomplete or degraded.\n'
+                       '\n'
+                       'The following funnel shows why candidate depth and reranking need separate retrieval budgets.\n'
+                       '\n'
+                       '{{figure:candidate-generation-reranking}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

@@ -24,10 +24,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 6,
-                       'figure': 'Figure 6-4',
-                       'title': 'SSE',
-                       'filename': 'fig_06_04_sse.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Server-Sent Events for AI Token Streaming',
@@ -83,6 +79,8 @@ TOPIC = {'title': 'Server-Sent Events for AI Token Streaming',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:sse}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

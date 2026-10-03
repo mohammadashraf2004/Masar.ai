@@ -23,21 +23,6 @@ LESSON_META = {'lesson_id': 'L008-072',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 55,
  'prerequisites': ['L008-071', 'M008-01', 'M008-03', 'COURSE-007 — Advanced RAG prerequisite concepts'],
- 'visuals': [{'filename': 'funsd-form-fields.png',
-              'path': '../../assets/funsd-form-fields.png',
-              'caption': 'Form-field annotations for layout-aware document understanding.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'layoutlmv3-architecture.png',
-              'path': '../../assets/layoutlmv3-architecture.png',
-              'caption': 'LayoutLMv3 text, 1D/2D position, and image-patch representations.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'donut-document-model.png',
-              'path': '../../assets/donut-document-model.png',
-              'caption': 'OCR-free Donut encoder-decoder producing task-specific structured sequences.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -79,16 +64,7 @@ TOPIC = {'title': 'Layout-Aware & OCR-Free Document Architectures',
                        '- **tables**\n'
                        '- **page images**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **funsd-form-fields.png** — Form-field annotations for layout-aware document understanding. '
-                       '(package path: `../../assets/funsd-form-fields.png`)\n'
-                       '- **layoutlmv3-architecture.png** — LayoutLMv3 text, 1D/2D position, and image-patch '
-                       'representations. (package path: `../../assets/layoutlmv3-architecture.png`)\n'
-                       '- **donut-document-model.png** — OCR-free Donut encoder-decoder producing task-specific '
-                       'structured sequences. (package path: `../../assets/donut-document-model.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:funsd-form-fields}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -101,12 +77,16 @@ TOPIC = {'title': 'Layout-Aware & OCR-Free Document Architectures',
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
                        '\n'
+                       '{{figure:layoutlmv3-architecture}}\n'
+                       '\n'
                        '## Practice\n'
                        'Build a document-processing or visual-retrieval experiment over several pages and evaluate '
                        'both retrieval/extraction quality and grounding failures.\n'
                        '\n'
                        '**Lesson-specific goal:** demonstrate **Layout-Aware & OCR-Free Document Architectures** with '
                        'a controlled input set and at least one difficult example.\n'
+                       '\n'
+                       '{{figure:donut-document-model}}\n'
                        '\n'
                        '## Debug / evaluate\n'
                        'Separate OCR/parsing, representation, retrieval, and answer-generation failure; preserve '

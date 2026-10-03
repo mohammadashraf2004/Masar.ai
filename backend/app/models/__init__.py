@@ -23,3 +23,5 @@ from app.models.billing import (  # noqa: F401
     CourseOffer,
     PaymentTransaction,
 )
+
+from app.models.course_asset import CourseAsset  # noqa: F401

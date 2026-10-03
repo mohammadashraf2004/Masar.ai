@@ -24,6 +24,16 @@ import { useAuthStore } from '@/lib/store'
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
 /**
+ * The address the browser loads a lesson figure from. The API hands out a path
+ * relative to its own root (or, once figures are served from a CDN, a full URL);
+ * this is the only place that turns the former into something an <img> can load,
+ * so where figures live is a backend decision, not something a component knows.
+ */
+export function resolveAssetUrl(url: string): string {
+  return /^https?:\/\//i.test(url) ? url : `${BASE_URL.replace(/\/+$/, '')}${url.startsWith('/') ? '' : '/'}${url}`
+}
+
+/**
  * Drop a dead session from BOTH places it lives.
  *
  * lib/store.ts holds the token in memory (zustand) and mirrors it to

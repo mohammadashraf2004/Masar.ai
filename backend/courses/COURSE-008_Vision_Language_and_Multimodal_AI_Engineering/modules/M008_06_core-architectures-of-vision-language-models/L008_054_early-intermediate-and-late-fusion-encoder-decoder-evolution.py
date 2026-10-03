@@ -23,16 +23,6 @@ LESSON_META = {'lesson_id': 'L008-054',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 50,
  'prerequisites': ['L008-053', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'vlm-architecture-comparison.png',
-              'path': '../../assets/vlm-architecture-comparison.png',
-              'caption': 'Show-and-Tell, Flamingo, and unified-sequence VLM architecture comparison.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'early-fusion-classifier.png',
-              'path': '../../assets/early-fusion-classifier.png',
-              'caption': 'Early multimodal fusion before a shared classifier.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -73,14 +63,7 @@ TOPIC = {'title': 'Early, Intermediate & Late Fusion + Encoder-Decoder Evolution
                        '- **Late Fusion**\n'
                        '- **Encoder-Decoder Evolution**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **vlm-architecture-comparison.png** — Show-and-Tell, Flamingo, and unified-sequence VLM '
-                       'architecture comparison. (package path: `../../assets/vlm-architecture-comparison.png`)\n'
-                       '- **early-fusion-classifier.png** — Early multimodal fusion before a shared classifier. '
-                       '(package path: `../../assets/early-fusion-classifier.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:vlm-architecture-comparison}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -92,6 +75,8 @@ TOPIC = {'title': 'Early, Intermediate & Late Fusion + Encoder-Decoder Evolution
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:early-fusion-classifier}}\n'
                        '\n'
                        '## Practice\n'
                        'Implement or diagram the architecture boundary precisely, measure parameter/token differences '

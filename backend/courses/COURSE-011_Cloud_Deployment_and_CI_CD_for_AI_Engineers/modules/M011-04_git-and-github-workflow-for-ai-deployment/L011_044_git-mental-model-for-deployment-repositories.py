@@ -6,9 +6,33 @@ TOPICS = ['working directory', 'staging area', 'local repository', 'git status/a
 
 SOURCE_REFERENCES = ['Secondary DevOps source (source ID not provided) — Chapter 3: Mastering Version Control with Git and GitHub']
 
-FIGURE_REFERENCES = [{'source_figure': 'Figure 3.1', 'title': 'Git workflow: working directory, staging area, repository', 'priority': 'required', 'suggested_path': 'assets/m011-04/fig-3-1-git-three-trees.png'}]
-
-LESSON_MARKDOWN = '# L011-044 — Git Mental Model for Deployment Repositories\n\n## Learning objective\n\nApply git mental model for deployment repositories concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- working directory\n- staging area\n- local repository\n- git status/add/commit\n- traceable deployment changes\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n\n## Manual visual references\n- `Figure 3.1` — Git workflow: working directory, staging area, repository (required); add manually at `assets/m011-04/fig-3-1-git-three-trees.png`.\n'
+LESSON_MARKDOWN = ('# L011-044 — Git Mental Model for Deployment Repositories\n'
+                   '\n'
+                   '## Learning objective\n'
+                   '\n'
+                   'Apply git mental model for deployment repositories concepts to the deployment and operation of an existing production-oriented AI service.\n'
+                   '\n'
+                   '## Core topics\n'
+                   '\n'
+                   '- working directory\n'
+                   '- staging area\n'
+                   '- local repository\n'
+                   '- git status/add/commit\n'
+                   '- traceable deployment changes\n'
+                   '\n'
+                   '{{figure:git-three-trees}}\n'
+                   '\n'
+                   '## AI-engineering context\n'
+                   '\n'
+                   'Use these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n'
+                   '\n'
+                   '## Practice\n'
+                   '\n'
+                   'Apply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n'
+                   '\n'
+                   '## Assessment focus\n'
+                   '\n'
+                   'The learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n')
 
 EXERCISES = [{'id': 'L011-044-EX1', 'title': 'Apply Git Mental Model for Deployment Repositories', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: working directory, staging area, local repository. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-044-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to git mental model for deployment repositories. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
 

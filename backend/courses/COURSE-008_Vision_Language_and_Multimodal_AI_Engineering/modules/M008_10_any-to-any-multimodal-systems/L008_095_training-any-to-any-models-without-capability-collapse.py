@@ -23,16 +23,6 @@ LESSON_META = {'lesson_id': 'L008-095',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 65,
  'prerequisites': ['L008-094', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'joint-vs-sequential-multimodal-training.png',
-              'path': '../../assets/joint-vs-sequential-multimodal-training.png',
-              'caption': 'Joint versus staged understanding-then-generation training.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'late-conditioning-training.png',
-              'path': '../../assets/late-conditioning-training.png',
-              'caption': 'Frozen MLLM with trainable connector and denoising generator.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -77,15 +67,7 @@ TOPIC = {'title': 'Training Any-to-Any Models Without Capability Collapse',
                        '- **unified representations**\n'
                        '- **modality-specific generation**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **joint-vs-sequential-multimodal-training.png** — Joint versus staged '
-                       'understanding-then-generation training. (package path: '
-                       '`../../assets/joint-vs-sequential-multimodal-training.png`)\n'
-                       '- **late-conditioning-training.png** — Frozen MLLM with trainable connector and denoising '
-                       'generator. (package path: `../../assets/late-conditioning-training.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:joint-vs-sequential-multimodal-training}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -97,6 +79,8 @@ TOPIC = {'title': 'Training Any-to-Any Models Without Capability Collapse',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:late-conditioning-training}}\n'
                        '\n'
                        '## Practice\n'
                        'Prototype the architecture with pretrained components or simplified modules, explicitly '

@@ -18,10 +18,6 @@ LESSON_META = {'course_id': 'COURSE-010',
                           'supporting background)',
                           'COURSE-009 — Enterprise RAG Engineering (specialized supporting '
                           'background)'],
- 'visual_reference': [{'chapter': 12,
-                       'figure': 'Figure 12-4',
-                       'title': 'Docker platform system architecture',
-                       'filename': 'fig_12_04_docker_platform.png'}],
  'code_verification': 'Illustrative / syntax-checked where embedded'}
 
 TOPIC = {'title': 'Containerizing a FastAPI AI Service',
@@ -78,6 +74,8 @@ TOPIC = {'title': 'Containerizing a FastAPI AI Service',
                        'Use the mental model to identify what enters the component, what '
                        'responsibility it owns, what it must not own, and what evidence you need '
                        'when it fails.\n'
+                       '\n'
+                       '{{figure:docker-platform}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '\n'

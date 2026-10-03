@@ -9,10 +9,19 @@ import 'prismjs/components/prism-json'
 import { Lightbulb } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
+import type { LessonBlock } from '@/types'
+import { LessonImage } from './LessonImage'
 import { TermAnnotationScope, useTermAnnotation } from './TermAnnotator'
 
 interface MarkdownLessonProps {
   content: string
+  /**
+   * The body as ordered blocks (text runs and figures), when the lesson places
+   * figures. They are rendered in the order given, inside the one term-annotation
+   * scope, so the first-mention rule is still per lesson and not per text run.
+   * Without blocks the body is `content`, exactly as before.
+   */
+  blocks?: LessonBlock[] | null
   /**
    * Direction of the prose. Defaults to the reader's UI language, but a
    * lesson that is still English-only can force `ltr` even for an Arabic
@@ -258,7 +267,7 @@ function MarkdownBody({
   )
 }
 
-export function MarkdownLesson({ content, dir, compact = false }: MarkdownLessonProps) {
+export function MarkdownLesson({ content, blocks, dir, compact = false }: MarkdownLessonProps) {
   const { language, annotateTerms } = useI18n()
   const resolvedDir = dir ?? (language === 'ar' ? 'rtl' : 'ltr')
 
@@ -266,7 +275,19 @@ export function MarkdownLesson({ content, dir, compact = false }: MarkdownLesson
     // A fresh scope per lesson: the first-mention rule is per lesson, not
     // per session, so every lesson re-introduces the terms it uses.
     <TermAnnotationScope key={content} enabled={annotateTerms}>
-      <MarkdownBody content={content} dir={resolvedDir} compact={compact} />
+      {blocks && blocks.length > 0 ? (
+        <div className="lesson-blocks" dir={resolvedDir}>
+          {blocks.map((block, i) =>
+            block.type === 'image' ? (
+              <LessonImage key={`${i}-${block.asset_key}`} block={block} />
+            ) : block.type === 'markdown' ? (
+              <MarkdownBody key={i} content={block.content} dir={resolvedDir} compact={compact} />
+            ) : null,
+          )}
+        </div>
+      ) : (
+        <MarkdownBody content={content} dir={resolvedDir} compact={compact} />
+      )}
     </TermAnnotationScope>
   )
 }

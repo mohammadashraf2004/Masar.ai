@@ -1,534 +1,538 @@
-[
-  {
-    "filename": "bert-pretraining-finetuning.png",
-    "lesson_id": "L008-004",
-    "caption": "BERT pretraining and fine-tuning as a concise Transformer prerequisite refresher.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "masked-autoencoder.png",
-    "lesson_id": "L008-005",
-    "caption": "Masked image reconstruction and self-supervised visual representation learning.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "vision-transformer-vit.png",
-    "lesson_id": "L008-004",
-    "caption": "Vision Transformer patches, positional embeddings, encoder, and prediction head.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "vlm-multimodal-projector.png",
-    "lesson_id": "L008-007",
-    "caption": "Projected visual tokens concatenated with text embeddings before language decoding.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "vlm-pretraining-finetuning.png",
-    "lesson_id": "L008-017",
-    "caption": "VLM pretraining and fine-tuning with frozen and trainable components.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "huggingface-inference-pipeline.png",
-    "lesson_id": "L008-008",
-    "caption": "Preprocessor, model, and postprocessor in a practical multimodal inference pipeline.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "siglip-image-text-retrieval.png",
-    "lesson_id": "L008-006",
-    "caption": "Shared image-text embedding space for semantic retrieval.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "ndcg-ranking-example.png",
-    "lesson_id": "L008-011",
-    "caption": "Worked DCG, IDCG, and NDCG ranking example.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "video-question-answering.png",
-    "lesson_id": "L008-013",
-    "caption": "Video question answering with sampled frames and timestamps.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "paligemma-segmentation.png",
-    "lesson_id": "L008-015",
-    "caption": "Text-guided segmentation using location/segment tokens and decoding.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "visual-reasoning-example.png",
-    "lesson_id": "L008-010",
-    "caption": "Visual reasoning example requiring interaction-aware reasoning over image content.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "naive-padding.png",
-    "lesson_id": "L008-022",
-    "caption": "Naive padding to the longest sequence in a batch.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "naive-packing.png",
-    "lesson_id": "L008-023",
-    "caption": "Naive sequence packing with residual padding.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "greedy-knapsack-packing.png",
-    "lesson_id": "L008-023",
-    "caption": "Greedy knapsack sequence packing.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "balanced-knapsack-packing.png",
-    "lesson_id": "L008-023",
-    "caption": "Balanced knapsack packing for better utilization.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "packed-training-loss.png",
-    "lesson_id": "L008-024",
-    "caption": "Training-loss comparison before and after packed batching.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "baby-vlm-inference-failure.png",
-    "lesson_id": "L008-025",
-    "caption": "Small VLM generation failure used for debugging practice.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "constrained-padding-512.png",
-    "lesson_id": "L008-022",
-    "caption": "Constrained padding with a fixed maximum token length.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "data-delivery-formats.png",
-    "lesson_id": "L008-033",
-    "caption": "Raw, preprocessed, and embedding delivery trade-offs.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "smolvlm-data-mixture-comparison.png",
-    "lesson_id": "L008-034",
-    "caption": "Example multimodal dataset-mixture proportions across model sizes.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "vla-dataset-comparison.png",
-    "lesson_id": "L008-028",
-    "caption": "Vision-language-action dataset scale, effort, and quality trade-offs.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "docmatix-synthesis-pipeline.png",
-    "lesson_id": "L008-032",
-    "caption": "Synthetic document Q&A generation and hallucination-filtering pipeline.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "scaling-consistency.png",
-    "lesson_id": "L008-035",
-    "caption": "Scaling-consistency experiments across model and dataset sizes.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "finevideo-data-pipeline.png",
-    "lesson_id": "L008-029",
-    "caption": "Large-scale video data sourcing, filtering, taxonomy, annotation, and validation pipeline.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "lora-low-rank-adaptation.png",
-    "lesson_id": "L008-039",
-    "caption": "Low-rank adapter path around frozen pretrained weights.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "dora-weight-decomposition.png",
-    "lesson_id": "L008-039",
-    "caption": "DoRA decomposition into magnitude and direction with low-rank adaptation.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "rlhf-training-pipeline.png",
-    "lesson_id": "L008-042",
-    "caption": "Supervised tuning, reward modeling, and PPO-based RLHF pipeline.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "multimodal-preference-dataset.png",
-    "lesson_id": "L008-043",
-    "caption": "Image, question, chosen, and rejected preference-data schema.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "rlhf-vs-dpo.png",
-    "lesson_id": "L008-043",
-    "caption": "RLHF versus direct preference optimization.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "online-dpo.png",
-    "lesson_id": "L008-044",
-    "caption": "Online preference optimization with freshly generated responses.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "ppo-vs-grpo.png",
-    "lesson_id": "L008-045",
-    "caption": "PPO and group-relative policy optimization structures.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "vlm-architecture-comparison.png",
-    "lesson_id": "L008-054",
-    "caption": "Show-and-Tell, Flamingo, and unified-sequence VLM architecture comparison.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "gated-cross-attention.png",
-    "lesson_id": "L008-050",
-    "caption": "Gated cross-attention injecting visual information into language hidden states.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "smolvlm-unified-sequence.png",
-    "lesson_id": "L008-051",
-    "caption": "Unified-sequence vision-language architecture using projected visual tokens.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "early-fusion-classifier.png",
-    "lesson_id": "L008-054",
-    "caption": "Early multimodal fusion before a shared classifier.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "flamingo-architecture.png",
-    "lesson_id": "L008-049",
-    "caption": "Flamingo-style perceiver resampling and gated cross-attention.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "visual-token-kv-growth.png",
-    "lesson_id": "L008-057",
-    "caption": "Persistent visual context and accumulated conversational KV-cache growth.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "kv-cache-prefill-decode.png",
-    "lesson_id": "L008-057",
-    "caption": "KV-cache reuse from prefill to autoregressive decode.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "mha-gqa-mqa.png",
-    "lesson_id": "L008-057",
-    "caption": "Multi-head, grouped-query, and multi-query attention KV sharing.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "standard-vs-flash-attention.png",
-    "lesson_id": "L008-058",
-    "caption": "Standard attention memory traffic versus fused FlashAttention.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "linear-quantization-scaling.png",
-    "lesson_id": "L008-059",
-    "caption": "Linear scaling from high precision to INT8 range.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "vlm-bf16-int4-memory-efficiency.png",
-    "lesson_id": "L008-060",
-    "caption": "Memory usage and tokens-per-second-per-GB across VLM precisions.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "vlm-inference-pipeline.png",
-    "lesson_id": "L008-056",
-    "caption": "Vision encoding, projection, prefill, and decode latency pipeline.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "single-vs-multivector-retrieval.png",
-    "lesson_id": "L008-070",
-    "caption": "Single-vector versus multivector document retrieval trade-offs.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "document-to-markdown-anchoring.png",
-    "lesson_id": "L008-068",
-    "caption": "Document anchoring from PDF layout to structured Markdown.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "smoldocling-otsl-structure.png",
-    "lesson_id": "L008-068",
-    "caption": "Structured document and table representation with OTSL-style tags.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "document-page-retrieval.png",
-    "lesson_id": "L008-070",
-    "caption": "Page-query relevance scoring for visual document retrieval.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "document-screenshot-embedding.png",
-    "lesson_id": "L008-070",
-    "caption": "Document and query encoders producing comparable retrieval representations.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "standard-retrieval-vs-colpali.png",
-    "lesson_id": "L008-071",
-    "caption": "OCR-heavy standard retrieval versus direct visual late-interaction retrieval.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "funsd-form-fields.png",
-    "lesson_id": "L008-072",
-    "caption": "Form-field annotations for layout-aware document understanding.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "layoutlmv3-architecture.png",
-    "lesson_id": "L008-072",
-    "caption": "LayoutLMv3 text, 1D/2D position, and image-patch representations.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "donut-document-model.png",
-    "lesson_id": "L008-072",
-    "caption": "OCR-free Donut encoder-decoder producing task-specific structured sequences.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "extractive-document-understanding.png",
-    "lesson_id": "L008-067",
-    "caption": "Extractive document answer with score and span information.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "factorized-3d-convolution.png",
-    "lesson_id": "L008-077",
-    "caption": "Factorizing 3D convolution into spatial and temporal stages.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "two-stream-video-cnn.png",
-    "lesson_id": "L008-077",
-    "caption": "Spatial RGB and temporal optical-flow streams for video understanding.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "video-language-evolution.png",
-    "lesson_id": "L008-079",
-    "caption": "Evolution from CLIP/video adaptation to modern video-language models.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "videollama3-dynamic-vision-tokens.png",
-    "lesson_id": "L008-079",
-    "caption": "Dynamic resolution and video-token compression in a modern Video-LM.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "video-token-reduction-strategies.png",
-    "lesson_id": "L008-080",
-    "caption": "Spatial pooling, temporal pooling, and temporal sampling strategies.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "videoagent-adaptive-frame-retrieval.png",
-    "lesson_id": "L008-085",
-    "caption": "Adaptive frame retrieval in a long-video reasoning agent.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "multimodal-vae-comparison.png",
-    "lesson_id": "L008-091",
-    "caption": "Image, video, and audio latent-compression examples.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "any-to-any-unified-model.png",
-    "lesson_id": "L008-086",
-    "caption": "Unified encoders, shared model, and decoders for text, image, video, and audio.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "any-to-any-three-families.png",
-    "lesson_id": "L008-086",
-    "caption": "Unified discrete, hybrid AR+diffusion, and modular generation families.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "unified-vocabulary-factorized-heads.png",
-    "lesson_id": "L008-089",
-    "caption": "Monolithic, hybrid, and factorized-head multimodal token-generation patterns.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "janus-pro-architecture.png",
-    "lesson_id": "L008-088",
-    "caption": "Janus-style decoupled visual understanding and image generation.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "qwen25-omni-thinker-talker.png",
-    "lesson_id": "L008-089",
-    "caption": "Continuous multimodal input with Thinker reasoning and Talker speech generation.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "multimodal-vae.png",
-    "lesson_id": "L008-091",
-    "caption": "VAE compression and reconstruction across image, audio, and action modalities.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "late-conditioning-architecture.png",
-    "lesson_id": "L008-093",
-    "caption": "MLLM query states transformed through a connector into generator conditioning.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "generator-conditioning.png",
-    "lesson_id": "L008-094",
-    "caption": "Conditioning paths for diffusion and other modality-specific generators.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "qwen-image-edit-architecture.png",
-    "lesson_id": "L008-094",
-    "caption": "Dual semantic and spatial conditioning for multimodal image editing.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "joint-vs-sequential-multimodal-training.png",
-    "lesson_id": "L008-095",
-    "caption": "Joint versus staged understanding-then-generation training.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "late-conditioning-training.png",
-    "lesson_id": "L008-095",
-    "caption": "Frozen MLLM with trainable connector and denoising generator.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "agent-runtime-control-plane.png",
-    "lesson_id": "L008-100",
-    "caption": "Agent orchestration control plane connecting tools, memory, models, and interfaces.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "vla-asynchronous-control.png",
-    "lesson_id": "L008-104",
-    "caption": "Asynchronous policy-server and robot-client action chunking loop.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "groot-dual-system-vla.png",
-    "lesson_id": "L008-103",
-    "caption": "Dual-system VLM reasoning and diffusion action generation.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "pi06-advantage-conditioning.png",
-    "lesson_id": "L008-105",
-    "caption": "Advantage-conditioned VLA with pretrained VLM, action expert, and value function.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  },
-  {
-    "filename": "groot-n15-action-expert.png",
-    "lesson_id": "L008-105",
-    "caption": "Frozen VLM with state/action encoders and diffusion-transformer action expert.",
-    "source": "User-provided visual asset in COURSE-008 curriculum conversation",
-    "reuse_note": "Verify publication/reuse rights before public distribution; redraw as an original Masar figure if required."
-  }
-]
+{
+  "version": 1,
+  "course_id": "COURSE-008",
+  "assets": [
+    {
+      "key": "agent-runtime-control-plane",
+      "type": "image",
+      "file": "assets/agent-runtime-control-plane.png",
+      "alt": "Agent orchestration control plane connecting tools, memory, models, and interfaces.",
+      "caption": "Agent orchestration control plane connecting tools, memory, models, and interfaces."
+    },
+    {
+      "key": "any-to-any-three-families",
+      "type": "image",
+      "file": "assets/any-to-any-three-families.png",
+      "alt": "Unified discrete, hybrid AR+diffusion, and modular generation families.",
+      "caption": "Unified discrete, hybrid AR+diffusion, and modular generation families."
+    },
+    {
+      "key": "any-to-any-unified-model",
+      "type": "image",
+      "file": "assets/any-to-any-unified-model.png",
+      "alt": "Unified encoders, shared model, and decoders for text, image, video, and audio.",
+      "caption": "Unified encoders, shared model, and decoders for text, image, video, and audio."
+    },
+    {
+      "key": "baby-vlm-inference-failure",
+      "type": "image",
+      "file": "assets/baby-vlm-inference-failure.png",
+      "alt": "Small VLM generation failure used for debugging practice.",
+      "caption": "Small VLM generation failure used for debugging practice."
+    },
+    {
+      "key": "balanced-knapsack-packing",
+      "type": "image",
+      "file": "assets/balanced-knapsack-packing.png",
+      "alt": "Balanced knapsack packing for better utilization.",
+      "caption": "Balanced knapsack packing for better utilization."
+    },
+    {
+      "key": "bert-pretraining-finetuning",
+      "type": "image",
+      "file": "assets/bert-pretraining-finetuning.png",
+      "alt": "BERT pretraining and fine-tuning as a concise Transformer prerequisite refresher.",
+      "caption": "BERT pretraining and fine-tuning as a concise Transformer prerequisite refresher."
+    },
+    {
+      "key": "constrained-padding-512",
+      "type": "image",
+      "file": "assets/constrained-padding-512.png",
+      "alt": "Constrained padding with a fixed maximum token length.",
+      "caption": "Constrained padding with a fixed maximum token length."
+    },
+    {
+      "key": "data-delivery-formats",
+      "type": "image",
+      "file": "assets/data-delivery-formats.png",
+      "alt": "Raw, preprocessed, and embedding delivery trade-offs.",
+      "caption": "Raw, preprocessed, and embedding delivery trade-offs."
+    },
+    {
+      "key": "docmatix-synthesis-pipeline",
+      "type": "image",
+      "file": "assets/docmatix-synthesis-pipeline.png",
+      "alt": "Synthetic document Q&A generation and hallucination-filtering pipeline.",
+      "caption": "Synthetic document Q&A generation and hallucination-filtering pipeline."
+    },
+    {
+      "key": "document-page-retrieval",
+      "type": "image",
+      "file": "assets/document-page-retrieval.png",
+      "alt": "Page-query relevance scoring for visual document retrieval.",
+      "caption": "Page-query relevance scoring for visual document retrieval."
+    },
+    {
+      "key": "document-screenshot-embedding",
+      "type": "image",
+      "file": "assets/document-screenshot-embedding.png",
+      "alt": "Document and query encoders producing comparable retrieval representations.",
+      "caption": "Document and query encoders producing comparable retrieval representations."
+    },
+    {
+      "key": "document-to-markdown-anchoring",
+      "type": "image",
+      "file": "assets/document-to-markdown-anchoring.png",
+      "alt": "Document anchoring from PDF layout to structured Markdown.",
+      "caption": "Document anchoring from PDF layout to structured Markdown."
+    },
+    {
+      "key": "donut-document-model",
+      "type": "image",
+      "file": "assets/donut-document-model.png",
+      "alt": "OCR-free Donut encoder-decoder producing task-specific structured sequences.",
+      "caption": "OCR-free Donut encoder-decoder producing task-specific structured sequences."
+    },
+    {
+      "key": "dora-weight-decomposition",
+      "type": "image",
+      "file": "assets/dora-weight-decomposition.png",
+      "alt": "DoRA decomposition into magnitude and direction with low-rank adaptation.",
+      "caption": "DoRA decomposition into magnitude and direction with low-rank adaptation."
+    },
+    {
+      "key": "early-fusion-classifier",
+      "type": "image",
+      "file": "assets/early-fusion-classifier.png",
+      "alt": "Early multimodal fusion before a shared classifier.",
+      "caption": "Early multimodal fusion before a shared classifier."
+    },
+    {
+      "key": "extractive-document-understanding",
+      "type": "image",
+      "file": "assets/extractive-document-understanding.png",
+      "alt": "Extractive document answer with score and span information.",
+      "caption": "Extractive document answer with score and span information."
+    },
+    {
+      "key": "factorized-3d-convolution",
+      "type": "image",
+      "file": "assets/factorized-3d-convolution.png",
+      "alt": "Factorizing 3D convolution into spatial and temporal stages.",
+      "caption": "Factorizing 3D convolution into spatial and temporal stages."
+    },
+    {
+      "key": "finevideo-data-pipeline",
+      "type": "image",
+      "file": "assets/finevideo-data-pipeline.png",
+      "alt": "Large-scale video data sourcing, filtering, taxonomy, annotation, and validation pipeline.",
+      "caption": "Large-scale video data sourcing, filtering, taxonomy, annotation, and validation pipeline."
+    },
+    {
+      "key": "flamingo-architecture",
+      "type": "image",
+      "file": "assets/flamingo-architecture.png",
+      "alt": "Flamingo-style perceiver resampling and gated cross-attention.",
+      "caption": "Flamingo-style perceiver resampling and gated cross-attention."
+    },
+    {
+      "key": "funsd-form-fields",
+      "type": "image",
+      "file": "assets/funsd-form-fields.png",
+      "alt": "Form-field annotations for layout-aware document understanding.",
+      "caption": "Form-field annotations for layout-aware document understanding."
+    },
+    {
+      "key": "gated-cross-attention",
+      "type": "image",
+      "file": "assets/gated-cross-attention.png",
+      "alt": "Gated cross-attention injecting visual information into language hidden states.",
+      "caption": "Gated cross-attention injecting visual information into language hidden states."
+    },
+    {
+      "key": "generator-conditioning",
+      "type": "image",
+      "file": "assets/generator-conditioning.png",
+      "alt": "Conditioning paths for diffusion and other modality-specific generators.",
+      "caption": "Conditioning paths for diffusion and other modality-specific generators."
+    },
+    {
+      "key": "greedy-knapsack-packing",
+      "type": "image",
+      "file": "assets/greedy-knapsack-packing.png",
+      "alt": "Greedy knapsack sequence packing.",
+      "caption": "Greedy knapsack sequence packing."
+    },
+    {
+      "key": "groot-dual-system-vla",
+      "type": "image",
+      "file": "assets/groot-dual-system-vla.png",
+      "alt": "Dual-system VLM reasoning and diffusion action generation.",
+      "caption": "Dual-system VLM reasoning and diffusion action generation."
+    },
+    {
+      "key": "groot-n15-action-expert",
+      "type": "image",
+      "file": "assets/groot-n15-action-expert.png",
+      "alt": "Frozen VLM with state/action encoders and diffusion-transformer action expert.",
+      "caption": "Frozen VLM with state/action encoders and diffusion-transformer action expert."
+    },
+    {
+      "key": "huggingface-inference-pipeline",
+      "type": "image",
+      "file": "assets/huggingface-inference-pipeline.png",
+      "alt": "Preprocessor, model, and postprocessor in a practical multimodal inference pipeline.",
+      "caption": "Preprocessor, model, and postprocessor in a practical multimodal inference pipeline."
+    },
+    {
+      "key": "janus-pro-architecture",
+      "type": "image",
+      "file": "assets/janus-pro-architecture.png",
+      "alt": "Janus-style decoupled visual understanding and image generation.",
+      "caption": "Janus-style decoupled visual understanding and image generation."
+    },
+    {
+      "key": "joint-vs-sequential-multimodal-training",
+      "type": "image",
+      "file": "assets/joint-vs-sequential-multimodal-training.png",
+      "alt": "Joint versus staged understanding-then-generation training.",
+      "caption": "Joint versus staged understanding-then-generation training."
+    },
+    {
+      "key": "kv-cache-prefill-decode",
+      "type": "image",
+      "file": "assets/kv-cache-prefill-decode.png",
+      "alt": "KV-cache reuse from prefill to autoregressive decode.",
+      "caption": "KV-cache reuse from prefill to autoregressive decode."
+    },
+    {
+      "key": "late-conditioning-architecture",
+      "type": "image",
+      "file": "assets/late-conditioning-architecture.png",
+      "alt": "MLLM query states transformed through a connector into generator conditioning.",
+      "caption": "MLLM query states transformed through a connector into generator conditioning."
+    },
+    {
+      "key": "late-conditioning-training",
+      "type": "image",
+      "file": "assets/late-conditioning-training.png",
+      "alt": "Frozen MLLM with trainable connector and denoising generator.",
+      "caption": "Frozen MLLM with trainable connector and denoising generator."
+    },
+    {
+      "key": "layoutlmv3-architecture",
+      "type": "image",
+      "file": "assets/layoutlmv3-architecture.png",
+      "alt": "LayoutLMv3 text, 1D/2D position, and image-patch representations.",
+      "caption": "LayoutLMv3 text, 1D/2D position, and image-patch representations."
+    },
+    {
+      "key": "linear-quantization-scaling",
+      "type": "image",
+      "file": "assets/linear-quantization-scaling.png",
+      "alt": "Linear scaling from high precision to INT8 range.",
+      "caption": "Linear scaling from high precision to INT8 range."
+    },
+    {
+      "key": "lora-low-rank-adaptation",
+      "type": "image",
+      "file": "assets/lora-low-rank-adaptation.png",
+      "alt": "Low-rank adapter path around frozen pretrained weights.",
+      "caption": "Low-rank adapter path around frozen pretrained weights."
+    },
+    {
+      "key": "masked-autoencoder",
+      "type": "image",
+      "file": "assets/masked-autoencoder.png",
+      "alt": "Masked image reconstruction and self-supervised visual representation learning.",
+      "caption": "Masked image reconstruction and self-supervised visual representation learning."
+    },
+    {
+      "key": "mha-gqa-mqa",
+      "type": "image",
+      "file": "assets/mha-gqa-mqa.png",
+      "alt": "Multi-head, grouped-query, and multi-query attention KV sharing.",
+      "caption": "Multi-head, grouped-query, and multi-query attention KV sharing."
+    },
+    {
+      "key": "multimodal-preference-dataset",
+      "type": "image",
+      "file": "assets/multimodal-preference-dataset.png",
+      "alt": "Image, question, chosen, and rejected preference-data schema.",
+      "caption": "Image, question, chosen, and rejected preference-data schema."
+    },
+    {
+      "key": "multimodal-vae",
+      "type": "image",
+      "file": "assets/multimodal-vae.png",
+      "alt": "VAE compression and reconstruction across image, audio, and action modalities.",
+      "caption": "VAE compression and reconstruction across image, audio, and action modalities."
+    },
+    {
+      "key": "multimodal-vae-comparison",
+      "type": "image",
+      "file": "assets/multimodal-vae-comparison.png",
+      "alt": "Image, video, and audio latent-compression examples.",
+      "caption": "Image, video, and audio latent-compression examples."
+    },
+    {
+      "key": "naive-packing",
+      "type": "image",
+      "file": "assets/naive-packing.png",
+      "alt": "Naive sequence packing with residual padding.",
+      "caption": "Naive sequence packing with residual padding."
+    },
+    {
+      "key": "naive-padding",
+      "type": "image",
+      "file": "assets/naive-padding.png",
+      "alt": "Naive padding to the longest sequence in a batch.",
+      "caption": "Naive padding to the longest sequence in a batch."
+    },
+    {
+      "key": "ndcg-ranking-example",
+      "type": "image",
+      "file": "assets/ndcg-ranking-example.png",
+      "alt": "Worked DCG, IDCG, and NDCG ranking example.",
+      "caption": "Worked DCG, IDCG, and NDCG ranking example."
+    },
+    {
+      "key": "online-dpo",
+      "type": "image",
+      "file": "assets/online-dpo.png",
+      "alt": "Online preference optimization with freshly generated responses.",
+      "caption": "Online preference optimization with freshly generated responses."
+    },
+    {
+      "key": "packed-training-loss",
+      "type": "image",
+      "file": "assets/packed-training-loss.png",
+      "alt": "Training-loss comparison before and after packed batching.",
+      "caption": "Training-loss comparison before and after packed batching."
+    },
+    {
+      "key": "paligemma-segmentation",
+      "type": "image",
+      "file": "assets/paligemma-segmentation.png",
+      "alt": "Text-guided segmentation using location/segment tokens and decoding.",
+      "caption": "Text-guided segmentation using location/segment tokens and decoding."
+    },
+    {
+      "key": "pi06-advantage-conditioning",
+      "type": "image",
+      "file": "assets/pi06-advantage-conditioning.png",
+      "alt": "Advantage-conditioned VLA with pretrained VLM, action expert, and value function.",
+      "caption": "Advantage-conditioned VLA with pretrained VLM, action expert, and value function."
+    },
+    {
+      "key": "ppo-vs-grpo",
+      "type": "image",
+      "file": "assets/ppo-vs-grpo.png",
+      "alt": "PPO and group-relative policy optimization structures.",
+      "caption": "PPO and group-relative policy optimization structures."
+    },
+    {
+      "key": "qwen-image-edit-architecture",
+      "type": "image",
+      "file": "assets/qwen-image-edit-architecture.png",
+      "alt": "Dual semantic and spatial conditioning for multimodal image editing.",
+      "caption": "Dual semantic and spatial conditioning for multimodal image editing."
+    },
+    {
+      "key": "qwen25-omni-thinker-talker",
+      "type": "image",
+      "file": "assets/qwen25-omni-thinker-talker.png",
+      "alt": "Continuous multimodal input with Thinker reasoning and Talker speech generation.",
+      "caption": "Continuous multimodal input with Thinker reasoning and Talker speech generation."
+    },
+    {
+      "key": "rlhf-training-pipeline",
+      "type": "image",
+      "file": "assets/rlhf-training-pipeline.png",
+      "alt": "Supervised tuning, reward modeling, and PPO-based RLHF pipeline.",
+      "caption": "Supervised tuning, reward modeling, and PPO-based RLHF pipeline."
+    },
+    {
+      "key": "rlhf-vs-dpo",
+      "type": "image",
+      "file": "assets/rlhf-vs-dpo.png",
+      "alt": "RLHF versus direct preference optimization.",
+      "caption": "RLHF versus direct preference optimization."
+    },
+    {
+      "key": "scaling-consistency",
+      "type": "image",
+      "file": "assets/scaling-consistency.png",
+      "alt": "Scaling-consistency experiments across model and dataset sizes.",
+      "caption": "Scaling-consistency experiments across model and dataset sizes."
+    },
+    {
+      "key": "siglip-image-text-retrieval",
+      "type": "image",
+      "file": "assets/siglip-image-text-retrieval.png",
+      "alt": "Shared image-text embedding space for semantic retrieval.",
+      "caption": "Shared image-text embedding space for semantic retrieval."
+    },
+    {
+      "key": "single-vs-multivector-retrieval",
+      "type": "image",
+      "file": "assets/single-vs-multivector-retrieval.png",
+      "alt": "Single-vector versus multivector document retrieval trade-offs.",
+      "caption": "Single-vector versus multivector document retrieval trade-offs."
+    },
+    {
+      "key": "smoldocling-otsl-structure",
+      "type": "image",
+      "file": "assets/smoldocling-otsl-structure.png",
+      "alt": "Structured document and table representation with OTSL-style tags.",
+      "caption": "Structured document and table representation with OTSL-style tags."
+    },
+    {
+      "key": "smolvlm-data-mixture-comparison",
+      "type": "image",
+      "file": "assets/smolvlm-data-mixture-comparison.png",
+      "alt": "Example multimodal dataset-mixture proportions across model sizes.",
+      "caption": "Example multimodal dataset-mixture proportions across model sizes."
+    },
+    {
+      "key": "smolvlm-unified-sequence",
+      "type": "image",
+      "file": "assets/smolvlm-unified-sequence.png",
+      "alt": "Unified-sequence vision-language architecture using projected visual tokens.",
+      "caption": "Unified-sequence vision-language architecture using projected visual tokens."
+    },
+    {
+      "key": "standard-retrieval-vs-colpali",
+      "type": "image",
+      "file": "assets/standard-retrieval-vs-colpali.png",
+      "alt": "OCR-heavy standard retrieval versus direct visual late-interaction retrieval.",
+      "caption": "OCR-heavy standard retrieval versus direct visual late-interaction retrieval."
+    },
+    {
+      "key": "standard-vs-flash-attention",
+      "type": "image",
+      "file": "assets/standard-vs-flash-attention.png",
+      "alt": "Standard attention memory traffic versus fused FlashAttention.",
+      "caption": "Standard attention memory traffic versus fused FlashAttention."
+    },
+    {
+      "key": "two-stream-video-cnn",
+      "type": "image",
+      "file": "assets/two-stream-video-cnn.png",
+      "alt": "Spatial RGB and temporal optical-flow streams for video understanding.",
+      "caption": "Spatial RGB and temporal optical-flow streams for video understanding."
+    },
+    {
+      "key": "unified-vocabulary-factorized-heads",
+      "type": "image",
+      "file": "assets/unified-vocabulary-factorized-heads.png",
+      "alt": "Monolithic, hybrid, and factorized-head multimodal token-generation patterns.",
+      "caption": "Monolithic, hybrid, and factorized-head multimodal token-generation patterns."
+    },
+    {
+      "key": "video-language-evolution",
+      "type": "image",
+      "file": "assets/video-language-evolution.png",
+      "alt": "Evolution from CLIP/video adaptation to modern video-language models.",
+      "caption": "Evolution from CLIP/video adaptation to modern video-language models."
+    },
+    {
+      "key": "video-question-answering",
+      "type": "image",
+      "file": "assets/video-question-answering.png",
+      "alt": "Video question answering with sampled frames and timestamps.",
+      "caption": "Video question answering with sampled frames and timestamps."
+    },
+    {
+      "key": "video-token-reduction-strategies",
+      "type": "image",
+      "file": "assets/video-token-reduction-strategies.png",
+      "alt": "Spatial pooling, temporal pooling, and temporal sampling strategies.",
+      "caption": "Spatial pooling, temporal pooling, and temporal sampling strategies."
+    },
+    {
+      "key": "videoagent-adaptive-frame-retrieval",
+      "type": "image",
+      "file": "assets/videoagent-adaptive-frame-retrieval.png",
+      "alt": "Adaptive frame retrieval in a long-video reasoning agent.",
+      "caption": "Adaptive frame retrieval in a long-video reasoning agent."
+    },
+    {
+      "key": "videollama3-dynamic-vision-tokens",
+      "type": "image",
+      "file": "assets/videollama3-dynamic-vision-tokens.png",
+      "alt": "Dynamic resolution and video-token compression in a modern Video-LM.",
+      "caption": "Dynamic resolution and video-token compression in a modern Video-LM."
+    },
+    {
+      "key": "vision-transformer-vit",
+      "type": "image",
+      "file": "assets/vision-transformer-vit.png",
+      "alt": "Vision Transformer patches, positional embeddings, encoder, and prediction head.",
+      "caption": "Vision Transformer patches, positional embeddings, encoder, and prediction head."
+    },
+    {
+      "key": "visual-reasoning-example",
+      "type": "image",
+      "file": "assets/visual-reasoning-example.png",
+      "alt": "Visual reasoning example requiring interaction-aware reasoning over image content.",
+      "caption": "Visual reasoning example requiring interaction-aware reasoning over image content."
+    },
+    {
+      "key": "visual-token-kv-growth",
+      "type": "image",
+      "file": "assets/visual-token-kv-growth.png",
+      "alt": "Persistent visual context and accumulated conversational KV-cache growth.",
+      "caption": "Persistent visual context and accumulated conversational KV-cache growth."
+    },
+    {
+      "key": "vla-asynchronous-control",
+      "type": "image",
+      "file": "assets/vla-asynchronous-control.png",
+      "alt": "Asynchronous policy-server and robot-client action chunking loop.",
+      "caption": "Asynchronous policy-server and robot-client action chunking loop."
+    },
+    {
+      "key": "vla-dataset-comparison",
+      "type": "image",
+      "file": "assets/vla-dataset-comparison.png",
+      "alt": "Vision-language-action dataset scale, effort, and quality trade-offs.",
+      "caption": "Vision-language-action dataset scale, effort, and quality trade-offs."
+    },
+    {
+      "key": "vlm-architecture-comparison",
+      "type": "image",
+      "file": "assets/vlm-architecture-comparison.png",
+      "alt": "Show-and-Tell, Flamingo, and unified-sequence VLM architecture comparison.",
+      "caption": "Show-and-Tell, Flamingo, and unified-sequence VLM architecture comparison."
+    },
+    {
+      "key": "vlm-bf16-int4-memory-efficiency",
+      "type": "image",
+      "file": "assets/vlm-bf16-int4-memory-efficiency.png",
+      "alt": "Memory usage and tokens-per-second-per-GB across VLM precisions.",
+      "caption": "Memory usage and tokens-per-second-per-GB across VLM precisions."
+    },
+    {
+      "key": "vlm-inference-pipeline",
+      "type": "image",
+      "file": "assets/vlm-inference-pipeline.png",
+      "alt": "Vision encoding, projection, prefill, and decode latency pipeline.",
+      "caption": "Vision encoding, projection, prefill, and decode latency pipeline."
+    },
+    {
+      "key": "vlm-multimodal-projector",
+      "type": "image",
+      "file": "assets/vlm-multimodal-projector.png",
+      "alt": "Projected visual tokens concatenated with text embeddings before language decoding.",
+      "caption": "Projected visual tokens concatenated with text embeddings before language decoding."
+    },
+    {
+      "key": "vlm-pretraining-finetuning",
+      "type": "image",
+      "file": "assets/vlm-pretraining-finetuning.png",
+      "alt": "VLM pretraining and fine-tuning with frozen and trainable components.",
+      "caption": "VLM pretraining and fine-tuning with frozen and trainable components."
+    }
+  ]
+}

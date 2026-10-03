@@ -23,11 +23,6 @@ LESSON_META = {'lesson_id': 'L008-096',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 50,
  'prerequisites': ['L008-095', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'any-to-any-three-families.png',
-              'path': '../../assets/any-to-any-three-families.png',
-              'caption': 'Unified discrete, hybrid AR+diffusion, and modular generation families.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -72,12 +67,7 @@ TOPIC = {'title': 'Choosing an Any-to-Any Architecture',
                        '- **unified representations**\n'
                        '- **modality-specific generation**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **any-to-any-three-families.png** — Unified discrete, hybrid AR+diffusion, and modular '
-                       'generation families. (package path: `../../assets/any-to-any-three-families.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:any-to-any-three-families}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'

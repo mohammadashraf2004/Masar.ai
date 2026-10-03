@@ -23,16 +23,6 @@ LESSON_META = {'lesson_id': 'L008-089',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 65,
  'prerequisites': ['L008-088', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'unified-vocabulary-factorized-heads.png',
-              'path': '../../assets/unified-vocabulary-factorized-heads.png',
-              'caption': 'Monolithic, hybrid, and factorized-head multimodal token-generation patterns.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'qwen25-omni-thinker-talker.png',
-              'path': '../../assets/qwen25-omni-thinker-talker.png',
-              'caption': 'Continuous multimodal input with Thinker reasoning and Talker speech generation.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -77,15 +67,7 @@ TOPIC = {'title': 'Factorized Heads, RVQ & Continuous-In/Discrete-Out Systems',
                        '- **unified representations**\n'
                        '- **modality-specific generation**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **unified-vocabulary-factorized-heads.png** — Monolithic, hybrid, and factorized-head '
-                       'multimodal token-generation patterns. (package path: '
-                       '`../../assets/unified-vocabulary-factorized-heads.png`)\n'
-                       '- **qwen25-omni-thinker-talker.png** — Continuous multimodal input with Thinker reasoning and '
-                       'Talker speech generation. (package path: `../../assets/qwen25-omni-thinker-talker.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:unified-vocabulary-factorized-heads}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -97,6 +79,8 @@ TOPIC = {'title': 'Factorized Heads, RVQ & Continuous-In/Discrete-Out Systems',
                        '6. Record a realistic failure mode and distinguish where in the multimodal pipeline it '
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
+                       '\n'
+                       '{{figure:qwen25-omni-thinker-talker}}\n'
                        '\n'
                        '## Practice\n'
                        'Prototype the architecture with pretrained components or simplified modules, explicitly '

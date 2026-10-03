@@ -6,9 +6,33 @@ TOPICS = ['direct VM access vs production ingress', 'load balancers', 'Nginx rev
 
 SOURCE_REFERENCES = ['BOOK-011 Chapters 1, 4, 5, 6, 7, 8']
 
-FIGURE_REFERENCES = [{'source_figure': 'Figure 6-4', 'title': 'Final state of the infrastructure with subdomains', 'priority': 'required', 'suggested_path': 'assets/m011-01/fig-6-4-final-subdomain-infrastructure.png'}]
-
-LESSON_MARKDOWN = '# L011-005 — Production Traffic Architecture Preview\n\n## Learning objective\n\nApply production traffic architecture preview concepts to the deployment and operation of an existing production-oriented AI service.\n\n## Core topics\n\n- direct VM access vs production ingress\n- load balancers\n- Nginx reverse proxy\n- DNS and HTTPS\n- subdomain-based service architecture\n\n## AI-engineering context\n\nUse these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n\n## Practice\n\nApply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n\n## Assessment focus\n\nThe learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n\n\n## Manual visual references\n- `Figure 6-4` — Final state of the infrastructure with subdomains (required); add manually at `assets/m011-01/fig-6-4-final-subdomain-infrastructure.png`.\n'
+LESSON_MARKDOWN = ('# L011-005 — Production Traffic Architecture Preview\n'
+                   '\n'
+                   '## Learning objective\n'
+                   '\n'
+                   'Apply production traffic architecture preview concepts to the deployment and operation of an existing production-oriented AI service.\n'
+                   '\n'
+                   '## Core topics\n'
+                   '\n'
+                   '- direct VM access vs production ingress\n'
+                   '- load balancers\n'
+                   '- Nginx reverse proxy\n'
+                   '- DNS and HTTPS\n'
+                   '- subdomain-based service architecture\n'
+                   '\n'
+                   '{{figure:final-subdomain-infrastructure}}\n'
+                   '\n'
+                   '## AI-engineering context\n'
+                   '\n'
+                   'Use these concepts to deploy or operate an **existing** FastAPI, LLM, RAG, or AI Agent service. Do not re-teach the application-domain fundamentals in this course.\n'
+                   '\n'
+                   '## Practice\n'
+                   '\n'
+                   'Apply the lesson to a production-oriented AI backend and document the configuration, security boundary, validation method, and failure behavior relevant to this topic.\n'
+                   '\n'
+                   '## Assessment focus\n'
+                   '\n'
+                   'The learner should be able to explain the purpose of the topic, configure or review the relevant deployment artifact, and diagnose a realistic failure without relying on trial-and-error console clicking.\n')
 
 EXERCISES = [{'id': 'L011-005-EX1', 'title': 'Apply Production Traffic Architecture Preview', 'prompt': "Apply the lesson's concepts to an existing AI service. Cover at least: direct VM access vs production ingress, load balancers, Nginx reverse proxy. Record the configuration or architecture decision and how you would validate it."}, {'id': 'L011-005-EX2', 'title': 'Failure and recovery exercise', 'prompt': 'Create or analyze one realistic failure related to production traffic architecture preview. Identify the observable symptom, likely cause, safe correction, and post-fix validation step.'}]
 

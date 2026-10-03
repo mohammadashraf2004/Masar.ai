@@ -23,21 +23,6 @@ LESSON_META = {'lesson_id': 'L008-057',
                       'pages': 'SOURCE INFORMATION MISSING'},
  'estimated_minutes': 60,
  'prerequisites': ['L008-056', 'M008-01', 'M008-03'],
- 'visuals': [{'filename': 'visual-token-kv-growth.png',
-              'path': '../../assets/visual-token-kv-growth.png',
-              'caption': 'Persistent visual context and accumulated conversational KV-cache growth.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'kv-cache-prefill-decode.png',
-              'path': '../../assets/kv-cache-prefill-decode.png',
-              'caption': 'KV-cache reuse from prefill to autoregressive decode.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'},
-             {'filename': 'mha-gqa-mqa.png',
-              'path': '../../assets/mha-gqa-mqa.png',
-              'caption': 'Multi-head, grouped-query, and multi-query attention KV sharing.',
-              'publication_note': 'Verify publication/reuse rights before public distribution; redraw as an original '
-                                  'Masar figure if required.'}],
  'modernization': ['Revalidate model IDs, package APIs, training/serving interfaces, and hardware-specific examples '
                    'before production implementation.'],
  'status': 'Curriculum finalized / lesson seed export'}
@@ -81,16 +66,7 @@ TOPIC = {'title': 'KV Cache, Visual Context & Multimodal Memory Growth',
                        '- **latency**\n'
                        '- **memory**\n'
                        '\n'
-                       '## Visual assets\n'
-                       '- **visual-token-kv-growth.png** — Persistent visual context and accumulated conversational '
-                       'KV-cache growth. (package path: `../../assets/visual-token-kv-growth.png`)\n'
-                       '- **kv-cache-prefill-decode.png** — KV-cache reuse from prefill to autoregressive decode. '
-                       '(package path: `../../assets/kv-cache-prefill-decode.png`)\n'
-                       '- **mha-gqa-mqa.png** — Multi-head, grouped-query, and multi-query attention KV sharing. '
-                       '(package path: `../../assets/mha-gqa-mqa.png`)\n'
-                       '\n'
-                       '> These are user-provided reference assets. Verify reuse rights before public publication; '
-                       'replace with an original Masar redraw where needed.\n'
+                       '{{figure:visual-token-kv-growth}}\n'
                        '\n'
                        '## Engineering workflow\n'
                        '1. Define the task, modality inputs/outputs, and measurable constraint.\n'
@@ -103,12 +79,16 @@ TOPIC = {'title': 'KV Cache, Visual Context & Multimodal Memory Growth',
                        'originates.\n'
                        '7. State the evidence required to keep, reject, or modify the approach.\n'
                        '\n'
+                       '{{figure:kv-cache-prefill-decode}}\n'
+                       '\n'
                        '## Practice\n'
                        'Profile a VLM inference path, change one optimization variable, and record TTFT, throughput, '
                        'VRAM, or another directly measured production metric.\n'
                        '\n'
                        '**Lesson-specific goal:** demonstrate **KV Cache, Visual Context & Multimodal Memory Growth** '
                        'with a controlled input set and at least one difficult example.\n'
+                       '\n'
+                       '{{figure:mha-gqa-mqa}}\n'
                        '\n'
                        '## Debug / evaluate\n'
                        'Warm up devices, synchronize measurements, separate prefill from decode, and distinguish '

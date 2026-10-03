@@ -22,22 +22,32 @@ roadmaps - none of which needs a track, a career goal or a saved path.
       GET   /learning/recommendations
       GET   /learning/my-skill-levels
 
+    A course's figures (the images its lessons place inline)
+      GET   /learning/courses/{slug}/assets/{key}?exp=&sig=   the image; the URL a lesson block
+                                                              carries is signed, see services/assets/urls
+
 The catalogue endpoints (`GET /learning/courses`, `/courses/{slug}`, `/my-courses`)
 stay in `learning_controller`. Every rule - readiness, recommendations, access -
 lives in `app/services/learning`; this module validates input, calls it and
 shapes the response. Every query is scoped to the authenticated user's id; no
 user, enrollment or assessment id is ever accepted from the client.
 """
-from typing import List
+from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from pydantic import StringConstraints
 from sqlalchemy.orm import Session
 
 from app.core.limiter import limiter
 from app.core.security import get_current_user, get_optional_user
 from app.db.session import get_db
+from app.models.course_asset import CourseAsset
 from app.models.learning_path import Course
+from app.models.tool_course import ToolCourse
 from app.models.user import User
+from app.services.assets.store import get_asset_store
+from app.services.assets.urls import is_valid as asset_url_is_valid
+from app.services.content.lesson_blocks import KEY_PATTERN
 from app.services.learning import course_views as CV
 from app.services.learning import enrollment as enrollments
 from app.services.learning import presenters as P
@@ -214,3 +224,37 @@ def get_skill_levels(current_user: User = Depends(get_current_user), db: Session
         programming_experience=profile.programming_experience if profile else None,
         ai_experience=profile.ai_experience if profile else None,
     )
+
+
+# ─── Course figures ─────────────────────────────────────────────────────────
+
+AssetKey = Annotated[str, StringConstraints(pattern=rf"^{KEY_PATTERN}$", max_length=120)]
+
+
+@router.get("/courses/{slug}/assets/{key}")
+def get_course_asset(
+    request: Request, slug: CourseSlug, key: AssetKey,
+    exp: int = Query(..., ge=0), sig: str = Query(..., min_length=8, max_length=128),
+    db: Session = Depends(get_db),
+):
+    """One figure of one course. There is no login on this route because an `<img>`
+    cannot send one: the signed URL (minted only into lesson responses the learner
+    is allowed to read) is the credential, and it expires. The figure is looked up
+    by (course, key) in the database - a request never names a file - and the store
+    refuses anything that is not inside its root. `ETag` + `If-None-Match` make a
+    repeat visit a 304."""
+    if not asset_url_is_valid(slug.lower(), key, exp, sig):
+        raise HTTPException(status_code=403, detail="This image link is invalid or has expired.")
+    asset = (
+        db.query(CourseAsset).join(ToolCourse, ToolCourse.id == CourseAsset.tool_course_id)
+        .filter(ToolCourse.slug == slug.lower(), CourseAsset.key == key).first()
+    )
+    if asset is None:
+        raise HTTPException(status_code=404, detail="Image not found")
+    etag = f'"{asset.sha256}"'
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=304, headers={"ETag": etag})
+    response = get_asset_store().response(asset.storage_key, mime_type=asset.mime_type, etag=asset.sha256)
+    if response is None:
+        raise HTTPException(status_code=404, detail="Image not found")
+    return response

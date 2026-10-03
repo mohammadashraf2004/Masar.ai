@@ -1,4 +1,5 @@
 import type { UiLanguage } from '@/lib/language'
+import type { LessonBlock } from '@/types'
 
 /**
  * Choosing which language version of a piece of content to show.
@@ -83,4 +84,25 @@ export function localizedDescription(row: Described, language: UiLanguage): stri
 
 export function localizedContent(row: Contented, language: UiLanguage): LocalizedText {
   return pickText(row.content, row.content_ar, language)
+}
+
+interface Blocked extends Contented {
+  blocks?: LessonBlock[] | null
+  blocks_ar?: LessonBlock[] | null
+}
+
+export interface LocalizedBody extends LocalizedText {
+  /** The body as ordered blocks in the language shown, or null when it places no figure. */
+  blocks: LessonBlock[] | null
+}
+
+/**
+ * A lesson's body in the reader's language: the text (as `localizedContent`)
+ * plus its blocks. The blocks always belong to the language actually shown, so
+ * an Arabic reader of an English-only lesson gets the English blocks, not none.
+ */
+export function localizedBody(row: Blocked, language: UiLanguage): LocalizedBody {
+  const text = pickText(row.content, row.content_ar, language)
+  const blocks = text.shownIn === 'ar' ? row.blocks_ar : row.blocks
+  return { ...text, blocks: blocks && blocks.length > 0 ? blocks : null }
 }

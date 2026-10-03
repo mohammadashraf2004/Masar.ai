@@ -23,6 +23,7 @@ from app.core.metrics import (
     route_template,
 )
 from app.controllers import auth_controller, tracks_controller, mentor_controller, exam_controller, community_controller, profile_controller
+from app.controllers import mentor_v2_controller
 from app.controllers.wallet_controller import router as wallet_router
 from app.controllers.challenge_controller import router as challenge_router
 from app.controllers.exam_payment_controller import router as exam_payment_router
@@ -209,6 +210,7 @@ API_PREFIX = "/api/v1"
 app.include_router(auth_controller.router,        prefix=API_PREFIX)
 app.include_router(tracks_controller.router,      prefix=API_PREFIX)
 app.include_router(mentor_controller.router,      prefix=API_PREFIX)
+app.include_router(mentor_v2_controller.router,   prefix=API_PREFIX)
 app.include_router(community_controller.router,   prefix=API_PREFIX)
 app.include_router(exam_controller.router,        prefix=API_PREFIX)
 app.include_router(profile_controller.router,     prefix=f"{API_PREFIX}/profile",       tags=["Profile"])

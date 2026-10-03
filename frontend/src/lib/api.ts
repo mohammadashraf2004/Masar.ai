@@ -13,6 +13,9 @@ import type {
   ProjectHint,
 } from '@/types'
 import { useAuthStore } from '@/lib/store'
+import type {
+  MentorV2MessageRequest, MentorV2Reply, MentorV2QuizAnswerRequest, MentorV2QuizAnswer,
+} from '@/lib/mentor-v2-live' // [mentor-v2]
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
@@ -354,6 +357,23 @@ class ApiClient {
     const res = await this.http.get<{ readiness_score: number; skills: SkillScore[] }>('/mentor/skill-scores')
     return res.data
   }
+
+  // ─── [mentor-v2] live endpoints — gated per endpoint by
+  //     isMentorV2Live('message' | 'quiz'); callers fall back to the mock.
+
+  /** 402 `insufficient_credits` like /mentor/chat; 503 means the reply
+   *  failed and the credits were already refunded. */
+  async mentorMessage(req: MentorV2MessageRequest) {
+    const res = await this.http.post<MentorV2Reply>('/mentor/message', req)
+    return res.data
+  }
+
+  /** Graded on the server; the response never carries the correct option. */
+  async mentorQuizAnswer(req: MentorV2QuizAnswerRequest) {
+    const res = await this.http.post<MentorV2QuizAnswer>('/mentor/quiz/answer', req)
+    return res.data
+  }
+  // ─── [/mentor-v2]
 
   // ─── Exams ────────────────────────────────────────────────────────────
 

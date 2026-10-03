@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Float, JSON, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Float, JSON, ForeignKey, Enum, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -112,6 +112,34 @@ class MentorSession(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     user = relationship("User", back_populates="mentor_sessions")
+
+
+class MentorQuizAnswer(Base):
+    """One answer to one mentor quiz question — the evidence log behind
+    learner skill state, and the "recent mistakes" store /mentor/message
+    reads from.
+
+    Deliberately not a QuizAttempt: that row is a whole-quiz submission and
+    feeds pass counts on the scorecard, so a single in-chat question logged
+    there would inflate `quizzes_passed`. Grading still reads the authored
+    key on Quiz.questions; nothing here is ever returned with it.
+    """
+    __tablename__ = "mentor_quiz_answers"
+    # The skill-state read: "this learner's last N answers on this skill".
+    __table_args__ = (Index("ix_mentor_quiz_answers_user_skill", "user_id", "skill_name", "created_at"),)
+
+    id             = Column(Integer, primary_key=True, index=True)
+    user_id        = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    quiz_id        = Column(Integer, ForeignKey("quizzes.id"), nullable=False)
+    question_index = Column(Integer, nullable=False)
+    lesson_id      = Column(Integer, ForeignKey("lessons.id"), nullable=True)
+    skill_name     = Column(String, nullable=False)
+    chosen_index   = Column(Integer, nullable=False)
+    is_correct     = Column(Boolean, nullable=False)
+    # Snapshot of the question stem in the language the learner read it, so
+    # a later reply can name the mistake without re-reading the quiz.
+    question_text  = Column(Text, nullable=True)
+    created_at     = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
 class UserSkillScore(Base):

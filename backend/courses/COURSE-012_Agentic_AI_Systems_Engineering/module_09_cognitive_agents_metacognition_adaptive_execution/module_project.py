@@ -1,3 +1,0 @@
-"""Module project seed for M012-09."""
-MODULE_ID = 'M012-09'
-PROJECT = {'title': 'Build an Adaptive Cognitive Troubleshooting Agent', 'summary': 'Build a cognitive workspace with task classification, strategy selection, evaluation-driven routing, memory, confidence gates, and graceful uncertainty.', 'deliverables': ['Typed cognitive workspace', 'Task classification and complexity estimate', 'Multiple strategy types', 'Memory retrieval before planning', 'Evidence metadata', 'Deterministic attention routing', 'Confidence tracking', 'Contradiction and stagnation detection', 'Strategy pivoting', 'Knowledge-boundary detection', 'Baseline comparison']}

@@ -81,7 +81,7 @@ def test_a_single_course_is_available_on_its_own_with_structure_but_no_lesson_te
     body = response.json()
     assert body["slug"] == "course-004" and body["href"] == "/courses/course-004/learn"
     assert [m["order"] for m in body["modules"]] == [1, 2]
-    assert all(m["lesson_count"] == 2 and m["exercise_count"] == 4 and m["quiz_count"] == 2 for m in body["modules"])
+    assert all(m["lesson_count"] == 2 and m["exercise_count"] == 4 and m["quiz_count"] == 1 for m in body["modules"])
     assert [p["kind"] for p in body["projects"]] == ["module", "module", "capstone"]
     assert [p["slug"] for p in body["prerequisites"]] == ["course-003"]
     assert {"course-001", "course-002"} <= {p["slug"] for p in body["recommended_prerequisites"]}

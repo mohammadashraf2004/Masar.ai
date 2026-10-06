@@ -1,2 +1,0 @@
-MODULE = {'id': 'M004-01', 'title': 'Transformer NLP Workflow & Hugging Face Ecosystem', 'role': 'CORE', 'chapter': 1, 'page_start': 20, 'project': 'Transformer Task Explorer', 'lessons': 4, 'guided_minutes': 140, 'guided_time': '2h20m'}
-LESSON_FILES = ['L004_001_transformer-foundations-revision-and-applied-nlp-bridge', 'L004_002_rapid-nlp-prototyping-with-transformers-pipelines', 'L004_003_navigating-the-hugging-face-ecosystem', 'L004_004_transformer-application-constraints-and-failure-modes']

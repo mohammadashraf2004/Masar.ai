@@ -1,0 +1,6 @@
+{
+  "course_id": "COURSE-015",
+  "module_id": "M015-03",
+  "title": "Project 3 — Gemini Live Voice Agent",
+  "brief": "Implement direct and framework-managed Gemini Live integrations and compare architecture, tool/state behavior, events, portability, and failure handling."
+}

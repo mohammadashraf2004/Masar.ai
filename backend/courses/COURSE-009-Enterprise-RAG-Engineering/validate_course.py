@@ -56,8 +56,9 @@ def main():
     }
     assert module_counts == expected_counts, module_counts
 
-    visuals = json.loads((ROOT / "assets" / "visual_assets_manifest.json").read_text(encoding="utf-8"))
-    assert len(visuals) == EXPECTED_VISUALS
+    asset_manifest = json.loads((ROOT / "assets_manifest.json").read_text(encoding="utf-8"))
+    assert asset_manifest["version"] == 1
+    assert len(asset_manifest["assets"]) == EXPECTED_VISUALS
 
     for extra in ["course_data_loader.py", "seed_course_009.py", "course_manifest.py"]:
         compile((ROOT / extra).read_text(encoding="utf-8"), extra, "exec")

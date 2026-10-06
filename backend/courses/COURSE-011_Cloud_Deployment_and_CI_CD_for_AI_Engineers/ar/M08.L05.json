@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "lesson_id": "M08.L05",
+  "source_hash": "67a4525b5135e01b744aca44f23cbcab329fa608d978da963f71759952d1816c",
+  "title": "نشر تطبيقات أكثر متانة: Jenkins وFlask وStreamlit",
+  "exercises": [
+    {
+      "id": "COURSE-011.M08.L05.EX01",
+      "title": "استدلّ حول استمرارية Jenkins وأذوناته",
+      "description": "اشرح لماذا يجب أن تتوافق الحالة الدائمة وهويات Linux.\n\n**المخرَج المتوقع**\n\nمخطط وشرح للأذونات/الاستمرارية."
+    },
+    {
+      "id": "COURSE-011.M08.L05.EX02",
+      "title": "أعد بناء مسار تدريب النموذج",
+      "description": "اربط توليد dataset والتقسيم والملاءمة والتقييم والاستمرارية.\n\n**المخرَج المتوقع**\n\nمخطط مسار ML كامل بالإعدادات الخاصة بالمصدر."
+    },
+    {
+      "id": "COURSE-011.M08.L05.EX03",
+      "title": "تتبّع طلب تنبؤ مصادَقًا",
+      "description": "اتبع طلب HTTPS POST واحدًا عبر النظام المنشور.\n\n**المخرَج المتوقع**\n\nتسلسل طلب تنبؤ من البداية إلى النهاية."
+    }
+  ],
+  "questions": [
+    {
+      "question": "لماذا يُركَّب Jenkins home على المضيف؟",
+      "options": [
+        "لتغيير DNS",
+        "للحفاظ على حالة Jenkins عبر إعادة إنشاء الحاوية",
+        "لإنشاء Elastic IP",
+        "لتدريب النموذج"
+      ],
+      "explanation": "يستخدم المصدر وحدة التخزين صراحةً كي تبقى بيانات Jenkins بعد إيقاف/إعادة تشغيل الحاوية."
+    },
+    {
+      "question": "أي منفذ Jenkins داخلي يمرّر إليه Nginx؟",
+      "options": [
+        "80",
+        "443",
+        "8080",
+        "8504"
+      ],
+      "explanation": "يمرّر المصدر إلى `jenkins:8080`."
+    },
+    {
+      "question": "من أين يسترجع المصدر كلمة مرور Jenkins الأولية؟",
+      "options": [
+        "GitHub",
+        "ملف أسرار في Jenkins home",
+        "IAM",
+        "DNS"
+      ],
+      "explanation": "تُقرأ من `secrets/initialAdminPassword` تحت Jenkins home."
+    },
+    {
+      "question": "ماذا يوفر `systemctl enable docker`؟",
+      "options": [
+        "تسلسل النموذج (serialization)",
+        "بدء Docker عند الإقلاع",
+        "التحقق من SSL",
+        "مصادقة Git"
+      ],
+      "explanation": "يضبط Docker على البدء بعد إعادة تشغيل EC2."
+    },
+    {
+      "question": "أي تقسيم تدريب/اختبار يستخدمه المصدر؟",
+      "options": [
+        "50/50",
+        "60/40",
+        "80/20",
+        "90/10"
+      ],
+      "explanation": "يستخدم المصدر `test_size=0.2`."
+    },
+    {
+      "question": "لماذا يُستخدم pickle في المصدر؟",
+      "options": [
+        "لتخزين DNS",
+        "لحفظ النموذج المدرَّب وإعادة تحميله",
+        "لتشفير حركة Nginx",
+        "لإنشاء المستخدمين"
+      ],
+      "explanation": "يحفظ Pickle كائن Random Forest المُلائَم."
+    },
+    {
+      "question": "أي نقطة نهاية تستقبل حمولات التنبؤ؟",
+      "options": [
+        "/",
+        "/predict",
+        "/jenkins",
+        "/metrics"
+      ],
+      "explanation": "يرسل المصدر طلبات POST إلى `/predict`."
+    },
+    {
+      "question": "أي حالة تعني Unauthorized (غير مصرَّح) في جدول المصدر؟",
+      "options": [
+        "200",
+        "400",
+        "401",
+        "500"
+      ],
+      "explanation": "تعني 401 أن المصادقة مفقودة أو غير صالحة."
+    },
+    {
+      "question": "أي منفذ مصدر خارجي يقابل Flask قبل الانتقال إلى النطاقات الفرعية؟",
+      "options": [
+        "8501",
+        "8502",
+        "8504",
+        "8080"
+      ],
+      "explanation": "يكشف المصدر Flask عبر 8502."
+    },
+    {
+      "question": "اشرح معمارية الفصل 5 كاملةً، بما فيها استمرارية Jenkins وتدريب النموذج/استمراريته ومصادقة Flask وتوجيه Nginx.",
+      "options": [],
+      "explanation": ""
+    }
+  ]
+}

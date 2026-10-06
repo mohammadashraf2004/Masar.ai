@@ -261,7 +261,12 @@ def _recompute_course_progress(db: Session, user_id: int, tool_course_id: int) -
     topics that have at least one recorded UserProgress row with a
     non-empty lessons_completed list. Simple and cheap; matches the
     granularity actually shown in the UI (topic-level progress cards)."""
-    topic_ids = [t.id for t in db.query(ToolTopic.id).filter(ToolTopic.tool_course_id == tool_course_id).all()]
+    topic_ids = [
+        t.id for t in db.query(ToolTopic.id).filter(
+            ToolTopic.tool_course_id == tool_course_id,
+            ToolTopic.completion_required.is_(True),
+        ).all()
+    ]
     if not topic_ids:
         return
     done = (

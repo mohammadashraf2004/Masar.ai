@@ -1,51 +1,146 @@
 {
   "course_id": "COURSE-013",
-  "course_title": "Applied Data Analysis with Python",
-  "version": "1.0",
-  "status": "Curriculum design finalized",
-  "approval_status": "ready_for_content_authoring",
   "source_id": "BOOK-013",
   "source_book_title": "SOURCE INFORMATION MISSING",
   "source_edition": "SOURCE INFORMATION MISSING",
-  "primary_track": "Data Analyst",
+  "learning_loop": "Learn → Explore → Clean → Analyze → Visualize → Model → Communicate",
+  "approval_status": "ready_for_content_authoring",
+  "course_title": "Applied Data Analysis with Python",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
+  "modules": 15,
+  "lessons": 15,
+  "guided_minutes": 7110,
+  "professional_capability": "Load, clean, analyze, visualize, model, and communicate findings from real datasets.",
+  "prerequisites": {
+    "required": []
+  },
   "track_roles": {
     "Data Analyst": "Core",
     "ML Engineer": "Supporting",
-    "AI Developer": "Supporting",
-    "MLOps Engineer": "Optional",
+    "AI Developer": "Not applicable",
+    "MLOps Engineer": "Supporting",
     "AI Engineer": "Supporting"
   },
-  "professional_capability": "Load, inspect, clean, transform, analyze, visualize, model, and scale real-world datasets using the modern Python data ecosystem, while communicating analytical findings through reproducible workflows, visualizations, dashboards, and end-to-end analytical projects.",
-  "learning_loop": "Learn → Explore → Clean → Analyze → Visualize → Model → Communicate",
-  "modules": 10,
-  "lessons": 88,
-  "guided_minutes": 4255,
-  "guided_time": "70h 55m",
-  "ids_frozen": true,
-  "chapters_processed": [
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12
-  ],
-  "intentional_source_exclusions": {
-    "13": "Analyzing Text Data — excluded from COURSE-013 to avoid duplication with Applied NLP / transformer curriculum.",
-    "14": "Analyzing Image Data — excluded from COURSE-013 to avoid duplication with Applied Deep Learning and multimodal/vision curricula.",
-    "15": "LLMs and Gen AI — excluded from COURSE-013 to avoid duplication with Applied LLM Engineering / advanced LLM systems curricula.",
-    "16": "Parallel Computing Using Dask, Modin, and Ray — excluded from core Data Analyst course; better placed in scaling/production specialization.",
-    "17": "Big Data Analytics using PySpark — excluded from core Data Analyst course; better placed in big-data / data-engineering specialization."
-  },
-  "course_project": {
-    "title": "End-to-End Real-World Data Analysis Capstone",
-    "estimated_minutes": 480,
-    "included_in_guided_minutes": false
-  }
+  "module_inventory": [
+    {
+      "id": "M013-01",
+      "title": "Foundations of Data Analysis with Python",
+      "lessons": 1,
+      "lesson_ids": [
+        "M01.L01"
+      ]
+    },
+    {
+      "id": "M013-02",
+      "title": "NumPy and Pandas Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M02.L01"
+      ]
+    },
+    {
+      "id": "M013-03",
+      "title": "Statistical Foundations for Data Analysis",
+      "lessons": 1,
+      "lesson_ids": [
+        "M03.L01"
+      ]
+    },
+    {
+      "id": "M013-04",
+      "title": "Linear Algebra, Probability, and Numerical Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M04.L01"
+      ]
+    },
+    {
+      "id": "M013-05",
+      "title": "Data Visualization and Interactive Dashboards",
+      "lessons": 1,
+      "lesson_ids": [
+        "M05.L01"
+      ]
+    },
+    {
+      "id": "M013-06",
+      "title": "Data Access, Storage, Databases, Cloud, and APIs",
+      "lessons": 1,
+      "lesson_ids": [
+        "M06.L01"
+      ]
+    },
+    {
+      "id": "M013-07",
+      "title": "Data Cleaning and Feature Engineering",
+      "lessons": 1,
+      "lesson_ids": [
+        "M07.L01"
+      ]
+    },
+    {
+      "id": "M013-08",
+      "title": "Time-Series Analysis and Forecasting",
+      "lessons": 1,
+      "lesson_ids": [
+        "M08.L01"
+      ]
+    },
+    {
+      "id": "M013-09",
+      "title": "Supervised Learning, Model Evaluation, and Validation",
+      "lessons": 1,
+      "lesson_ids": [
+        "M09.L01"
+      ]
+    },
+    {
+      "id": "M013-10",
+      "title": "Unsupervised Learning and Hidden-Structure Discovery",
+      "lessons": 1,
+      "lesson_ids": [
+        "M10.L01"
+      ]
+    },
+    {
+      "id": "M013-11",
+      "title": "Ensemble Learning for Stronger Predictive Models",
+      "lessons": 1,
+      "lesson_ids": [
+        "M11.L01"
+      ]
+    },
+    {
+      "id": "M013-12",
+      "title": "Neural Networks and Deep Learning Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M12.L01"
+      ]
+    },
+    {
+      "id": "M013-13",
+      "title": "Natural Language Processing and Text Classification",
+      "lessons": 1,
+      "lesson_ids": [
+        "M13.L01"
+      ]
+    },
+    {
+      "id": "M013-14",
+      "title": "Image Processing, Enhancement, and Feature Detection",
+      "lessons": 1,
+      "lesson_ids": [
+        "M14.L01"
+      ]
+    },
+    {
+      "id": "M013-15",
+      "title": "Transformers, LLM Adaptation, Retrieval, and Responsible Generative AI",
+      "lessons": 1,
+      "lesson_ids": [
+        "M15.L01"
+      ]
+    }
+  ]
 }

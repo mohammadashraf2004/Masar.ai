@@ -12,6 +12,7 @@ everything that is wrong.
   declared module / lesson counts match what was loaded
   no lesson without a title or (where bodies exist) a body
   every figure a lesson places exists      the asset manifest is sound
+  no empty `<a id="...">` extraction anchor left in a lesson body
   every track mapping refers to a real career goal and a real course
 
 `warnings()` lists what is worth knowing but is not wrong (a course that states
@@ -21,7 +22,7 @@ from __future__ import annotations
 
 from typing import Iterable, List, Mapping, Sequence
 
-from app.services.content.lesson_blocks import figure_keys, malformed_markers
+from app.services.content.lesson_blocks import empty_anchors, figure_keys, malformed_markers
 from app.services.curriculum.spec import CourseSpec, CurriculumError
 
 
@@ -46,13 +47,21 @@ def problems_in_course(course: CourseSpec) -> List[str]:
         out.append(f"{cid}: duplicate module ids: {', '.join(dupes)}")
     if dupes := _dupes(l.lesson_id for l in course.lessons):
         out.append(f"{cid}: duplicate lesson ids: {', '.join(dupes)}")
+    if dupes := _dupes(e.exercise_id for l in course.lessons for e in l.exercises):
+        out.append(f"{cid}: duplicate exercise ids: {', '.join(dupes)}")
+    quizzes = [m.quiz for m in course.modules if m.quiz is not None]
+    if dupes := _dupes(q.quiz_id for q in quizzes):
+        out.append(f"{cid}: duplicate module quiz ids: {', '.join(dupes)}")
+    if dupes := _dupes(q.question_id for quiz in quizzes for q in quiz.questions):
+        out.append(f"{cid}: duplicate quiz question ids: {', '.join(dupes)}")
 
     module_ids = {m.module_id for m in course.modules}
     for module in course.modules:
         if not module.title:
             out.append(f"{cid} {module.module_id}: module has no title")
-        if course.has_lesson_bodies and not module.lessons:
+        if course.has_lesson_bodies and not module.lessons and not module.is_capstone:
             out.append(f"{cid} {module.module_id}: module has no lessons")
+        valid_lesson_ids = {lesson.lesson_id for lesson in module.lessons} | set(module.declared_lesson_ids)
         for lesson in module.lessons:
             where = f"{cid} {lesson.lesson_id}"
             if lesson.module_id not in module_ids or lesson.module_id != module.module_id:
@@ -61,7 +70,32 @@ def problems_in_course(course: CourseSpec) -> List[str]:
                 out.append(f"{where}: lesson has no title ({lesson.source_file})")
             if course.has_lesson_bodies and not lesson.content:
                 out.append(f"{where}: lesson has no body ({lesson.source_file})")
-            for question in lesson.questions:
+            if lesson.questions:
+                out.append(f"{where}: retains a lesson-local quiz instead of the module quiz")
+            if lesson.project:
+                out.append(f"{where}: retains a lesson-local project instead of the module project")
+            for exercise in lesson.exercises:
+                if not exercise.exercise_id:
+                    out.append(f"{where}: exercise has no stable id")
+                if (exercise.course_id, exercise.module_id, exercise.lesson_id) != (cid, module.module_id, lesson.lesson_id):
+                    out.append(f"{where}: exercise {exercise.exercise_id or exercise.title!r} has invalid ownership")
+        if module.quiz:
+            if module.quiz.module_id != module.module_id:
+                out.append(f"{cid} {module.quiz.quiz_id}: quiz belongs to {module.quiz.module_id}, not {module.module_id}")
+            if not module.quiz.quiz_id:
+                out.append(f"{cid} {module.module_id}: module quiz has no id")
+            if not module.quiz.questions:
+                out.append(f"{cid} {module.quiz.quiz_id}: module quiz has no questions")
+            for question in module.quiz.questions:
+                where = f"{cid} {module.quiz.quiz_id} {question.question_id or '<missing question id>'}"
+                if not question.question_id:
+                    out.append(f"{where}: quiz question has no stable id")
+                refs = question.lesson_ids or ([question.lesson_id] if question.lesson_id else [])
+                if not refs:
+                    out.append(f"{where}: quiz question has no lesson reference")
+                invalid = sorted(set(refs) - valid_lesson_ids)
+                if invalid:
+                    out.append(f"{where}: references lessons outside the module: {', '.join(invalid)}")
                 if not question.is_open and (question.correct is None or not 0 <= question.correct < len(question.options)):
                     out.append(f"{where}: quiz answer index is outside the options")
 
@@ -72,6 +106,8 @@ def problems_in_course(course: CourseSpec) -> List[str]:
     if course.declared_lessons is not None and course.declared_lessons != loaded_lessons:
         out.append(f"{cid}: manifest declares {course.declared_lessons} lessons, {loaded_lessons} loaded")
     out += course.asset_problems
+    out += course.structure_problems
+    out += course.arabic_problems
     asset_keys = {a.key for a in course.assets}
     for lesson in course.lessons:
         where = f"{cid} {lesson.lesson_id}"
@@ -80,6 +116,8 @@ def problems_in_course(course: CourseSpec) -> List[str]:
         for key in dict.fromkeys(figure_keys(lesson.content)):
             if key not in asset_keys:
                 out.append(f"{where}: references figure '{key}' but no corresponding asset exists in {cid}'s assets_manifest.json")
+        out += [f"{where}: line {n}: empty extraction anchor {tag} - delete it, it is not learner-facing text "
+                f"({lesson.source_file})" for n, tag in empty_anchors(lesson.content)]
     out += [f"{cid}: manifest lists a file that does not exist: {f}" for f in course.missing_files]
     out += [f"{cid}: file is not listed by the course and was not imported: {f}" for f in course.unloaded_files]
     return out
@@ -92,6 +130,19 @@ def validate_courses(courses: Sequence[CourseSpec]) -> None:
         problems.append(f"duplicate course ids: {', '.join(dupes)}")
     if dupes := _dupes(c.slug for c in courses):
         problems.append(f"duplicate course slugs: {', '.join(dupes)}")
+    if dupes := _dupes(
+        exercise.exercise_id for course in courses for lesson in course.lessons for exercise in lesson.exercises
+    ):
+        problems.append(f"duplicate exercise ids across courses: {', '.join(dupes)}")
+    if dupes := _dupes(
+        module.quiz.quiz_id for course in courses for module in course.modules if module.quiz
+    ):
+        problems.append(f"duplicate module quiz ids across courses: {', '.join(dupes)}")
+    if dupes := _dupes(
+        question.question_id for course in courses for module in course.modules if module.quiz
+        for question in module.quiz.questions
+    ):
+        problems.append(f"duplicate quiz question ids across courses: {', '.join(dupes)}")
     for course in courses:
         problems += problems_in_course(course)
     if problems:
@@ -104,6 +155,7 @@ def validate_registry(
     *,
     goals: Iterable[str],
     stage_courses: Mapping[str, Sequence[str]],
+    known_course_slugs: Iterable[str] | None = None,
 ) -> None:
     """The registry (`seeds/curriculum.py`) says where each course sits. Every
     course folder needs an entry, every entry needs a folder, and nothing the
@@ -117,7 +169,11 @@ def validate_registry(
     for cid in sorted(registry_ids - folder_ids):
         problems.append(f"{cid}: is in the curriculum registry but has no course folder")
 
-    slugs = {str(r["slug"]) for r in registry}
+    # A scoped ``--course`` import validates only the selected folder/registry
+    # entry, but its prerequisites may legitimately live in the rest of the
+    # catalogue. Keep coverage checks scoped while resolving relationships
+    # against the complete registry supplied by the caller.
+    slugs = set(known_course_slugs) if known_course_slugs is not None else {str(r["slug"]) for r in registry}
     for r in registry:
         cid = r["course_id"]
         for prerequisite in r["prerequisites"]:
@@ -161,7 +217,8 @@ def warnings(courses: Sequence[CourseSpec]) -> List[str]:
         if unused:
             notes.append(f"{course.course_id}: unused asset{'s' if len(unused) != 1 else ''} (no lesson places "
                          f"{'them' if len(unused) != 1 else 'it'}): {', '.join(unused)}")
-        no_quiz = [l.lesson_id for l in course.lessons if not l.questions]
+        notes += course.arabic_warnings
+        no_quiz = [m.module_id for m in course.modules if m.quiz is None]
         if no_quiz:
-            notes.append(f"{course.course_id}: {len(no_quiz)} lessons have no quiz questions")
+            notes.append(f"{course.course_id}: {len(no_quiz)} modules have no quiz")
     return notes

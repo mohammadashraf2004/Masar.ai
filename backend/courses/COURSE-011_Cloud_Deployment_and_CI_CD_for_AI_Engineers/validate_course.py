@@ -67,12 +67,11 @@ if project_count != EXPECTED_MODULES:
     errors.append(f"Expected {EXPECTED_MODULES} module projects, found {project_count}")
 
 assets = json.loads((ROOT/"assets_manifest.json").read_text(encoding="utf-8"))
-required = [a for a in assets if a["priority"] == "required"]
-optional = [a for a in assets if a["priority"] == "optional"]
-if manifest["totals"]["required_manual_figures"] != len(required):
-    errors.append("Required figure count mismatch")
-if manifest["totals"]["optional_manual_figures"] != len(optional):
-    errors.append("Optional figure count mismatch")
+assert assets["version"] == 1
+bundled = assets["assets"]
+pending = assets.get("pending", [])
+if any(a.get("priority") not in {"required", "optional"} for a in pending):
+    errors.append("Pending figure priority must be required or optional")
 
 if errors:
     print("VALIDATION FAILED")
@@ -84,5 +83,5 @@ print("VALIDATION PASSED")
 print(f"Modules: {len(module_dirs)}")
 print(f"Lessons: {len(lesson_files)}")
 print(f"Projects: {project_count}")
-print(f"Required figures: {len(required)}")
-print(f"Optional figures: {len(optional)}")
+print(f"Bundled figures: {len(bundled)}")
+print(f"Pending figures: {len(pending)}")

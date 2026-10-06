@@ -1,0 +1,6 @@
+{
+  "course_id": "COURSE-015",
+  "module_id": "M015-04",
+  "title": "Project 4 — OpenAI Realtime Voice Agent",
+  "brief": "Build WebRTC and/or server WebSocket realtime paths with VAD, interruption, tools, and correct conversation/playback state."
+}

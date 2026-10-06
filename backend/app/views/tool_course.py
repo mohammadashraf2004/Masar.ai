@@ -21,6 +21,8 @@ class ToolTopicResponse(BaseModel):
     skill_tags: List[str]
     technical_terms: List[str] = []
     prerequisite_ids: List[int]
+    completion_required: bool = True
+    is_optional: bool = False
     lessons: List[LessonResponse] = []
     exercises: List[ExerciseResponse] = []
     quizzes: List[QuizResponse] = []

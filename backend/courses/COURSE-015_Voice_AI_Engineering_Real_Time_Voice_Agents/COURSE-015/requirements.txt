@@ -1,0 +1,2 @@
+# Course seed package has no mandatory third-party runtime dependency.
+# Provider-specific lesson labs should pin current tested SDK versions separately.

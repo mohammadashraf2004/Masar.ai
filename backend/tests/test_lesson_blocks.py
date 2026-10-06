@@ -2,7 +2,7 @@
 import pytest
 
 from app.services.content.lesson_blocks import (
-    FigureBlock, TextBlock, figure_keys, has_figures, is_valid_key, malformed_markers, split_lesson,
+    FigureBlock, TextBlock, empty_anchors, figure_keys, has_figures, is_valid_key, malformed_markers, split_lesson,
 )
 
 BODY = """# LoRA
@@ -86,6 +86,40 @@ def test_anything_that_looks_like_a_marker_but_is_not_valid_is_reported(line):
 
 def test_a_valid_marker_is_not_reported_as_malformed():
     assert malformed_markers(BODY) == []
+
+
+@pytest.mark.parametrize("anchor", [
+    '<a id="dispersion"></a>',
+    "<a id='dispersion'></a>",
+    '<a id="dispersion" ></a>',
+    '<a  id="dispersion"></a>',
+    '<a id="dispersion">\n</a>',
+    '<a name="dispersion"></a>',
+    '<A ID="dispersion"></A>',
+    '&lt;a id="dispersion"&gt;&lt;/a&gt;',
+])
+def test_an_empty_extraction_anchor_is_reported_with_its_line(anchor):
+    found = empty_anchors(f"# Title\n\n{anchor}\n## Dispersion\n\nText.")
+    assert [line for line, _ in found] == [3]
+
+
+@pytest.mark.parametrize("text", [
+    '<a href="https://example.com">Documentation</a>',
+    '<a href="#dispersion">Jump to Dispersion</a>',
+    '<a id="dispersion">Dispersion</a>',
+    '<h2 id="dispersion">Dispersion</h2>',
+    '<div id="example"></div>',
+    '`<a id="dispersion"></a>` is how the old export marked a section.',
+    '```html\n<a id="dispersion"></a>\n```',
+    '~~~\n<a id="dispersion"></a>\n~~~',
+])
+def test_links_other_ids_and_anchors_shown_as_code_are_not_reported(text):
+    assert empty_anchors(f"Intro\n\n{text}\n\nMore") == []
+
+
+def test_several_anchors_report_each_line_in_order():
+    body = '<a id="a"></a>\n## A\n\ntext\n\n<a id="b"></a>\n## B\n'
+    assert [(n, tag) for n, tag in empty_anchors(body)] == [(1, '<a id="a"></a>'), (6, '<a id="b"></a>')]
 
 
 @pytest.mark.parametrize("key,ok", [

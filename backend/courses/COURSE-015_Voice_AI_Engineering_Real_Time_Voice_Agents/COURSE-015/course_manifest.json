@@ -1,0 +1,59 @@
+{
+  "course_id": "COURSE-015",
+  "source_id": "BOOK-015",
+  "book_title": "Building Live Voice Agents",
+  "primary_language": "Arabic",
+  "technical_terminology": "English",
+  "primary_programming_language": "Python",
+  "learning_loop": "Learn → Visualize → Implement → Build → Debug → Evaluate → Operate",
+  "source_review_status": "Complete",
+  "level": "Advanced",
+  "difficulty": "Intermediate-Advanced → Production",
+  "course_title": "Voice AI Engineering: Real-Time Voice Agents",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
+  "modules": 1,
+  "lessons": 13,
+  "guided_minutes": 4440,
+  "professional_capability": "Design, build, and operate real-time, multilingual voice AI agents with turn detection, barge-in, and production-grade reliability.",
+  "prerequisites": {
+    "required": [
+      "COURSE-005 — Applied LLM Engineering"
+    ],
+    "strongly_recommended": [
+      "COURSE-010 — AI Service Engineering with FastAPI"
+    ],
+    "supporting": [
+      "COURSE-007 — AI Agents with MCP",
+      "COURSE-012 — AI Agents Foundations"
+    ]
+  },
+  "track_roles": {
+    "Data Analyst": "Not applicable",
+    "ML Engineer": "Not applicable",
+    "AI Developer": "Optional",
+    "MLOps Engineer": "Not applicable",
+    "AI Engineer": "Optional"
+  },
+  "module_inventory": [
+    {
+      "id": "M015-01",
+      "title": "Agent Foundations & Multimodal Intelligence",
+      "lessons": 13,
+      "lesson_ids": [
+        "M01.L01",
+        "M01.L02",
+        "M01.L03",
+        "M01.L04",
+        "M01.L05",
+        "M01.L06",
+        "M01.L07",
+        "M01.L08",
+        "M01.L09",
+        "M01.L10",
+        "M01.L11",
+        "M01.L12",
+        "M01.L13"
+      ]
+    }
+  ]
+}

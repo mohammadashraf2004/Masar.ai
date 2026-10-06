@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-10",
+  "title": "Responsible Production ML Review",
+  "brief": "Audit users, stakeholders, human review, ownership, bias surfaces, privacy, critical slices, limitations, mitigations, and produce a model card.",
+  "optional": false,
+  "completion_required": true
+}

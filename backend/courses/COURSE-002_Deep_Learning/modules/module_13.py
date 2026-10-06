@@ -1,0 +1,1962 @@
+"""M16.L01 — Text Generation and Modern Large Language Models.
+
+One Topic -> one complete learner-facing Lesson + inline Exercises + lesson Quiz.
+BOOK-002, Chapter 16, pages not provided in the supplied extract.
+Instructor-authored curriculum adaptation.
+"""
+
+from app.models.learning import DifficultyLevel
+
+
+# ---------------------------------------------------------------------------
+# Lesson metadata
+# ---------------------------------------------------------------------------
+
+LESSON_CODE = "M16.L01"
+
+MODULE_ORDER = 16
+
+MODULE_TITLE = "Text Generation and Modern LLMs"
+
+MODULE_DESCRIPTION = (
+    "Learn the full modern language-model workflow: decoder-only Transformer "
+    "pretraining, efficient generation and sampling, pretrained LLM use, "
+    "instruction tuning, LoRA, RLHF, multimodality, RAG, and reasoning-oriented training."
+)
+
+SOURCE_CHAPTER = 16
+
+SOURCE_PAGES = "Not provided in supplied chapter extract"
+
+
+# ---------------------------------------------------------------------------
+# Topic
+# ---------------------------------------------------------------------------
+
+TOPIC = {
+    "title": "Text Generation and Modern Large Language Models",
+
+    "slug": "deep-learning-foundations-m16-l01",
+
+    "description": (
+        "Understand how modern LLMs are pretrained, decoded, adapted, aligned, "
+        "extended with retrieval and multimodal inputs, and deployed under real "
+        "memory, compute, data, and reliability constraints."
+    ),
+
+    "order": 1,
+
+    "difficulty": DifficultyLevel.beginner,
+
+    "estimated_hours": 4.0,
+
+    "skill_tags": [
+        "llm",
+        "gpt",
+        "causal-language-modeling",
+        "text-generation",
+        "sampling",
+        "kv-cache",
+        "instruction-tuning",
+        "lora",
+        "rlhf",
+        "multimodal",
+        "rag",
+        "foundation-models",
+        "module-16",
+    ],
+
+    "prerequisite_ids": ["M15.L01"],
+
+
+    # =======================================================================
+    # LESSON
+    # =======================================================================
+
+    "lesson": {
+        "title": "Text Generation and Modern Large Language Models",
+
+        "content": (
+            '# Text Generation and Modern Large Language Models\n'
+            '\n'
+            '> **Course:** Deep Learning Foundations  \n'
+            '> **Lesson:** M16.L01  \n'
+            '> **Module:** Text Generation and Modern LLMs  \n'
+            '> **Source alignment:** BOOK-002, Chapter 16. The supplied chapter extract does not include page numbers. This lesson is an instructor-authored curriculum adaptation rather than a reproduction of the source text.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## Learning outcomes\n'
+            '\n'
+            'By the end of this lesson, you should be able to:\n'
+            '\n'
+            '- Explain how GPT combines next-token prediction with a decoder-only Transformer.\n'
+            '- Describe how large text corpora are tokenized and converted into next-token training windows.\n'
+            '- Explain causal self-attention, positional embeddings, tied input/output embeddings, logits, and learning-rate warmup.\n'
+            '- Describe autoregressive decoding and why naive generation can be inefficient.\n'
+            '- Explain why key-value caching matters for fast Transformer generation.\n'
+            '- Compare greedy, random, temperature-controlled, and top-K sampling.\n'
+            '- Explain why a pretrained causal language model behaves like a continuation model before instruction tuning.\n'
+            '- Describe instruction fine-tuning using prompt-response pairs.\n'
+            '- Explain LoRA and why it dramatically reduces trainable parameters and optimizer memory.\n'
+            '- Explain the high-level RLHF workflow.\n'
+            '- Describe how image representations can be inserted into a language-model sequence as soft tokens.\n'
+            "- Explain foundation models, retrieval-augmented generation, and the chapter's treatment of reasoning-oriented training.\n"
+            '- Discuss the practical scaling tradeoffs of LLM size, training data, inference cost, and data availability.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 1. From sequence generation to GPT\n'
+            '\n'
+            'Generative modeling became a central deep-learning application gradually.\n'
+            '\n'
+            'Early sequence generation used recurrent neural networks such as LSTMs for:\n'
+            '\n'
+            '```text\n'
+            'music\n'
+            'handwriting\n'
+            'text\n'
+            '```\n'
+            '\n'
+            'The important shift came when three ideas were combined:\n'
+            '\n'
+            '```text\n'
+            'next-token language modeling\n'
+            '+\n'
+            'Transformer architecture\n'
+            '+\n'
+            'large-scale unlabeled text\n'
+            '```\n'
+            '\n'
+            'This combination produced the GPT family:\n'
+            '\n'
+            '```text\n'
+            'GPT = Generative Pretrained Transformer\n'
+            '```\n'
+            '\n'
+            '### What "generative pretrained Transformer" means\n'
+            '\n'
+            '**Generative**\n'
+            '\n'
+            'The model predicts text one token at a time and can therefore generate sequences.\n'
+            '\n'
+            '**Pretrained**\n'
+            '\n'
+            'Before being adapted to a particular downstream problem, the model is trained broadly on a large text corpus.\n'
+            '\n'
+            '**Transformer**\n'
+            '\n'
+            'The neural-network backbone uses attention-based Transformer blocks instead of recurrent layers.\n'
+            '\n'
+            '### Scaling the recipe\n'
+            '\n'
+            'The chapter uses GPT-1, GPT-2, and GPT-3 to illustrate a simple historical pattern:\n'
+            '\n'
+            '```text\n'
+            'more parameters\n'
+            '+\n'
+            'more training data\n'
+            '+\n'
+            'more compute\n'
+            '        ↓\n'
+            'much stronger generative behavior\n'
+            '```\n'
+            '\n'
+            'The architectural changes were relatively modest compared with the scale changes.\n'
+            '\n'
+            'The important lesson is not to memorize every parameter count.\n'
+            '\n'
+            'It is to understand that the same basic next-token training objective became far more capable when trained at much larger scale.\n'
+            '\n'
+            '### Few-shot and instruction-like prompting\n'
+            '\n'
+            'As language models became larger, they increasingly became capable of performing tasks directly from text prompts.\n'
+            '\n'
+            'A prompt could include several examples:\n'
+            '\n'
+            '```text\n'
+            'English -> French\n'
+            '\n'
+            'sea otter -> ...\n'
+            'peppermint -> ...\n'
+            'cheese -> ?\n'
+            '```\n'
+            '\n'
+            'This is an example of **few-shot prompting**.\n'
+            '\n'
+            'At still larger scale, a natural-language description of the task could sometimes be enough.\n'
+            '\n'
+            'This did not remove the underlying next-token objective.\n'
+            '\n'
+            'The prompt simply changed the context from which next-token probabilities were produced.\n'
+            '\n'
+            '### Important limitation\n'
+            '\n'
+            'The chapter stresses that large language models can generate fluent but false content.\n'
+            '\n'
+            'A model always has a next-token distribution.\n'
+            '\n'
+            'That does **not** mean its generated continuation is factually grounded.\n'
+            '\n'
+            'This distinction becomes central later when we discuss:\n'
+            '\n'
+            '```text\n'
+            'instruction tuning\n'
+            'RLHF\n'
+            'RAG\n'
+            'reasoning-style training\n'
+            '```\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 2. Preparing data for mini-GPT pretraining\n'
+            '\n'
+            'A GPT-style model can be trained from ordinary text without manually labeled classes.\n'
+            '\n'
+            'The text itself supplies the labels.\n'
+            '\n'
+            '### Large text corpus\n'
+            '\n'
+            'The chapter uses a small subset of the C4 corpus for the educational mini-GPT example.\n'
+            '\n'
+            'The key workflow is:\n'
+            '\n'
+            '```text\n'
+            'raw text documents\n'
+            '      ↓\n'
+            'subword tokenizer\n'
+            '      ↓\n'
+            'token IDs\n'
+            '      ↓\n'
+            'fixed-length windows\n'
+            '      ↓\n'
+            'input tokens + next-token labels\n'
+            '```\n'
+            '\n'
+            '### Subword tokenization\n'
+            '\n'
+            'A subword tokenizer gives a useful compromise between character and word tokenization.\n'
+            '\n'
+            'Instead of:\n'
+            '\n'
+            '```text\n'
+            '"unbelievable"\n'
+            '```\n'
+            '\n'
+            'always being one full-word token or many single characters, it may be represented by several reusable pieces.\n'
+            '\n'
+            'A tokenizer supports:\n'
+            '\n'
+            '```text\n'
+            'text -> token IDs\n'
+            'token IDs -> text\n'
+            '```\n'
+            '\n'
+            '### Document-boundary token\n'
+            '\n'
+            'When many documents are joined into one token stream, a special marker can indicate where one document ends.\n'
+            '\n'
+            'Conceptually:\n'
+            '\n'
+            '```text\n'
+            'document A\n'
+            '<end-of-text>\n'
+            'document B\n'
+            '<end-of-text>\n'
+            'document C\n'
+            '```\n'
+            '\n'
+            'This lets one generic next-token objective train across many unrelated documents.\n'
+            '\n'
+            '### Fixed-length token windows\n'
+            '\n'
+            'Suppose:\n'
+            '\n'
+            '```text\n'
+            'sequence_length = 256\n'
+            '```\n'
+            '\n'
+            'The input might contain:\n'
+            '\n'
+            '```text\n'
+            'tokens[0:256]\n'
+            '```\n'
+            '\n'
+            'and the labels:\n'
+            '\n'
+            '```text\n'
+            'tokens[1:257]\n'
+            '```\n'
+            '\n'
+            'So every label is the next token.\n'
+            '\n'
+            'The same pattern from the previous chapter now scales to a large pretraining corpus.\n'
+            '\n'
+            '### Streaming pipeline\n'
+            '\n'
+            'Large text corpora should not be fully loaded and tokenized into accelerator memory at once.\n'
+            '\n'
+            'A streaming pipeline can:\n'
+            '\n'
+            '- read shards,\n'
+            '- tokenize in parallel,\n'
+            '- interleave documents,\n'
+            '- form fixed windows,\n'
+            '- batch examples,\n'
+            '- prefetch upcoming batches.\n'
+            '\n'
+            'This makes large-scale training feasible without holding the complete dataset in memory.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 3. Decoder-only Transformer architecture\n'
+            '\n'
+            'The original encoder-decoder Transformer used:\n'
+            '\n'
+            '```text\n'
+            'encoder\n'
+            '+\n'
+            'decoder\n'
+            '```\n'
+            '\n'
+            'GPT simplifies this.\n'
+            '\n'
+            'It removes the encoder and keeps only a causal Transformer stack.\n'
+            '\n'
+            '```text\n'
+            'token IDs\n'
+            '   ↓\n'
+            'token + position embeddings\n'
+            '   ↓\n'
+            'decoder block\n'
+            '   ↓\n'
+            'decoder block\n'
+            '   ↓\n'
+            'decoder block\n'
+            '   ↓\n'
+            '...\n'
+            '   ↓\n'
+            'vocabulary logits\n'
+            '```\n'
+            '\n'
+            '### Why decoder-only?\n'
+            '\n'
+            'A decoder-only model naturally matches the next-token task.\n'
+            '\n'
+            'Every position can attend only to:\n'
+            '\n'
+            '```text\n'
+            'itself\n'
+            '+\n'
+            'previous positions\n'
+            '```\n'
+            '\n'
+            'Never to future positions.\n'
+            '\n'
+            'That allows arbitrary text to become pretraining data without needing source-target pairs.\n'
+            '\n'
+            '### Single sequence for many tasks\n'
+            '\n'
+            'For question answering, the model can receive:\n'
+            '\n'
+            '```text\n'
+            'Question: ...\n'
+            'Answer:\n'
+            '```\n'
+            '\n'
+            'as one sequence.\n'
+            '\n'
+            'There is no separate source encoder.\n'
+            '\n'
+            'The question and answer exist in the same token space.\n'
+            '\n'
+            'This is simpler than training different input/output structures for every downstream task.\n'
+            '\n'
+            '### Causal self-attention\n'
+            '\n'
+            'Inside each decoder block:\n'
+            '\n'
+            '```text\n'
+            'token t\n'
+            'can attend to:\n'
+            '0 ... t\n'
+            '\n'
+            'token t\n'
+            'cannot attend to:\n'
+            't+1 ... end\n'
+            '```\n'
+            '\n'
+            'This is enforced with a causal mask.\n'
+            '\n'
+            '### Feedforward network and residual path\n'
+            '\n'
+            'A decoder block contains:\n'
+            '\n'
+            '```text\n'
+            'causal multi-head self-attention\n'
+            '        ↓\n'
+            'dropout\n'
+            '        ↓\n'
+            'residual connection\n'
+            '        ↓\n'
+            'layer normalization\n'
+            '        ↓\n'
+            'feedforward network\n'
+            '        ↓\n'
+            'dropout\n'
+            '        ↓\n'
+            'residual connection\n'
+            '        ↓\n'
+            'layer normalization\n'
+            '```\n'
+            '\n'
+            'Attention mixes information across positions.\n'
+            '\n'
+            'The feedforward block transforms each position nonlinearly.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 4. Positional embeddings and tied vocabulary weights\n'
+            '\n'
+            'Each token must be represented with both:\n'
+            '\n'
+            '```text\n'
+            'token identity\n'
+            '+\n'
+            'position\n'
+            '```\n'
+            '\n'
+            'So the model can use:\n'
+            '\n'
+            '```text\n'
+            'token embedding\n'
+            '+\n'
+            'position embedding\n'
+            '```\n'
+            '\n'
+            '### The large vocabulary matrices\n'
+            '\n'
+            'Two especially large matrices often appear in a language model.\n'
+            '\n'
+            'Input side:\n'
+            '\n'
+            '```text\n'
+            'vocab_size × hidden_dim\n'
+            '```\n'
+            '\n'
+            'maps token IDs into hidden vectors.\n'
+            '\n'
+            'Output side:\n'
+            '\n'
+            '```text\n'
+            'hidden_dim × vocab_size\n'
+            '```\n'
+            '\n'
+            'maps hidden vectors back into scores over vocabulary tokens.\n'
+            '\n'
+            '### Weight tying\n'
+            '\n'
+            'These two matrices can share weights.\n'
+            '\n'
+            'Conceptually:\n'
+            '\n'
+            '```text\n'
+            'forward embedding:\n'
+            'token space -> hidden space\n'
+            '\n'
+            'reverse embedding:\n'
+            'hidden space -> token space\n'
+            '```\n'
+            '\n'
+            'The output projection can use the transpose of the token embedding matrix.\n'
+            '\n'
+            'This reduces parameter and memory cost.\n'
+            '\n'
+            '### Logits\n'
+            '\n'
+            'The output projection does not need to include a softmax layer.\n'
+            '\n'
+            'It can produce raw values called **logits**.\n'
+            '\n'
+            'Conceptually:\n'
+            '\n'
+            '```text\n'
+            'logits\n'
+            '  ↓ softmax\n'
+            'token probabilities\n'
+            '```\n'
+            '\n'
+            'When a model outputs logits directly, the loss function must know that softmax still needs to be applied internally.\n'
+            '\n'
+            'This is why a classification loss may be configured with:\n'
+            '\n'
+            '```text\n'
+            'from_logits=True\n'
+            '```\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 5. Pretraining a large causal Transformer\n'
+            '\n'
+            'Large Transformer training can be unstable.\n'
+            '\n'
+            'One practical problem is that large early parameter updates may cause optimization to diverge.\n'
+            '\n'
+            '### Learning-rate warmup\n'
+            '\n'
+            'Instead of immediately using the full learning rate:\n'
+            '\n'
+            '```text\n'
+            'step 0 -> full learning rate\n'
+            '```\n'
+            '\n'
+            'use:\n'
+            '\n'
+            '```text\n'
+            'small learning rate\n'
+            '        ↓\n'
+            'gradually increase\n'
+            '        ↓\n'
+            'reach target learning rate\n'
+            '```\n'
+            '\n'
+            'Conceptually:\n'
+            '\n'
+            '```text\n'
+            'learning rate\n'
+            '^\n'
+            '|       ─────────────\n'
+            '|      /\n'
+            '|     /\n'
+            '|    /\n'
+            '|___/________________> steps\n'
+            '```\n'
+            '\n'
+            'This is **learning-rate warmup**.\n'
+            '\n'
+            'It makes the initial parameter updates gentler.\n'
+            '\n'
+            '### Mixed precision\n'
+            '\n'
+            'Large models consume enormous memory.\n'
+            '\n'
+            'Using lower-precision numerical types for suitable computations can:\n'
+            '\n'
+            '- reduce memory use,\n'
+            '- increase throughput.\n'
+            '\n'
+            'The chapter uses mixed precision as a practical way to make mini-GPT training more feasible.\n'
+            '\n'
+            '### Pretraining objective\n'
+            '\n'
+            'The model still optimizes:\n'
+            '\n'
+            '```text\n'
+            'next-token cross-entropy\n'
+            '```\n'
+            '\n'
+            'Nothing conceptually new has been added.\n'
+            '\n'
+            'The difficulty comes from scaling:\n'
+            '\n'
+            '```text\n'
+            'more layers\n'
+            'more parameters\n'
+            'larger vocabulary\n'
+            'long sequences\n'
+            'huge text corpus\n'
+            'many training steps\n'
+            '```\n'
+            '\n'
+            '### Training scale matters\n'
+            '\n'
+            'The educational mini-GPT is deliberately undertrained compared with real GPT-family models.\n'
+            '\n'
+            'This is useful pedagogically:\n'
+            '\n'
+            '> The basic recipe is understandable on modest hardware, but modern LLM quality depends enormously on scale.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 6. Autoregressive generation and efficient decoding\n'
+            '\n'
+            'A causal LLM generates text repeatedly:\n'
+            '\n'
+            '```text\n'
+            'prompt\n'
+            '   ↓\n'
+            'predict next-token logits\n'
+            '   ↓\n'
+            'choose token\n'
+            '   ↓\n'
+            'append token\n'
+            '   ↓\n'
+            'repeat\n'
+            '```\n'
+            '\n'
+            '### Naive generation\n'
+            '\n'
+            'A straightforward implementation runs the model on the entire sequence after each new token.\n'
+            '\n'
+            'If generation reaches:\n'
+            '\n'
+            '```text\n'
+            '1000 tokens\n'
+            '```\n'
+            '\n'
+            'then much of the same past sequence is recomputed over and over.\n'
+            '\n'
+            '### Compilation and fixed shapes\n'
+            '\n'
+            'Compiled execution can greatly improve inference speed.\n'
+            '\n'
+            'However, changing the input shape after every generated token may cause repeated recompilation.\n'
+            '\n'
+            'One workaround is to pad the generation buffer to a fixed maximum length.\n'
+            '\n'
+            'Then the compiled model sees a consistent shape.\n'
+            '\n'
+            '### The deeper inefficiency\n'
+            '\n'
+            'Even with compilation, recomputing all previous attention states is wasteful.\n'
+            '\n'
+            'The past tokens have not changed.\n'
+            '\n'
+            'Inside causal attention, earlier key and value representations also do not change.\n'
+            '\n'
+            '### Key-value caching\n'
+            '\n'
+            'For each Transformer layer, cache:\n'
+            '\n'
+            '```text\n'
+            'past keys\n'
+            'past values\n'
+            '```\n'
+            '\n'
+            'Then when a new token arrives:\n'
+            '\n'
+            '```text\n'
+            'new token\n'
+            '   ↓\n'
+            'compute its query/key/value\n'
+            '   ↓\n'
+            'reuse cached past keys/values\n'
+            '   ↓\n'
+            'produce next hidden state\n'
+            '```\n'
+            '\n'
+            'This is analogous to carrying forward an RNN state.\n'
+            '\n'
+            'A practical inference engine can therefore reduce the repeated work dramatically.\n'
+            '\n'
+            '### Why KV caching matters\n'
+            '\n'
+            'Without caching:\n'
+            '\n'
+            '```text\n'
+            'recompute old sequence at every step\n'
+            '```\n'
+            '\n'
+            'With caching:\n'
+            '\n'
+            '```text\n'
+            'compute old token states once\n'
+            'reuse them\n'
+            '```\n'
+            '\n'
+            'The longer the generated sequence, the greater the benefit.\n'
+            '\n'
+            '{{exercise:M16.L01.EX01}}\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 7. Sampling strategies\n'
+            '\n'
+            'The model outputs a distribution over the vocabulary.\n'
+            '\n'
+            'Generation therefore requires a decision rule for choosing the next token.\n'
+            '\n'
+            '### Greedy decoding\n'
+            '\n'
+            'Select:\n'
+            '\n'
+            '```text\n'
+            'argmax(logits)\n'
+            '```\n'
+            '\n'
+            'at every step.\n'
+            '\n'
+            'Advantages:\n'
+            '\n'
+            '```text\n'
+            'simple\n'
+            'deterministic\n'
+            'high-probability continuation\n'
+            '```\n'
+            '\n'
+            'Problem:\n'
+            '\n'
+            '```text\n'
+            'can become repetitive\n'
+            '```\n'
+            '\n'
+            'The model may repeatedly choose a locally likely pattern.\n'
+            '\n'
+            '### Random sampling\n'
+            '\n'
+            'Instead of choosing only the maximum, sample directly from the predicted distribution.\n'
+            '\n'
+            'This increases diversity.\n'
+            '\n'
+            'But unrestricted random sampling can produce incoherent output because low-probability tokens are still possible.\n'
+            '\n'
+            '### Temperature\n'
+            '\n'
+            'Temperature reshapes the output distribution before sampling.\n'
+            '\n'
+            'Conceptually:\n'
+            '\n'
+            '```text\n'
+            'adjusted_logits = logits / temperature\n'
+            '```\n'
+            '\n'
+            'Low temperature:\n'
+            '\n'
+            '```text\n'
+            'sharper distribution\n'
+            'more conservative output\n'
+            'closer to greedy decoding\n'
+            '```\n'
+            '\n'
+            'High temperature:\n'
+            '\n'
+            '```text\n'
+            'flatter distribution\n'
+            'more exploration\n'
+            'less predictable output\n'
+            '```\n'
+            '\n'
+            '### Top-K sampling\n'
+            '\n'
+            'Keep only the `K` highest-scoring candidates.\n'
+            '\n'
+            'Example:\n'
+            '\n'
+            '```text\n'
+            'vocabulary = 32,000 tokens\n'
+            'K = 20\n'
+            '\n'
+            'sample only from the top 20\n'
+            '```\n'
+            '\n'
+            'Everything outside that set is excluded.\n'
+            '\n'
+            'This combines:\n'
+            '\n'
+            '```text\n'
+            'diversity\n'
+            '+\n'
+            'protection from extremely unlikely tokens\n'
+            '```\n'
+            '\n'
+            '### Combining controls\n'
+            '\n'
+            'Temperature and top-K are different.\n'
+            '\n'
+            'Temperature changes relative probabilities.\n'
+            '\n'
+            'Top-K removes candidates outside a selected set.\n'
+            '\n'
+            'They can be combined.\n'
+            '\n'
+            '### Beam search\n'
+            '\n'
+            'Another strategy keeps several candidate sequences alive simultaneously.\n'
+            '\n'
+            'Each candidate path is a **beam**.\n'
+            '\n'
+            'Beam search explores multiple possible continuations rather than committing immediately to only one.\n'
+            '\n'
+            'The chapter mentions this as another decoding strategy, although the main practical examples focus on greedy, random, and top-K sampling.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 8. Using a pretrained language model\n'
+            '\n'
+            'Training a large LLM from scratch is expensive.\n'
+            '\n'
+            'So many practical workflows begin with a pretrained model.\n'
+            '\n'
+            'The chapter uses Gemma as an example.\n'
+            '\n'
+            'A high-level causal language model package can combine:\n'
+            '\n'
+            '```text\n'
+            'matching tokenizer\n'
+            '+\n'
+            'correct architecture\n'
+            '+\n'
+            'pretrained weights\n'
+            '+\n'
+            'generation API\n'
+            '```\n'
+            '\n'
+            'This avoids manually recreating every preprocessing and inference detail.\n'
+            '\n'
+            '### What a pretrained base model actually learns\n'
+            '\n'
+            'Before instruction tuning, the model has mostly learned:\n'
+            '\n'
+            '```text\n'
+            'continue text plausibly\n'
+            '```\n'
+            '\n'
+            'It is better to think of it as:\n'
+            '\n'
+            '```text\n'
+            'large-scale autocomplete\n'
+            '```\n'
+            '\n'
+            'than as a conversational assistant.\n'
+            '\n'
+            'If prompted with:\n'
+            '\n'
+            '```text\n'
+            'How can I make brownies?\n'
+            '```\n'
+            '\n'
+            'a base model may continue with text resembling:\n'
+            '\n'
+            '- a forum post,\n'
+            '- a recipe,\n'
+            '- a discussion,\n'
+            '- another web-like continuation.\n'
+            '\n'
+            'The prompt context determines which region of the learned distribution is entered.\n'
+            '\n'
+            '### Prompting as context construction\n'
+            '\n'
+            'If you provide:\n'
+            '\n'
+            '```text\n'
+            'The following brownie recipe is easy to make.\n'
+            'You can start by...\n'
+            '```\n'
+            '\n'
+            'then a recipe-like continuation becomes much more probable.\n'
+            '\n'
+            'This explains why prompt design can change behavior without modifying model weights.\n'
+            '\n'
+            '### Prompting is difficult to control\n'
+            '\n'
+            'The chapter cautions that prompt behavior is hard to predict.\n'
+            '\n'
+            'Small wording changes can lead to large behavior differences.\n'
+            '\n'
+            'This reflects the fact that prompting changes context rather than explicitly programming a deterministic rule.\n'
+            '\n'
+            '### Hallucinations\n'
+            '\n'
+            'A language model always has some next-token continuation.\n'
+            '\n'
+            'If the prompt requests a nonexistent fact, the model may still generate a plausible-looking completion.\n'
+            '\n'
+            'This is the central hallucination problem:\n'
+            '\n'
+            '```text\n'
+            'fluent output\n'
+            '≠\n'
+            'verified truth\n'
+            '```\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 9. Instruction fine-tuning\n'
+            '\n'
+            'A base model learns general next-token prediction.\n'
+            '\n'
+            'An assistant needs a more specific behavior:\n'
+            '\n'
+            '```text\n'
+            'instruction\n'
+            '   ↓\n'
+            'helpful response\n'
+            '```\n'
+            '\n'
+            'Instruction fine-tuning teaches this pattern with supervised examples.\n'
+            '\n'
+            '### Training format\n'
+            '\n'
+            'A dataset contains pairs:\n'
+            '\n'
+            '```text\n'
+            'instruction\n'
+            'response\n'
+            '```\n'
+            '\n'
+            'These can be combined into one sequence with consistent markers:\n'
+            '\n'
+            '```text\n'
+            '[instruction]\n'
+            'How do I ...?\n'
+            '[end]\n'
+            '\n'
+            '[response]\n'
+            'You can ...\n'
+            '[end]\n'
+            '```\n'
+            '\n'
+            'The causal language-model objective still predicts the next token.\n'
+            '\n'
+            'The difference is the distribution of training examples.\n'
+            '\n'
+            'Now the model repeatedly sees:\n'
+            '\n'
+            '```text\n'
+            'instruction-like prompt\n'
+            'followed by\n'
+            'desired response\n'
+            '```\n'
+            '\n'
+            '### Masking the loss\n'
+            '\n'
+            'When training an assistant, we may care mainly about response tokens.\n'
+            '\n'
+            'Prompt tokens are supplied by the user.\n'
+            '\n'
+            'Padding tokens contain no content.\n'
+            '\n'
+            'So sample weights can tell the loss:\n'
+            '\n'
+            '```text\n'
+            'prompt tokens  -> ignore or reduce\n'
+            'response tokens -> train\n'
+            'padding tokens -> ignore\n'
+            '```\n'
+            '\n'
+            'This focuses updates on the desired response behavior.\n'
+            '\n'
+            '### Instruction tuning does not create language knowledge from scratch\n'
+            '\n'
+            'The large pretrained model already learned general language representations.\n'
+            '\n'
+            'Fine-tuning is more like:\n'
+            '\n'
+            '```text\n'
+            'steer existing capability\n'
+            'toward a desired interaction pattern\n'
+            '```\n'
+            '\n'
+            'That is why comparatively small instruction datasets can meaningfully change model behavior.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 10. LoRA: fine-tuning large models with far fewer trainable parameters\n'
+            '\n'
+            'Full fine-tuning can be memory intensive.\n'
+            '\n'
+            'A billion-parameter model requires memory for:\n'
+            '\n'
+            '```text\n'
+            'model parameters\n'
+            'gradients\n'
+            'optimizer state\n'
+            'intermediate activations\n'
+            '```\n'
+            '\n'
+            'The optimizer can require several additional values for each trainable parameter.\n'
+            '\n'
+            '### Freeze the base model\n'
+            '\n'
+            'If a parameter is frozen:\n'
+            '\n'
+            '```text\n'
+            'no gradient update\n'
+            'no optimizer state needed\n'
+            '```\n'
+            '\n'
+            'This saves memory.\n'
+            '\n'
+            'But simply freezing everything would prevent adaptation.\n'
+            '\n'
+            '### Low-Rank Adaptation\n'
+            '\n'
+            'LoRA keeps the original weight matrix frozen and adds a small trainable update.\n'
+            '\n'
+            'Suppose the original projection is:\n'
+            '\n'
+            '```text\n'
+            'y = xW\n'
+            '```\n'
+            '\n'
+            'LoRA uses:\n'
+            '\n'
+            '```text\n'
+            'y = xW + xAB\n'
+            '```\n'
+            '\n'
+            'where:\n'
+            '\n'
+            '```text\n'
+            'W = frozen large matrix\n'
+            'A = small trainable matrix\n'
+            'B = small trainable matrix\n'
+            '```\n'
+            '\n'
+            'If:\n'
+            '\n'
+            '```text\n'
+            'W shape = 2048 × 2048\n'
+            '```\n'
+            '\n'
+            'then it contains millions of parameters.\n'
+            '\n'
+            'With rank:\n'
+            '\n'
+            '```text\n'
+            'r = 8\n'
+            '```\n'
+            '\n'
+            'the two LoRA matrices contain far fewer trainable values.\n'
+            '\n'
+            '### Why "low rank"?\n'
+            '\n'
+            'The adaptation passes through a narrow inner dimension:\n'
+            '\n'
+            '```text\n'
+            'input\n'
+            ' ↓\n'
+            'rank-8 representation\n'
+            ' ↓\n'
+            'output update\n'
+            '```\n'
+            '\n'
+            "This limits the update's expressive power.\n"
+            '\n'
+            'But downstream fine-tuning usually needs much less flexibility than original pretraining.\n'
+            '\n'
+            '### Where LoRA is applied\n'
+            '\n'
+            'The chapter focuses on attention projections such as:\n'
+            '\n'
+            '```text\n'
+            'query projection\n'
+            'key projection\n'
+            '```\n'
+            '\n'
+            'while freezing the much larger base model.\n'
+            '\n'
+            'The result can reduce trainable parameters by orders of magnitude.\n'
+            '\n'
+            '### Important distinction\n'
+            '\n'
+            'LoRA does **not** necessarily make the frozen model weights disappear from memory.\n'
+            '\n'
+            'You still need the base model for inference.\n'
+            '\n'
+            'The major savings come from avoiding:\n'
+            '\n'
+            '```text\n'
+            'gradients\n'
+            'optimizer state\n'
+            '```\n'
+            '\n'
+            'for nearly all base parameters.\n'
+            '\n'
+            'This makes fine-tuning much more accessible on limited accelerator memory.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 11. Reinforcement Learning with Human Feedback\n'
+            '\n'
+            'Supervised instruction tuning requires people to write desired responses.\n'
+            '\n'
+            'That is expensive.\n'
+            '\n'
+            'RLHF tries to learn from a different kind of human supervision:\n'
+            '\n'
+            '```text\n'
+            'preferences\n'
+            '```\n'
+            '\n'
+            'Instead of asking:\n'
+            '\n'
+            '> Write the ideal answer.\n'
+            '\n'
+            'ask:\n'
+            '\n'
+            '> Which of these answers is better?\n'
+            '\n'
+            '### Step 1 — Supervised instruction tuning\n'
+            '\n'
+            'Start with the ordinary prompt-response training described earlier.\n'
+            '\n'
+            'This creates a reasonable assistant baseline.\n'
+            '\n'
+            '### Step 2 — Collect preference rankings\n'
+            '\n'
+            'For each prompt, gather several responses.\n'
+            '\n'
+            'Humans rank them:\n'
+            '\n'
+            '```text\n'
+            'best\n'
+            'second best\n'
+            '...\n'
+            'worst\n'
+            '```\n'
+            '\n'
+            '### Step 3 — Train a reward model\n'
+            '\n'
+            'Train another model to map:\n'
+            '\n'
+            '```text\n'
+            'prompt + response\n'
+            '      ↓\n'
+            'reward score\n'
+            '```\n'
+            '\n'
+            'A higher score means the response is predicted to align better with human preferences.\n'
+            '\n'
+            '### Step 4 — Optimize the language model using rewards\n'
+            '\n'
+            'The language model generates responses.\n'
+            '\n'
+            'The reward model evaluates them.\n'
+            '\n'
+            'Those rewards are used to update the language model.\n'
+            '\n'
+            'A simplified conceptual loop is:\n'
+            '\n'
+            '```text\n'
+            'prompt\n'
+            '  ↓\n'
+            'LLM generates response\n'
+            '  ↓\n'
+            'reward model scores response\n'
+            '  ↓\n'
+            'training update\n'
+            '  ↓\n'
+            'LLM becomes more likely to produce preferred responses\n'
+            '```\n'
+            '\n'
+            '### Iterative improvement\n'
+            '\n'
+            'The process can repeat:\n'
+            '\n'
+            '```text\n'
+            'better policy model\n'
+            '   ↓\n'
+            'better generated candidates\n'
+            '   ↓\n'
+            'new human rankings\n'
+            '   ↓\n'
+            'better reward model\n'
+            '   ↓\n'
+            'further policy training\n'
+            '```\n'
+            '\n'
+            '### Important limitation\n'
+            '\n'
+            'Preference tuning can improve behavior without changing the fundamental nature of a next-token model.\n'
+            '\n'
+            'It does not guarantee truthfulness.\n'
+            '\n'
+            'The chapter demonstrates that even a more helpful instruction-tuned model can still make factual mistakes.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 12. Multimodal language models\n'
+            '\n'
+            'A Transformer is fundamentally a sequence model, not a text-only architecture.\n'
+            '\n'
+            'If another data type can be represented as a sequence of vectors, it can potentially be inserted into the same Transformer computation.\n'
+            '\n'
+            '### Images as sequence elements\n'
+            '\n'
+            'An image encoder can split an image into patches.\n'
+            '\n'
+            'Each patch becomes a vector.\n'
+            '\n'
+            'Conceptually:\n'
+            '\n'
+            '```text\n'
+            'image\n'
+            '  ↓\n'
+            'vision encoder\n'
+            '  ↓\n'
+            'patch vector 1\n'
+            'patch vector 2\n'
+            '...\n'
+            'patch vector N\n'
+            '```\n'
+            '\n'
+            "These vectors can be shaped to match the language model's hidden dimension.\n"
+            '\n'
+            'Then they can be inserted into the token sequence.\n'
+            '\n'
+            '### Hard tokens and soft tokens\n'
+            '\n'
+            'Text token:\n'
+            '\n'
+            '```text\n'
+            'integer ID\n'
+            '   ↓\n'
+            'lookup in embedding table\n'
+            '   ↓\n'
+            'fixed embedding vector\n'
+            '```\n'
+            '\n'
+            'Image patch:\n'
+            '\n'
+            '```text\n'
+            'image encoder\n'
+            '   ↓\n'
+            'continuous vector\n'
+            '```\n'
+            '\n'
+            'The chapter describes these continuous image vectors as **soft tokens**.\n'
+            '\n'
+            'Unlike ordinary token IDs, they are not selected from a finite vocabulary embedding table.\n'
+            '\n'
+            '### Combined sequence\n'
+            '\n'
+            'Conceptually:\n'
+            '\n'
+            '```text\n'
+            'text tokens\n'
+            '+\n'
+            'image soft tokens\n'
+            '+\n'
+            'more text tokens\n'
+            '       ↓\n'
+            'Transformer\n'
+            '```\n'
+            '\n'
+            'Now the model can generate text conditioned on visual information.\n'
+            '\n'
+            '### Training multimodal models\n'
+            '\n'
+            'The general recipe remains similar:\n'
+            '\n'
+            '```text\n'
+            'pretrained image encoder\n'
+            '+\n'
+            'language-model Transformer\n'
+            '+\n'
+            'mixed image/text training\n'
+            '```\n'
+            '\n'
+            'The model still predicts text tokens.\n'
+            '\n'
+            'Loss does not need to be applied to image placeholder positions.\n'
+            '\n'
+            '### Foundation models\n'
+            '\n'
+            'Once models handle several modalities and many downstream tasks, the term **large language model** becomes incomplete.\n'
+            '\n'
+            'A broader term is:\n'
+            '\n'
+            '```text\n'
+            'foundation model\n'
+            '```\n'
+            '\n'
+            'The chapter defines foundation models as broadly pretrained systems—typically using large-scale self-supervised objectives—that can be adapted to many downstream tasks.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 13. Retrieval-Augmented Generation\n'
+            '\n'
+            'A pretrained LLM has two serious weaknesses when used as an information system.\n'
+            '\n'
+            '### Problem 1 — Hallucination\n'
+            '\n'
+            'The model may generate facts that are not true.\n'
+            '\n'
+            '### Problem 2 — Knowledge cutoff\n'
+            '\n'
+            'The model cannot know information created after its training data ended unless new context is supplied.\n'
+            '\n'
+            'RAG addresses both by adding external information to the prompt.\n'
+            '\n'
+            '### Core pipeline\n'
+            '\n'
+            '```text\n'
+            'user question\n'
+            '     ↓\n'
+            'retrieval system\n'
+            '     ↓\n'
+            'relevant documents\n'
+            '     ↓\n'
+            'question + retrieved context\n'
+            '     ↓\n'
+            'LLM\n'
+            '     ↓\n'
+            'answer\n'
+            '```\n'
+            '\n'
+            'The model is no longer asked to rely only on internal pretrained parameters.\n'
+            '\n'
+            'It receives relevant evidence directly.\n'
+            '\n'
+            '### Retrieval sources\n'
+            '\n'
+            'The retrieval system might query:\n'
+            '\n'
+            '```text\n'
+            'database\n'
+            'search engine\n'
+            'document store\n'
+            'private company knowledge base\n'
+            '```\n'
+            '\n'
+            '### Vector database\n'
+            '\n'
+            'A common RAG design embeds documents as vectors.\n'
+            '\n'
+            '```text\n'
+            'document\n'
+            '   ↓\n'
+            'embedding model\n'
+            '   ↓\n'
+            'vector\n'
+            '```\n'
+            '\n'
+            'A query is embedded in the same space.\n'
+            '\n'
+            'Then retrieve documents whose vectors are close to the query vector.\n'
+            '\n'
+            'Conceptually:\n'
+            '\n'
+            '```text\n'
+            'query vector\n'
+            '    ↓\n'
+            'nearest stored vectors\n'
+            '    ↓\n'
+            'corresponding document text\n'
+            '```\n'
+            '\n'
+            '### Benefits described in the chapter\n'
+            '\n'
+            'RAG can:\n'
+            '\n'
+            '- provide newer information,\n'
+            '- provide private information,\n'
+            '- reduce unsupported factual generation by supplying relevant context.\n'
+            '\n'
+            'It does not guarantee that hallucinations disappear.\n'
+            '\n'
+            'But it gives the LLM a much stronger factual grounding source.\n'
+            '\n'
+            '{{exercise:M16.L01.EX02}}\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## 14. Reasoning-style generation and verifiable training\n'
+            '\n'
+            'The chapter discusses a class of models trained to perform better on problems such as:\n'
+            '\n'
+            '```text\n'
+            'math\n'
+            'coding\n'
+            'logic\n'
+            '```\n'
+            '\n'
+            'One useful observation is that models often perform better when they generate intermediate steps before the final answer.\n'
+            '\n'
+            '### Chain-of-thought-style prompting\n'
+            '\n'
+            'A prompt may encourage the model to:\n'
+            '\n'
+            '```text\n'
+            'work through intermediate steps\n'
+            '   ↓\n'
+            'then give final answer\n'
+            '```\n'
+            '\n'
+            'The generated intermediate text becomes additional context that the model can attend to during later token generation.\n'
+            '\n'
+            '### Training with verifiable outcomes\n'
+            '\n'
+            'For some domains, the final answer can be checked automatically.\n'
+            '\n'
+            'Examples:\n'
+            '\n'
+            '```text\n'
+            'math problem -> compare final number\n'
+            'code problem -> run tests\n'
+            '```\n'
+            '\n'
+            'This enables a training loop such as:\n'
+            '\n'
+            '```text\n'
+            'problem\n'
+            '  ↓\n'
+            'generate several candidate solutions\n'
+            '  ↓\n'
+            'check final answers\n'
+            '  ↓\n'
+            'keep or reward successful solutions\n'
+            '  ↓\n'
+            'train on successful trajectories\n'
+            '  ↓\n'
+            'repeat\n'
+            '```\n'
+            '\n'
+            'The chapter presents this as closely related to reinforcement learning.\n'
+            '\n'
+            'The environment provides a measurable success signal.\n'
+            '\n'
+            '### Key idea\n'
+            '\n'
+            'The model is not merely learning:\n'
+            '\n'
+            '```text\n'
+            '"say the answer"\n'
+            '```\n'
+            '\n'
+            'It is being trained to produce intermediate sequences that make correct final outputs more likely.\n'
+            '\n'
+            "The chapter characterizes this as a kind of search over the model's own generated solution paths.\n"
+            '\n'
+            '---\n'
+            '\n'
+            '## 15. Scaling tradeoffs and where LLMs may go next\n'
+            '\n'
+            'The chapter ends by examining whether the future is simply:\n'
+            '\n'
+            '```text\n'
+            'bigger model = better model\n'
+            '```\n'
+            '\n'
+            'The answer is more nuanced.\n'
+            '\n'
+            '### Fixed compute budget\n'
+            '\n'
+            'With a fixed amount of compute, you can spend it on:\n'
+            '\n'
+            '```text\n'
+            'larger model\n'
+            'or\n'
+            'more training data\n'
+            '```\n'
+            '\n'
+            'A model can be too large relative to the amount of data and compute used to train it.\n'
+            '\n'
+            'So better results may come from:\n'
+            '\n'
+            '```text\n'
+            'smaller model\n'
+            '+\n'
+            'more training\n'
+            '```\n'
+            '\n'
+            'rather than only increasing parameter count.\n'
+            '\n'
+            '### Inference cost matters\n'
+            '\n'
+            'A model must eventually be deployed.\n'
+            '\n'
+            'A slightly weaker model may be more useful if it is:\n'
+            '\n'
+            '```text\n'
+            'faster\n'
+            'cheaper\n'
+            'smaller\n'
+            'easier to deploy\n'
+            '```\n'
+            '\n'
+            'A model that is prohibitively expensive to run may be impractical despite stronger benchmark results.\n'
+            '\n'
+            '### High-quality data is finite\n'
+            '\n'
+            'Another challenge is running out of:\n'
+            '\n'
+            '```text\n'
+            'high-quality\n'
+            'public\n'
+            'human-written\n'
+            'training data\n'
+            '```\n'
+            '\n'
+            'As more internet content is generated by models, future training corpora may contain increasing amounts of synthetic data.\n'
+            '\n'
+            'This changes the scaling problem.\n'
+            '\n'
+            '### Reinforcement learning as another source of training signal\n'
+            '\n'
+            'If a task environment can produce new problems and automatically check solutions, a model can continue learning from its own attempts.\n'
+            '\n'
+            'This is one reason reinforcement-style approaches are important for:\n'
+            '\n'
+            '```text\n'
+            'math\n'
+            'coding\n'
+            'other verifiable domains\n'
+            '```\n'
+            '\n'
+            '### Remaining inefficiency\n'
+            '\n'
+            'The chapter emphasizes that current LLMs still learn far less efficiently than humans.\n'
+            '\n'
+            'Modern systems consume vastly more text than a person could read.\n'
+            '\n'
+            'So even as scaling continues, improving:\n'
+            '\n'
+            '```text\n'
+            'data efficiency\n'
+            'learning efficiency\n'
+            'training objectives\n'
+            'architecture\n'
+            '```\n'
+            '\n'
+            'remains important research territory.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## Important misconceptions\n'
+            '\n'
+            '### Misconception 1\n'
+            '\n'
+            '> "GPT needs carefully labeled question-answer pairs for pretraining."\n'
+            '\n'
+            'No. The core pretraining task uses ordinary text and next-token prediction.\n'
+            '\n'
+            '### Misconception 2\n'
+            '\n'
+            '> "A pretrained base model is already an instruction-following chatbot."\n'
+            '\n'
+            'Not necessarily. A base causal model primarily learns plausible text continuation. Instruction tuning changes the distribution toward useful prompt-response behavior.\n'
+            '\n'
+            '### Misconception 3\n'
+            '\n'
+            '> "Greedy decoding is always the best generation strategy."\n'
+            '\n'
+            'Greedy decoding can become repetitive. Sampling strategies trade determinism against diversity.\n'
+            '\n'
+            '### Misconception 4\n'
+            '\n'
+            '> "LoRA compresses the entire model into a tiny model."\n'
+            '\n'
+            'LoRA keeps the large frozen base model and introduces small trainable low-rank updates. Its major training-memory benefit comes from drastically reducing trainable parameters and optimizer state.\n'
+            '\n'
+            '### Misconception 5\n'
+            '\n'
+            '> "RLHF guarantees factual answers."\n'
+            '\n'
+            'Preference tuning can make outputs more helpful and aligned with desired behavior, but it does not remove hallucination as a fundamental possibility.\n'
+            '\n'
+            '### Misconception 6\n'
+            '\n'
+            '> "Multimodal LLMs require an entirely different language architecture."\n'
+            '\n'
+            'The chapter shows that image information can be encoded as a sequence of continuous vectors and inserted into the Transformer sequence representation.\n'
+            '\n'
+            '### Misconception 7\n'
+            '\n'
+            '> "RAG permanently writes new facts into the model\'s weights."\n'
+            '\n'
+            'RAG supplies retrieved information as context at inference time. The base model parameters do not need to change.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## Key terminology\n'
+            '\n'
+            '| Term | Meaning |\n'
+            '|---|---|\n'
+            '| GPT | Generative Pretrained Transformer |\n'
+            '| Causal language model | Model that predicts the next token using only past context |\n'
+            '| Pretraining | Large-scale initial training before task-specific adaptation |\n'
+            '| Subword tokenizer | Tokenizer representing text with reusable pieces smaller than many words |\n'
+            '| Decoder-only Transformer | Transformer stack using causal self-attention without a separate encoder |\n'
+            '| Causal mask | Mask preventing access to future sequence positions |\n'
+            '| Logit | Unnormalized output score before softmax |\n'
+            '| Weight tying | Sharing the input embedding weights with the output vocabulary projection |\n'
+            '| Warmup | Gradually increasing learning rate at the start of training |\n'
+            '| Mixed precision | Using lower-precision numeric formats for selected computations |\n'
+            '| KV cache | Stored attention key/value states reused during autoregressive generation |\n'
+            '| Greedy search | Selecting the highest-scoring next token |\n'
+            '| Temperature | Scaling logits to control how concentrated the sampling distribution is |\n'
+            '| Top-K sampling | Restricting sampling to the K highest-scoring candidate tokens |\n'
+            '| Instruction fine-tuning | Supervised training on instruction-response examples |\n'
+            '| LoRA | Low-Rank Adaptation; parameter-efficient fine-tuning with small trainable low-rank updates |\n'
+            '| RLHF | Reinforcement Learning with Human Feedback |\n'
+            '| Reward model | Model trained to score outputs according to human preferences |\n'
+            '| Soft token | Continuous vector inserted into a Transformer sequence rather than a discrete vocabulary lookup |\n'
+            '| Multimodal model | Model operating on more than one data modality |\n'
+            '| Foundation model | Broadly pretrained model adaptable to many downstream tasks |\n'
+            '| RAG | Retrieval-Augmented Generation |\n'
+            '| Vector database | Database supporting similarity search over embedding vectors |\n'
+            '| Reasoning-style generation | Generation that includes intermediate solution steps before a final output |\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## Manual figures to add\n'
+            '\n'
+            'You said you will add source figures manually. These are the most useful ones for this lesson:\n'
+            '\n'
+            '1. **Figure 16.2 — Learning-rate warmup**  \n'
+            '   Place after **Section 5: Pretraining a large causal Transformer**.\n'
+            '\n'
+            '2. **Figure 16.3 — Greedy, top-K, and random sampling**  \n'
+            '   Place after **Section 7: Sampling strategies**.\n'
+            '\n'
+            '3. **Figure 16.4 — LoRA low-rank decomposition**  \n'
+            '   Place inside **Section 10: LoRA**, immediately after the `W + AB` explanation.\n'
+            '\n'
+            '4. **Figure 16.5 — LoRA memory reduction**  \n'
+            '   Place near the end of the LoRA section.\n'
+            '\n'
+            '5. **Figure 16.6 — Multimodal Transformer with image soft tokens**  \n'
+            '   Place after the combined text/image sequence explanation.\n'
+            '\n'
+            '6. **Figure 16.8 — LLM sizes and pretraining-data scale over time**  \n'
+            '   Place inside **Section 15: Scaling tradeoffs and where LLMs may go next**.\n'
+            '\n'
+            'You do not need every generated-text screenshot. These figures add the most conceptual value.\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## Self-check\n'
+            '\n'
+            'Before continuing, make sure you can answer:\n'
+            '\n'
+            '1. What three ingredients define the basic GPT recipe?\n'
+            '2. Why can ordinary unlabeled text provide next-token training labels?\n'
+            '3. What is the architectural difference between the original encoder-decoder Transformer and GPT?\n'
+            '4. Why must GPT use causal self-attention?\n'
+            '5. What is the purpose of an end-of-document token?\n'
+            '6. Why can input embeddings and output vocabulary projections share weights?\n'
+            '7. What is a logit?\n'
+            '8. Why is learning-rate warmup useful?\n'
+            '9. Why is naive autoregressive generation computationally wasteful?\n'
+            '10. What does a KV cache store?\n'
+            '11. How does greedy decoding differ from random sampling?\n'
+            '12. What does temperature change?\n'
+            '13. What does top-K sampling remove from the candidate distribution?\n'
+            '14. Why does a pretrained base model often behave like autocomplete rather than a chatbot?\n'
+            '15. What changes during instruction fine-tuning?\n'
+            '16. Why does full LLM fine-tuning require so much accelerator memory?\n'
+            '17. How does LoRA reduce trainable parameter count?\n'
+            '18. What is the role of a reward model in RLHF?\n'
+            '19. What are soft image tokens?\n'
+            '20. What makes a model a foundation model?\n'
+            '21. How does RAG add information without changing model weights?\n'
+            '22. Why can RAG help with knowledge cutoff and factual grounding?\n'
+            '23. How can verifiable math or code answers provide a reinforcement-learning signal?\n'
+            '24. Why might a smaller but better-trained model outperform a larger undertrained one?\n'
+            '25. Why does deployment cost matter when choosing model size?\n'
+            '\n'
+            '---\n'
+            '\n'
+            '## Retain this idea\n'
+            '\n'
+            '**Modern LLMs combine a causal Transformer, next-token prediction, and enormous unlabeled text corpora. Generation is controlled by decoding strategies; practical inference depends on compilation and KV caching; useful assistant behavior is shaped by instruction tuning, LoRA, and preference-based training; multimodal inputs can be converted into sequence representations; RAG supplies external knowledge at inference time; and current research increasingly balances model scale against training data, compute cost, and verifiable feedback.**\n'
+        ),
+
+        "estimated_minutes": 240,
+
+        "has_code_examples": True,
+
+        "sections": [
+            {
+                "id": 'generative-modeling-history',
+                "title": 'From sequence generation to GPT',
+                "order": 1,
+            },
+            {
+                "id": 'mini-gpt-data',
+                "title": 'Preparing data for mini-GPT pretraining',
+                "order": 2,
+            },
+            {
+                "id": 'decoder-only-gpt',
+                "title": 'Decoder-only Transformer architecture',
+                "order": 3,
+            },
+            {
+                "id": 'embedding-and-output-projection',
+                "title": 'Positional embeddings and tied vocabulary weights',
+                "order": 4,
+            },
+            {
+                "id": 'pretraining',
+                "title": 'Pretraining a large causal Transformer',
+                "order": 5,
+            },
+            {
+                "id": 'generation-efficiency',
+                "title": 'Autoregressive generation and efficient decoding',
+                "order": 6,
+            },
+            {
+                "id": 'sampling',
+                "title": 'Sampling strategies',
+                "order": 7,
+            },
+            {
+                "id": 'pretrained-llm',
+                "title": 'Using a pretrained language model',
+                "order": 8,
+            },
+            {
+                "id": 'instruction-tuning',
+                "title": 'Instruction fine-tuning',
+                "order": 9,
+            },
+            {
+                "id": 'lora',
+                "title": 'LoRA: fine-tuning large models with far fewer trainable parameters',
+                "order": 10,
+            },
+            {
+                "id": 'rlhf',
+                "title": 'Reinforcement Learning with Human Feedback',
+                "order": 11,
+            },
+            {
+                "id": 'multimodal',
+                "title": 'Multimodal language models',
+                "order": 12,
+            },
+            {
+                "id": 'rag',
+                "title": 'Retrieval-Augmented Generation',
+                "order": 13,
+            },
+            {
+                "id": 'reasoning-models',
+                "title": 'Reasoning-style generation and verifiable training',
+                "order": 14,
+            },
+            {
+                "id": 'where-llms-go',
+                "title": 'Scaling tradeoffs and where LLMs may go next',
+                "order": 15,
+            }
+        ],
+    },
+
+
+    # =======================================================================
+    # INLINE EXERCISES
+    # =======================================================================
+
+    "exercises": [
+        {
+            "id": 'M16.L01.EX01',
+            "title": 'Trace an Efficient GPT Generation Loop',
+            "lesson_code": "M16.L01",
+            "section_id": 'generation-efficiency',
+            "placement": "after_section",
+            "description": 'Connect causal generation, fixed-shape compilation, sampling, and KV caching into one inference workflow.',
+            "instructions": "1. Start with the prompt 'Machine learning helps'.\n2. Describe what the model outputs at the final prompt position.\n3. Explain how greedy decoding would choose the next token.\n4. Explain why running the full Transformer on all previous tokens again is wasteful.\n5. State what keys and values can be cached at each Transformer layer.\n6. Explain why the benefit of caching grows as generated sequences become longer.",
+            "expected_output": 'A step-by-step causal generation trace explaining logits, token selection, repeated computation, and how key-value caching reduces inference work.',
+            "difficulty": DifficultyLevel.beginner,
+            "skill_tested": [
+                'causal-generation',
+                'logits',
+                'kv-cache',
+                'inference-efficiency',
+            ],
+        },
+
+        {
+            "id": 'M16.L01.EX02',
+            "title": 'Design a Grounded Domain Assistant',
+            "lesson_code": "M16.L01",
+            "section_id": 'rag',
+            "placement": "after_section",
+            "description": 'Apply instruction tuning, LoRA, retrieval, and evaluation concepts to a practical assistant.',
+            "instructions": "1. Imagine you are building an internal assistant over a company's private technical documents.\n2. Explain why pretraining a new LLM from scratch is unnecessary.\n3. State when instruction fine-tuning would help and how LoRA could reduce training memory.\n4. Design a simple RAG flow from user question to retrieved documents to final prompt.\n5. Explain why RAG does not completely eliminate hallucination.\n6. State one way you would evaluate whether the assistant actually uses retrieved information correctly.",
+            "expected_output": 'A compact system design using a pretrained model, optional LoRA instruction tuning, a retrieval pipeline, and an evidence-based evaluation plan.',
+            "difficulty": DifficultyLevel.beginner,
+            "skill_tested": [
+                'instruction-tuning',
+                'lora',
+                'rag',
+                'llm-evaluation',
+            ],
+        }
+    ],
+
+
+    # =======================================================================
+    # LESSON QUIZ
+    # =======================================================================
+
+    "quiz": {
+        "id": "M16.L01.QZ01",
+
+        "title": "Text Generation and Modern Large Language Models — Knowledge Check",
+
+        "lesson_code": "M16.L01",
+
+        "placement": "lesson_end",
+
+        "questions": [
+            {
+                "id": 'M16.L01.Q01',
+                "section_id": 'generative-modeling-history',
+                "question": 'Which combination best describes the basic GPT recipe presented in the chapter?',
+                "options": [
+                    'Transformer architecture, next-token language modeling, and large-scale unlabeled text',
+                    'Convolution, image masks, and bounding boxes',
+                    'Only supervised classification on small labeled datasets',
+                    'A recurrent encoder with no language-model objective',
+                ],
+                "correct": 0,
+                "explanation": 'GPT combines a Transformer with causal next-token prediction and large amounts of text used for pretraining.',
+            },
+
+            {
+                "id": 'M16.L01.Q02',
+                "section_id": 'decoder-only-gpt',
+                "question": 'What major architectural simplification does GPT make relative to the original sequence-to-sequence Transformer?',
+                "options": [
+                    'It removes the encoder and uses a causal decoder-only Transformer',
+                    'It removes attention entirely',
+                    'It removes token embeddings',
+                    'It predicts images instead of tokens',
+                ],
+                "correct": 0,
+                "explanation": 'GPT uses only a causal Transformer stack, allowing arbitrary text to be modeled as one sequence.',
+            },
+
+            {
+                "id": 'M16.L01.Q03',
+                "section_id": 'embedding-and-output-projection',
+                "question": 'What is weight tying in the mini-GPT example?',
+                "options": [
+                    'Reusing the token-embedding matrix for the reverse hidden-to-vocabulary projection',
+                    'Making every Transformer layer share all weights',
+                    'Setting every weight to the same value',
+                    'Freezing the entire model before pretraining',
+                ],
+                "correct": 0,
+                "explanation": 'The input embedding matrix can also be used in transposed form to project hidden states back to vocabulary logits.',
+            },
+
+            {
+                "id": 'M16.L01.Q04',
+                "section_id": 'pretraining',
+                "question": 'Why is learning-rate warmup useful when training deep Transformers?',
+                "options": [
+                    'It reduces the size of early parameter updates and can improve optimization stability',
+                    'It removes the tokenizer',
+                    'It makes causal masking unnecessary',
+                    'It guarantees zero validation loss',
+                ],
+                "correct": 0,
+                "explanation": 'Deep Transformer optimization can be unstable, so gradually increasing the learning rate makes the initial updates more conservative.',
+            },
+
+            {
+                "id": 'M16.L01.Q05',
+                "section_id": 'generation-efficiency',
+                "question": 'What is the main purpose of a key-value cache during causal generation?',
+                "options": [
+                    'Reuse attention states for past tokens instead of recomputing them at every generation step',
+                    'Store the training dataset on the GPU',
+                    'Replace the tokenizer vocabulary',
+                    'Randomize the model weights',
+                ],
+                "correct": 0,
+                "explanation": 'Past keys and values do not change, so caching them prevents repeated computation over the entire previous sequence.',
+            },
+
+            {
+                "id": 'M16.L01.Q06',
+                "section_id": 'sampling',
+                "question": 'How does top-K sampling differ from temperature scaling?',
+                "options": [
+                    'Top-K removes all but K candidates, while temperature reshapes relative probabilities',
+                    'They are exactly the same operation',
+                    'Temperature removes all but K candidates',
+                    'Top-K changes model weights during inference',
+                ],
+                "correct": 0,
+                "explanation": 'Top-K restricts the candidate set, while temperature controls how concentrated or spread out the remaining probability distribution is.',
+            },
+
+            {
+                "id": 'M16.L01.Q07',
+                "section_id": 'instruction-tuning',
+                "question": 'What is the main purpose of instruction fine-tuning?',
+                "options": [
+                    'Steer a pretrained causal model toward producing desired responses to user instructions',
+                    'Teach the tokenizer how to split text',
+                    'Replace the Transformer with an RNN',
+                    'Create the original broad language representation from scratch',
+                ],
+                "correct": 0,
+                "explanation": 'The broad representation is learned during pretraining; instruction tuning adjusts behavior toward prompt-response interactions.',
+            },
+
+            {
+                "id": 'M16.L01.Q08',
+                "section_id": 'lora',
+                "question": 'What does LoRA train instead of updating an entire large projection matrix?',
+                "options": [
+                    'Small low-rank matrices added as an update while the original matrix stays frozen',
+                    'Only new vocabulary tokens',
+                    'A separate image classifier',
+                    'The validation set',
+                ],
+                "correct": 0,
+                "explanation": 'LoRA represents a trainable update with two much smaller low-rank matrices and leaves the large base weight frozen.',
+            },
+
+            {
+                "id": 'M16.L01.Q09',
+                "section_id": 'rlhf',
+                "question": 'What is the role of a reward model in RLHF?',
+                "options": [
+                    'Score prompt-response pairs as a proxy for human preference',
+                    'Tokenize raw text',
+                    'Generate image patches',
+                    'Replace causal attention',
+                ],
+                "correct": 0,
+                "explanation": 'Human rankings are used to train a reward model, which then provides a preference signal for language-model updates.',
+            },
+
+            {
+                "id": 'M16.L01.Q10',
+                "section_id": 'multimodal',
+                "question": 'How can an image be incorporated into the multimodal Transformer described in the chapter?',
+                "options": [
+                    "Encode image patches as continuous vectors compatible with the Transformer's hidden dimension and insert them into the sequence",
+                    'Convert every image to one class label only',
+                    'Replace every text token with a pixel',
+                    'Disable the image encoder',
+                ],
+                "correct": 0,
+                "explanation": 'The image encoder produces soft-token vectors that can be inserted alongside text-token representations.',
+            },
+
+            {
+                "id": 'M16.L01.Q11',
+                "section_id": 'rag',
+                "question": 'What does retrieval-augmented generation add to an LLM workflow?',
+                "options": [
+                    'External retrieved context placed into the prompt before generation',
+                    'A larger tokenizer only',
+                    'A new output vocabulary trained from scratch',
+                    'A segmentation mask',
+                ],
+                "correct": 0,
+                "explanation": 'RAG retrieves relevant information from an external source and supplies it as context for the language model.',
+            },
+
+            {
+                "id": 'M16.L01.Q12',
+                "section_id": 'where-llms-go',
+                "type": "open",
+                "question": 'Explain how an LLM application can progress from base pretraining to useful deployment. Include causal pretraining, decoding, instruction tuning, LoRA, preference training, retrieval, and at least one practical tradeoff involving model size, data, or inference cost.',
+            }
+        ],
+
+        "passing_score": 70,
+    },
+}

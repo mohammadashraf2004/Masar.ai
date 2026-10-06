@@ -1,0 +1,6 @@
+{
+  "course_id": "COURSE-015",
+  "module_id": "M015-05",
+  "title": "Project 5 — Voice Agent with Tools",
+  "brief": "Build a provider-neutral live Voice Agent with local and optional MCP/A2A capabilities, authentication, side effects, confirmation, timeouts, and cancellation."
+}

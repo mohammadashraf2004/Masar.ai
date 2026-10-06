@@ -200,6 +200,8 @@ def sync_course_prerequisites(db: Session, only: Optional[Set[str]] = None) -> L
     prerequisites adds none, and a name that is not a catalogued course is skipped."""
     changes: List[Change] = []
     catalogued = {slug for (slug,) in db.query(Course.slug).all()}
+    by_id = {cid: slug for cid, slug in db.query(Course.id, Course.slug).all()}
+    pending = []
     for definition in cfg.COURSE_DIRECTORY_COURSES:
         if only is not None and definition["slug"] not in only:
             continue
@@ -212,13 +214,21 @@ def sync_course_prerequisites(db: Session, only: Optional[Set[str]] = None) -> L
             if course_id.lower() in catalogued and course_id.lower() not in required
             and course_id.lower() != definition["slug"]
         ]
-        by_id = {cid: slug for cid, slug in db.query(Course.id, Course.slug).all()}
         current = {
             kind: {by_id[l.prerequisite_course_id] for l in course.prerequisite_links if l.kind == kind}
             for kind in (PREREQ_REQUIRED, PREREQ_RECOMMENDED)
         }
         if current[PREREQ_REQUIRED] == set(required) and current[PREREQ_RECOMMENDED] == set(recommended):
             continue
+        pending.append((course, required, recommended))
+    # Clear every course that is about to change before applying any target. A
+    # catalogue imported under an older curriculum still holds edges the new one
+    # drops (e.g. 012 -> 007 before the 012/007 swap); applying the new edges one
+    # course at a time would see those leftovers as a cycle. Clearing cannot
+    # create one, and the final graph is the registry's, which is acyclic.
+    for course, _required, _recommended in pending:
+        admin.set_course_relations(db, course, prerequisites=[], recommended_prerequisites=[])
+    for course, required, recommended in pending:
         admin.set_course_relations(db, course, prerequisites=required, recommended_prerequisites=recommended)
         changes.append(Change(
             "prereq", course.slug,

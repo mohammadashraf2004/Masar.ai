@@ -16,7 +16,7 @@ Nothing here knows about SQLAlchemy.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # Kept as strings, not the ORM enum, so this module has no database dependency.
 DIFFICULTIES = ("beginner", "intermediate", "advanced")
@@ -62,6 +62,15 @@ class QuestionSpec:
     options: Optional[List[str]] = None
     correct: Optional[int] = None
     explanation: str = ""
+    question_id: str = ""
+    lesson_id: str = ""
+    # Reserved for the uncommon assessment that genuinely spans lessons.
+    lesson_ids: List[str] = field(default_factory=list)
+    metadata: Dict[str, object] = field(default_factory=dict)
+    # The Arabic twin from the course's `ar/` folder: {question, options, explanation}, with the
+    # options in the order the English was *authored* in (the importer reorders them to follow
+    # the English if it rebalances the key). None when the question has no Arabic yet.
+    ar: Optional[Dict[str, Any]] = None
 
     @property
     def is_open(self) -> bool:
@@ -69,10 +78,18 @@ class QuestionSpec:
 
     def as_json(self) -> Dict[str, object]:
         """The shape `quizzes.questions` already uses."""
+        trace = dict(self.metadata)
+        if self.question_id:
+            trace["id"] = self.question_id
+        if self.lesson_id:
+            trace["lesson_id"] = self.lesson_id
+        if self.lesson_ids:
+            trace.pop("lesson_id", None)
+            trace["lesson_ids"] = list(self.lesson_ids)
         if self.is_open:
-            return {"question": self.question, "type": "open", "explanation": self.explanation}
+            return {**trace, "question": self.question, "type": "open", "explanation": self.explanation}
         return {
-            "question": self.question, "options": list(self.options or []),
+            **trace, "question": self.question, "options": list(self.options or []),
             "correct": self.correct, "explanation": self.explanation,
         }
 
@@ -85,6 +102,12 @@ class ExerciseSpec:
     skill_tested: List[str] = field(default_factory=list)
     starter_code: Optional[str] = None
     solution_code: Optional[str] = None
+    exercise_id: str = ""
+    course_id: str = ""
+    module_id: str = ""
+    lesson_id: str = ""
+    title_ar: Optional[str] = None
+    description_ar: Optional[str] = None
 
 
 @dataclass
@@ -112,9 +135,15 @@ class LessonSpec:
     skill_tags: List[str] = field(default_factory=list)
     description: Optional[str] = None
     exercises: List[ExerciseSpec] = field(default_factory=list)
+    # Loader staging only. Legacy source files keep their question banks beside
+    # the lesson for compatibility; load_course_dir moves them into ModuleSpec.quiz.
     questions: List[QuestionSpec] = field(default_factory=list)
     project: Optional[ProjectSpec] = None
     source_file: str = ""
+    # Arabic from the course's `ar/` folder, whole (code already put back). English stays in
+    # `title`/`content`; these only ever fill the `*_ar` columns.
+    title_ar: Optional[str] = None
+    content_ar: Optional[str] = None
 
     @property
     def has_code_examples(self) -> bool:
@@ -128,14 +157,27 @@ class ModuleSpec:
     title: str
     title_ar: Optional[str] = None
     description: Optional[str] = None
+    description_ar: Optional[str] = None
     lessons: List[LessonSpec] = field(default_factory=list)
+    quiz: Optional["ModuleQuizSpec"] = None
     project: Optional[ProjectSpec] = None
     # Modules the source marks optional (e.g. the elective chapters of COURSE-003).
     optional: bool = False
+    # None follows `not optional`; an explicit source value can distinguish a
+    # project-only/capstone module from an optional specialization.
+    completion_required: Optional[bool] = None
     # A hands-on lab that accompanies the module (COURSE-013's `guided_lab.py`).
     lab: Optional[ProjectSpec] = None
     # Minutes the source declares for a module whose lessons are not imported.
     declared_minutes: Optional[int] = None
+    # Outline-only courses can still validate assessment traceability without
+    # pretending that an outline is a complete, renderable lesson body.
+    declared_lesson_ids: List[str] = field(default_factory=list)
+    # Temporary loader bridge for outline-only sources that still author real
+    # assessment questions. Cleared after module-quiz consolidation.
+    legacy_question_sources: Dict[str, List[QuestionSpec]] = field(default_factory=dict, repr=False)
+    # A project-only terminal module may intentionally have no lesson bodies.
+    is_capstone: bool = False
 
     @property
     def estimated_minutes(self) -> Optional[int]:
@@ -144,6 +186,18 @@ class ModuleSpec:
         if stated:
             return sum(stated)
         return self.declared_minutes
+
+    @property
+    def counts_toward_completion(self) -> bool:
+        return not self.optional if self.completion_required is None else self.completion_required
+
+
+@dataclass
+class ModuleQuizSpec:
+    quiz_id: str
+    module_id: str
+    title: str
+    questions: List[QuestionSpec] = field(default_factory=list)
 
 
 @dataclass
@@ -175,6 +229,16 @@ class CourseSpec:
     # with that manifest, reported by validation like every other structural fault.
     assets: List[AssetSpec] = field(default_factory=list)
     asset_problems: List[str] = field(default_factory=list)
+    # Problems in the optional canonical module-quiz manifest.
+    structure_problems: List[str] = field(default_factory=list)
+    # Consolidated exports keep the complete lesson and its assessment in one
+    # file. Their loader promotes those questions directly to a module quiz,
+    # so the legacy module_quizzes.json index must not be applied again.
+    embedded_quizzes_are_canonical: bool = False
+    # Faults in the course's Arabic files (`ar/`) fail validation like any other structural fault;
+    # a warning (an Arabic file made from an older English text) is reported and does not.
+    arabic_problems: List[str] = field(default_factory=list)
+    arabic_warnings: List[str] = field(default_factory=list)
 
     @property
     def slug(self) -> str:

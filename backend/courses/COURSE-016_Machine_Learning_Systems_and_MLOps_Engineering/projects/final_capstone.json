@@ -1,0 +1,9 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-12",
+  "title": "Production ML Systems Capstone",
+  "optional": false,
+  "completion_required": true,
+  "brief": "Design and defend an end-to-end production ML system from problem framing and data through training, deployment, monitoring, retraining, platform integration, and responsible operation.",
+  "optional_kubernetes_extension": "If the learner chooses M016-11, deploy the prediction service to Kubernetes with health/readiness, Service discovery, ConfigMaps/Secrets, monitoring hooks, and a safe rollout/rollback."
+}

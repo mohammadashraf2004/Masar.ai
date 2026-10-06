@@ -81,7 +81,8 @@ def course_completion(db: Session, user_id: int, courses: Iterable[Course]) -> D
 
     if tool_courses:
         topics = db.query(ToolTopic.id, ToolTopic.tool_course_id).filter(
-            ToolTopic.tool_course_id.in_(list(tool_courses))
+            ToolTopic.tool_course_id.in_(list(tool_courses)),
+            ToolTopic.completion_required.is_(True),
         ).all()
         owner = {tid: cid for tid, cid in topics}
         if owner:

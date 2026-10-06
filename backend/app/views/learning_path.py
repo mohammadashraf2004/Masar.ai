@@ -182,6 +182,8 @@ class ModuleOut(BaseModel):
     exercise_count: int
     quiz_count: int
     project_count: int
+    completion_required: bool = True
+    is_optional: bool = False
     completion_pct: Optional[float] = None    # signed-in learners only
     status: Optional[Literal["not_started", "in_progress", "completed"]] = None
 

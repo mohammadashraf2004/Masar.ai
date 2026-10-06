@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-03",
+  "title": "Build a Production Training-Data Strategy",
+  "brief": "Define sampling, labeling, lineage, natural feedback, label-efficiency, imbalance, augmentation, validation, and dataset-update policies.",
+  "optional": false,
+  "completion_required": true
+}

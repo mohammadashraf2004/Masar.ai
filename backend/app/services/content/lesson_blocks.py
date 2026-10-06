@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Tuple, Union
 
 # Keys are lowercase words joined by hyphens: URL-safe, unambiguous, and easy to
 # validate without a lookup.
@@ -123,4 +123,35 @@ def malformed_markers(text: str) -> List[str]:
         if _MARKER_LINE.match(line.rstrip("\r\n")):
             continue
         found.append(line.strip()[:120])
+    return found
+
+
+# An anchor with nothing inside it: `<a id="x"></a>`, `<a name='x' ></a>`, `<a id="x">\n</a>`, or the
+# same written as HTML entities. It only defines an old fragment target, which the lesson renderer
+# neither draws nor links to. Real links (`<a href=...>text</a>`) carry text and never match.
+_EMPTY_ANCHOR = re.compile(
+    r"<a\s[^<>]*?\b(?:id|name)\s*=[^<>]*>\s*</a\s*>"
+    r"|&lt;a\s[^<>]*?\b(?:id|name)\s*=.*?&gt;\s*&lt;/a\s*&gt;",
+    re.IGNORECASE,
+)
+
+
+def empty_anchors(text: str) -> List[Tuple[int, str]]:
+    """(line number, tag) for every empty `<a id>` / `<a name>` anchor outside code. These come from
+    book/Markdown extraction and are not learner-facing content. One inside a fenced block or an
+    inline code span is a lesson *showing* the syntax, so it is left alone."""
+    text = text or ""
+    code_spans: List[Tuple[int, int]] = []
+    pos = 0
+    for line, in_code in _lines_outside_code(text):
+        if in_code:
+            code_spans.append((pos, pos + len(line)))
+        pos += len(line)
+    found: List[Tuple[int, str]] = []
+    for m in _EMPTY_ANCHOR.finditer(text):
+        if any(start <= m.start() < end for start, end in code_spans):
+            continue
+        if text.count("`", text.rfind("\n", 0, m.start()) + 1, m.start()) % 2:
+            continue  # inside an inline code span
+        found.append((text.count("\n", 0, m.start()) + 1, " ".join(m.group(0).split())[:120]))
     return found

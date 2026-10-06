@@ -1,0 +1,58 @@
+[
+  {
+    "module_id": "M015-01",
+    "title": "Voice AI Fundamentals & Real-Time Audio",
+    "role": "Core / Foundations",
+    "guided_minutes": 405,
+    "lessons": 8
+  },
+  {
+    "module_id": "M015-02",
+    "title": "Streaming STT & TTS Engineering",
+    "role": "Core / Implementation",
+    "guided_minutes": 495,
+    "lessons": 8
+  },
+  {
+    "module_id": "M015-03",
+    "title": "Real-Time Voice with Gemini Live",
+    "role": "Core / Provider Implementation",
+    "guided_minutes": 495,
+    "lessons": 8
+  },
+  {
+    "module_id": "M015-04",
+    "title": "Real-Time Voice with OpenAI Realtime",
+    "role": "Core / Provider Implementation",
+    "guided_minutes": 495,
+    "lessons": 8
+  },
+  {
+    "module_id": "M015-05",
+    "title": "Provider-Neutral Voice Agent Architecture",
+    "role": "Core / Architecture",
+    "guided_minutes": 500,
+    "lessons": 8
+  },
+  {
+    "module_id": "M015-06",
+    "title": "External Speech Services & Multi-Channel Voice",
+    "role": "Core / Integration",
+    "guided_minutes": 530,
+    "lessons": 8
+  },
+  {
+    "module_id": "M015-07",
+    "title": "Advanced Voice Agents & Telephony",
+    "role": "Advanced Core",
+    "guided_minutes": 510,
+    "lessons": 8
+  },
+  {
+    "module_id": "M015-08",
+    "title": "Production Voice AI Engineering",
+    "role": "Production Core",
+    "guided_minutes": 620,
+    "lessons": 8
+  }
+]

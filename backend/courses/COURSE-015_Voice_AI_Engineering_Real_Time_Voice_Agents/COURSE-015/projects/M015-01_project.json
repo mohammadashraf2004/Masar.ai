@@ -1,0 +1,6 @@
+{
+  "course_id": "COURSE-015",
+  "module_id": "M015-01",
+  "title": "Project 1 — Basic Voice Assistant",
+  "brief": "Build a bilingual push-to-talk/recorded voice assistant with normalized audio, STT→LLM→TTS, playback, logs, and a simple latency report."
+}

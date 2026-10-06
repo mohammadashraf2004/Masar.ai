@@ -1,35 +1,22 @@
 {
   "course_id": "COURSE-003",
   "slug": "applied-deep-learning",
-  "title": "Applied Deep Learning | التعلم العميق التطبيقي",
   "language": "ar",
-  "primary_framework": "PyTorch",
   "book_id": "BOOK-003",
   "book_title": "SOURCE INFORMATION MISSING",
   "edition": "SOURCE INFORMATION MISSING",
-  "status": "curriculum-source-review-complete; practical-lesson-seed-package; not deployed",
-  "prerequisite_courses": [
-    "COURSE-002 — Deep Learning Foundations"
-  ],
-  "scope": "hands-on PyTorch implementation, debugging, experimentation, profiling, fine-tuning, robustness and optional audio/advanced vision",
+  "primary_framework": "PyTorch",
   "source_review_status": "complete",
-  "chapters_processed": 9,
-  "chapters_total": 9,
-  "core_module_count": 14,
-  "optional_module_count": 2,
-  "module_count": 16,
-  "lesson_count": 47,
-  "core_guided_minutes": 1645,
-  "optional_guided_minutes": 370,
-  "guided_minutes_including_optional": 2015,
-  "practice_policy": {
-    "guided_code_example_per_lesson": true,
-    "minimum_code_exercises_per_lesson": 2,
-    "exercise_count": 94,
-    "every_exercise_has_acceptance_criteria": true,
-    "debugging_or_experimentation_emphasized": true,
-    "module_project_count": 16,
-    "portfolio_scale_project_count": 9
+  "title": "Applied Deep Learning | التعلم العميق التطبيقي",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
+  "modules": 14,
+  "lessons": 14,
+  "guided_minutes": 3615,
+  "professional_capability": "Implement, debug, evaluate, profile, and fine-tune applied PyTorch systems.",
+  "prerequisites": {
+    "required": [
+      "COURSE-002 — Deep Learning Foundations"
+    ]
   },
   "track_roles": {
     "Data Analyst": "Not applicable",
@@ -38,1266 +25,118 @@
     "MLOps Engineer": "Supporting",
     "AI Engineer": "Core"
   },
-  "out_of_scope_for_core": [
-    "web serving frameworks",
-    "Docker/Kubernetes/cloud deployment",
-    "modern Transformer/NLP fine-tuning",
-    "distributed training",
-    "modern quantization"
-  ],
-  "modules": [
+  "module_inventory": [
     {
-      "module_id": "M01",
-      "title": "PyTorch Foundations — Tensors, Shapes, and Devices",
-      "arabic_title": "أساسيات PyTorch: الموترات والأشكال والأجهزة",
-      "book_chapter": 1,
-      "learning_objective": "Build reliable tensor pipelines and verify the execution environment.",
-      "duration_minutes": 135,
-      "optional": false,
-      "lesson_count": 4,
-      "project": {
-        "title": "Tensor Pipeline Diagnostic Lab",
-        "description": "Repair a malformed tensor pipeline: dtype, device, HWC→CHW, reshape, broadcasting and assertions.",
-        "project_kind": "module_lab",
-        "is_portfolio": false,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T001",
-          "curriculum_id": "C003-M01-L01",
-          "title": "PyTorch Workspace and Accelerator Verification",
-          "minutes": 25,
-          "file": "modules/M01_pytorch_foundations_tensors_shapes_and_devices/T001_pytorch_workspace_and_accelerator_verification.py",
-          "source_line_ranges": [
-            [
-              422,
-              434
-            ],
-            [
-              569,
-              624
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T002",
-          "curriculum_id": "C003-M01-L02",
-          "title": "Creating, Inspecting, and Moving Tensors",
-          "minutes": 35,
-          "file": "modules/M01_pytorch_foundations_tensors_shapes_and_devices/T002_creating_inspecting_and_moving_tensors.py",
-          "source_line_ranges": [
-            [
-              631,
-              720
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T003",
-          "curriculum_id": "C003-M01-L03",
-          "title": "Tensor Operations and Shape Transformations",
-          "minutes": 45,
-          "file": "modules/M01_pytorch_foundations_tensors_shapes_and_devices/T003_tensor_operations_and_shape_transformations.py",
-          "source_line_ranges": [
-            [
-              722,
-              833
-            ],
-            [
-              854,
-              870
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T004",
-          "curriculum_id": "C003-M01-L04",
-          "title": "Broadcasting and Shape Reasoning",
-          "minutes": 30,
-          "file": "modules/M01_pytorch_foundations_tensors_shapes_and_devices/T004_broadcasting_and_shape_reasoning.py",
-          "source_line_ranges": [
-            [
-              872,
-              896
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M01",
+      "title": "Deep Learning & PyTorch Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M01.L01"
       ]
     },
     {
-      "module_id": "M02",
-      "title": "Building PyTorch Data Pipelines",
-      "arabic_title": "بناء خطوط بيانات PyTorch",
-      "book_chapter": 2,
-      "learning_objective": "Build reproducible datasets, transforms, splits and loaders.",
-      "duration_minutes": 105,
-      "optional": false,
-      "lesson_count": 3,
-      "project": {
-        "title": "Production-Style Data Pipeline Lab",
-        "description": "Build a reproducible Dataset/DataLoader pipeline with deterministic splits, train-only augmentation and batch sanity checks.",
-        "project_kind": "module_lab",
-        "is_portfolio": false,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T005",
-          "curriculum_id": "C003-M02-L01",
-          "title": "Datasets and DataLoaders",
-          "minutes": 35,
-          "file": "modules/M02_building_pytorch_data_pipelines/T005_datasets_and_dataloaders.py",
-          "source_line_ranges": [
-            [
-              151,
-              188
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T006",
-          "curriculum_id": "C003-M02-L02",
-          "title": "Image Pipelines with ImageFolder and Transforms",
-          "minutes": 35,
-          "file": "modules/M02_building_pytorch_data_pipelines/T006_image_pipelines_with_imagefolder_and_transforms.py",
-          "source_line_ranges": [
-            [
-              190,
-              263
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T007",
-          "curriculum_id": "C003-M02-L03",
-          "title": "Training, Validation, Test, and Mini-Batches",
-          "minutes": 35,
-          "file": "modules/M02_building_pytorch_data_pipelines/T007_training_validation_test_and_mini_batches.py",
-          "source_line_ranges": [
-            [
-              304,
-              417
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M02",
+      "title": "Pretrained Networks",
+      "lessons": 1,
+      "lesson_ids": [
+        "M02.L01"
       ]
     },
     {
-      "module_id": "M03",
-      "title": "Building Models with nn.Module",
-      "arabic_title": "بناء النماذج باستخدام nn.Module",
-      "book_chapter": 2,
-      "learning_objective": "Implement PyTorch models, outputs, losses and optimizers correctly.",
-      "duration_minutes": 75,
-      "optional": false,
-      "lesson_count": 2,
-      "project": {
-        "title": "From nn.Module to One Optimizer Step",
-        "description": "Implement a classifier, loss and optimizer and prove that a training step updates the intended parameters.",
-        "project_kind": "module_lab",
-        "is_portfolio": false,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T008",
-          "curriculum_id": "C003-M03-L01",
-          "title": "Defining Models with nn.Module",
-          "minutes": 40,
-          "file": "modules/M03_building_models_with_module/T008_defining_models_with_module.py",
-          "source_line_ranges": [
-            [
-              491,
-              563
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T009",
-          "curriculum_id": "C003-M03-L02",
-          "title": "Logits, Loss Functions, and Optimizers",
-          "minutes": 35,
-          "file": "modules/M03_building_models_with_module/T009_logits_loss_functions_and_optimizers.py",
-          "source_line_ranges": [
-            [
-              571,
-              620
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M03",
+      "title": "Tensor Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M03.L01"
       ]
     },
     {
-      "module_id": "M04",
-      "title": "Training and Evaluating PyTorch Models",
-      "arabic_title": "تدريب وتقييم نماذج PyTorch",
-      "book_chapter": 2,
-      "learning_objective": "Implement reusable training, validation and device-aware loops.",
-      "duration_minutes": 125,
-      "optional": false,
-      "lesson_count": 3,
-      "project": {
-        "title": "Reusable PyTorch Trainer",
-        "description": "Build train/eval functions that work on CPU or accelerator, track metrics, and keep evaluation gradient-free.",
-        "project_kind": "portfolio",
-        "is_portfolio": true,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T010",
-          "curriculum_id": "C003-M04-L01",
-          "title": "The PyTorch Training Loop",
-          "minutes": 45,
-          "file": "modules/M04_training_and_evaluating_pytorch_models/T010_the_pytorch_training_loop.py",
-          "source_line_ranges": [
-            [
-              755,
-              791
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T011",
-          "curriculum_id": "C003-M04-L02",
-          "title": "Validation and Evaluation Loops",
-          "minutes": 45,
-          "file": "modules/M04_training_and_evaluating_pytorch_models/T011_validation_and_evaluation_loops.py",
-          "source_line_ranges": [
-            [
-              858,
-              988
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T012",
-          "curriculum_id": "C003-M04-L03",
-          "title": "Device-Aware Training",
-          "minutes": 35,
-          "file": "modules/M04_training_and_evaluating_pytorch_models/T012_device_aware_training.py",
-          "source_line_ranges": [
-            [
-              816,
-              853
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M04",
+      "title": "Representing Real-World Data",
+      "lessons": 1,
+      "lesson_ids": [
+        "M04.L01"
       ]
     },
     {
-      "module_id": "M05",
-      "title": "Reliable Inference, Artifacts, and Checkpoints",
-      "arabic_title": "الاستدلال الموثوق والملفات المحفوظة ونقاط الاستئناف",
-      "book_chapter": [
-        2,
-        8
-      ],
-      "learning_objective": "Build reproducible inference and save/reload both inference and resumable training artifacts.",
-      "duration_minutes": 90,
-      "optional": false,
-      "lesson_count": 2,
-      "project": {
-        "title": "Reproducible Inference Artifact",
-        "description": "Package model weights plus preprocessing/class metadata and reload them into an inference function that reproduces predictions.",
-        "project_kind": "portfolio",
-        "is_portfolio": true,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T013",
-          "curriculum_id": "C003-M05-L01",
-          "title": "Reliable PyTorch Inference",
-          "minutes": 45,
-          "file": "modules/M05_reliable_inference_artifacts_and_checkpoints/T013_reliable_pytorch_inference.py",
-          "source_line_ranges": [
-            [
-              1003,
-              1063
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2,
-          "source_chapter": 2,
-          "additional_source_chapters": [
-            8
-          ]
-        },
-        {
-          "id": "T014",
-          "curriculum_id": "C003-M05-L02",
-          "title": "Model Artifacts and Training Checkpoints",
-          "minutes": 45,
-          "file": "modules/M05_reliable_inference_artifacts_and_checkpoints/T014_model_artifacts_and_training_checkpoints.py",
-          "source_line_ranges": [
-            [
-              1075,
-              1138
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2,
-          "source_chapter": 2,
-          "additional_source_chapters": [
-            8
-          ]
-        }
+      "id": "M05",
+      "title": "The Mechanics of Learning",
+      "lessons": 1,
+      "lesson_ids": [
+        "M05.L01"
       ]
     },
     {
-      "module_id": "M06",
-      "title": "Implementing CNNs in PyTorch",
-      "arabic_title": "تنفيذ الشبكات الالتفافية في PyTorch",
-      "book_chapter": 3,
-      "learning_objective": "Implement and debug CNNs with explicit shape reasoning and train/eval-sensitive layers.",
-      "duration_minutes": 125,
-      "optional": false,
-      "lesson_count": 3,
-      "project": {
-        "title": "CNN Architecture Lab",
-        "description": "Design a CNN that passes dummy-forward shape tests, then train it on a small image dataset or FakeData baseline.",
-        "project_kind": "module_lab",
-        "is_portfolio": false,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T015",
-          "curriculum_id": "C003-M06-L01",
-          "title": "Building CNN Architectures with PyTorch",
-          "minutes": 45,
-          "file": "modules/M06_implementing_cnns_in_pytorch/T015_building_cnn_architectures_with_pytorch.py",
-          "source_line_ranges": [
-            [
-              25,
-              98
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T016",
-          "curriculum_id": "C003-M06-L02",
-          "title": "CNN Shape Arithmetic and Architecture Debugging",
-          "minutes": 40,
-          "file": "modules/M06_implementing_cnns_in_pytorch/T016_cnn_shape_arithmetic_and_architecture_debugging.py",
-          "source_line_ranges": [
-            [
-              208,
-              297
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T017",
-          "curriculum_id": "C003-M06-L03",
-          "title": "Pooling, Dropout, and Batch Normalization in Practice",
-          "minutes": 40,
-          "file": "modules/M06_implementing_cnns_in_pytorch/T017_pooling_dropout_and_batch_normalization_in_practice.py",
-          "source_line_ranges": [
-            [
-              303,
-              427
-            ],
-            [
-              932,
-              955
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M06",
+      "title": "From Linear Models to Neural Networks",
+      "lessons": 1,
+      "lesson_ids": [
+        "M06.L01"
       ]
     },
     {
-      "module_id": "M07",
-      "title": "Pretrained Vision Models and Architecture Inspection",
-      "arabic_title": "النماذج البصرية المدربة مسبقاً وفحص المعماريات",
-      "book_chapter": 3,
-      "learning_objective": "Use modern pretrained weights, preprocessing contracts and model inspection.",
-      "duration_minutes": 75,
-      "optional": false,
-      "lesson_count": 2,
-      "project": {
-        "title": "Pretrained Model Audit",
-        "description": "Load a modern TorchVision weight package, adapt its head, inspect parameters and produce an architecture/preprocessing report.",
-        "project_kind": "module_lab",
-        "is_portfolio": false,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T018",
-          "curriculum_id": "C003-M07-L01",
-          "title": "Loading and Using Pretrained Vision Models",
-          "minutes": 35,
-          "file": "modules/M07_pretrained_vision_models_and_architecture_inspection/T018_loading_and_using_pretrained_vision_models.py",
-          "source_line_ranges": [
-            [
-              665,
-              689
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T019",
-          "curriculum_id": "C003-M07-L02",
-          "title": "Inspecting and Comparing Model Architectures",
-          "minutes": 40,
-          "file": "modules/M07_pretrained_vision_models_and_architecture_inspection/T019_inspecting_and_comparing_model_architectures.py",
-          "source_line_ranges": [
-            [
-              692,
-              699
-            ],
-            [
-              977,
-              998
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M07",
+      "title": "Image Classification Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M07.L01"
       ]
     },
     {
-      "module_id": "M08",
-      "title": "Transfer Learning and Fine-Tuning",
-      "arabic_title": "نقل التعلم والضبط الدقيق",
-      "book_chapter": 4,
-      "learning_objective": "Adapt pretrained models through freezing, selective unfreezing and learning-rate strategy.",
-      "duration_minutes": 135,
-      "optional": false,
-      "lesson_count": 3,
-      "project": {
-        "title": "Fine-Tune a Pretrained Vision Model",
-        "description": "Run frozen-head training then partial fine-tuning with verified optimizer groups, scheduler, checkpoints and comparison report.",
-        "project_kind": "portfolio",
-        "is_portfolio": true,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T020",
-          "curriculum_id": "C003-M08-L01",
-          "title": "Adapting Pretrained Models to New Tasks",
-          "minutes": 45,
-          "file": "modules/M08_transfer_learning_and_fine_tuning/T020_adapting_pretrained_models_to_new_tasks.py",
-          "source_line_ranges": [
-            [
-              38,
-              61
-            ],
-            [
-              84,
-              125
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T021",
-          "curriculum_id": "C003-M08-L02",
-          "title": "Freezing, Unfreezing, and Parameter Groups",
-          "minutes": 45,
-          "file": "modules/M08_transfer_learning_and_fine_tuning/T021_freezing_unfreezing_and_parameter_groups.py",
-          "source_line_ranges": [
-            [
-              55,
-              82
-            ],
-            [
-              357,
-              399
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T022",
-          "curriculum_id": "C003-M08-L03",
-          "title": "Learning-Rate Strategies for Fine-Tuning",
-          "minutes": 45,
-          "file": "modules/M08_transfer_learning_and_fine_tuning/T022_learning_rate_strategies_for_fine_tuning.py",
-          "source_line_ranges": [
-            [
-              133,
-              216
-            ],
-            [
-              304,
-              330
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M08",
+      "title": "Convolutional Neural Networks",
+      "lessons": 1,
+      "lesson_ids": [
+        "M08.L01"
       ]
     },
     {
-      "module_id": "M09",
-      "title": "Data Augmentation and Efficient Vision Training",
-      "arabic_title": "زيادة البيانات والتدريب البصري الفعال",
-      "book_chapter": 4,
-      "learning_objective": "Design valid augmentations, custom transforms, progressive experiments and ensembles.",
-      "duration_minutes": 120,
-      "optional": false,
-      "lesson_count": 3,
-      "project": {
-        "title": "Augmentation Ablation Study",
-        "description": "Compare baseline, augmentation, progressive resolution and ensemble choices using the same validation protocol.",
-        "project_kind": "module_lab",
-        "is_portfolio": false,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T023",
-          "curriculum_id": "C003-M09-L01",
-          "title": "Designing Effective Data Augmentation Pipelines",
-          "minutes": 45,
-          "file": "modules/M09_data_augmentation_and_efficient_vision_training/T023_designing_effective_data_augmentation_pipelines.py",
-          "source_line_ranges": [
-            [
-              424,
-              629
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T024",
-          "curriculum_id": "C003-M09-L02",
-          "title": "Custom Transforms and Progressive Training",
-          "minutes": 40,
-          "file": "modules/M09_data_augmentation_and_efficient_vision_training/T024_custom_transforms_and_progressive_training.py",
-          "source_line_ranges": [
-            [
-              755,
-              923
-            ],
-            [
-              932,
-              995
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T025",
-          "curriculum_id": "C003-M09-L03",
-          "title": "Ensemble Inference and Model Combination",
-          "minutes": 35,
-          "file": "modules/M09_data_augmentation_and_efficient_vision_training/T025_ensemble_inference_and_model_combination.py",
-          "source_line_ranges": [
-            [
-              997,
-              1054
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M09",
+      "title": "Transformers & Generative Sequence Models",
+      "lessons": 1,
+      "lesson_ids": [
+        "M09.L01"
       ]
     },
     {
-      "module_id": "M10",
-      "title": "Sequence Models with PyTorch",
-      "arabic_title": "نماذج التسلسل باستخدام PyTorch",
-      "book_chapter": 5,
-      "learning_objective": "Implement embeddings and variable-length recurrent classifiers without legacy torchtext.",
-      "duration_minutes": 185,
-      "optional": false,
-      "lesson_count": 4,
-      "project": {
-        "title": "Recurrent Sequence Classifier",
-        "description": "Build a variable-length text/sequence classifier using embedding + LSTM/GRU, packed batches, evaluation and checkpointing.",
-        "project_kind": "portfolio",
-        "is_portfolio": true,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T026",
-          "curriculum_id": "C003-M10-L01",
-          "title": "Tokens, Embeddings, and Padded Batches",
-          "minutes": 45,
-          "file": "modules/M10_sequence_models_with_pytorch/T026_tokens_embeddings_and_padded_batches.py",
-          "source_line_ranges": [
-            [
-              306,
-              415
-            ],
-            [
-              960,
-              1048
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T027",
-          "curriculum_id": "C003-M10-L02",
-          "title": "Building LSTM, GRU, and Bidirectional Models",
-          "minutes": 50,
-          "file": "modules/M10_sequence_models_with_pytorch/T027_building_lstm_gru_and_bidirectional_models.py",
-          "source_line_ranges": [
-            [
-              1106,
-              1143
-            ],
-            [
-              228,
-              276
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T028",
-          "curriculum_id": "C003-M10-L03",
-          "title": "Variable-Length Sequences and Packed Batches",
-          "minutes": 45,
-          "file": "modules/M10_sequence_models_with_pytorch/T028_variable_length_sequences_and_packed_batches.py",
-          "source_line_ranges": [
-            [
-              1000,
-              1048
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T029",
-          "curriculum_id": "C003-M10-L04",
-          "title": "Training and Evaluating Sequence Classifiers",
-          "minutes": 45,
-          "file": "modules/M10_sequence_models_with_pytorch/T029_training_and_evaluating_sequence_classifiers.py",
-          "source_line_ranges": [
-            [
-              1162,
-              1277
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M10",
+      "title": "Generative Models & Real-World Project Design",
+      "lessons": 1,
+      "lesson_ids": [
+        "M10.L01"
       ]
     },
     {
-      "module_id": "M11",
-      "title": "Applied Audio Deep Learning with PyTorch",
-      "arabic_title": "التعلم العميق التطبيقي للصوت",
-      "book_chapter": 6,
-      "learning_objective": "Optional: transfer PyTorch skills to waveforms, spectrograms and audio augmentation.",
-      "duration_minutes": 220,
-      "optional": true,
-      "lesson_count": 5,
-      "project": {
-        "title": "Environmental Sound Classifier",
-        "description": "Optional: compare raw-waveform and log-mel models and benchmark preprocessing/SpecAugment trade-offs.",
-        "project_kind": "portfolio",
-        "is_portfolio": true,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T030",
-          "curriculum_id": "C003-M11-L01",
-          "title": "Audio Tensors, Sample Rates, Datasets, and Batching",
-          "minutes": 40,
-          "file": "modules/M11_applied_audio_deep_learning_with_pytorch/T030_audio_tensors_sample_rates_datasets_and_batching.py",
-          "source_line_ranges": [
-            [
-              311,
-              459
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T031",
-          "curriculum_id": "C003-M11-L02",
-          "title": "Raw-Waveform Modeling with 1D CNNs",
-          "minutes": 40,
-          "file": "modules/M11_applied_audio_deep_learning_with_pytorch/T031_raw_waveform_modeling_with_1d_cnns.py",
-          "source_line_ranges": [
-            [
-              482,
-              552
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T032",
-          "curriculum_id": "C003-M11-L03",
-          "title": "Mel Spectrograms and Time-Frequency Modeling",
-          "minutes": 50,
-          "file": "modules/M11_applied_audio_deep_learning_with_pytorch/T032_mel_spectrograms_and_time_frequency_modeling.py",
-          "source_line_ranges": [
-            [
-              621,
-              731
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T033",
-          "curriculum_id": "C003-M11-L04",
-          "title": "Efficient Audio Feature Pipelines",
-          "minutes": 45,
-          "file": "modules/M11_applied_audio_deep_learning_with_pytorch/T033_efficient_audio_feature_pipelines.py",
-          "source_line_ranges": [
-            [
-              761,
-              903
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T034",
-          "curriculum_id": "C003-M11-L05",
-          "title": "Audio Augmentation and SpecAugment",
-          "minutes": 45,
-          "file": "modules/M11_applied_audio_deep_learning_with_pytorch/T034_audio_augmentation_and_specaugment.py",
-          "source_line_ranges": [
-            [
-              1159,
-              1171
-            ],
-            [
-              1284,
-              1626
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M11",
+      "title": "Real-World Data Pipelines for 3D Medical Imaging",
+      "lessons": 1,
+      "lesson_ids": [
+        "M11.L01"
       ]
     },
     {
-      "module_id": "M12",
-      "title": "Debugging Training and Model Behavior",
-      "arabic_title": "تصحيح التدريب وسلوك النموذج",
-      "book_chapter": 7,
-      "learning_objective": "Diagnose data, training and internal-model failures using reproducible evidence.",
-      "duration_minutes": 135,
-      "optional": false,
-      "lesson_count": 3,
-      "project": {
-        "title": "Diagnose a Broken Training Pipeline",
-        "description": "Use tiny-batch overfit tests, TensorBoard and hooks to find and fix multiple planted data/model/training bugs.",
-        "project_kind": "portfolio",
-        "is_portfolio": true,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T035",
-          "curriculum_id": "C003-M12-L01",
-          "title": "Data Sanity Checks and Failure Isolation",
-          "minutes": 40,
-          "file": "modules/M12_debugging_training_and_model_behavior/T035_data_sanity_checks_and_failure_isolation.py",
-          "source_line_ranges": [
-            [
-              16,
-              34
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T036",
-          "curriculum_id": "C003-M12-L02",
-          "title": "Monitoring Training with TensorBoard",
-          "minutes": 45,
-          "file": "modules/M12_debugging_training_and_model_behavior/T036_monitoring_training_with_tensorboard.py",
-          "source_line_ranges": [
-            [
-              125,
-              137
-            ],
-            [
-              194,
-              318
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T037",
-          "curriculum_id": "C003-M12-L03",
-          "title": "Hooks, Activations, Gradients, and Model Inspection",
-          "minutes": 50,
-          "file": "modules/M12_debugging_training_and_model_behavior/T037_hooks_activations_gradients_and_model_inspection.py",
-          "source_line_ranges": [
-            [
-              321,
-              458
-            ],
-            [
-              462,
-              663
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M12",
+      "title": "3D CT Classification Training",
+      "lessons": 1,
+      "lesson_ids": [
+        "M12.L01"
       ]
     },
     {
-      "module_id": "M13",
-      "title": "Profiling, Compilation, and Performance Optimization",
-      "arabic_title": "التنميط والترجمة وتحسين الأداء",
-      "book_chapter": [
-        7,
-        8
-      ],
-      "learning_objective": "Measure bottlenecks, optimize pipelines and use modern compile/export paths.",
-      "duration_minutes": 145,
-      "optional": false,
-      "lesson_count": 3,
-      "project": {
-        "title": "Profile, Optimize, Compile, Export",
-        "description": "Profile a model/pipeline, implement one measured optimization, benchmark eager vs compiled, and verify exported output parity.",
-        "project_kind": "portfolio",
-        "is_portfolio": true,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T038",
-          "curriculum_id": "C003-M13-L01",
-          "title": "Profiling PyTorch Workloads",
-          "minutes": 50,
-          "file": "modules/M13_profiling_compilation_and_performance_optimization/T038_profiling_pytorch_workloads.py",
-          "source_line_ranges": [
-            [
-              668,
-              953
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T039",
-          "curriculum_id": "C003-M13-L02",
-          "title": "Optimizing Data and Transformation Pipelines",
-          "minutes": 45,
-          "file": "modules/M13_profiling_compilation_and_performance_optimization/T039_optimizing_data_and_transformation_pipelines.py",
-          "source_line_ranges": [
-            [
-              955,
-              1225
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T040",
-          "curriculum_id": "C003-M13-L03",
-          "title": "Compiling and Exporting PyTorch Models",
-          "minutes": 50,
-          "file": "modules/M13_profiling_compilation_and_performance_optimization/T040_compiling_and_exporting_pytorch_models.py",
-          "source_line_ranges": [
-            [
-              1023,
-              1443
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2,
-          "source_chapter": 8
-        }
+      "id": "M13",
+      "title": "Metrics, Class Balancing & Data Augmentation",
+      "lessons": 1,
+      "lesson_ids": [
+        "M13.L01"
       ]
     },
     {
-      "module_id": "M14",
-      "title": "GPU Memory and Large-Model Debugging",
-      "arabic_title": "ذاكرة المسرع وتصحيح النماذج الكبيرة",
-      "book_chapter": 7,
-      "learning_objective": "Measure memory and trade precision/compute for lower activation memory.",
-      "duration_minutes": 100,
-      "optional": false,
-      "lesson_count": 2,
-      "project": {
-        "title": "Fit a Larger Model into Memory",
-        "description": "Measure memory, apply AMP and activation checkpointing, and report speed/memory trade-offs.",
-        "project_kind": "module_lab",
-        "is_portfolio": false,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T041",
-          "curriculum_id": "C003-M14-L01",
-          "title": "GPU Memory, OOM Diagnosis, and Mixed Precision",
-          "minutes": 50,
-          "file": "modules/M14_gpu_memory_and_large_model_debugging/T041_gpu_memory_oom_diagnosis_and_mixed_precision.py",
-          "source_line_ranges": [
-            [
-              1239,
-              1368
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T042",
-          "curriculum_id": "C003-M14-L02",
-          "title": "Activation Checkpointing and Memory–Compute Trade-offs",
-          "minutes": 50,
-          "file": "modules/M14_gpu_memory_and_large_model_debugging/T042_activation_checkpointing_and_memory_compute_trade_offs.py",
-          "source_line_ranges": [
-            [
-              1370,
-              1529
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
-      ]
-    },
-    {
-      "module_id": "M15",
-      "title": "Advanced Regularization and Model Robustness",
-      "arabic_title": "التنظيم المتقدم ومتانة النماذج",
-      "book_chapter": 9,
-      "learning_objective": "Apply soft-target regularization and quantitatively test adversarial sensitivity.",
-      "duration_minutes": 95,
-      "optional": false,
-      "lesson_count": 2,
-      "project": {
-        "title": "Regularization and Robustness Report",
-        "description": "Train with MixUp/CutMix/label smoothing, then evaluate clean and FGSM robustness across epsilon values.",
-        "project_kind": "portfolio",
-        "is_portfolio": true,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T043",
-          "curriculum_id": "C003-M15-L01",
-          "title": "MixUp, CutMix, and Label Smoothing",
-          "minutes": 50,
-          "file": "modules/M15_advanced_regularization_and_model_robustness/T043_mixup_cutmix_and_label_smoothing.py",
-          "source_line_ranges": [
-            [
-              27,
-              331
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T044",
-          "curriculum_id": "C003-M15-L02",
-          "title": "Adversarial Robustness and Input-Gradient Testing",
-          "minutes": 45,
-          "file": "modules/M15_advanced_regularization_and_model_robustness/T044_adversarial_robustness_and_input_gradient_testing.py",
-          "source_line_ranges": [
-            [
-              1119,
-              1351
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
-      ]
-    },
-    {
-      "module_id": "M16",
-      "title": "Advanced Vision Applications",
-      "arabic_title": "تطبيقات الرؤية المتقدمة",
-      "book_chapter": 9,
-      "learning_objective": "Optional: implement reconstruction, GAN and detection/segmentation patterns using modern PyTorch.",
-      "duration_minutes": 150,
-      "optional": true,
-      "lesson_count": 3,
-      "project": {
-        "title": "Advanced Vision Application",
-        "description": "Optional: choose super-resolution, GAN generation, detection, or instance segmentation and build a modern PyTorch prototype.",
-        "project_kind": "portfolio",
-        "is_portfolio": true,
-        "deliverables": [
-          "working Python/notebook implementation",
-          "README or experiment notes",
-          "measured checks/metrics",
-          "saved artifact when relevant"
-        ],
-        "acceptance_criteria": [
-          "code runs without silent shape/device errors",
-          "results are measured rather than asserted",
-          "train/validation/test roles remain correct",
-          "limitations and failed experiments are documented"
-        ]
-      },
-      "lessons": [
-        {
-          "id": "T045",
-          "curriculum_id": "C003-M16-L01",
-          "title": "Image Reconstruction and Super-Resolution",
-          "minutes": 45,
-          "file": "modules/M16_advanced_vision_applications/T045_image_reconstruction_and_super_resolution.py",
-          "source_line_ranges": [
-            [
-              377,
-              565
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T046",
-          "curriculum_id": "C003-M16-L02",
-          "title": "Implementing GAN Training Loops",
-          "minutes": 55,
-          "file": "modules/M16_advanced_vision_applications/T046_implementing_gan_training_loops.py",
-          "source_line_ranges": [
-            [
-              567,
-              788
-            ]
-          ],
-          "project_defined": false,
-          "code_exercises": 2
-        },
-        {
-          "id": "T047",
-          "curriculum_id": "C003-M16-L03",
-          "title": "Object Detection and Instance Segmentation",
-          "minutes": 50,
-          "file": "modules/M16_advanced_vision_applications/T047_object_detection_and_instance_segmentation.py",
-          "source_line_ranges": [
-            [
-              847,
-              1116
-            ]
-          ],
-          "project_defined": true,
-          "code_exercises": 2
-        }
+      "id": "M14",
+      "title": "Segmentation & Fine-Tuning for Nodule Detection",
+      "lessons": 1,
+      "lesson_ids": [
+        "M14.L01"
       ]
     }
-  ],
-  "source_mapping_note": "Some lessons intentionally combine multiple BOOK-003 chapters; lesson SOURCE.additional_sources records those mappings."
+  ]
 }

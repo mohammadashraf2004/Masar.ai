@@ -1,0 +1,880 @@
+[
+  {
+    "module_id": "M015-01",
+    "lesson_id": "L015-001",
+    "title": "What Is a Voice AI System?",
+    "slug": "what-is-a-voice-ai-system",
+    "duration_minutes": 45,
+    "path": "M015-01/L015-001.py",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "module_id": "M015-01",
+    "lesson_id": "L015-002",
+    "title": "Digital Audio for AI Engineers",
+    "slug": "digital-audio-for-ai-engineers",
+    "duration_minutes": 50,
+    "path": "M015-01/L015-002.py",
+    "source_chapters": [
+      2
+    ]
+  },
+  {
+    "module_id": "M015-01",
+    "lesson_id": "L015-003",
+    "title": "Audio Capture, Playback & Device Pipeline",
+    "slug": "audio-capture-playback-and-device-pipeline",
+    "duration_minutes": 50,
+    "path": "M015-01/L015-003.py",
+    "source_chapters": [
+      2,
+      3,
+      14
+    ]
+  },
+  {
+    "module_id": "M015-01",
+    "lesson_id": "L015-004",
+    "title": "Streaming Instead of Request/Response",
+    "slug": "streaming-instead-of-request-response",
+    "duration_minutes": 50,
+    "path": "M015-01/L015-004.py",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "module_id": "M015-01",
+    "lesson_id": "L015-005",
+    "title": "Latency Budget",
+    "slug": "latency-budget",
+    "duration_minutes": 45,
+    "path": "M015-01/L015-005.py",
+    "source_chapters": [
+      2,
+      3,
+      4
+    ]
+  },
+  {
+    "module_id": "M015-01",
+    "lesson_id": "L015-006",
+    "title": "Turn Detection, VAD & Endpointing",
+    "slug": "turn-detection-vad-and-endpointing",
+    "duration_minutes": 50,
+    "path": "M015-01/L015-006.py",
+    "source_chapters": [
+      3,
+      14,
+      16
+    ]
+  },
+  {
+    "module_id": "M015-01",
+    "lesson_id": "L015-007",
+    "title": "Interruption & Barge-In",
+    "slug": "interruption-and-barge-in",
+    "duration_minutes": 50,
+    "path": "M015-01/L015-007.py",
+    "source_chapters": [
+      3,
+      14,
+      16
+    ]
+  },
+  {
+    "module_id": "M015-01",
+    "lesson_id": "L015-008",
+    "title": "Project 1 — Basic Voice Assistant",
+    "slug": "project-1-basic-voice-assistant",
+    "duration_minutes": 65,
+    "path": "M015-01/L015-008.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-02",
+    "lesson_id": "L015-009",
+    "title": "How Streaming STT Works",
+    "slug": "how-streaming-stt-works",
+    "duration_minutes": 55,
+    "path": "M015-02/L015-009.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-02",
+    "lesson_id": "L015-010",
+    "title": "Interim, Final & Utterance Events",
+    "slug": "interim-final-and-utterance-events",
+    "duration_minutes": 55,
+    "path": "M015-02/L015-010.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-02",
+    "lesson_id": "L015-011",
+    "title": "STT Accuracy for Real Applications",
+    "slug": "stt-accuracy-for-real-applications",
+    "duration_minutes": 60,
+    "path": "M015-02/L015-011.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-02",
+    "lesson_id": "L015-012",
+    "title": "Arabic, English & Code-Switching",
+    "slug": "arabic-english-and-code-switching",
+    "duration_minutes": 60,
+    "path": "M015-02/L015-012.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-02",
+    "lesson_id": "L015-013",
+    "title": "TTS Architecture & Speech Generation",
+    "slug": "tts-architecture-and-speech-generation",
+    "duration_minutes": 60,
+    "path": "M015-02/L015-013.py",
+    "source_chapters": [
+      2,
+      4,
+      14
+    ]
+  },
+  {
+    "module_id": "M015-02",
+    "lesson_id": "L015-014",
+    "title": "Streaming TTS & Incremental LLM Output",
+    "slug": "streaming-tts-and-incremental-llm-output",
+    "duration_minutes": 60,
+    "path": "M015-02/L015-014.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-02",
+    "lesson_id": "L015-015",
+    "title": "Speech Provider Benchmarking",
+    "slug": "speech-provider-benchmarking",
+    "duration_minutes": 60,
+    "path": "M015-02/L015-015.py",
+    "source_chapters": [
+      16
+    ]
+  },
+  {
+    "module_id": "M015-02",
+    "lesson_id": "L015-016",
+    "title": "Project 2 — Streaming STT/TTS Assistant",
+    "slug": "project-2-streaming-stt-tts-assistant",
+    "duration_minutes": 85,
+    "path": "M015-02/L015-016.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-03",
+    "lesson_id": "L015-017",
+    "title": "Gemini Live Mental Model",
+    "slug": "gemini-live-mental-model",
+    "duration_minutes": 55,
+    "path": "M015-03/L015-017.py",
+    "source_chapters": [
+      2,
+      3,
+      4,
+      6
+    ]
+  },
+  {
+    "module_id": "M015-03",
+    "lesson_id": "L015-018",
+    "title": "Secure Session Architecture",
+    "slug": "secure-session-architecture",
+    "duration_minutes": 55,
+    "path": "M015-03/L015-018.py",
+    "source_chapters": [
+      3,
+      4,
+      19
+    ]
+  },
+  {
+    "module_id": "M015-03",
+    "lesson_id": "L015-019",
+    "title": "Bidirectional Audio Streaming",
+    "slug": "bidirectional-audio-streaming",
+    "duration_minutes": 60,
+    "path": "M015-03/L015-019.py",
+    "source_chapters": [
+      3,
+      4,
+      6
+    ]
+  },
+  {
+    "module_id": "M015-03",
+    "lesson_id": "L015-020",
+    "title": "Turn Detection & Gemini Interruptions",
+    "slug": "turn-detection-and-gemini-interruptions",
+    "duration_minutes": 60,
+    "path": "M015-03/L015-020.py",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "module_id": "M015-03",
+    "lesson_id": "L015-021",
+    "title": "Tool Calling During a Live Session",
+    "slug": "tool-calling-during-a-live-session",
+    "duration_minutes": 60,
+    "path": "M015-03/L015-021.py",
+    "source_chapters": [
+      4,
+      6,
+      10,
+      11
+    ]
+  },
+  {
+    "module_id": "M015-03",
+    "lesson_id": "L015-022",
+    "title": "Multimodal Live Interaction",
+    "slug": "multimodal-live-interaction",
+    "duration_minutes": 60,
+    "path": "M015-03/L015-022.py",
+    "source_chapters": [
+      2,
+      4,
+      14
+    ]
+  },
+  {
+    "module_id": "M015-03",
+    "lesson_id": "L015-023",
+    "title": "Session Continuity & Long Conversations",
+    "slug": "session-continuity-and-long-conversations",
+    "duration_minutes": 60,
+    "path": "M015-03/L015-023.py",
+    "source_chapters": [
+      3,
+      6,
+      13
+    ]
+  },
+  {
+    "module_id": "M015-03",
+    "lesson_id": "L015-024",
+    "title": "Project 3 — Gemini Live Voice Agent",
+    "slug": "project-3-gemini-live-voice-agent",
+    "duration_minutes": 85,
+    "path": "M015-03/L015-024.py",
+    "source_chapters": [
+      3,
+      6
+    ]
+  },
+  {
+    "module_id": "M015-04",
+    "lesson_id": "L015-025",
+    "title": "OpenAI Realtime Mental Model",
+    "slug": "openai-realtime-mental-model",
+    "duration_minutes": 55,
+    "path": "M015-04/L015-025.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-04",
+    "lesson_id": "L015-026",
+    "title": "Browser Voice over WebRTC",
+    "slug": "browser-voice-over-webrtc",
+    "duration_minutes": 55,
+    "path": "M015-04/L015-026.py",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "module_id": "M015-04",
+    "lesson_id": "L015-027",
+    "title": "Server Voice over WebSocket",
+    "slug": "server-voice-over-websocket",
+    "duration_minutes": 60,
+    "path": "M015-04/L015-027.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-04",
+    "lesson_id": "L015-028",
+    "title": "Audio Input/Output & Event State",
+    "slug": "audio-input-output-and-event-state",
+    "duration_minutes": 60,
+    "path": "M015-04/L015-028.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-04",
+    "lesson_id": "L015-029",
+    "title": "VAD, Semantic Turns & Push-to-Talk",
+    "slug": "vad-semantic-turns-and-push-to-talk",
+    "duration_minutes": 60,
+    "path": "M015-04/L015-029.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-04",
+    "lesson_id": "L015-030",
+    "title": "Correct Interruption State",
+    "slug": "correct-interruption-state",
+    "duration_minutes": 60,
+    "path": "M015-04/L015-030.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-04",
+    "lesson_id": "L015-031",
+    "title": "Tools & Conversation State",
+    "slug": "tools-and-conversation-state",
+    "duration_minutes": 60,
+    "path": "M015-04/L015-031.py",
+    "source_chapters": [
+      16,
+      17
+    ]
+  },
+  {
+    "module_id": "M015-04",
+    "lesson_id": "L015-032",
+    "title": "Project 4 — OpenAI Realtime Voice Agent",
+    "slug": "project-4-openai-realtime-voice-agent",
+    "duration_minutes": 85,
+    "path": "M015-04/L015-032.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-05",
+    "lesson_id": "L015-033",
+    "title": "Voice Agent Lifecycle",
+    "slug": "voice-agent-lifecycle",
+    "duration_minutes": 55,
+    "path": "M015-05/L015-033.py",
+    "source_chapters": [
+      1,
+      5,
+      6,
+      7,
+      14,
+      18
+    ]
+  },
+  {
+    "module_id": "M015-05",
+    "lesson_id": "L015-034",
+    "title": "Ports, Adapters & Canonical Events",
+    "slug": "ports-adapters-and-canonical-events",
+    "duration_minutes": 55,
+    "path": "M015-05/L015-034.py",
+    "source_chapters": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      15,
+      17,
+      18,
+      19,
+      20
+    ]
+  },
+  {
+    "module_id": "M015-05",
+    "lesson_id": "L015-035",
+    "title": "Choosing Chained vs Native Speech",
+    "slug": "choosing-chained-vs-native-speech",
+    "duration_minutes": 60,
+    "path": "M015-05/L015-035.py",
+    "source_chapters": [
+      2
+    ]
+  },
+  {
+    "module_id": "M015-05",
+    "lesson_id": "L015-036",
+    "title": "Tools in Realtime Conversation",
+    "slug": "tools-in-realtime-conversation",
+    "duration_minutes": 60,
+    "path": "M015-05/L015-036.py",
+    "source_chapters": [
+      1,
+      4,
+      5,
+      6,
+      10,
+      11,
+      12,
+      15,
+      17
+    ]
+  },
+  {
+    "module_id": "M015-05",
+    "lesson_id": "L015-037",
+    "title": "Voice RAG Architecture",
+    "slug": "voice-rag-architecture",
+    "duration_minutes": 60,
+    "path": "M015-05/L015-037.py",
+    "source_chapters": [
+      14
+    ]
+  },
+  {
+    "module_id": "M015-05",
+    "lesson_id": "L015-038",
+    "title": "Memory & Context in Voice",
+    "slug": "memory-and-context-in-voice",
+    "duration_minutes": 60,
+    "path": "M015-05/L015-038.py",
+    "source_chapters": [
+      1,
+      2,
+      5,
+      6,
+      7,
+      8,
+      9,
+      14,
+      15,
+      16,
+      19
+    ]
+  },
+  {
+    "module_id": "M015-05",
+    "lesson_id": "L015-039",
+    "title": "Authentication, Authorization & Voice Actions",
+    "slug": "authentication-authorization-and-voice-actions",
+    "duration_minutes": 60,
+    "path": "M015-05/L015-039.py",
+    "source_chapters": [
+      5,
+      8,
+      10,
+      11,
+      13,
+      14,
+      17,
+      18,
+      19
+    ]
+  },
+  {
+    "module_id": "M015-05",
+    "lesson_id": "L015-040",
+    "title": "Project 5 — Voice Agent with Tools",
+    "slug": "project-5-voice-agent-with-tools",
+    "duration_minutes": 90,
+    "path": "M015-05/L015-040.py",
+    "source_chapters": [
+      4,
+      5,
+      6,
+      10,
+      11,
+      12
+    ]
+  },
+  {
+    "module_id": "M015-06",
+    "lesson_id": "L015-041",
+    "title": "ElevenLabs as TTS Component",
+    "slug": "elevenlabs-as-tts-component",
+    "duration_minutes": 55,
+    "path": "M015-06/L015-041.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-06",
+    "lesson_id": "L015-042",
+    "title": "ElevenLabs Agent Architecture",
+    "slug": "elevenlabs-agent-architecture",
+    "duration_minutes": 60,
+    "path": "M015-06/L015-042.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-06",
+    "lesson_id": "L015-043",
+    "title": "Deepgram Streaming STT",
+    "slug": "deepgram-streaming-stt",
+    "duration_minutes": 60,
+    "path": "M015-06/L015-043.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-06",
+    "lesson_id": "L015-044",
+    "title": "Deepgram TTS & Integrated Agent API",
+    "slug": "deepgram-tts-and-integrated-agent-api",
+    "duration_minutes": 60,
+    "path": "M015-06/L015-044.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-06",
+    "lesson_id": "L015-045",
+    "title": "WebRTC vs WebSocket Engineering",
+    "slug": "webrtc-vs-websocket-engineering",
+    "duration_minutes": 60,
+    "path": "M015-06/L015-045.py",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "module_id": "M015-06",
+    "lesson_id": "L015-046",
+    "title": "Browser & Mobile Voice Architecture",
+    "slug": "browser-and-mobile-voice-architecture",
+    "duration_minutes": 60,
+    "path": "M015-06/L015-046.py",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "module_id": "M015-06",
+    "lesson_id": "L015-047",
+    "title": "Telephony Foundations with Twilio",
+    "slug": "telephony-foundations-with-twilio",
+    "duration_minutes": 65,
+    "path": "M015-06/L015-047.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-06",
+    "lesson_id": "L015-048",
+    "title": "Project 6 — Voice RAG Assistant",
+    "slug": "project-6-voice-rag-assistant",
+    "duration_minutes": 110,
+    "path": "M015-06/L015-048.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-07",
+    "lesson_id": "L015-049",
+    "title": "Multi-Agent Voice Systems",
+    "slug": "multi-agent-voice-systems",
+    "duration_minutes": 55,
+    "path": "M015-07/L015-049.py",
+    "source_chapters": [
+      1,
+      5,
+      7,
+      8,
+      9,
+      12,
+      14,
+      15,
+      17,
+      18,
+      19
+    ]
+  },
+  {
+    "module_id": "M015-07",
+    "lesson_id": "L015-050",
+    "title": "Agent Handoffs Without Breaking Conversation",
+    "slug": "agent-handoffs-without-breaking-conversation",
+    "duration_minutes": 55,
+    "path": "M015-07/L015-050.py",
+    "source_chapters": [
+      1,
+      5,
+      7,
+      8,
+      9,
+      14,
+      18,
+      19
+    ]
+  },
+  {
+    "module_id": "M015-07",
+    "lesson_id": "L015-051",
+    "title": "Human Handoff",
+    "slug": "human-handoff",
+    "duration_minutes": 60,
+    "path": "M015-07/L015-051.py",
+    "source_chapters": [
+      5,
+      7,
+      14
+    ]
+  },
+  {
+    "module_id": "M015-07",
+    "lesson_id": "L015-052",
+    "title": "Long-Running Tools During Speech",
+    "slug": "long-running-tools-during-speech",
+    "duration_minutes": 60,
+    "path": "M015-07/L015-052.py",
+    "source_chapters": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      18,
+      19,
+      20
+    ]
+  },
+  {
+    "module_id": "M015-07",
+    "lesson_id": "L015-053",
+    "title": "Long Conversations & Context Management",
+    "slug": "long-conversations-and-context-management",
+    "duration_minutes": 60,
+    "path": "M015-07/L015-053.py",
+    "source_chapters": [
+      5,
+      8,
+      12,
+      13,
+      14
+    ]
+  },
+  {
+    "module_id": "M015-07",
+    "lesson_id": "L015-054",
+    "title": "Multimodal Voice Agent",
+    "slug": "multimodal-voice-agent",
+    "duration_minutes": 60,
+    "path": "M015-07/L015-054.py",
+    "source_chapters": [
+      2,
+      4,
+      9,
+      10,
+      11,
+      14
+    ]
+  },
+  {
+    "module_id": "M015-07",
+    "lesson_id": "L015-055",
+    "title": "Voice Agents Controlling Real Workflows",
+    "slug": "voice-agents-controlling-real-workflows",
+    "duration_minutes": 60,
+    "path": "M015-07/L015-055.py",
+    "source_chapters": [
+      1,
+      2,
+      4,
+      5,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      17,
+      18,
+      19,
+      20
+    ]
+  },
+  {
+    "module_id": "M015-07",
+    "lesson_id": "L015-056",
+    "title": "Project 7 — Phone Voice Agent with Twilio",
+    "slug": "project-7-phone-voice-agent-with-twilio",
+    "duration_minutes": 100,
+    "path": "M015-07/L015-056.py",
+    "source_chapters": []
+  },
+  {
+    "module_id": "M015-08",
+    "lesson_id": "L015-057",
+    "title": "Latency Engineering",
+    "slug": "latency-engineering",
+    "duration_minutes": 65,
+    "path": "M015-08/L015-057.py",
+    "source_chapters": [
+      3,
+      4,
+      5,
+      7,
+      8,
+      9,
+      12,
+      13,
+      15,
+      16,
+      17
+    ]
+  },
+  {
+    "module_id": "M015-08",
+    "lesson_id": "L015-058",
+    "title": "Streaming Reliability & Backpressure",
+    "slug": "streaming-reliability-and-backpressure",
+    "duration_minutes": 70,
+    "path": "M015-08/L015-058.py",
+    "source_chapters": [
+      3,
+      6,
+      9,
+      10,
+      11,
+      12,
+      13,
+      16,
+      20
+    ]
+  },
+  {
+    "module_id": "M015-08",
+    "lesson_id": "L015-059",
+    "title": "Rate Limits, Concurrency & Cost Engineering",
+    "slug": "rate-limits-concurrency-and-cost-engineering",
+    "duration_minutes": 70,
+    "path": "M015-08/L015-059.py",
+    "source_chapters": [
+      4,
+      13,
+      15,
+      16,
+      17,
+      20
+    ]
+  },
+  {
+    "module_id": "M015-08",
+    "lesson_id": "L015-060",
+    "title": "Observability & Logging",
+    "slug": "observability-and-logging",
+    "duration_minutes": 70,
+    "path": "M015-08/L015-060.py",
+    "source_chapters": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ]
+  },
+  {
+    "module_id": "M015-08",
+    "lesson_id": "L015-061",
+    "title": "Voice AI Evaluation",
+    "slug": "voice-ai-evaluation",
+    "duration_minutes": 70,
+    "path": "M015-08/L015-061.py",
+    "source_chapters": [
+      6,
+      9,
+      13,
+      14,
+      15,
+      16,
+      17,
+      19,
+      20
+    ]
+  },
+  {
+    "module_id": "M015-08",
+    "lesson_id": "L015-062",
+    "title": "Security & Privacy",
+    "slug": "security-and-privacy",
+    "duration_minutes": 70,
+    "path": "M015-08/L015-062.py",
+    "source_chapters": [
+      4,
+      5,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ]
+  },
+  {
+    "module_id": "M015-08",
+    "lesson_id": "L015-063",
+    "title": "Deployment, Scaling & Provider Failure",
+    "slug": "deployment-scaling-and-provider-failure",
+    "duration_minutes": 75,
+    "path": "M015-08/L015-063.py",
+    "source_chapters": [
+      4,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ]
+  },
+  {
+    "module_id": "M015-08",
+    "lesson_id": "L015-064",
+    "title": "Final Project — Production-Ready Multilingual Voice AI Agent",
+    "slug": "final-project-production-ready-multilingual-voice-ai-agent",
+    "duration_minutes": 130,
+    "path": "M015-08/L015-064.py",
+    "source_chapters": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ]
+  }
+]

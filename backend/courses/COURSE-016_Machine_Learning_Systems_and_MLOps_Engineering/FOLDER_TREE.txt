@@ -1,0 +1,187 @@
+COURSE-016
+├── 00-course-setup
+│   ├── optional-kubernetes-lab-setup.md
+│   ├── python-environment-setup.md
+│   ├── README.md
+│   └── running-the-seed.md
+├── assets
+│   ├── manual_figures
+│   │   └── README.md
+│   └── masar_original_diagrams
+│       └── README.md
+├── M016-01
+│   ├── L016-001.py
+│   ├── L016-002.py
+│   ├── L016-003.py
+│   ├── L016-004.py
+│   ├── L016-005.py
+│   ├── L016-006.py
+│   ├── L016-007.py
+│   ├── L016-008.py
+│   ├── L016-009.py
+│   └── module_manifest.json
+├── M016-02
+│   ├── L016-010.py
+│   ├── L016-011.py
+│   ├── L016-012.py
+│   ├── L016-013.py
+│   ├── L016-014.py
+│   ├── L016-015.py
+│   ├── L016-016.py
+│   ├── L016-017.py
+│   └── module_manifest.json
+├── M016-03
+│   ├── L016-018.py
+│   ├── L016-019.py
+│   ├── L016-020.py
+│   ├── L016-021.py
+│   ├── L016-022.py
+│   ├── L016-023.py
+│   ├── L016-024.py
+│   ├── L016-025.py
+│   ├── L016-026.py
+│   └── module_manifest.json
+├── M016-04
+│   ├── L016-027.py
+│   ├── L016-028.py
+│   ├── L016-029.py
+│   ├── L016-030.py
+│   ├── L016-031.py
+│   ├── L016-032.py
+│   ├── L016-033.py
+│   ├── L016-034.py
+│   └── module_manifest.json
+├── M016-05
+│   ├── L016-035.py
+│   ├── L016-036.py
+│   ├── L016-037.py
+│   ├── L016-038.py
+│   ├── L016-039.py
+│   ├── L016-040.py
+│   ├── L016-041.py
+│   ├── L016-042.py
+│   ├── L016-043.py
+│   ├── L016-044.py
+│   └── module_manifest.json
+├── M016-06
+│   ├── L016-045.py
+│   ├── L016-046.py
+│   ├── L016-047.py
+│   ├── L016-048.py
+│   ├── L016-049.py
+│   ├── L016-050.py
+│   ├── L016-051.py
+│   ├── L016-052.py
+│   ├── L016-053.py
+│   ├── L016-054.py
+│   └── module_manifest.json
+├── M016-07
+│   ├── L016-055.py
+│   ├── L016-056.py
+│   ├── L016-057.py
+│   ├── L016-058.py
+│   ├── L016-059.py
+│   ├── L016-060.py
+│   ├── L016-061.py
+│   ├── L016-062.py
+│   ├── L016-063.py
+│   ├── L016-064.py
+│   ├── L016-065.py
+│   └── module_manifest.json
+├── M016-08
+│   ├── L016-066.py
+│   ├── L016-067.py
+│   ├── L016-068.py
+│   ├── L016-069.py
+│   ├── L016-070.py
+│   ├── L016-071.py
+│   ├── L016-072.py
+│   ├── L016-073.py
+│   ├── L016-074.py
+│   ├── L016-075.py
+│   └── module_manifest.json
+├── M016-09
+│   ├── L016-076.py
+│   ├── L016-077.py
+│   ├── L016-078.py
+│   ├── L016-079.py
+│   ├── L016-080.py
+│   ├── L016-081.py
+│   ├── L016-082.py
+│   ├── L016-083.py
+│   ├── L016-084.py
+│   ├── L016-085.py
+│   └── module_manifest.json
+├── M016-10
+│   ├── L016-086.py
+│   ├── L016-087.py
+│   ├── L016-088.py
+│   ├── L016-089.py
+│   ├── L016-090.py
+│   ├── L016-091.py
+│   ├── L016-092.py
+│   ├── L016-093.py
+│   ├── L016-094.py
+│   └── module_manifest.json
+├── M016-11
+│   ├── L016-095.py
+│   ├── L016-096.py
+│   ├── L016-097.py
+│   ├── L016-098.py
+│   ├── L016-099.py
+│   ├── L016-100.py
+│   ├── L016-101.py
+│   ├── L016-102.py
+│   ├── L016-103.py
+│   ├── L016-104.py
+│   ├── L016-105.py
+│   ├── L016-106.py
+│   ├── L016-107.py
+│   ├── L016-108.py
+│   ├── L016-109.py
+│   ├── L016-110.py
+│   ├── L016-111.py
+│   ├── L016-112.py
+│   ├── L016-113.py
+│   ├── L016-114.py
+│   ├── L016-115.py
+│   ├── L016-116.py
+│   ├── L016-117.py
+│   ├── L016-118.py
+│   ├── L016-119.py
+│   ├── L016-120.py
+│   ├── L016-121.py
+│   ├── L016-122.py
+│   ├── L016-123.py
+│   ├── L016-124.py
+│   ├── L016-125.py
+│   └── module_manifest.json
+├── M016-12
+│   ├── capstone_manifest.json
+│   └── module_manifest.json
+├── projects
+│   ├── final_capstone.json
+│   ├── M016-01_project.json
+│   ├── M016-02_project.json
+│   ├── M016-03_project.json
+│   ├── M016-04_project.json
+│   ├── M016-05_project.json
+│   ├── M016-06_project.json
+│   ├── M016-07_project.json
+│   ├── M016-08_project.json
+│   ├── M016-09_project.json
+│   ├── M016-10_project.json
+│   └── M016-11_project.json
+├── .env.example
+├── assets_manifest.json
+├── course_data.py
+├── course_manifest.json
+├── FINALIZATION_AUDIT.md
+├── FOLDER_TREE.txt
+├── lessons_manifest.json
+├── modules_manifest.json
+├── README.md
+├── requirements.txt
+├── seed_course_016.py
+├── validate_course.py
+└── VALIDATION_REPORT.txt

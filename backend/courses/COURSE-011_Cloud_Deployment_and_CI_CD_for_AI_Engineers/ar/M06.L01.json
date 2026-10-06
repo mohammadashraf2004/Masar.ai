@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "lesson_id": "M06.L01",
+  "source_hash": "6e99200111245975da7e598acc9bd61591c486009ae28a97e1be1d27d834ecad",
+  "title": "Container Orchestration باستخدام Kubernetes",
+  "exercises": [
+    {
+      "id": "COURSE-011.M06.L01.EX01",
+      "title": "اربط كائنات Kubernetes بمسؤولياتها",
+      "description": "تدرّب على التمييز بين مسؤوليات Nodes وPods وDeployments وServices.\n\n**المخرَج المتوقع**\n\nجدول مسؤوليات مع مخطط بسيط لعلاقات كائنات Kubernetes."
+    },
+    {
+      "id": "COURSE-011.M06.L01.EX02",
+      "title": "انشر تطبيق Flask تصريحيًا",
+      "description": "أنشئ ملفي manifest لـ Deployment وService من الدرس وتحقق من أن Kubernetes يصل إلى الحالة المعلنة.\n\n**المخرَج المتوقع**\n\nملفا manifest صالحان ودليل على نسختين (replicas) تعملان وService قابلة للوصول وشرح مكتوب لاختيار التسميات (labels) وتدفق الحركة."
+    },
+    {
+      "id": "COURSE-011.M06.L01.EX03",
+      "title": "وسّع وأطلق إصدارًا جديدًا",
+      "description": "تدرّب على عمليات Kubernetes التي تُظهر التنسيق: التوسيع والتحديثات التدريجية والمراقبة والتراجع.\n\n**المخرَج المتوقع**\n\nتسلسل أوامر مع شرح مفاهيمي يربط عمليات التوسيع والإطلاق بمصالحة الحالة المرغوبة."
+    },
+    {
+      "id": "COURSE-011.M06.L01.EX04",
+      "title": "صمّم إعداد Helm متعدد البيئات",
+      "description": "تدرّب على فصل قوالب Kubernetes القابلة لإعادة الاستخدام عن القيم الخاصة بكل بيئة.\n\n**المخرَج المتوقع**\n\nتصميم Chart قابل لإعادة الاستخدام يعرض القوالب المشتركة والقيم الخاصة بكل بيئة مع شرح واضح لمصطلحات Chart/repository/release."
+    }
+  ],
+  "questions": [
+    {
+      "question": "ماذا يقصد المصدر بـ 'مشكلة اليوم الثاني (Day 2 problem)' في Kubernetes؟",
+      "options": [
+        "بناء أول صورة Docker",
+        "إبقاء التطبيقات العاملة في حاويات موثوقة وقابلة للتوسع ومتصلة وقابلة للتحديث بعد النشر الأولي",
+        "إنشاء مستودع Git في اليوم الثاني من المشروع",
+        "تثبيت Docker Desktop بعد Kubernetes"
+      ],
+      "explanation": "مشكلة اليوم الثاني هي تشغيل التطبيق عبر الزمن لا مجرد بدء حاوية مرة واحدة."
+    },
+    {
+      "question": "أي قدرة في Kubernetes تستبدل أعباء العمل الفاشلة تلقائيًا لاستعادة الحالة المرغوبة؟",
+      "options": [
+        "الإصلاح الذاتي (Self-healing)",
+        "وسم Docker",
+        "تفريع Git",
+        "مستودعات Helm فقط"
+      ],
+      "explanation": "يحدد الفصل الإصلاح الذاتي بأنه قدرة Kubernetes على اكتشاف الإخفاقات وإعادة إنشاء أعباء العمل/جدولتها."
+    },
+    {
+      "question": "ما العلاقة الأساسية بين control plane وNodes؟",
+      "options": [
+        "تدير Nodes تاريخ Git الخاص بـ control plane",
+        "يتخذ control plane قرارات على مستوى العنقود بينما تشغّل Nodes أعباء العمل",
+        "control plane صورة Docker مخزَّنة على كل Node",
+        "Nodes هي Services وcontrol plane هو Pod"
+      ],
+      "explanation": "يقدّم المصدر control plane بوصفه المدير/العقل وNodes بوصفها العمال."
+    },
+    {
+      "question": "ما أصغر كائن قابل للنشر في Kubernetes قدّمه الفصل؟",
+      "options": [
+        "صورة الحاوية",
+        "Pod",
+        "Service",
+        "مستودع Helm"
+      ],
+      "explanation": "يدير Kubernetes الـ Pods بوصفها أصغر وحدة قابلة للنشر."
+    },
+    {
+      "question": "يريد Deployment ثلاث نسخ (replicas) لكن Podين فقط يعملان. ماذا تفعل المصالحة (reconciliation)؟",
+      "options": [
+        "تحذف Deployment",
+        "تنشئ Pod بديلًا لإعادة الحالة الفعلية نحو 3",
+        "تغيّر Service لتستخدم Pod واحدًا فقط",
+        "تتطلب أن ينشئ إنسان Pod يدويًا"
+      ],
+      "explanation": "يقارن متحكم Deployment باستمرار بين الحالة المرغوبة والفعلية ويصحح الفرق."
+    },
+    {
+      "question": "لماذا ينبغي لتطبيق آخر عادةً أن يتصل عبر Service بدل الاتصال مباشرةً بعنوان IP لـ Pod واحد؟",
+      "options": [
+        "لأن Services تخزّن صور Docker",
+        "لأن عناوين IP للـ Pods عابرة بينما توفر Service نقطة نهاية مستقرة",
+        "لأن Pods لا تستطيع استقبال حركة الشبكة",
+        "لأن Services تعمل دائمًا على مزوّد سحابي مختلف"
+      ],
+      "explanation": "يمكن استبدال Pods وقد تتغير العناوين، بينما توفر Service اكتشافًا وتوجيهًا مستقرين."
+    },
+    {
+      "question": "كيف تحدد Service أي Pods ينبغي أن تتلقى حركتها؟",
+      "options": [
+        "أسماء مستخدمي Docker Hub",
+        "التسميات والمحددات (labels وselectors)",
+        "state في Terraform",
+        "تجزئات commits في Git"
+      ],
+      "explanation": "يطابق محدد Service التسميات المرفقة بالـ Pods."
+    },
+    {
+      "question": "فيمَ يُستخدم kubectl؟",
+      "options": [
+        "بناء صور Docker",
+        "التفاعل مع واجهة Kubernetes API",
+        "تخزين مخططات Helm",
+        "استبدال minikube بـ Terraform"
+      ],
+      "explanation": "`kubectl` هو عميل سطر الأوامر المستخدم للتفاعل مع عناقيد Kubernetes."
+    },
+    {
+      "question": "في manifest الخاص بـ Service، إلامَ يشير targetPort: 8080؟",
+      "options": [
+        "منفذ Service الخارجي في Docker Hub",
+        "منفذ التطبيق على الـ Pods المختارة",
+        "منفذ control plane في minikube",
+        "منفذ مستودع Helm"
+      ],
+      "explanation": "تعيد Service توجيه الحركة من منفذها هي إلى targetPort 8080 على الـ Pods المطابقة."
+    },
+    {
+      "question": "أي أمر من الدرس يغيّر عدد النسخ المرغوب إلى خمس؟",
+      "options": [
+        "الأمر kubectl scale deployment flask-app-deployment --replicas=5",
+        "الأمر kubectl rollout undo flask-app-deployment --replicas=5",
+        "الأمر minikube scale 5",
+        "الأمر helm repo add replicas=5"
+      ],
+      "explanation": "يحدّث `kubectl scale` عدد النسخ المرغوب في Deployment."
+    },
+    {
+      "question": "ما الغرض من kubectl rollout undo في الدرس؟",
+      "options": [
+        "حذف العنقود",
+        "إعادة Deployment إلى مراجعة سابقة",
+        "إزالة Service",
+        "إيقاف كل Nodes نهائيًا"
+      ],
+      "explanation": "يُستخدم الأمر للتراجع عن Deployment حين يكون إطلاق جديد إشكاليًا."
+    },
+    {
+      "question": "ماذا يدمج Helm مع قوالب Kubernetes لإنتاج ملفات manifest النهائية؟",
+      "options": [
+        "terraform.tfstate",
+        "قيمًا مثل التي في values.yaml",
+        "طبقات Docker فقط",
+        "GitHub Secrets فقط"
+      ],
+      "explanation": "يشرح الفصل نموذج قوالب Helm بأنه قوالب مع قيم قابلة للضبط."
+    },
+    {
+      "question": "صِف مسار Kubernetes الكامل المدروس في هذا الدرس من صورة Docker Hub إلى تطبيق يعمل وقابل للوصول والتوسع. وضمّن Deployment وقالب Pod والتسميات/المحددات وService وNodePort والتوسيع والتحديثات التدريجية والتراجع وأين يفيد Helm مع ازدياد تعقيد إعداد التطبيق.",
+      "options": [],
+      "explanation": ""
+    }
+  ]
+}

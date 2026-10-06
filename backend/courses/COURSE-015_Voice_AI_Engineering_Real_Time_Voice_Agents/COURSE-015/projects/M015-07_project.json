@@ -1,0 +1,6 @@
+{
+  "course_id": "COURSE-015",
+  "module_id": "M015-07",
+  "title": "Project 7 — Phone Voice Agent with Twilio",
+  "brief": "Build a secure phone agent with bidirectional media, tools, handoff, durable work, cancellation, observability, and recovery."
+}

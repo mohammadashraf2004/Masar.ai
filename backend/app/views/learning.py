@@ -96,6 +96,10 @@ class ExerciseResponse(BaseModel):
     skill_tested: List[str]
     is_locked: bool = False
     course_slug: Optional[str] = None
+    # The lesson this exercise is graded against, when the course authors a
+    # direct 1:1 pairing. None for the (still common) case of an exercise
+    # that only shares a topic with its sibling lessons.
+    lesson_id: Optional[int] = None
 
     class Config:
         from_attributes = True

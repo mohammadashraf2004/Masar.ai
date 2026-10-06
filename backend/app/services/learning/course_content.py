@@ -60,6 +60,10 @@ class ModuleInfo:
     exercise_count: int
     quiz_count: int
     project_count: int
+    # False means visible specialization material that does not enter course
+    # completion or become the learner's required "next module".
+    completion_required: bool = True
+    is_optional: bool = False
     # Only for a signed-in learner.
     completion: Optional[float] = None
     status: Optional[str] = None
@@ -130,6 +134,8 @@ def course_modules(db: Session, course: Course, user_id: Optional[int] = None) -
             estimated_hours=t.estimated_hours,
             lesson_count=lessons.get(t.id, 0), exercise_count=exercises.get(t.id, 0),
             quiz_count=quizzes.get(t.id, 0), project_count=projects.get(t.id, 0),
+            completion_required=t.completion_required if tool else True,
+            is_optional=t.is_optional if tool else False,
         )
         if user_id is not None:
             total = info.item_count
@@ -165,4 +171,7 @@ def course_projects(db: Session, course: Course) -> List[ProjectInfo]:
 
 def first_incomplete(modules: List[ModuleInfo]) -> Optional[ModuleInfo]:
     """The module to continue from: the first not finished, in order."""
-    return next((m for m in modules if m.status != MODULE_COMPLETED and m.item_count), None)
+    return next(
+        (m for m in modules if m.completion_required and m.status != MODULE_COMPLETED and m.item_count),
+        None,
+    )

@@ -41,8 +41,9 @@ def main():
     assert projects == 10, projects
 
     assets = json.loads((ROOT / "assets_manifest.json").read_text(encoding="utf-8"))
-    assert sum(x["priority"]=="required" for x in assets) == 11
-    assert sum(x["priority"]=="optional" for x in assets) == 2
+    assert assets["version"] == 1
+    assert len(assets["assets"]) == 11
+    assert len(assets.get("pending", [])) == 2
 
     manifest = json.loads((ROOT / "course_manifest.json").read_text(encoding="utf-8"))
     assert manifest["lessons"] == 99

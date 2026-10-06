@@ -1,132 +1,102 @@
 {
   "course_id": "COURSE-006",
-  "course_title": "Production AI Engineering",
   "source_id": "BOOK-006",
   "book_title": "AI Engineering",
   "edition": "SOURCE INFORMATION MISSING",
-  "status": "curriculum_design_complete",
   "approval_status": "finished_by_user",
-  "architecture_frozen": true,
-  "module_ids_frozen": true,
-  "lesson_ids_frozen": true,
-  "module_id_range": "M006-01..M006-10",
-  "lesson_id_range": "L006-001..L006-067",
-  "modules": 10,
-  "lessons": 67,
-  "guided_minutes": 3230,
-  "guided_time": "53h 50m",
-  "prerequisites": [
-    "COURSE-001 — Machine Learning Foundations",
-    "COURSE-002 — Deep Learning Foundations",
-    "COURSE-003 — Applied Deep Learning",
-    "COURSE-004 — Applied NLP with Transformers",
-    "COURSE-005 — Applied LLM Engineering"
-  ],
+  "course_title": "Production AI Engineering",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
+  "modules": 9,
+  "lessons": 9,
+  "guided_minutes": 2670,
+  "professional_capability": "Design, evaluate, secure, optimize, and operate production AI systems.",
+  "prerequisites": {
+    "required": [
+      "COURSE-001 — Machine Learning Foundations"
+    ],
+    "strongly_recommended": [
+      "COURSE-005 — Applied LLM Engineering"
+    ]
+  },
   "track_roles": {
-    "Data Analyst": "Optional",
-    "ML Engineer": "Supporting",
+    "Data Analyst": "Not applicable",
+    "ML Engineer": "Not applicable",
     "AI Developer": "Core",
-    "MLOps Engineer": "Core",
+    "MLOps Engineer": "Optional",
     "AI Engineer": "Core"
   },
-  "source_review": "10/10 chapters complete",
-  "curriculum_rule": "Concepts repeated from COURSE-001..005 are REVISION; only new production depth is CORE/EXTENSION.",
-  "module_manifest": [
+  "module_inventory": [
     {
-      "module_id": "M006-01",
-      "title": "AI Product Decisions & Engineering Strategy",
-      "role": "core",
-      "lesson_count": 7,
-      "source": "Chapter 1",
-      "source_pages": "pp. 1–47",
-      "module_project": "AI Product Readiness Blueprint"
+      "id": "M006-01",
+      "title": "Foundations of AI Engineering",
+      "lessons": 1,
+      "lesson_ids": [
+        "M01.L01"
+      ]
     },
     {
-      "module_id": "M006-02",
-      "title": "Foundation-Model Behavior for Production Systems",
-      "role": "core",
-      "lesson_count": 5,
-      "source": "Chapter 2",
-      "source_pages": "pp. 49–111",
-      "module_project": null
+      "id": "M006-02",
+      "title": "Understanding Foundation Models",
+      "lessons": 1,
+      "lesson_ids": [
+        "M02.L01"
+      ]
     },
     {
-      "module_id": "M006-03",
-      "title": "Evaluation Methodology for Production AI",
-      "role": "core",
-      "lesson_count": 6,
-      "source": "Chapter 3",
-      "source_pages": "pp. 113–158",
-      "module_project": "Evaluation Strategy & Judge Reliability Audit"
+      "id": "M006-03",
+      "title": "Evaluation Methodology",
+      "lessons": 1,
+      "lesson_ids": [
+        "M03.L01"
+      ]
     },
     {
-      "module_id": "M006-04",
-      "title": "Evaluation Systems & Model Selection",
-      "role": "core",
-      "lesson_count": 8,
-      "source": "Chapter 4",
-      "source_pages": "pp. 159–210",
-      "module_project": "Private Model Selection & Evaluation Gate"
+      "id": "M006-04",
+      "title": "Evaluating AI Systems",
+      "lessons": 1,
+      "lesson_ids": [
+        "M04.L01"
+      ]
     },
     {
-      "module_id": "M006-05",
-      "title": "Production Prompt Security & Reliability",
-      "role": "core",
-      "lesson_count": 6,
-      "source": "Chapter 5",
-      "source_pages": "pp. 211–252",
-      "module_project": "Secure Prompt & Tool Pipeline"
+      "id": "M006-06",
+      "title": "RAG and Agents",
+      "lessons": 1,
+      "lesson_ids": [
+        "M06.L01"
+      ]
     },
     {
-      "module_id": "M006-06",
-      "title": "Reliable RAG & Agent Systems",
-      "role": "core",
-      "lesson_count": 7,
-      "source": "Chapter 6",
-      "source_pages": "pp. 253–306",
-      "module_project": "Reliable RAG + Tool-Using Agent Evaluation Lab"
+      "id": "M006-07",
+      "title": "Finetuning",
+      "lessons": 1,
+      "lesson_ids": [
+        "M07.L01"
+      ]
     },
     {
-      "module_id": "M006-07",
-      "title": "Model Adaptation Decisions & Dataset Engineering",
-      "role": "core",
-      "lesson_count": 9,
-      "source": "Chapters 7–8",
-      "source_pages": "pp. 307–404",
-      "module_project": "Production Dataset & Adaptation Blueprint"
+      "id": "M006-08",
+      "title": "Dataset Engineering",
+      "lessons": 1,
+      "lesson_ids": [
+        "M08.L01"
+      ]
     },
     {
-      "module_id": "M006-08",
-      "title": "Inference Performance Engineering",
-      "role": "core",
-      "lesson_count": 8,
-      "source": "Chapter 9",
-      "source_pages": "pp. 405–448",
-      "module_project": "Inference Optimization Benchmark & Production Recommendation"
+      "id": "M006-09",
+      "title": "Inference Optimization",
+      "lessons": 1,
+      "lesson_ids": [
+        "M09.L01"
+      ]
     },
     {
-      "module_id": "M006-09",
-      "title": "Production AI Architecture, Observability & Orchestration",
-      "role": "core",
-      "lesson_count": 6,
-      "source": "Chapter 10",
-      "source_pages": "pp. 449–473",
-      "module_project": "Production AI Architecture & Observability Blueprint"
-    },
-    {
-      "module_id": "M006-10",
-      "title": "Feedback Loops & Production AI Capstone",
-      "role": "core",
-      "lesson_count": 5,
-      "source": "Chapter 10 + MASAR synthesis",
-      "source_pages": "pp. 474–492",
-      "module_project": "Production AI System Review & Improvement Loop"
+      "id": "M006-10",
+      "title": "AI Engineering Architecture and User Feedback",
+      "lessons": 1,
+      "lesson_ids": [
+        "M10.L01"
+      ]
     }
-  ],
-  "protected_boundaries": {
-    "deep_multimodal_implementation": "future specialized course",
-    "general_kubernetes_iac_platform_engineering": "future MLOps / platform course",
-    "generic_cybersecurity": "outside COURSE-006; only AI-application security is included",
-    "repeated_course_001_005_content": "revision only"
-  }
+  ]
 }

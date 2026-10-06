@@ -97,18 +97,30 @@ def norm_question(raw: Dict[str, Any], where: str) -> QuestionSpec:
     if not question:
         raise CurriculumError([f"{where}: quiz question has no text"])
     explanation = as_text(raw.get("explanation"))
+    question_id = as_text(raw.get("id") or raw.get("question_id"))
+    lesson_id = as_text(raw.get("lesson_id"))
+    raw_lesson_ids = raw.get("lesson_ids")
+    lesson_ids = ([as_text(value) for value in raw_lesson_ids if as_text(value)]
+                  if isinstance(raw_lesson_ids, list) else [])
+    metadata = {
+        str(key): value for key, value in raw.items()
+        if key not in {
+            "id", "question_id", "lesson_id", "lesson_ids", "question", "options", "choices",
+            "correct", "answer_index", "answer", "explanation",
+        }
+    }
     kind = str(raw.get("type") or "").lower()
     options = raw.get("options") if raw.get("options") is not None else raw.get("choices")
 
     if options is None and kind in ("true_false", "true-false", "boolean") and isinstance(raw.get("answer"), bool):
         options = ["True", "False"]
         correct = 0 if raw["answer"] else 1
-        return QuestionSpec(question, options, correct, explanation)
+        return QuestionSpec(question, options, correct, explanation, question_id, lesson_id, lesson_ids, metadata)
 
     if not options:
         answer = raw.get("answer")
         reference = _join([as_text(answer) if isinstance(answer, str) else "", explanation])
-        return QuestionSpec(question, None, None, reference)
+        return QuestionSpec(question, None, None, reference, question_id, lesson_id, lesson_ids, metadata)
 
     if not isinstance(options, list) or not all(isinstance(o, str) and o.strip() for o in options):
         raise CurriculumError([f"{where}: quiz options must be a list of non-empty strings"])
@@ -125,7 +137,7 @@ def norm_question(raw: Dict[str, Any], where: str) -> QuestionSpec:
         raise CurriculumError([f"{where}: quiz question '{question[:50]}' has no resolvable correct answer"])
     if not 0 <= correct < len(options):
         raise CurriculumError([f"{where}: correct answer index {correct} is outside the {len(options)} options"])
-    return QuestionSpec(question, list(options), correct, explanation)
+    return QuestionSpec(question, list(options), correct, explanation, question_id, lesson_id, lesson_ids, metadata)
 
 
 def norm_questions(raw: Any, where: str) -> List[QuestionSpec]:
@@ -148,12 +160,20 @@ def norm_exercise(raw: Dict[str, Any], where: str, default_difficulty: str) -> E
     if not isinstance(raw, dict):
         raise CurriculumError([f"{where}: an exercise must be an object"])
     title = as_text(raw.get("title"))
-    task = as_text(raw.get("description")) or as_text(raw.get("instructions")) or as_text(raw.get("prompt"))
+    summary = as_text(raw.get("description"))
+    instructions = as_text(raw.get("instructions"))
+    prompt = as_text(raw.get("prompt"))
+    task = summary or instructions or prompt
     if not title or not task:
         raise CurriculumError([f"{where}: exercise needs a title and a task description"])
     validation = as_text(raw.get("validation_code"))
     description = _join([
         task,
+        _section("Instructions", instructions if instructions and instructions != task else ""),
+        _section(
+            "Prompt",
+            prompt if prompt and prompt != task and prompt != instructions else "",
+        ),
         _section("Acceptance criteria", bullets(raw.get("acceptance_criteria") or [])),
         _section("Expected output", as_text(raw.get("expected_output"))),
         _section("Hints", bullets(raw.get("hints") or [])),
@@ -165,6 +185,10 @@ def norm_exercise(raw: Dict[str, Any], where: str, default_difficulty: str) -> E
         skill_tested=norm_tags(raw.get("skill_tested") or []),
         starter_code=as_text(raw.get("starter_code")) or None,
         solution_code=as_text(raw.get("solution_code")) or None,
+        exercise_id=as_text(raw.get("id") or raw.get("exercise_id")),
+        course_id=as_text(raw.get("course_id")),
+        module_id=as_text(raw.get("module_id")),
+        lesson_id=as_text(raw.get("lesson_id")),
     )
 
 

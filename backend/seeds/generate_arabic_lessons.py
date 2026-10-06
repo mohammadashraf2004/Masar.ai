@@ -74,54 +74,21 @@ TEMPERATURE = 0.2
 # Above this, a lesson is drafted section by section — see draft_lesson.
 CHUNK_THRESHOLD = 3_500
 
-FENCE = re.compile(r"```[\w+-]*\n.*?```", re.DOTALL)
-FENCE_BODY = re.compile(r"```[\w+-]*\n(.*?)```", re.DOTALL)
-INLINE_CODE = re.compile(r"`[^`\n]+`")
+from app.services.language.arabic_review import (  # noqa: F401  (re-exported for callers)
+    FENCE,
+    FENCE_BODY,
+    INLINE_CODE,
+    PLACEHOLDER,
+    PLACEHOLDER_RE,
+    protect_code,
+    restore_code,
+    placeholder_problems,
+    Review,
+    protected_vocabulary,
+    terminology_problems,
+    review,
+)
 
-# Code is removed from the text before it is sent and put back afterwards.
-# Asking a model to "reproduce this exactly" is a request it will sometimes
-# decline: gpt-4o-mini rewrote 7 of 17 blocks in the first real run — mostly
-# translating comments, which is exactly the failure that silently teaches a
-# student something wrong. A placeholder cannot be mistranslated.
-PLACEHOLDER = "⟦CODE_{}⟧"
-PLACEHOLDER_RE = re.compile(r"⟦CODE_(\d+)⟧")
-
-
-def protect_code(markdown: str):
-    """Swap every fenced block for a placeholder. Returns (masked, blocks)."""
-    blocks: List[str] = []
-
-    def take(match):
-        blocks.append(match.group(0))
-        return PLACEHOLDER.format(len(blocks) - 1)
-
-    return FENCE.sub(take, markdown), blocks
-
-
-def restore_code(masked: str, blocks: List[str]) -> str:
-    def put(match):
-        index = int(match.group(1))
-        return blocks[index] if 0 <= index < len(blocks) else match.group(0)
-
-    return PLACEHOLDER_RE.sub(put, masked)
-
-
-def placeholder_problems(masked_draft: str, blocks: List[str]) -> List[str]:
-    """Every placeholder must come back exactly once, and none invented."""
-    found = [int(n) for n in PLACEHOLDER_RE.findall(masked_draft)]
-    problems = []
-    missing = [i for i in range(len(blocks)) if i not in found]
-    if missing:
-        problems.append(
-            f"the draft dropped {len(missing)} of {len(blocks)} code placeholders"
-        )
-    duplicated = {i for i in found if found.count(i) > 1}
-    if duplicated:
-        problems.append(f"code placeholder(s) {sorted(duplicated)} appear more than once")
-    invented = {i for i in found if i >= len(blocks)}
-    if invented:
-        problems.append(f"the draft invented code placeholder(s) {sorted(invented)}")
-    return problems
 
 SYSTEM_PROMPT = """You are authoring lesson content for Masar, an Arabic-first AI
 engineering platform for students in Egypt and the MENA region.
@@ -138,8 +105,14 @@ Rules for the body you produce:
   through UNCHANGED, on its own line, in the same position relative to the
   surrounding prose. Do not translate them, do not renumber them, do not add
   or remove any, and do not write code in their place.
-- Keep ASCII/text diagrams in English — the student will meet them in English
-  documentation.
+- Fenced blocks tagged `text` (diagrams, workflows, formulas, worked examples, lists
+  of labels) are part of the explanation and ARE translated. Keep each block's
+  fence, its number of lines, its arrows and operators (→ ↓ + = × /), its numbers
+  (as Latin digits) and every identifier, variable (X, y) and code-like name exactly
+  as written; translate the words around them into natural Arabic, keeping the
+  important technical term in English where it helps, e.g. `خوارزمية التعلّم
+  (Learning algorithm)`. Never translate a table's or a sentence's words and leave
+  half of them in English.
 - Introduce a technical term the first time as `English (المعنى بالعربية)`, then
   use the English term alone from then on.
 - Keep the teaching voice: direct, concrete, addressed to the student.
@@ -184,124 +157,6 @@ def build_provider(model_id: Optional[str] = None):
     if not provider.validate():
         raise SystemExit(f"No API key configured for GENERATION_BACKEND={backend}")
     return provider
-
-
-# ─── Review ───────────────────────────────────────────────────────────────
-
-@dataclass
-class Review:
-    problems: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-
-    @property
-    def ok(self) -> bool:
-        return not self.problems
-
-
-def protected_vocabulary() -> List[str]:
-    """Technology names and AI terms that must survive in Latin script.
-
-    Sourced from the same dictionary the lessons, the glossary and the mentor
-    already use, so "which words stay English" has one answer across the
-    product rather than one per tool.
-    """
-    vocabulary = set(T.TECH_NAMES)
-    for entry in T.TERMS.values():
-        for key in ("en", "preferred", "abbreviation"):
-            value = (entry.get(key) or "").strip()
-            # Single characters match far too much prose to be useful, but
-            # two-letter acronyms are kept when they are all-caps — AI and ML
-            # are among the most important tokens on the platform, and an
-            # earlier length cut-off let "AI Models vs AI Applications" come
-            # back as "نماذج الذكاء الاصطناعي" without tripping anything.
-            if len(value) > 2 or (len(value) == 2 and value.isupper()):
-                vocabulary.add(value)
-    return sorted(vocabulary, key=len, reverse=True)
-
-
-def terminology_problems(english_prose: str, arabic_prose: str):
-    """Terms present in the source must still be present, in Latin script.
-
-    This catches both failure modes at once without needing to enumerate
-    transliterations: whether the model rendered Python as بايثون or
-    translated API to واجهة برمجة التطبيقات, the English token simply stops
-    appearing. Run against prose only — code blocks are full of these words
-    and would hide the problem entirely.
-
-    Returns (lost_taught, lost_mentioned). The split is what makes the check
-    usable in bulk: a term the lesson uses repeatedly is a term the lesson
-    *teaches*, and losing it is a failure. A single lowercase mention inside
-    a list of things covered later is a deviation worth seeing but not worth
-    discarding an otherwise sound 3,500-character draft over — which is
-    exactly what an uncalibrated version of this check did to gpt-4o.
-    """
-    taught, mentioned = [], []
-    for term in protected_vocabulary():
-        pattern = re.compile(r"(?<![A-Za-z0-9])" + re.escape(term) + r"(?![A-Za-z0-9])", re.I)
-        occurrences = len(pattern.findall(english_prose))
-        if occurrences and not pattern.search(arabic_prose):
-            (taught if occurrences >= 2 else mentioned).append(term)
-    return taught, mentioned
-
-
-def review(english: str, arabic: str) -> Review:
-    """Check a draft before it is allowed into the workbook."""
-    r = Review()
-
-    if not arabic or not arabic.strip():
-        r.problems.append("empty draft")
-        return r
-
-    # Terminology is the product's whole premise, so a draft that translates
-    # or transliterates away a term the lesson teaches is rejected outright.
-    taught, mentioned = terminology_problems(
-        protect_code(english)[0], protect_code(arabic)[0]
-    )
-
-    def listed(terms):
-        return ", ".join(terms[:6]) + (f" and {len(terms) - 6} more" if len(terms) > 6 else "")
-
-    if taught:
-        r.problems.append(f"taught terms no longer in English: {listed(taught)}")
-    if mentioned:
-        r.warnings.append(f"terms mentioned once, now Arabic: {listed(mentioned)}")
-
-    # Belt and braces: placeholder substitution should make this impossible,
-    # so a failure here means the restore step itself is wrong.
-    en_blocks = [b.strip() for b in FENCE_BODY.findall(english)]
-    ar_blocks = [b.strip() for b in FENCE_BODY.findall(arabic)]
-    if len(en_blocks) != len(ar_blocks):
-        r.problems.append(
-            f"{len(ar_blocks)} code blocks against {len(en_blocks)} in the source"
-        )
-    else:
-        for i, (en_b, ar_b) in enumerate(zip(en_blocks, ar_blocks), start=1):
-            if en_b != ar_b:
-                r.problems.append(f"code block {i} was modified — it must be identical")
-
-    # Inline spans carry class and function names. A large drop means the
-    # model unwrapped them into prose, where they can be translated.
-    en_inline, ar_inline = len(INLINE_CODE.findall(english)), len(INLINE_CODE.findall(arabic))
-    if en_inline and ar_inline < en_inline * 0.6:
-        r.warnings.append(f"{ar_inline} inline code spans against {en_inline} in the source")
-
-    # Arabic runs longer than English; far short of that means the model
-    # stopped early, which is what a too-small max_tokens looks like.
-    ratio = len(arabic) / max(len(english), 1)
-    if ratio < 0.8:
-        r.problems.append(f"draft is {ratio:.0%} of the source length — likely truncated")
-    elif ratio > 2.5:
-        r.warnings.append(f"draft is {ratio:.0%} of the source length — unusually long")
-
-    en_headings = len(re.findall(r"^#{1,6} ", english, re.MULTILINE))
-    ar_headings = len(re.findall(r"^#{1,6} ", arabic, re.MULTILINE))
-    if en_headings and ar_headings != en_headings:
-        r.warnings.append(f"{ar_headings} headings against {en_headings} in the source")
-
-    if not re.search(r"[؀-ۿ]", arabic):
-        r.problems.append("no Arabic script in the draft")
-
-    return r
 
 
 # ─── Generation ───────────────────────────────────────────────────────────

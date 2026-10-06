@@ -1,0 +1,1761 @@
+[
+  {
+    "lesson_id": "L016-001",
+    "module_id": "M016-01",
+    "title": "From ML Models to ML Systems",
+    "slug": "from-ml-models-to-ml-systems",
+    "order_in_module": 1,
+    "duration_minutes": 40,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "lesson_id": "L016-002",
+    "module_id": "M016-01",
+    "title": "Should This Problem Use ML?",
+    "slug": "should-this-problem-use-ml",
+    "order_in_module": 2,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "lesson_id": "L016-003",
+    "module_id": "M016-01",
+    "title": "Business Objectives, Stakeholders & ML Success Metrics",
+    "slug": "business-objectives-stakeholders-and-ml-success-metrics",
+    "order_in_module": 3,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "lesson_id": "L016-004",
+    "module_id": "M016-01",
+    "title": "Latency, Throughput & Tail Performance",
+    "slug": "latency-throughput-and-tail-performance",
+    "order_in_module": 4,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "lesson_id": "L016-005",
+    "module_id": "M016-01",
+    "title": "Production Data, Fairness & Interpretability",
+    "slug": "production-data-fairness-and-interpretability",
+    "order_in_module": 5,
+    "duration_minutes": 40,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "lesson_id": "L016-006",
+    "module_id": "M016-01",
+    "title": "Why ML Systems Differ from Traditional Software",
+    "slug": "why-ml-systems-differ-from-traditional-software",
+    "order_in_module": 6,
+    "duration_minutes": 40,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "lesson_id": "L016-007",
+    "module_id": "M016-01",
+    "title": "Reliability, Scalability, Maintainability & Adaptability",
+    "slug": "reliability-scalability-maintainability-and-adaptability",
+    "order_in_module": 7,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "lesson_id": "L016-008",
+    "module_id": "M016-01",
+    "title": "The Iterative Production ML Lifecycle",
+    "slug": "the-iterative-production-ml-lifecycle",
+    "order_in_module": 8,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "lesson_id": "L016-009",
+    "module_id": "M016-01",
+    "title": "Problem Framing & Multi-Objective ML System Design",
+    "slug": "problem-framing-and-multi-objective-ml-system-design",
+    "order_in_module": 9,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      1,
+      2
+    ]
+  },
+  {
+    "lesson_id": "L016-010",
+    "module_id": "M016-02",
+    "title": "Production Data Sources & Trust Boundaries",
+    "slug": "production-data-sources-and-trust-boundaries",
+    "order_in_module": 1,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-011",
+    "module_id": "M016-02",
+    "title": "Serialization Formats & Data Access Patterns",
+    "slug": "serialization-formats-and-data-access-patterns",
+    "order_in_module": 2,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-012",
+    "module_id": "M016-02",
+    "title": "Relational, Document & Graph Data Models",
+    "slug": "relational-document-and-graph-data-models",
+    "order_in_module": 3,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-013",
+    "module_id": "M016-02",
+    "title": "Structured Data, Unstructured Data, Warehouses & Lakes",
+    "slug": "structured-data-unstructured-data-warehouses-and-lakes",
+    "order_in_module": 4,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-014",
+    "module_id": "M016-02",
+    "title": "Storage Engines, Transactional & Analytical Workloads",
+    "slug": "storage-engines-transactional-and-analytical-workloads",
+    "order_in_module": 5,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-015",
+    "module_id": "M016-02",
+    "title": "ETL, ELT & Production Data Quality Gates",
+    "slug": "etl-elt-and-production-data-quality-gates",
+    "order_in_module": 6,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-016",
+    "module_id": "M016-02",
+    "title": "ML Dataflow: Databases, Services & Event-Driven Systems",
+    "slug": "ml-dataflow-databases-services-and-event-driven-systems",
+    "order_in_module": 7,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-017",
+    "module_id": "M016-02",
+    "title": "Batch & Stream Processing for ML Features",
+    "slug": "batch-and-stream-processing-for-ml-features",
+    "order_in_module": 8,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-018",
+    "module_id": "M016-03",
+    "title": "Training Data as a Living Production Asset",
+    "slug": "training-data-as-a-living-production-asset",
+    "order_in_module": 1,
+    "duration_minutes": 40,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "lesson_id": "L016-019",
+    "module_id": "M016-03",
+    "title": "Sampling Strategies & Selection Bias",
+    "slug": "sampling-strategies-and-selection-bias",
+    "order_in_module": 2,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "lesson_id": "L016-020",
+    "module_id": "M016-03",
+    "title": "Labeling Systems, Ambiguity & Data Lineage",
+    "slug": "labeling-systems-ambiguity-and-data-lineage",
+    "order_in_module": 3,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "lesson_id": "L016-021",
+    "module_id": "M016-03",
+    "title": "Natural Labels, Behavioral Feedback & Feedback Loops",
+    "slug": "natural-labels-behavioral-feedback-and-feedback-loops",
+    "order_in_module": 4,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "lesson_id": "L016-022",
+    "module_id": "M016-03",
+    "title": "Weak Supervision & Programmatic Labeling",
+    "slug": "weak-supervision-and-programmatic-labeling",
+    "order_in_module": 5,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "lesson_id": "L016-023",
+    "module_id": "M016-03",
+    "title": "Semi-Supervision & Active Learning for Label Efficiency",
+    "slug": "semi-supervision-and-active-learning-for-label-efficiency",
+    "order_in_module": 6,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "lesson_id": "L016-024",
+    "module_id": "M016-03",
+    "title": "Class Imbalance as a Production Data Problem",
+    "slug": "class-imbalance-as-a-production-data-problem",
+    "order_in_module": 7,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "lesson_id": "L016-025",
+    "module_id": "M016-03",
+    "title": "Resampling, Cost-Sensitive Learning & Imbalance Mitigation",
+    "slug": "resampling-cost-sensitive-learning-and-imbalance-mitigation",
+    "order_in_module": 8,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "lesson_id": "L016-026",
+    "module_id": "M016-03",
+    "title": "Data Augmentation, Perturbation & Synthetic Data",
+    "slug": "data-augmentation-perturbation-and-synthetic-data",
+    "order_in_module": 9,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      4
+    ]
+  },
+  {
+    "lesson_id": "L016-027",
+    "module_id": "M016-04",
+    "title": "Learned Features, Engineered Features & the Production Feature Lifecycle",
+    "slug": "learned-features-engineered-features-and-the-production-feature-lifecycle",
+    "order_in_module": 1,
+    "duration_minutes": 40,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-028",
+    "module_id": "M016-04",
+    "title": "Missing Values, Scaling & Train-Inference Consistency",
+    "slug": "missing-values-scaling-and-train-inference-consistency",
+    "order_in_module": 2,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-029",
+    "module_id": "M016-04",
+    "title": "Production Categorical Features, Unknown Values & Feature Hashing",
+    "slug": "production-categorical-features-unknown-values-and-feature-hashing",
+    "order_in_module": 3,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-030",
+    "module_id": "M016-04",
+    "title": "Feature Interactions, Discretization & Positional Features",
+    "slug": "feature-interactions-discretization-and-positional-features",
+    "order_in_module": 4,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-031",
+    "module_id": "M016-04",
+    "title": "Data Leakage: How Production ML Cheats Without You Knowing",
+    "slug": "data-leakage-how-production-ml-cheats-without-you-knowing",
+    "order_in_module": 5,
+    "duration_minutes": 65,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-032",
+    "module_id": "M016-04",
+    "title": "Leakage Detection, Split Design & Dataset Validation",
+    "slug": "leakage-detection-split-design-and-dataset-validation",
+    "order_in_module": 6,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-033",
+    "module_id": "M016-04",
+    "title": "Feature Importance, Coverage & Generalization",
+    "slug": "feature-importance-coverage-and-generalization",
+    "order_in_module": 7,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-034",
+    "module_id": "M016-04",
+    "title": "Feature Technical Debt & Production Feature Contracts",
+    "slug": "feature-technical-debt-and-production-feature-contracts",
+    "order_in_module": 8,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-035",
+    "module_id": "M016-05",
+    "title": "Production Model Selection & Engineering Trade-offs",
+    "slug": "production-model-selection-and-engineering-trade-offs",
+    "order_in_module": 1,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-036",
+    "module_id": "M016-05",
+    "title": "Baselines & Staged Model Development",
+    "slug": "baselines-and-staged-model-development",
+    "order_in_module": 2,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-037",
+    "module_id": "M016-05",
+    "title": "Experiment Tracking, Versioning & Reproducibility",
+    "slug": "experiment-tracking-versioning-and-reproducibility",
+    "order_in_module": 3,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-038",
+    "module_id": "M016-05",
+    "title": "Systematic ML Model Debugging",
+    "slug": "systematic-ml-model-debugging",
+    "order_in_module": 4,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-039",
+    "module_id": "M016-05",
+    "title": "Distributed Training & Scaling Trade-offs",
+    "slug": "distributed-training-and-scaling-trade-offs",
+    "order_in_module": 5,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-040",
+    "module_id": "M016-05",
+    "title": "Hyperparameter Search & AutoML in Production",
+    "slug": "hyperparameter-search-and-automl-in-production",
+    "order_in_module": 6,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-041",
+    "module_id": "M016-05",
+    "title": "Offline Evaluation Beyond Aggregate Metrics",
+    "slug": "offline-evaluation-beyond-aggregate-metrics",
+    "order_in_module": 7,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-042",
+    "module_id": "M016-05",
+    "title": "Perturbation, Invariance & Directional Tests",
+    "slug": "perturbation-invariance-and-directional-tests",
+    "order_in_module": 8,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-043",
+    "module_id": "M016-05",
+    "title": "Calibration, Confidence & Prediction Policies",
+    "slug": "calibration-confidence-and-prediction-policies",
+    "order_in_module": 9,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-044",
+    "module_id": "M016-05",
+    "title": "Slice-Based Evaluation & Critical Subgroups",
+    "slug": "slice-based-evaluation-and-critical-subgroups",
+    "order_in_module": 10,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-045",
+    "module_id": "M016-06",
+    "title": "From Model Artifact to Production Prediction Service",
+    "slug": "from-model-artifact-to-production-prediction-service",
+    "order_in_module": 1,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-046",
+    "module_id": "M016-06",
+    "title": "Batch, Online & Streaming Prediction Architectures",
+    "slug": "batch-online-and-streaming-prediction-architectures",
+    "order_in_module": 2,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-047",
+    "module_id": "M016-06",
+    "title": "Designing Prediction Systems for Latency, Throughput & Freshness",
+    "slug": "designing-prediction-systems-for-latency-throughput-and-freshness",
+    "order_in_module": 3,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-048",
+    "module_id": "M016-06",
+    "title": "Training-Serving Consistency & Unified Data Pipelines",
+    "slug": "training-serving-consistency-and-unified-data-pipelines",
+    "order_in_module": 4,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-049",
+    "module_id": "M016-06",
+    "title": "Model Compression for Production Inference",
+    "slug": "model-compression-for-production-inference",
+    "order_in_module": 5,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-050",
+    "module_id": "M016-06",
+    "title": "Quantization & Precision Engineering",
+    "slug": "quantization-and-precision-engineering",
+    "order_in_module": 6,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-051",
+    "module_id": "M016-06",
+    "title": "Cloud vs Edge ML Deployment",
+    "slug": "cloud-vs-edge-ml-deployment",
+    "order_in_module": 7,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-052",
+    "module_id": "M016-06",
+    "title": "Hardware Portability, Intermediate Representations & Compilers",
+    "slug": "hardware-portability-intermediate-representations-and-compilers",
+    "order_in_module": 8,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-053",
+    "module_id": "M016-06",
+    "title": "Inference Optimization & Computation-Graph Optimization",
+    "slug": "inference-optimization-and-computation-graph-optimization",
+    "order_in_module": 9,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-054",
+    "module_id": "M016-06",
+    "title": "Production Prediction-Service Architecture Review",
+    "slug": "production-prediction-service-architecture-review",
+    "order_in_module": 10,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      7
+    ]
+  },
+  {
+    "lesson_id": "L016-055",
+    "module_id": "M016-07",
+    "title": "Production ML Failures & Silent Degradation",
+    "slug": "production-ml-failures-and-silent-degradation",
+    "order_in_module": 1,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-056",
+    "module_id": "M016-07",
+    "title": "Edge Cases & Degenerate Feedback Loops",
+    "slug": "edge-cases-and-degenerate-feedback-loops",
+    "order_in_module": 2,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-057",
+    "module_id": "M016-07",
+    "title": "Covariate Shift, Label Shift & Concept Drift",
+    "slug": "covariate-shift-label-shift-and-concept-drift",
+    "order_in_module": 3,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-058",
+    "module_id": "M016-07",
+    "title": "What to Monitor When Ground Truth Is Delayed",
+    "slug": "what-to-monitor-when-ground-truth-is-delayed",
+    "order_in_module": 4,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-059",
+    "module_id": "M016-07",
+    "title": "Statistical Drift Detection & Time Windows",
+    "slug": "statistical-drift-detection-and-time-windows",
+    "order_in_module": 5,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-060",
+    "module_id": "M016-07",
+    "title": "Operational & ML-Specific Monitoring Architecture",
+    "slug": "operational-and-ml-specific-monitoring-architecture",
+    "order_in_module": 6,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-061",
+    "module_id": "M016-07",
+    "title": "Feature Validation, Schema Monitoring & Data Quality Signals",
+    "slug": "feature-validation-schema-monitoring-and-data-quality-signals",
+    "order_in_module": 7,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-062",
+    "module_id": "M016-07",
+    "title": "Logs, Dashboards, Alerts & Alert Fatigue",
+    "slug": "logs-dashboards-alerts-and-alert-fatigue",
+    "order_in_module": 8,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-063",
+    "module_id": "M016-07",
+    "title": "Observability, Telemetry & Distributed Tracing",
+    "slug": "observability-telemetry-and-distributed-tracing",
+    "order_in_module": 9,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-064",
+    "module_id": "M016-07",
+    "title": "Production ML Failure Triage & Root-Cause Analysis",
+    "slug": "production-ml-failure-triage-and-root-cause-analysis",
+    "order_in_module": 10,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-065",
+    "module_id": "M016-07",
+    "title": "Responding to Drift & Preparing for Retraining",
+    "slug": "responding-to-drift-and-preparing-for-retraining",
+    "order_in_module": 11,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-066",
+    "module_id": "M016-08",
+    "title": "Continual Learning as an MLOps Infrastructure Problem",
+    "slug": "continual-learning-as-an-mlops-infrastructure-problem",
+    "order_in_module": 1,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-067",
+    "module_id": "M016-08",
+    "title": "Stateless Retraining vs Stateful Training",
+    "slug": "stateless-retraining-vs-stateful-training",
+    "order_in_module": 2,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-068",
+    "module_id": "M016-08",
+    "title": "Fresh Data, Natural Labels & Label Computation",
+    "slug": "fresh-data-natural-labels-and-label-computation",
+    "order_in_module": 3,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-069",
+    "module_id": "M016-08",
+    "title": "The Four Stages of Continual-Learning Maturity",
+    "slug": "the-four-stages-of-continual-learning-maturity",
+    "order_in_module": 4,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-070",
+    "module_id": "M016-08",
+    "title": "Retraining Triggers, Cadence & the Value of Data Freshness",
+    "slug": "retraining-triggers-cadence-and-the-value-of-data-freshness",
+    "order_in_module": 5,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-071",
+    "module_id": "M016-08",
+    "title": "Champion–Challenger Evaluation & Model Promotion Gates",
+    "slug": "champion-challenger-evaluation-and-model-promotion-gates",
+    "order_in_module": 6,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-072",
+    "module_id": "M016-08",
+    "title": "Shadow Deployment for Safe Production Evaluation",
+    "slug": "shadow-deployment-for-safe-production-evaluation",
+    "order_in_module": 7,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-073",
+    "module_id": "M016-08",
+    "title": "A/B Testing, Canary Releases & Controlled Rollouts",
+    "slug": "a-b-testing-canary-releases-and-controlled-rollouts",
+    "order_in_module": 8,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-074",
+    "module_id": "M016-08",
+    "title": "Interleaving, Bandits & Efficient Online Experimentation",
+    "slug": "interleaving-bandits-and-efficient-online-experimentation",
+    "order_in_module": 9,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-075",
+    "module_id": "M016-08",
+    "title": "Automated ML Update, Promotion & Rollback Pipelines",
+    "slug": "automated-ml-update-promotion-and-rollback-pipelines",
+    "order_in_module": 10,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      9
+    ]
+  },
+  {
+    "lesson_id": "L016-076",
+    "module_id": "M016-09",
+    "title": "ML Infrastructure Layers & Platform Boundaries",
+    "slug": "ml-infrastructure-layers-and-platform-boundaries",
+    "order_in_module": 1,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-077",
+    "module_id": "M016-09",
+    "title": "Compute Architecture, Utilization & Cost Trade-offs",
+    "slug": "compute-architecture-utilization-and-cost-trade-offs",
+    "order_in_module": 2,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-078",
+    "module_id": "M016-09",
+    "title": "Reproducible Development Environments",
+    "slug": "reproducible-development-environments",
+    "order_in_module": 3,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-079",
+    "module_id": "M016-09",
+    "title": "Containers, Kubernetes & ML Resource Orchestration",
+    "slug": "containers-kubernetes-and-ml-resource-orchestration",
+    "order_in_module": 4,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-080",
+    "module_id": "M016-09",
+    "title": "Schedulers, DAGs & ML Workflow Management",
+    "slug": "schedulers-dags-and-ml-workflow-management",
+    "order_in_module": 5,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-081",
+    "module_id": "M016-09",
+    "title": "Data Science Workflow Portability",
+    "slug": "data-science-workflow-portability",
+    "order_in_module": 6,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-082",
+    "module_id": "M016-09",
+    "title": "ML Platform Architecture & Deployment Interfaces",
+    "slug": "ml-platform-architecture-and-deployment-interfaces",
+    "order_in_module": 7,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-083",
+    "module_id": "M016-09",
+    "title": "Model Stores, Artifact Lineage & Reproducibility",
+    "slug": "model-stores-artifact-lineage-and-reproducibility",
+    "order_in_module": 8,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-084",
+    "module_id": "M016-09",
+    "title": "Feature Stores: Management, Computation & Consistency",
+    "slug": "feature-stores-management-computation-and-consistency",
+    "order_in_module": 9,
+    "duration_minutes": 60,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-085",
+    "module_id": "M016-09",
+    "title": "Build vs Buy & ML Platform Architecture Review",
+    "slug": "build-vs-buy-and-ml-platform-architecture-review",
+    "order_in_module": 10,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      10
+    ]
+  },
+  {
+    "lesson_id": "L016-086",
+    "module_id": "M016-10",
+    "title": "Probabilistic ML & User Experience Consistency",
+    "slug": "probabilistic-ml-and-user-experience-consistency",
+    "order_in_module": 1,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-087",
+    "module_id": "M016-10",
+    "title": "Human-in-the-Loop Systems & Smooth Failure",
+    "slug": "human-in-the-loop-systems-and-smooth-failure",
+    "order_in_module": 2,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-088",
+    "module_id": "M016-10",
+    "title": "Cross-Functional ML Teams & SME Collaboration",
+    "slug": "cross-functional-ml-teams-and-sme-collaboration",
+    "order_in_module": 3,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-089",
+    "module_id": "M016-10",
+    "title": "End-to-End Ownership & Platform Abstractions",
+    "slug": "end-to-end-ownership-and-platform-abstractions",
+    "order_in_module": 4,
+    "duration_minutes": 45,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-090",
+    "module_id": "M016-10",
+    "title": "Responsible AI as Lifecycle Engineering",
+    "slug": "responsible-ai-as-lifecycle-engineering",
+    "order_in_module": 5,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-091",
+    "module_id": "M016-10",
+    "title": "Bias Sources Across the ML Lifecycle",
+    "slug": "bias-sources-across-the-ml-lifecycle",
+    "order_in_module": 6,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-092",
+    "module_id": "M016-10",
+    "title": "Privacy, Fairness, Transparency & Engineering Trade-offs",
+    "slug": "privacy-fairness-transparency-and-engineering-trade-offs",
+    "order_in_module": 7,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-093",
+    "module_id": "M016-10",
+    "title": "Fine-Grained Evaluation, Accountability & Human Impact",
+    "slug": "fine-grained-evaluation-accountability-and-human-impact",
+    "order_in_module": 8,
+    "duration_minutes": 50,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-094",
+    "module_id": "M016-10",
+    "title": "Model Cards & Responsible-ML Governance",
+    "slug": "model-cards-and-responsible-ml-governance",
+    "order_in_module": 9,
+    "duration_minutes": 55,
+    "optional": false,
+    "completion_required": true,
+    "source_id": "BOOK-016",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-095",
+    "module_id": "M016-11",
+    "title": "Kubernetes Clusters, kubectl & Managed Environments",
+    "slug": "kubernetes-clusters-kubectl-and-managed-environments",
+    "order_in_module": 1,
+    "duration_minutes": 50,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-096",
+    "module_id": "M016-11",
+    "title": "Deployments, Pods, Services & Desired State",
+    "slug": "deployments-pods-services-and-desired-state",
+    "order_in_module": 2,
+    "duration_minutes": 60,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-097",
+    "module_id": "M016-11",
+    "title": "Scaling, Services & Kubernetes Load Balancing",
+    "slug": "scaling-services-and-kubernetes-load-balancing",
+    "order_in_module": 3,
+    "duration_minutes": 50,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      3
+    ]
+  },
+  {
+    "lesson_id": "L016-098",
+    "module_id": "M016-11",
+    "title": "Designing Pods & Multi-Container Workloads",
+    "slug": "designing-pods-and-multi-container-workloads",
+    "order_in_module": 4,
+    "duration_minutes": 55,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-099",
+    "module_id": "M016-11",
+    "title": "Declarative Pod Manifests & Kubernetes Object Inspection",
+    "slug": "declarative-pod-manifests-and-kubernetes-object-inspection",
+    "order_in_module": 5,
+    "duration_minutes": 50,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-100",
+    "module_id": "M016-11",
+    "title": "Pod Networking, Port Forwarding & Connectivity Debugging",
+    "slug": "pod-networking-port-forwarding-and-connectivity-debugging",
+    "order_in_module": 6,
+    "duration_minutes": 55,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-101",
+    "module_id": "M016-11",
+    "title": "Logs, exec & Ephemeral Container Debugging",
+    "slug": "logs-exec-and-ephemeral-container-debugging",
+    "order_in_module": 7,
+    "duration_minutes": 55,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-102",
+    "module_id": "M016-11",
+    "title": "Sidecars, Init Containers & Pod Startup Architecture",
+    "slug": "sidecars-init-containers-and-pod-startup-architecture",
+    "order_in_module": 8,
+    "duration_minutes": 60,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      5
+    ]
+  },
+  {
+    "lesson_id": "L016-103",
+    "module_id": "M016-11",
+    "title": "Pod Status, Conditions & Container States",
+    "slug": "pod-status-conditions-and-container-states",
+    "order_in_module": 9,
+    "duration_minutes": 50,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-104",
+    "module_id": "M016-11",
+    "title": "Restart Policies, CrashLoopBackOff & Self-Healing",
+    "slug": "restart-policies-crashloopbackoff-and-self-healing",
+    "order_in_module": 10,
+    "duration_minutes": 55,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-105",
+    "module_id": "M016-11",
+    "title": "Liveness & Startup Probes for ML Services",
+    "slug": "liveness-and-startup-probes-for-ml-services",
+    "order_in_module": 11,
+    "duration_minutes": 60,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-106",
+    "module_id": "M016-11",
+    "title": "Container Lifecycle Hooks & Startup/Shutdown Actions",
+    "slug": "container-lifecycle-hooks-and-startup-shutdown-actions",
+    "order_in_module": 12,
+    "duration_minutes": 50,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-107",
+    "module_id": "M016-11",
+    "title": "Graceful Shutdown & the Complete Pod Lifecycle",
+    "slug": "graceful-shutdown-and-the-complete-pod-lifecycle",
+    "order_in_module": 13,
+    "duration_minutes": 60,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      6
+    ]
+  },
+  {
+    "lesson_id": "L016-108",
+    "module_id": "M016-11",
+    "title": "Runtime Configuration: Commands, Arguments & Environment Variables",
+    "slug": "runtime-configuration-commands-arguments-and-environment-variables",
+    "order_in_module": 14,
+    "duration_minutes": 45,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-109",
+    "module_id": "M016-11",
+    "title": "ConfigMaps & Environment-Specific Configuration",
+    "slug": "configmaps-and-environment-specific-configuration",
+    "order_in_module": 15,
+    "duration_minutes": 55,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-110",
+    "module_id": "M016-11",
+    "title": "Configuration Updates, Immutability & Versioned Rollouts",
+    "slug": "configuration-updates-immutability-and-versioned-rollouts",
+    "order_in_module": 16,
+    "duration_minutes": 45,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-111",
+    "module_id": "M016-11",
+    "title": "Kubernetes Secrets, Registry Credentials & Secret-Safety Boundaries",
+    "slug": "kubernetes-secrets-registry-credentials-and-secret-safety-boundaries",
+    "order_in_module": 17,
+    "duration_minutes": 60,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-112",
+    "module_id": "M016-11",
+    "title": "Downward API & Runtime Metadata Injection",
+    "slug": "downward-api-and-runtime-metadata-injection",
+    "order_in_module": 18,
+    "duration_minutes": 55,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      8
+    ]
+  },
+  {
+    "lesson_id": "L016-113",
+    "module_id": "M016-11",
+    "title": "Kubernetes Pod Networking & the Service Abstraction",
+    "slug": "kubernetes-pod-networking-and-the-service-abstraction",
+    "order_in_module": 19,
+    "duration_minutes": 50,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-114",
+    "module_id": "M016-11",
+    "title": "ClusterIP Services, Selectors & Internal Load Balancing",
+    "slug": "clusterip-services-selectors-and-internal-load-balancing",
+    "order_in_module": 20,
+    "duration_minutes": 55,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-115",
+    "module_id": "M016-11",
+    "title": "Kubernetes DNS & Service Discovery",
+    "slug": "kubernetes-dns-and-service-discovery",
+    "order_in_module": 21,
+    "duration_minutes": 50,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-116",
+    "module_id": "M016-11",
+    "title": "NodePort, LoadBalancer & External Traffic Policies",
+    "slug": "nodeport-loadbalancer-and-external-traffic-policies",
+    "order_in_module": 22,
+    "duration_minutes": 60,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-117",
+    "module_id": "M016-11",
+    "title": "EndpointSlices, Headless Services & ExternalName",
+    "slug": "endpointslices-headless-services-and-externalname",
+    "order_in_module": 23,
+    "duration_minutes": 55,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-118",
+    "module_id": "M016-11",
+    "title": "Locality & Topology-Aware Service Routing",
+    "slug": "locality-and-topology-aware-service-routing",
+    "order_in_module": 24,
+    "duration_minutes": 45,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-119",
+    "module_id": "M016-11",
+    "title": "Readiness Probes & Traffic Eligibility",
+    "slug": "readiness-probes-and-traffic-eligibility",
+    "order_in_module": 25,
+    "duration_minutes": 60,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      11
+    ]
+  },
+  {
+    "lesson_id": "L016-120",
+    "module_id": "M016-11",
+    "title": "Deployments, ReplicaSets & Declarative Workload Management",
+    "slug": "deployments-replicasets-and-declarative-workload-management",
+    "order_in_module": 26,
+    "duration_minutes": 50,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      15
+    ]
+  },
+  {
+    "lesson_id": "L016-121",
+    "module_id": "M016-11",
+    "title": "Deployment Scaling, Status & Controller Reconciliation",
+    "slug": "deployment-scaling-status-and-controller-reconciliation",
+    "order_in_module": 27,
+    "duration_minutes": 45,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      15
+    ]
+  },
+  {
+    "lesson_id": "L016-122",
+    "module_id": "M016-11",
+    "title": "Recreate vs RollingUpdate Strategies",
+    "slug": "recreate-vs-rollingupdate-strategies",
+    "order_in_module": 28,
+    "duration_minutes": 60,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      15
+    ]
+  },
+  {
+    "lesson_id": "L016-123",
+    "module_id": "M016-11",
+    "title": "maxSurge, maxUnavailable & Rollout Safety Gates",
+    "slug": "maxsurge-maxunavailable-and-rollout-safety-gates",
+    "order_in_module": 29,
+    "duration_minutes": 60,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      15
+    ]
+  },
+  {
+    "lesson_id": "L016-124",
+    "module_id": "M016-11",
+    "title": "Pausing, Diagnosing & Rolling Back Deployments",
+    "slug": "pausing-diagnosing-and-rolling-back-deployments",
+    "order_in_module": 30,
+    "duration_minutes": 50,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      15
+    ]
+  },
+  {
+    "lesson_id": "L016-125",
+    "module_id": "M016-11",
+    "title": "Canary, A/B, Blue/Green & Shadow Releases on Kubernetes",
+    "slug": "canary-a-b-blue-green-and-shadow-releases-on-kubernetes",
+    "order_in_module": 31,
+    "duration_minutes": 55,
+    "optional": true,
+    "completion_required": false,
+    "source_id": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+    "source_chapters": [
+      15
+    ]
+  }
+]

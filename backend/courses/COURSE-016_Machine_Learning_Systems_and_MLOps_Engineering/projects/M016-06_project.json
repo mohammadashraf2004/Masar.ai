@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-06",
+  "title": "Design & Benchmark a Production Prediction System",
+  "brief": "Choose serving mode, feature path, optimization, runtime placement, and benchmark p50/p95/p99 latency, throughput, memory, model size, and quality.",
+  "optional": false,
+  "completion_required": true
+}

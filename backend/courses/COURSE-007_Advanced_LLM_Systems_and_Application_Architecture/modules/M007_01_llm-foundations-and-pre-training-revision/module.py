@@ -1,2 +1,0 @@
-MODULE = {'id': 'M007-01', 'title': 'LLM Foundations & Pre-Training Revision', 'role': 'REVISION', 'chapters': [1, 2, 3, 4], 'project': 'LLM Foundations Revision Audit', 'lessons': 4, 'guided_minutes': 115, 'guided_time': '1h55m'}
-LESSON_FILES = ['L007_001_revision-llm-fundamentals-prompting-and-prototype-to-production', 'L007_002_revision-pre-training-data-quality-and-dataset-engineering', 'L007_003_revision-vocabulary-tokenization-and-input-representation', 'L007_004_revision-transformer-architecture-and-learning-objectives']

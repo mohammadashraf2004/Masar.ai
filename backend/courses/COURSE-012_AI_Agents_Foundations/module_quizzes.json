@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "course_id": "COURSE-012",
+  "modules": [
+    {
+      "module_id": "M012-01",
+      "quiz_id": "QUIZ-M012-01",
+      "question_sources": []
+    }
+  ]
+}

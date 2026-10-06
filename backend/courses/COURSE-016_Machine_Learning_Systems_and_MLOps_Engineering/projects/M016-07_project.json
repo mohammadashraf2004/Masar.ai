@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-07",
+  "title": "Build an ML Monitoring & Incident-Diagnosis System",
+  "brief": "Create operational/ML monitoring, drift windows, alerts, logs, traces, dashboards, and an incident triage flow across injected failures.",
+  "optional": false,
+  "completion_required": true
+}

@@ -1,0 +1,101 @@
+{
+  "manual_figures": [
+    {
+      "figure": "2-1",
+      "title": "Chained/cascade voice pipeline vs native live voice",
+      "priority": "REQUIRED",
+      "chapter": 2,
+      "lessons": [
+        "L015-001",
+        "L015-035"
+      ],
+      "suggested_asset": "assets/manual_figures/ch02_fig_2_1_voice_architectures.png",
+      "action": "Prefer Masar-original redraw; source figure may be added manually as reference."
+    },
+    {
+      "figure": "3-3",
+      "title": "Live voice application architecture",
+      "priority": "REQUIRED",
+      "chapter": 3,
+      "lessons": [
+        "L015-018",
+        "L015-019",
+        "L015-024"
+      ],
+      "suggested_asset": "assets/manual_figures/ch03_fig_3_3_live_architecture.png",
+      "action": "Prefer Masar-original dual-pattern redraw (secure direct client vs server gateway)."
+    },
+    {
+      "figure": "1-5",
+      "title": "Tool-use loop",
+      "priority": "OPTIONAL",
+      "chapter": 1,
+      "lessons": [
+        "L015-036"
+      ],
+      "suggested_asset": "assets/manual_figures/ch01_fig_1_5_tool_loop.png",
+      "action": "Prefer Masar-original diagram."
+    },
+    {
+      "figure": "1-6",
+      "title": "Multi-turn agent loop",
+      "priority": "OPTIONAL",
+      "chapter": 1,
+      "lessons": [
+        "L015-038"
+      ],
+      "suggested_asset": "assets/manual_figures/ch01_fig_1_6_multiturn_loop.png",
+      "action": "Prefer Masar-original diagram."
+    },
+    {
+      "figure": "1-9",
+      "title": "Multi-agent system",
+      "priority": "OPTIONAL",
+      "chapter": 1,
+      "lessons": [
+        "L015-049"
+      ],
+      "suggested_asset": "assets/manual_figures/ch01_fig_1_9_multi_agent.png",
+      "action": "Prefer Masar-original one-voice/many-agents diagram."
+    },
+    {
+      "figure": "2-3",
+      "title": "Native multimodal representations",
+      "priority": "OPTIONAL",
+      "chapter": 2,
+      "lessons": [
+        "L015-022"
+      ],
+      "suggested_asset": "assets/manual_figures/ch02_fig_2_3_multimodal_representations.png",
+      "action": "Reference only; Masar-original redraw preferred."
+    },
+    {
+      "figure": "2-4",
+      "title": "Multimodal fusion",
+      "priority": "OPTIONAL",
+      "chapter": 2,
+      "lessons": [
+        "L015-022",
+        "L015-054"
+      ],
+      "suggested_asset": "assets/manual_figures/ch02_fig_2_4_multimodal_fusion.png",
+      "action": "Reference only; Masar-original redraw preferred."
+    },
+    {
+      "figure": "7-8",
+      "title": "One LiveAgent with background specialist agents",
+      "priority": "OPTIONAL",
+      "chapter": 7,
+      "lessons": [
+        "L015-049"
+      ],
+      "suggested_asset": "assets/manual_figures/ch07_fig_7_8_single_live_multi_agent.png",
+      "action": "Reference only; replace with provider-neutral Masar original."
+    }
+  ],
+  "policy": {
+    "do_not_request_source_images_from_user": true,
+    "prefer_masar_original_redraws": true,
+    "generate_outputs_from_code_when_possible": true
+  }
+}

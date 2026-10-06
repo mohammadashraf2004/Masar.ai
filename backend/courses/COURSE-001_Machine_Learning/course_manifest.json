@@ -1,0 +1,78 @@
+{
+  "course_id": "COURSE-001",
+  "level": "Beginner",
+  "course_title": "Machine Learning Foundations",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
+  "modules": 7,
+  "lessons": 7,
+  "guided_minutes": 930,
+  "professional_capability": "Build and evaluate foundational machine-learning models.",
+  "prerequisites": {
+    "required": []
+  },
+  "track_roles": {
+    "Data Analyst": "Supporting",
+    "ML Engineer": "Core",
+    "AI Developer": "Supporting",
+    "MLOps Engineer": "Core",
+    "AI Engineer": "Core"
+  },
+  "module_inventory": [
+    {
+      "id": "M01",
+      "title": "ML Fundamentals & First Model",
+      "lessons": 1,
+      "lesson_ids": [
+        "M01.L01"
+      ]
+    },
+    {
+      "id": "M02",
+      "title": "Supervised Learning Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M02.L01"
+      ]
+    },
+    {
+      "id": "M03",
+      "title": "Unsupervised Learning and Preprocessing",
+      "lessons": 1,
+      "lesson_ids": [
+        "M03.L01"
+      ]
+    },
+    {
+      "id": "M04",
+      "title": "Representing Data and Engineering Features",
+      "lessons": 1,
+      "lesson_ids": [
+        "M04.L01"
+      ]
+    },
+    {
+      "id": "M05",
+      "title": "Model Evaluation and Improvement",
+      "lessons": 1,
+      "lesson_ids": [
+        "M05.L01"
+      ]
+    },
+    {
+      "id": "M06",
+      "title": "Algorithm Chains and Pipelines",
+      "lessons": 1,
+      "lesson_ids": [
+        "M06.L01"
+      ]
+    },
+    {
+      "id": "M07",
+      "title": "Text Data and Real-World Machine Learning",
+      "lessons": 1,
+      "lesson_ids": [
+        "M07.L01"
+      ]
+    }
+  ]
+}

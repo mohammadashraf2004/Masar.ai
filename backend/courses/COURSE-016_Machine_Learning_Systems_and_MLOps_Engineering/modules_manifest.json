@@ -1,0 +1,122 @@
+[
+  {
+    "module_id": "M016-01",
+    "title": "ML Systems Thinking, Scoping & Production Constraints",
+    "role": "Core / Systems Foundations",
+    "guided_minutes": 400,
+    "lessons": 9,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-02",
+    "title": "Production Data Systems for ML",
+    "role": "Core / Data Systems",
+    "guided_minutes": 425,
+    "lessons": 8,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-03",
+    "title": "Training Data Engineering",
+    "role": "Core / ML Data Lifecycle",
+    "guided_minutes": 475,
+    "lessons": 9,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-04",
+    "title": "Production Feature Engineering & Leakage Control",
+    "role": "Core / Feature Lifecycle",
+    "guided_minutes": 405,
+    "lessons": 8,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-05",
+    "title": "Production Model Development & Offline Evaluation",
+    "role": "Core / Model Lifecycle",
+    "guided_minutes": 515,
+    "lessons": 10,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-06",
+    "title": "Model Deployment & Prediction Systems",
+    "role": "Core / Serving & Inference",
+    "guided_minutes": 515,
+    "lessons": 10,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-07",
+    "title": "ML Monitoring, Distribution Shift & Production Debugging",
+    "role": "Core / Production Operations",
+    "guided_minutes": 575,
+    "lessons": 11,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-08",
+    "title": "Continual Learning, Retraining & Production Experimentation",
+    "role": "Core / Model Update Lifecycle",
+    "guided_minutes": 520,
+    "lessons": 10,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-09",
+    "title": "MLOps Infrastructure & ML Platforms",
+    "role": "Core / Platform Engineering",
+    "guided_minutes": 535,
+    "lessons": 10,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-10",
+    "title": "Human-Centered & Responsible ML Systems",
+    "role": "Core / Human & Governance Layer",
+    "guided_minutes": 450,
+    "lessons": 9,
+    "optional": false,
+    "completion_required": true,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-11",
+    "title": "Kubernetes Operations for ML Workloads",
+    "role": "Optional / Supplemental Kubernetes Operations",
+    "guided_minutes": 1665,
+    "lessons": 31,
+    "optional": true,
+    "completion_required": false,
+    "capstone": false
+  },
+  {
+    "module_id": "M016-12",
+    "title": "Production ML Systems Capstone",
+    "role": "Capstone / Required",
+    "guided_minutes": 0,
+    "lessons": 0,
+    "optional": false,
+    "completion_required": false,
+    "capstone": true
+  }
+]

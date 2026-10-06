@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "course_id": "COURSE-004",
+  "title": "Applied NLP مع Transformers",
+  "modules": {
+    "M004-01": {
+      "title": "أساسيات Transformer وأول التطبيقات",
+      "description": "ابنِ تصورًا ذهنيًا بديهيًا عن transformers من خلال ربط النماذج التتابعية بـ attention والتعلّم بالنقل (transfer learning) والنماذج المدرَّبة مسبقًا ومسارات NLP الشائعة ومنظومة Hugging Face."
+    },
+    "M004-02": {
+      "title": "تصنيف النصوص",
+      "description": "ابنِ تصورًا متكاملًا لتصنيف النصوص بـ transformers: افحص dataset للمشاعر، وحوّل النص إلى tokens لـ DistilBERT، وقارن بين استخراج الـ features والـ fine-tuning، وحلّل الأخطاء، ثم شغّل inference."
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-02",
+  "title": "Design the Data Backbone for a Real-Time ML Product",
+  "brief": "Design sources, storage, ETL/ELT, data quality gates, event flows, batch/stream feature paths, recovery, and privacy boundaries.",
+  "optional": false,
+  "completion_required": true
+}

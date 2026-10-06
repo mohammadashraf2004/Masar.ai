@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "course_id": "COURSE-005",
+  "title": "هندسة تطبيقات LLM العملية",
+  "modules": {
+    "M005-01": {
+      "title": "أساسيات Language AI وLLM",
+      "description": "ابنِ أساسًا بديهيًا لـ Language AI ونماذج اللغة الكبيرة بتتبّع التطور من bag-of-words وembeddings إلى attention وTransformers وBERT وGPT وتدريب LLM وتطبيقاتها والاستخدام المسؤول والوصول إلى النماذج وأول توليد نصي."
+    },
+    "M005-02": {
+      "title": "Tokens وEmbeddings",
+      "description": "افهم كيف تحوّل نماذج اللغة النص إلى tokens ومعرّفات tokens، وكيف تُسقط هذه المعرّفات على embeddings، وكيف تُنشئ تمثيلات مرتبطة بالسياق وembeddings على مستوى الجملة، وكيف تُعاد استخدام أفكار embeddings في أنظمة مثل semantic search والتوصية."
+    },
+    "M005-03": {
+      "title": "نظرة إلى داخل نماذج اللغة الكبيرة",
+      "description": "ابنِ تصورًا ذهنيًا بديهيًا وعمليًا لكيفية توليد نماذج اللغة من نوع Transformer التوليدية للنص: التوليد الانحداري الذاتي، والمرور الأمامي (forward pass)، ورأس نمذجة اللغة، وdecoding، ومعالجة السياق، وKV caching، وكتل Transformer، وattention، وحسابات query/key/value، وتحسينات الكفاءة الحديثة مثل grouped-query attention وFlash Attention وتغييرات normalization وrotary positional embeddings."
+    },
+    "M005-04": {
+      "title": "تصنيف النصوص",
+      "description": "تعلّم كيف يمكن استخدام نماذج التمثيل والنماذج التوليدية المدرَّبة مسبقًا لتصنيف النصوص عبر نماذج مخصصة للمهمة، ونماذج embeddings مجمَّدة مع مصنِّفات خفيفة، وتشابه embeddings في وضع zero-shot، والنماذج التوليدية الموجَّهة بـ prompts، مع تقييم عملي باستخدام precision وrecall وaccuracy وF1."
+    },
+    "M005-05": {
+      "title": "تجميع النصوص ونمذجة المواضيع",
+      "description": "تعلّم كيف تكتشف البنية في نص غير موسوم باستخدام embeddings دلالية وتخفيض الأبعاد والتجميع القائم على الكثافة وBERTopic. واستكشف فحص العناقيد والقيم الشاذة وتمثيلات المواضيع بـ c-TF-IDF والتحسين المعياري للتمثيل بـ KeyBERTInspired وMMR وتسمية المواضيع توليديًا."
+    },
+    "M005-06": {
+      "title": "هندسة الـ Prompts",
+      "description": "تعلّم كيف تعمل بفاعلية مع نماذج اللغة التوليدية عبر ضوابط التوليد وبنية الـ prompt وتصميم التعليمات وin-context learning وprompt chaining والـ prompting الموجَّه نحو الاستدلال وself-consistency والاستكشاف الشجري والتحقق المتين من المخرَجات."
+    },
+    "M005-07": {
+      "title": "تقنيات وأدوات متقدمة لتوليد النصوص",
+      "description": "وسّع LLM توليدية لتصبح تطبيقًا معياريًا بالجمع بين model I/O وقوالب prompts وsequential chains وذاكرة المحادثة والذاكرة الملخَّصة والأدوات واختيار الإجراءات بأسلوب agent. وتعلّم المفاضلات بين حجم السياق وlatency والاحتفاظ بالمعلومات واستخدام الأدوات والاستقلالية."
+    },
+    "M005-08": {
+      "title": "Semantic Search وRetrieval-Augmented Generation",
+      "description": "تعلّم كيف تحسّن نماذج اللغة الحديثة البحث عبر dense retrieval وreranking، ثم وسّع البحث إلى retrieval-augmented generation (RAG). واستكشف chunking وفهارس المتجهات والبحث الهجين وتقييم الاسترجاع والتوليد المسنَد إلى المصادر وأنماط RAG المتقدمة وتقييم RAG."
+    },
+    "M005-09": {
+      "title": "نماذج اللغة الكبيرة متعددة الوسائط",
+      "description": "تعلّم كيف تتجاوز أنظمة نماذج اللغة النص بتمثيل الصور بـ Vision Transformers ومحاذاة embeddings الصور والنص بـ CLIP وربط vision encoders المدرَّبة مسبقًا بنماذج اللغة باستخدام معماريات مثل BLIP-2 لوصف الصور (captioning) والإجابة المرئية عن الأسئلة."
+    },
+    "M005-10": {
+      "title": "إنشاء نماذج Text Embedding",
+      "description": "تعلّم كيف تُنشأ نماذج text embedding وتُكيَّف باستخدام contrastive learning وsentence-transformers وbi-encoders ودوال خسارة مختلفة وhard negatives وsupervised fine-tuning وAugmented SBERT وTSDAE وdomain adaptation."
+    },
+    "M005-11": {
+      "title": "Fine-Tuning لنماذج التمثيل من أجل التصنيف",
+      "description": "تعلّم كيف تكيّف نماذج التمثيل المدرَّبة مسبقًا للتصنيف بعمل fine-tuning لـ BERT من البداية إلى النهاية، وتجميد طبقات مختارة، واستخدام SetFit للتصنيف بأمثلة قليلة، ومواصلة pretraining لـ masked-language-model لأجل domain adaptation، وعمل fine-tuning لمصنِّفات على مستوى الـ token للتعرّف على الكيانات المسمّاة."
+    },
+    "M005-12": {
+      "title": "Fine-Tuning للنماذج التوليدية",
+      "description": "تعلّم كيف تُكيَّف نماذج اللغة التوليدية المدرَّبة مسبقًا عبر supervised fine-tuning وpreference tuning. واستكشف full fine-tuning وPEFT وadapters وLoRA وQLoRA وتنسيق بيانات التعليمات وتقييم النماذج التوليدية ونماذج المكافأة وRLHF وPPO وDPO ومسارات alignment العملية."
+    }
+  }
+}

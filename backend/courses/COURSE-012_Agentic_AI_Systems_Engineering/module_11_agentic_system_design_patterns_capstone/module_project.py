@@ -1,3 +1,0 @@
-"""Module project seed for M012-11."""
-MODULE_ID = 'M012-11'
-PROJECT = {'title': 'Production Agentic AI System with MCP, Memory, Evaluation & Multi-Agent Orchestration', 'summary': 'Final portfolio capstone integrating the full COURSE-012 architecture into one bounded, observable, secure, and evaluable agentic system.', 'deliverables': ['Architecture review and component rationale', 'Typed agent contracts', 'Custom MCP capability', 'Justified multi-agent pattern', 'Persistent memory', 'Long-horizon state/termination', 'Adaptive strategy pivot', '25+ benchmark cases', 'Security/HITL controls', 'Reliability failure drill', 'Release manifest and rollback criteria']}

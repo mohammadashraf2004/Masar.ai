@@ -53,8 +53,8 @@ def _catalogue_counts(db):
 
 def test_course_directory_registry_covers_stable_ids_and_supported_metadata():
     courses = cfg.COURSE_DIRECTORY_COURSES
-    assert [course["course_id"] for course in courses] == [f"COURSE-{n:03d}" for n in range(1, 15)]
-    assert len({course["slug"] for course in courses}) == 14
+    assert [course["course_id"] for course in courses] == [f"COURSE-{n:03d}" for n in range(1, 17)]
+    assert len({course["slug"] for course in courses}) == 16
     assert {course["slug"] for course in courses} <= set(cfg.COURSE_ROLES)
     assert {course["track"] for course in courses} <= set(cfg.GOALS)
 
@@ -72,11 +72,11 @@ def test_course_directory_registry_covers_stable_ids_and_supported_metadata():
         assert course["path_field"] is None or course["path_field"] in known_fields
 
 
-def test_course_directory_ids_match_the_14_curriculum_sources():
+def test_course_directory_ids_match_the_16_curriculum_sources():
     courses_root = Path(__file__).resolve().parents[1] / "courses"
     source_ids = {directory.name[:10] for directory in courses_root.iterdir() if directory.is_dir()}
     registry_ids = {course["course_id"] for course in cfg.COURSE_DIRECTORY_COURSES}
-    assert registry_ids == source_ids == {f"COURSE-{n:03d}" for n in range(1, 15)}
+    assert registry_ids == source_ids == {f"COURSE-{n:03d}" for n in range(1, 17)}
 
 
 def test_course_directory_prerequisites_are_known_and_acyclic():
@@ -111,11 +111,16 @@ def test_each_course_has_a_primary_track_path_or_documented_deferral():
 
 def test_primary_track_sequences_put_hard_prerequisites_first():
     for course in cfg.COURSE_DIRECTORY_COURSES:
-        sequence = cfg.template_courses(course["track"])
-        position = {slug: index for index, slug in enumerate(sequence)}
-        assert course["slug"] in position
+        slug, goal = course["slug"], course["track"]
+        if slug in cfg.DEFERRED_PLACEMENTS.get(goal, {}):
+            continue  # not in this (older) stage/template generator - see DEFERRED_PLACEMENTS
+        sequence = cfg.template_courses(goal)
+        position = {s: index for index, s in enumerate(sequence)}
+        assert slug in position
         for prerequisite in course["prerequisites"]:
-            assert position[prerequisite] < position[course["slug"]]
+            if prerequisite not in position:
+                continue  # a prerequisite that is itself deferred from this generator
+            assert position[prerequisite] < position[slug]
 
 
 def test_no_course_directory_stage_points_to_a_missing_curriculum_source():
@@ -145,8 +150,10 @@ def test_empty_database_normal_seed_bootstrap_has_exact_curriculum_shape_and_syn
     created = seed_learning_catalog(learn_db)
     first_counts = _catalogue_counts(learn_db)
 
-    assert created["courses"] == 50
-    assert first_counts["courses"] == 50
+    # +2 over the historical 50: COURSE-015 and COURSE-016, seeded as shells
+    # like every other not-yet-imported directory course.
+    assert created["courses"] == 52
+    assert first_counts["courses"] == 52
     assert first_counts["course_roles"] == sum(len(roles) for roles in cfg.COURSE_ROLES.values())
     # Required prerequisites come from the registry; each directory course also gets the
     # other courses its own manifest names, as *recommended* ones (advice, never read by
@@ -348,3 +355,112 @@ def test_legacy_rag_remains_an_ml_engineer_nlp_elective():
     assert cfg.COURSE_ROLES["rag-knowledge-systems"][cfg.ML_ENGINEER] == cfg.OPTIONAL
     assert "rag-knowledge-systems" not in cfg.template_courses(cfg.ML_ENGINEER, fields=[])
     assert "rag-knowledge-systems" in cfg.template_courses(cfg.ML_ENGINEER, fields=["nlp"])
+
+
+def _directory_prerequisite_edges(db):
+    """(course, prerequisite, kind) for every directory course, as stored."""
+    slug_of = {c.id: c.slug for c in db.query(Course).all()}
+    slugs = {c["slug"] for c in cfg.COURSE_DIRECTORY_COURSES}
+    return {
+        (slug_of[row.course_id], slug_of[row.prerequisite_course_id], row.kind)
+        for row in db.query(CoursePrerequisite).all()
+        if slug_of[row.course_id] in slugs
+    }
+
+
+def _registry_prerequisite_edges():
+    """What the registry plus the manifests say the stored edges must be."""
+    edges = set()
+    for course in cfg.COURSE_DIRECTORY_COURSES:
+        required = set(course["prerequisites"])
+        edges |= {(course["slug"], slug, "required") for slug in required}
+        for course_id, _kind in read_manifest_prerequisites(course["course_id"]):
+            slug = course_id.lower()
+            if slug not in required and slug != course["slug"]:
+                edges.add((course["slug"], slug, "recommended"))
+    return edges
+
+
+def test_sync_upgrades_a_database_that_still_holds_the_pre_swap_012_007_prerequisites(learn_db, learn_catalog):
+    """The 2026-10 COURSE-012/007 swap reversed their relationship. A catalogue
+    imported before it still has 012 -> 007 (hard); the new registry has 007
+    recommending 012. Applying the new edges one course at a time used to see the old
+    edge plus the new one as a cycle ("course-007 -> course-012 -> course-007") and
+    refuse, so a fresh database passed while every EXISTING one failed."""
+    from app.services.learning import catalog_admin as admin
+    from seeds.sync_curriculum import sync_curriculum
+
+    by_slug = {c.slug: c for c in learn_db.query(Course).all()}
+    # The pre-swap state: 012 (agentic systems) built on 005, 006 and 007; 007 (advanced
+    # LLM systems) built on 005 alone and recommended nothing from 012.
+    admin.set_course_relations(
+        learn_db, by_slug["course-007"], prerequisites=["course-005"], recommended_prerequisites=[],
+    )
+    admin.set_course_relations(
+        learn_db, by_slug["course-012"],
+        prerequisites=["course-005", "course-006", "course-007"], recommended_prerequisites=[],
+    )
+    learn_db.commit()
+    legacy = _directory_prerequisite_edges(learn_db)
+    assert ("course-012", "course-007", "required") in legacy
+    assert legacy != _registry_prerequisite_edges()
+
+    untouched_before = {edge for edge in legacy if edge[0] not in ("course-007", "course-012")}
+    assert untouched_before
+
+    changes = sync_curriculum(learn_db)
+
+    stored = _directory_prerequisite_edges(learn_db)
+    assert stored == _registry_prerequisite_edges()
+    # No leftover edge from the old design, in either direction or either kind.
+    assert not {edge for edge in stored if edge[:2] == ("course-012", "course-007")}
+    assert ("course-007", "course-012", "recommended") in stored
+    assert ("course-007", "course-012", "required") not in stored
+    assert ("course-012", "course-005", "required") in stored and ("course-007", "course-005", "required") in stored
+    # Hard and recommended stay separate, and nothing is stored twice.
+    rows = learn_db.query(CoursePrerequisite).all()
+    assert len({(r.course_id, r.prerequisite_course_id) for r in rows}) == len(rows)
+    # The result is acyclic over the whole stored graph.
+    slug_of = {c.id: c.slug for c in learn_db.query(Course).all()}
+    graph = {}
+    for row in rows:
+        graph.setdefault(slug_of[row.course_id], []).append(slug_of[row.prerequisite_course_id])
+    assert find_cycle(graph) is None
+    # Only the two reversed courses were rewritten; every other course's edges are as they were.
+    assert {change.subject for change in changes if change.kind == "prereq"} == {"course-007", "course-012"}
+    assert untouched_before <= stored
+    # And it is a one-time upgrade: running it again changes nothing.
+    assert sync_curriculum(learn_db) == []
+
+
+def test_sync_prerequisite_failure_leaves_the_stored_edges_untouched(learn_db, learn_catalog, monkeypatch):
+    """Clearing precedes applying, so a failure between the two must not commit a
+    half-cleared graph: the sync runs in the caller's transaction, which rolls back."""
+    from app.services.learning import catalog_admin as admin
+    from seeds import sync_curriculum as sync
+
+    by_slug = {c.slug: c for c in learn_db.query(Course).all()}
+    admin.set_course_relations(learn_db, by_slug["course-007"], prerequisites=["course-005"], recommended_prerequisites=[])
+    admin.set_course_relations(
+        learn_db, by_slug["course-012"],
+        prerequisites=["course-005", "course-007"], recommended_prerequisites=[],
+    )
+    learn_db.commit()
+    before = _directory_prerequisite_edges(learn_db)
+
+    real = admin.set_course_relations
+    calls = {"n": 0}
+
+    def flaky(db, course, **kwargs):
+        calls["n"] += 1
+        if kwargs.get("prerequisites"):  # the apply phase, after every clear
+            raise RuntimeError("boom")
+        return real(db, course, **kwargs)
+
+    monkeypatch.setattr(sync.admin, "set_course_relations", flaky)
+    with pytest.raises(RuntimeError):
+        sync.sync_course_prerequisites(learn_db)
+    learn_db.rollback()
+
+    assert calls["n"] >= 2
+    assert _directory_prerequisite_edges(learn_db) == before

@@ -98,7 +98,9 @@ COURSE_ROLES: Dict[str, Dict[str, str]] = {
 # loaders have been integrated with a persistent content source. The catalogue
 # slugs are lower-case; `course_id` preserves the frozen ID in each export.
 #
-# `prerequisites` deliberately contains *only hard dependencies*.  Several
+# `prerequisites` deliberately contains *only hard dependencies* - the minimum a
+# course's lessons actually assume (decided from the lesson content, reconciled
+# 2026-10-02), not every course that would be nice to have first.  Several
 # course manifests also list a broader recommended sequence; the current
 # learning-path schema has no soft-prerequisite relation, so encoding those
 # recommendations here would incorrectly force an LLM route into MLOps (and
@@ -153,8 +155,8 @@ COURSE_DIRECTORY_COURSES = [
     },
     {
         "course_id": "COURSE-006", "slug": "course-006",
-        "title": "Production AI Engineering", "track": MLOPS_ENGINEER,
-        "level": "advanced", "fields": ["machine-learning"],
+        "title": "Production AI Engineering", "track": AI_DEVELOPER,
+        "level": "advanced", "fields": ["machine-learning", "nlp"],
         "roles": {_ML: _S, _AID: _S, _OPS: _C, _AIE: _C},
         "skills": ["evaluation", "observability", "production-deployment", "system-design"],
         "prerequisites": ["course-001"],
@@ -163,13 +165,13 @@ COURSE_DIRECTORY_COURSES = [
     },
     {
         "course_id": "COURSE-007", "slug": "course-007",
-        "title": "Advanced LLM Systems & Application Architecture", "track": AI_DEVELOPER,
+        "title": "AI Agents with MCP", "track": AI_DEVELOPER,
         "level": "advanced", "fields": ["nlp"],
         "roles": {_AID: _S, _AIE: _S},
-        "skills": ["llms", "rag", "ai-agents", "system-design", "evaluation"],
-        "prerequisites": ["course-005", "course-006"],
+        "skills": ["ai-agents", "llms", "mcp"],
+        "prerequisites": ["course-005"],
         "phase": "specialization", "path_field": "nlp",
-        "capability": "Design, adapt, evaluate, and optimize advanced LLM systems and applications.",
+        "capability": "Build agentic applications with the Model Context Protocol: MCP clients and servers, tools, prompts and resources, transports, security, and the MCP ecosystem.",
     },
     {
         "course_id": "COURSE-008", "slug": "course-008",
@@ -194,11 +196,11 @@ COURSE_DIRECTORY_COURSES = [
     {
         "course_id": "COURSE-010", "slug": "course-010",
         "title": "AI Service Engineering with FastAPI", "track": AI_DEVELOPER,
-        "level": "intermediate", "fields": ["nlp"],
+        "level": "intermediate", "fields": ["machine-learning"],
         "roles": {_AID: _C, _OPS: _C, _AIE: _S},
         "skills": ["fastapi", "api-design", "production-deployment", "python"],
-        "prerequisites": ["course-006"],
-        "phase": "engineering", "path_field": "nlp",
+        "prerequisites": ["course-001"],
+        "phase": "engineering", "path_field": None,
         "capability": "Design, secure, test, optimize, and deploy backend services for AI applications.",
     },
     {
@@ -207,19 +209,19 @@ COURSE_DIRECTORY_COURSES = [
         "level": "advanced", "fields": ["machine-learning"],
         "roles": {_ML: _O, _AID: _S, _OPS: _C, _AIE: _C},
         "skills": ["cloud-deployment", "ci-cd", "docker", "production-deployment"],
-        "prerequisites": ["course-006", "course-010"],
+        "prerequisites": ["course-010"],
         "phase": "engineering", "path_field": None,
         "capability": "Deploy, secure, automate, and operate AI backend services on cloud platforms.",
     },
     {
         "course_id": "COURSE-012", "slug": "course-012",
-        "title": "Agentic AI Systems Engineering", "track": AI_DEVELOPER,
-        "level": "advanced", "fields": ["nlp"],
+        "title": "AI Agents Foundations", "track": AI_DEVELOPER,
+        "level": "intermediate", "fields": ["nlp"],
         "roles": {_AID: _C, _AIE: _S},
-        "skills": ["ai-agents", "langgraph", "evaluation", "system-design"],
-        "prerequisites": ["course-005", "course-006", "course-007"],
+        "skills": ["ai-agents", "mcp", "rag", "evaluation"],
+        "prerequisites": ["course-005"],
         "phase": "specialization", "path_field": "nlp",
-        "capability": "Design, orchestrate, evaluate, secure, and operate production agentic systems.",
+        "capability": "Build AI agents: tools and MCP, multi-agent patterns, reasoning and planning, memory and RAG, evaluation, deployment, and agentic loops.",
     },
     {
         "course_id": "COURSE-013", "slug": "course-013",
@@ -236,8 +238,32 @@ COURSE_DIRECTORY_COURSES = [
         "level": "intermediate", "fields": ["computer-vision"],
         "roles": {_ML: _C, _AID: _S, _OPS: _S, _AIE: _C},
         "skills": ["computer-vision"],
-        "prerequisites": ["course-001"], "phase": "specialization", "path_field": "computer-vision",
+        "prerequisites": ["course-001", "course-002"], "phase": "specialization", "path_field": "computer-vision",
         "capability": "Design, implement, debug, and evaluate classical and modern image-processing and computer-vision pipelines.",
+    },
+    {
+        "course_id": "COURSE-015", "slug": "course-015",
+        "title": "Voice AI Engineering: Real-Time Voice Agents", "track": AI_ENGINEER,
+        "level": "advanced", "fields": ["speech"],
+        "roles": {_AID: _O, _AIE: _O},
+        "skills": ["speech-recognition", "voice-ai", "text-to-speech"],
+        # An LLM application is the minimum it assumes. The agent, MCP and
+        # multi-agent material it also needs is taught inside the course.
+        "prerequisites": ["course-005"],
+        "phase": "specialization", "path_field": "speech",
+        "capability": "Design, build, and operate real-time, multilingual voice AI agents with turn detection, barge-in, and production-grade reliability.",
+    },
+    {
+        "course_id": "COURSE-016", "slug": "course-016",
+        "title": "Machine Learning Systems & MLOps Engineering", "track": MLOPS_ENGINEER,
+        "level": "advanced", "fields": ["machine-learning"],
+        "roles": {_ML: _C, _OPS: _C, _AIE: _C},
+        "skills": ["mlops", "docker", "production-deployment"],
+        # Its manifest names COURSE-001 as the only required course; cloud
+        # deployment (011), data analysis (013) and the rest are recommended.
+        "prerequisites": ["course-001"],
+        "phase": "engineering", "path_field": None,
+        "capability": "Design, deploy, and operate production ML systems and MLOps pipelines: data and training-data engineering, offline evaluation, serving, monitoring, continual learning, and MLOps on AWS, Azure and GCP.",
     },
 ]
 
@@ -253,11 +279,15 @@ COURSES_WITH_LESSONS = (
     "langchain", "langgraph", "llamaindex", "qdrant", "fastapi-serving",
 )
 
-# All 14 directory courses have a primary placement below.  `course_roles`
+# 14 of the 16 directory courses have a primary placement below; COURSE-015 and
+# COURSE-016 are deferred (see DEFERRED_PLACEMENTS).  `course_roles`
 # remains broader than a template where that is useful for catalogue discovery:
 # an optional ML specialisation, for example, should be discoverable without
 # silently becoming part of every ML Engineer journey.
-DEFERRED_PLACEMENTS: Dict[str, Dict[str, str]] = {}
+DEFERRED_PLACEMENTS: Dict[str, Dict[str, str]] = {
+    AI_ENGINEER: {"course-015": "catalogued and importable; not yet placed in a roadmap template"},
+    MLOPS_ENGINEER: {"course-016": "catalogued and importable; not yet placed in a roadmap template"},
+}
 
 # ─── Placeholder levels to catalogue as (empty) courses ─────────────────────
 # (course slug, legacy track slug, level order, learner level, fields)

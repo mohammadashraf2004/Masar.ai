@@ -1,54 +1,139 @@
 {
   "course_id": "COURSE-014",
-  "course_title": "Image Processing & Computer Vision Engineering",
   "source_id": "BOOK-014",
   "book_title": "SOURCE INFORMATION MISSING",
   "edition": "SOURCE INFORMATION MISSING",
-  "status": "Curriculum design finalized / course-folder seed export generated",
-  "finalization_status": "Finished by user",
   "approval_status": "Not explicitly approved",
   "source_review_status": "Complete",
-  "chapters_processed": "13/13",
-  "module_id_range": "M014-01..M014-10",
-  "lesson_id_range": "L014-001..L014-099",
-  "modules": 10,
-  "lessons": 99,
-  "guided_minutes": 5920,
-  "guided_time": "98h 40m",
-  "track_roles": {
-    "Data Analyst": "Optional",
-    "ML Engineer": "Core",
-    "AI Developer": "Supporting",
-    "MLOps Engineer": "Supporting",
-    "AI Engineer": "Core"
-  },
+  "course_title": "Image Processing & Computer Vision Engineering",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
+  "modules": 13,
+  "lessons": 13,
+  "guided_minutes": 4650,
+  "professional_capability": "Design, implement, debug, and evaluate classical and modern image-processing and computer-vision pipelines.",
   "prerequisites": {
     "required": [
-      "COURSE-001 — Machine Learning Foundations"
+      "COURSE-001 — Machine Learning Foundations",
+      "COURSE-002 — Deep Learning Foundations"
     ],
     "strongly_recommended": [
-      "COURSE-002 — Deep Learning Foundations",
       "COURSE-003 — Applied Deep Learning"
     ],
     "supporting": [
       "COURSE-013 — Applied Data Analysis with Python"
     ]
   },
-  "professional_capability": "Design, implement, analyze, debug, evaluate, and integrate classical and modern image-processing/computer-vision pipelines from pixels and geometry through filtering, enhancement, restoration, segmentation, detection, 3D understanding, and controlled generative vision.",
-  "course_capstone": "Classical-to-Modern Computer Vision System",
-  "manual_visual_references": {
-    "required": 11,
-    "optional": 2,
-    "total": 13
+  "track_roles": {
+    "Data Analyst": "Not applicable",
+    "ML Engineer": "Optional",
+    "AI Developer": "Not applicable",
+    "MLOps Engineer": "Not applicable",
+    "AI Engineer": "Optional"
   },
-  "frozen": {
-    "course_id": true,
-    "module_ids": true,
-    "lesson_ids": true,
-    "architecture": true,
-    "source_mapping": true,
-    "manual_figure_mapping": true,
-    "current_scope": true
-  },
-  "implementation_boundary": "Repository-neutral curriculum/course-folder seed export. It is not proof of production Masar database integration or end-to-end execution of every external model/API/library workflow."
+  "module_inventory": [
+    {
+      "id": "M014-01",
+      "title": "Digital Image Processing Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M01.L01"
+      ]
+    },
+    {
+      "id": "M014-02",
+      "title": "Practical Image Manipulation",
+      "lessons": 1,
+      "lesson_ids": [
+        "M02.L01"
+      ]
+    },
+    {
+      "id": "M014-03",
+      "title": "Advanced Image Manipulation",
+      "lessons": 1,
+      "lesson_ids": [
+        "M03.L01"
+      ]
+    },
+    {
+      "id": "M014-04",
+      "title": "Sampling, Quantization, and Frequency-Domain Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M04.L01"
+      ]
+    },
+    {
+      "id": "M014-05",
+      "title": "Convolution and Image Filtering",
+      "lessons": 1,
+      "lesson_ids": [
+        "M05.L01"
+      ]
+    },
+    {
+      "id": "M014-06",
+      "title": "Frequency Domain Filtering",
+      "lessons": 1,
+      "lesson_ids": [
+        "M06.L01"
+      ]
+    },
+    {
+      "id": "M014-07",
+      "title": "Image Enhancement",
+      "lessons": 1,
+      "lesson_ids": [
+        "M07.L01"
+      ]
+    },
+    {
+      "id": "M014-08",
+      "title": "Image Enhancements Using Derivatives",
+      "lessons": 1,
+      "lesson_ids": [
+        "M08.L01"
+      ]
+    },
+    {
+      "id": "M014-09",
+      "title": "Image Restoration: Inverse Problems in Imaging",
+      "lessons": 1,
+      "lesson_ids": [
+        "M09.L01"
+      ]
+    },
+    {
+      "id": "M014-10",
+      "title": "Image Segmentation: From Classical Methods to Deep Learning",
+      "lessons": 1,
+      "lesson_ids": [
+        "M10.L01"
+      ]
+    },
+    {
+      "id": "M014-11",
+      "title": "More Deep Learning Methods for Image Segmentation",
+      "lessons": 1,
+      "lesson_ids": [
+        "M11.L01"
+      ]
+    },
+    {
+      "id": "M014-12",
+      "title": "Image Classification and Object Detection",
+      "lessons": 1,
+      "lesson_ids": [
+        "M12.L01"
+      ]
+    },
+    {
+      "id": "M014-13",
+      "title": "Generative AI in Image Processing and Computer Vision",
+      "lessons": 1,
+      "lesson_ids": [
+        "M13.L01"
+      ]
+    }
+  ]
 }

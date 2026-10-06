@@ -141,6 +141,12 @@ class Exercise(Base):
     tool_topic_id = Column(Integer, ForeignKey("tool_topics.id"), nullable=True)
     tool_topic    = relationship("ToolTopic", back_populates="exercises",
                                  foreign_keys="[Exercise.tool_topic_id]")
+    # The lesson this exercise is graded against, when a course authors a
+    # direct 1:1 pairing (the lesson page renders this exercise right below
+    # its lesson). Optional: most exercises still only share a topic with
+    # their sibling lessons, with no single one being "the" lesson's exercise.
+    lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=True, index=True)
+    lesson    = relationship("Lesson", foreign_keys="[Exercise.lesson_id]")
 
 
 class Project(Base):

@@ -73,8 +73,9 @@ learner has one, sharpens the order; it never controls access.
 * Challenge-to-skip (test out of a module). The pieces it needs exist (server-side
   grading, per-module status) but no rule yet says what passing a module test means
   for completion or certification, and exams and payments must stay intact.
-* `COURSE-006` ships as an outline only (10 modules, no lesson text). It imports as
-  a non-startable shell and needs its lessons written.
+* No course is outline-only any more: all sixteen `COURSE-0xx` folders carry lesson
+  text (COURSE-006 included). The importer still supports an outline-only layout and
+  would import such a course as a non-startable shell.
 * Nothing hard-blocks on a prerequisite. A manifest's `required` list makes a
   prerequisite `required` (it orders roadmaps and weighs most in readiness); everything
   else is `recommended`. If Masar ever wants a hard block it needs an explicit business rule.

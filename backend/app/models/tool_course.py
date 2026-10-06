@@ -87,6 +87,12 @@ class ToolTopic(Base):
     skill_tags       = Column(JSON, default=list)            # e.g. ["langchain", "rag"]
     technical_terms  = Column(JSON, default=list)            # terminology dictionary ids
     prerequisite_ids = Column(JSON, default=list)            # list of ToolTopic IDs
+    # Optional/specialization modules stay fully readable and track their own
+    # progress, but do not enter the parent course's completion denominator.
+    # Kept separate because a capstone/project-only module can be non-optional
+    # while having no lesson-based completion requirement.
+    is_optional = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    completion_required = Column(Boolean, nullable=False, default=True, server_default=text("true"))
 
     # Relationships
     tool_course = relationship("ToolCourse", back_populates="topics")

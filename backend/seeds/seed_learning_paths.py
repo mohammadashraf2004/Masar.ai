@@ -78,7 +78,7 @@ TRACK_SLUG = "ai-developer"
 SKILLS = [
     ("llms", "LLMs"), ("prompt-engineering", "Prompt Engineering"), ("rag", "RAG"),
     ("retrieval", "Retrieval"), ("embeddings", "Embeddings"), ("semantic-search", "Semantic Search"),
-    ("vector-databases", "Vector Databases"), ("ai-agents", "AI Agents"), ("evaluation", "Evaluation"),
+    ("vector-databases", "Vector Databases"), ("ai-agents", "AI Agents"), ("mcp", "Model Context Protocol (MCP)"), ("evaluation", "Evaluation"),
     ("observability", "Observability"), ("fastapi", "FastAPI"), ("api-design", "API Design"),
     ("production-deployment", "Production Deployment"), ("system-design", "System Design"),
     ("multimodal", "Multimodal AI"), ("vision-language-models", "Vision-Language Models"),
@@ -88,6 +88,7 @@ SKILLS = [
     ("sql", "SQL"), ("data-analysis", "Data Analysis"), ("statistics", "Statistics"),
     ("machine-learning", "Machine Learning"), ("deep-learning", "Deep Learning"),
     ("mlops", "MLOps"), ("computer-vision", "Computer Vision"), ("speech-recognition", "Speech Recognition"),
+    ("voice-ai", "Voice AI"), ("text-to-speech", "Text-to-Speech"),
     ("python", "Python"), ("numpy", "NumPy"), ("pandas", "pandas"),
     ("scikit-learn", "scikit-learn"), ("pytorch", "PyTorch"), ("transformers", "Transformers"),
     ("docker", "Docker"), ("ci-cd", "CI/CD"), ("cloud-deployment", "Cloud Deployment"),
@@ -120,6 +121,7 @@ TAG_TO_SKILL = {
     "semantic-search": "semantic-search", "vector-search": "semantic-search",
     "vector-database": "vector-databases",
     "ai-agents": "ai-agents", "agentic-systems": "ai-agents", "tool-use": "ai-agents",
+    "mcp": "mcp", "model-context-protocol": "mcp",
     "evaluation": "evaluation", "rag-evaluation": "evaluation", "evaluation-datasets": "evaluation",
     "metrics": "evaluation",
     "observability": "observability",
@@ -129,6 +131,9 @@ TAG_TO_SKILL = {
     "image-understanding": "vision-language-models", "document-ai": "document-ai",
     "langchain": "langchain", "langgraph": "langgraph", "llamaindex": "llamaindex", "qdrant": "qdrant",
     "system-design": "system-design", "architecture": "system-design",
+    "speech-recognition": "speech-recognition", "asr": "speech-recognition", "stt": "speech-recognition",
+    "text-to-speech": "text-to-speech", "tts": "text-to-speech",
+    "voice-ai": "voice-ai", "voice-agents": "voice-ai", "real-time-voice": "voice-ai",
 }
 
 # ─── What each field and career goal is made of ─────────────────────────────

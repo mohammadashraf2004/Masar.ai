@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-05",
+  "title": "Production Model Selection & Evaluation Gate",
+  "brief": "Compare candidate models against baselines, reproducibility, robustness, calibration, slices, latency, memory, and business constraints.",
+  "optional": false,
+  "completion_required": true
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "course_id": "COURSE-001",
+  "title": "أساسيات Machine Learning",
+  "modules": {
+    "M01": {
+      "title": "أساسيات ML وأول Model",
+      "description": "افهم ما هو Machine Learning، وكيف يختلف عن القواعد المكتوبة يدويًا، وكيف تشكّل البيانات والـ features والـ targets والـ generalization الأساس الذي يقوم عليه أي نظام ML."
+    },
+    "M02": {
+      "title": "أساسيات Supervised Learning",
+      "description": "افهم النوعين الرئيسيين من مسائل supervised learning، وتعلّم كيف تؤثر الـ generalization والـ overfitting والـ underfitting وتعقيد الـ model وحجم الـ dataset في نجاح الـ model على بيانات لم يرها من قبل."
+    },
+    "M03": {
+      "title": "Unsupervised Learning والمعالجة المسبقة",
+      "description": "تعلّم كيف يستطيع Machine Learning اكتشاف البنية دون target labels، وكيف تُجهَّز الـ features بالـ scaling، وكيف يُخفَّض عدد الأبعاد (dimensionality reduction)، وكيف تُعرَض البيانات المعقدة بصريًا، وكيف تُكتشف المجموعات بالـ clustering."
+    },
+    "M04": {
+      "title": "تمثيل البيانات وهندسة الـ Features",
+      "description": "تعلّم كيف يغيّر تمثيل الـ features ما يستطيع الـ model تعلّمه، ويشمل ذلك ترميز البيانات الفئوية (categorical encoding)، والمعالجة المسبقة على مستوى الأعمدة، والـ binning، والتفاعلات (interactions)، والتحويلات متعددة الحدود وغير الخطية، واختيار الـ features تلقائيًا، والـ features التي يصمّمها الخبراء."
+    },
+    "M05": {
+      "title": "تقييم الـ Model وتحسينه",
+      "description": "تعلّم كيف تقيّم الـ generalization بموثوقية، وكيف تستخدم الـ cross-validation، وكيف تضبط الـ hyperparameters دون تسريب معلومات من بيانات الاختبار، وكيف تختار مقاييس التقييم التي تطابق الهدف الحقيقي لمسألة supervised learning."
+    },
+    "M06": {
+      "title": "سلاسل الخوارزميات والـ Pipelines",
+      "description": "تعلّم كيف تجمع المعالجة المسبقة واستخراج الـ features واختيارها ونماذج Machine Learning في pipelines آمنة في scikit-learn، وكيف تضبط سير العمل كاملًا دون تسريب معلومات بين الـ validation folds."
+    },
+    "M07": {
+      "title": "البيانات النصية وMachine Learning في الواقع العملي",
+      "description": "تعلّم كيف تمثّل النص لأغراض Machine Learning، وكيف تبني نماذج تصنيف النصوص ونماذج المواضيع (topic models) وتفسّرها، وكيف تربط تطوير الـ model بتعريف المسألة والنشر في الإنتاج والاختبار الحي وممارسات ML القابلة للتوسع."
+    }
+  }
+}

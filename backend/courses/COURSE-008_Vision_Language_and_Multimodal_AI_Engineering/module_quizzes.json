@@ -1,0 +1,496 @@
+{
+  "schema_version": 1,
+  "course_id": "COURSE-008",
+  "modules": [
+    {
+      "module_id": "M008-01",
+      "quiz_id": "QUIZ-M008-01",
+      "question_sources": [
+        {
+          "lesson_id": "L008-001",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-002",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-003",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-004",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-005",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-006",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-007",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-008",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-02",
+      "quiz_id": "QUIZ-M008-02",
+      "question_sources": [
+        {
+          "lesson_id": "L008-009",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-010",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-011",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-012",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-013",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-014",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-015",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-016",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-03",
+      "quiz_id": "QUIZ-M008-03",
+      "question_sources": [
+        {
+          "lesson_id": "L008-017",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-018",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-019",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-020",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-021",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-022",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-023",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-024",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-025",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-026",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-04",
+      "quiz_id": "QUIZ-M008-04",
+      "question_sources": [
+        {
+          "lesson_id": "L008-027",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-028",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-029",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-030",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-031",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-032",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-033",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-034",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-035",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-036",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-05",
+      "quiz_id": "QUIZ-M008-05",
+      "question_sources": [
+        {
+          "lesson_id": "L008-037",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-038",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-039",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-040",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-041",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-042",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-043",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-044",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-045",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-046",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-06",
+      "quiz_id": "QUIZ-M008-06",
+      "question_sources": [
+        {
+          "lesson_id": "L008-047",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-048",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-049",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-050",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-051",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-052",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-053",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-054",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-055",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-07",
+      "quiz_id": "QUIZ-M008-07",
+      "question_sources": [
+        {
+          "lesson_id": "L008-056",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-057",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-058",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-059",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-060",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-061",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-062",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-063",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-064",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-065",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-08",
+      "quiz_id": "QUIZ-M008-08",
+      "question_sources": [
+        {
+          "lesson_id": "L008-066",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-067",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-068",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-069",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-070",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-071",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-072",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-073",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-074",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-075",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-09",
+      "quiz_id": "QUIZ-M008-09",
+      "question_sources": [
+        {
+          "lesson_id": "L008-076",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-077",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-078",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-079",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-080",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-081",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-082",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-083",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-084",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-085",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-10",
+      "quiz_id": "QUIZ-M008-10",
+      "question_sources": [
+        {
+          "lesson_id": "L008-086",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-087",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-088",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-089",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-090",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-091",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-092",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-093",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-094",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-095",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-096",
+          "question_count": 3
+        }
+      ]
+    },
+    {
+      "module_id": "M008-11",
+      "quiz_id": "QUIZ-M008-11",
+      "question_sources": [
+        {
+          "lesson_id": "L008-097",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-098",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-099",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-100",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-101",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-102",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-103",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-104",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-105",
+          "question_count": 3
+        },
+        {
+          "lesson_id": "L008-106",
+          "question_count": 3
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "lesson_id": "M06.L01",
+  "source_hash": "81df6f0dbf11c3b4fcf2fb11ad363c1550080b455dae179094c4947a9ca76e52",
+  "title": "سلاسل الخوارزميات والـ Pipelines",
+  "exercises": [
+    {
+      "id": "COURSE-001.M06.L01.EX01",
+      "title": "ابنِ pipeline آمنًا لتغيير المقياس",
+      "description": "حوّل مسار عمل يدويًا للمعالجة المسبقة والـ model إلى Pipeline واحد في scikit-learn.\n\n**المخرَج المتوقع**\n\nمثال قصير قابل للتنفيذ في scikit-learn مع شرح لكيفية تعامل الـ pipeline مع تحويلات التدريب والاختبار."
+    },
+    {
+      "id": "COURSE-001.M06.L01.EX02",
+      "title": "أصلح grid search مسرِّبًا",
+      "description": "حدّد تسرّب المعلومات وأعد تصميم مسار العمل بحيث تُقيَّم المعالجة المسبقة بصورة صحيحة داخل cross-validation.\n\n**المخرَج المتوقع**\n\nتصميم Pipeline + GridSearchCV مصحَّح مع شرح مكتوب قصير لسبب عدم صلاحية مسار العمل الأصلي."
+    }
+  ],
+  "questions": [
+    {
+      "question": "لماذا قد يكون ضبط scaler على كل بيانات التدريب قبل GridSearchCV إشكاليًا؟",
+      "options": [
+        "لأن الـ scaler يجعل البيانات صغيرة جدًا",
+        "لأن الـ scaler استخدم بالفعل معلومات من folds التحقق",
+        "لأن GridSearchCV لا يستطيع العمل مع بيانات جرى تغيير مقياسها",
+        "لأنه لا يمكن استخدام SVC بعد MinMaxScaler"
+      ],
+      "explanation": "إن folds التحقق في cross-validation جزء من مجموعة التدريب الأصلية. فإذا ضُبط الـ scaler قبل إنشاء الـ folds، فإن معلومات من folds التحقق تلك تؤثر في المعالجة المسبقة المتعلَّمة."
+    },
+    {
+      "question": "ماذا يحدث عند استدعاء `pipe.fit(X_train, y_train)` على pipeline يحتوي على scaler يليه مصنّف؟",
+      "options": [
+        "يُضبط المصنّف فقط",
+        "يُضبط المصنّف أولًا ثم الـ scaler",
+        "يُضبط الـ scaler ويحوّل البيانات قبل ضبط المصنّف",
+        "تتلقى الخطوتان مجموعة الاختبار تلقائيًا"
+      ],
+      "explanation": "تُضبط الـ transformers الوسيطة وتُستخدم لتحويل البيانات بالترتيب. ثم يُضبط الـ estimator الأخير على التمثيل المحوَّل."
+    },
+    {
+      "question": "خطوة في pipeline اسمها `svm`. أي مفتاح يضبط معاملها `C` ضبطًا صحيحًا في GridSearchCV؟",
+      "options": [
+        "C__svm",
+        "svm_C",
+        "svm.C",
+        "svm__C"
+      ],
+      "explanation": "تستخدم معاملات الـ pipeline الصيغة `step_name__parameter_name` بشرطة سفلية مزدوجة."
+    },
+    {
+      "question": "أي عبارة عن GridSearchCV والـ pipelines صحيحة؟",
+      "options": [
+        "لا يمكن ضبط إلا معاملات الـ estimator الأخير",
+        "يمكن ضبط معاملات المعالجة المسبقة ومعاملات الـ model معًا",
+        "لا يستطيع pipeline المقارنة بين عائلات models مختلفة",
+        "لا يمكن أبدًا تخطّي خطوة معالجة مسبقة"
+      ],
+      "explanation": "يستطيع GridSearchCV البحث في معاملات من أي خطوة في الـ pipeline، بل يمكنه استبدال خطوات معالجة مسبقة أو estimators كاملة."
+    },
+    {
+      "question": "تحتاج إلى المقارنة بين StandardScaler + SVC وRandomForestClassifier دون تغيير مقياس. صِف كيف ستبني الـ pipeline وشبكة المعاملات بحيث يُقيَّم مساري العمل بإنصاف داخل GridSearchCV نفسه.",
+      "options": [],
+      "explanation": ""
+    }
+  ]
+}

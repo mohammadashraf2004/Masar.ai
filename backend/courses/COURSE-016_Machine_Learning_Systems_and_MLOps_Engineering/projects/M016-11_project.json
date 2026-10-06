@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-11",
+  "title": "Optional Kubernetes ML Operations Project",
+  "brief": "Deploy a stateless ML prediction service to Kubernetes with configuration, health/readiness, Service discovery, observability, rolling release, and rollback.",
+  "optional": true,
+  "completion_required": false
+}

@@ -110,6 +110,12 @@ def load_assets(course_dir: Path) -> Tuple[List[AssetSpec], List[str]]:
         manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         return [], [f"{where}: cannot read JSON ({exc})"]
+    # Some historical exports use this filename for a planning inventory of
+    # source-book figures that are explicitly *not* bundled. It is metadata,
+    # not a malformed learner-facing asset manifest.
+    if isinstance(manifest, dict) and isinstance(manifest.get("manual_figures"), list) \
+            and "assets" not in manifest:
+        return [], []
     if not isinstance(manifest, dict) or manifest.get("version") != MANIFEST_VERSION \
             or not isinstance(manifest.get("assets"), list):
         return [], [f"{where}: not an asset manifest (expected an object with \"version\": {MANIFEST_VERSION} and an \"assets\" list)"]

@@ -1,0 +1,18 @@
+{
+  "title": "Production-Ready Multilingual Voice AI Agent",
+  "requirements": [
+    "Provider-neutral domain architecture with Gemini Live and OpenAI Realtime adapters.",
+    "At least one external STT and one external TTS adapter or a demonstrated chained pipeline.",
+    "Arabic, English, and code-switching evaluation fixtures.",
+    "Streaming, turn detection, barge-in, playback cancellation, reconnect, and session continuity.",
+    "At least three tools; one must have a side effect with authorization, confirmation, timeout, cancellation, and idempotency.",
+    "Grounded RAG with provenance/source handling and latency/failure behavior.",
+    "Session/context state plus explicitly scoped persistent memory.",
+    "At least one durable workflow that can outlive the immediate voice turn and survive reconnect.",
+    "At least two fault scenarios among realtime provider, STT/TTS, tool, RAG, rate limit, remote agent, or network failure.",
+    "Observability covering first-audio latency, endpointing, interruption, tools/RAG, provider errors, fallback, workflow IDs, and traces.",
+    "Voice evaluation suite covering clean English/Arabic, code-switching, noise, pauses, interruption, rapid follow-up, tool/RAG, ambiguous input, and provider failure.",
+    "Security: no permanent provider secret in client; authenticated sessions; scoped tool/agent authorization; audio/transcript retention policy; redacted sensitive logs.",
+    "Production release design with staging gate, session-sticky canary or Blue/Green, connection draining, rollback, and registry version/health tracking."
+  ]
+}

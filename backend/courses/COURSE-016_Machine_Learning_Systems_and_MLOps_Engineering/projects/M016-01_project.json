@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-01",
+  "title": "Production ML System Design Brief",
+  "brief": "Frame one production ML problem from business objective through system constraints, stakeholders, metrics, risks, and go/no-go decision.",
+  "optional": false,
+  "completion_required": true
+}

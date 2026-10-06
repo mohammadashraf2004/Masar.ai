@@ -1,0 +1,79 @@
+{
+  "course_id": "COURSE-007",
+  "source_id": "BOOK-007",
+  "book_title": "SOURCE INFORMATION MISSING",
+  "edition": "SOURCE INFORMATION MISSING",
+  "learning_loop": "Learn → Practice → Build → Debug → Evaluate",
+  "approval_status": "Not explicitly approved",
+  "source_review_status": "SOURCE INFORMATION MISSING",
+  "level": "Advanced",
+  "difficulty": "Intermediate → Advanced",
+  "course_title": "AI Agents with MCP",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
+  "modules": 5,
+  "lessons": 8,
+  "guided_minutes": 1410,
+  "professional_capability": "Build agentic applications with the Model Context Protocol: MCP clients and servers, tools, prompts and resources, transports, security, and the MCP ecosystem.",
+  "prerequisites": {
+    "required": [
+      "COURSE-005 — Applied LLM Engineering"
+    ],
+    "supporting": [
+      "COURSE-012 — AI Agents Foundations",
+      "COURSE-006 — Production AI Engineering",
+      "COURSE-010 — AI Service Engineering with FastAPI"
+    ]
+  },
+  "track_roles": {
+    "Data Analyst": "Not applicable",
+    "ML Engineer": "Not applicable",
+    "AI Developer": "Core",
+    "MLOps Engineer": "Not applicable",
+    "AI Engineer": "Supporting"
+  },
+  "module_inventory": [
+    {
+      "id": "M007-01",
+      "title": "Agentic AI & MCP Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M01.L01"
+      ]
+    },
+    {
+      "id": "M007-02",
+      "title": "Building MCP Clients",
+      "lessons": 2,
+      "lesson_ids": [
+        "M02.L01",
+        "M02.L02"
+      ]
+    },
+    {
+      "id": "M007-03",
+      "title": "Building MCP Servers",
+      "lessons": 3,
+      "lesson_ids": [
+        "M03.L01",
+        "M03.L02",
+        "M03.L03"
+      ]
+    },
+    {
+      "id": "M007-04",
+      "title": "MCP Transport Layer",
+      "lessons": 1,
+      "lesson_ids": [
+        "M04.L01"
+      ]
+    },
+    {
+      "id": "M007-05",
+      "title": "MCP Ecosystem and Extensions",
+      "lessons": 1,
+      "lesson_ids": [
+        "M05.L01"
+      ]
+    }
+  ]
+}

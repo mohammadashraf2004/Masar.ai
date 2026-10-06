@@ -1,2 +1,0 @@
-MODULE = {'id': 'M005-08', 'title': 'Efficient Representation-Model Adaptation', 'role': 'SUPPORTING CORE', 'chapters': [11], 'project': 'Adaptation Strategy Benchmark', 'lessons': 5, 'guided_minutes': 215, 'guided_time': '3h35m'}
-LESSON_FILES = ['L005_054_revision-full-fine-tuning-for-classification', 'L005_055_full-partial-and-head-only-fine-tuning', 'L005_056_revision-and-extension-few-shot-adaptation-with-setfit', 'L005_057_continued-pretraining-for-domain-adaptation', 'L005_058_revision-lab-token-classification-and-label-alignment']

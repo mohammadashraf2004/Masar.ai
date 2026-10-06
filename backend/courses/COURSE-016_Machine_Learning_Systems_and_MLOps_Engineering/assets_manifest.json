@@ -1,0 +1,881 @@
+{
+  "policy": {
+    "source_figures": "manual_references_not_bundled",
+    "do_not_request_source_images_from_user": true,
+    "prefer_masar_original_redraws": true
+  },
+  "manual_figures": [
+    {
+      "source": "BOOK-016",
+      "chapter": 1,
+      "figure": "1-1",
+      "title": "Components of an ML system",
+      "lessons": [
+        "L016-001"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch01_fig_1_1_ml_system_components.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 1,
+      "figure": "1-4",
+      "title": "Latency/throughput and batching",
+      "lessons": [
+        "L016-004"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch01_fig_1_4_latency_throughput_batching.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 1,
+      "figure": "1-5",
+      "title": "Research vs production data",
+      "lessons": [
+        "L016-006"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch01_fig_1_5_research_vs_production_data.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 2,
+      "figure": "2-2",
+      "title": "Iterative ML system cycle",
+      "lessons": [
+        "L016-008"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch02_fig_2_2_iterative_ml_cycle.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 3,
+      "figure": "3-1",
+      "title": "Row-major vs column-major data",
+      "lessons": [
+        "L016-011"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch03_fig_3_1_row_vs_column_major.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 3,
+      "figure": "3-8",
+      "title": "Request-driven services",
+      "lessons": [
+        "L016-016"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch03_fig_3_8_request_driven_services.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 3,
+      "figure": "3-9",
+      "title": "Event broker communication",
+      "lessons": [
+        "L016-016"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch03_fig_3_9_event_broker.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 3,
+      "figure": "3-7",
+      "title": "ETL architecture",
+      "lessons": [
+        "L016-015"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch03_fig_3_7_etl.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 3,
+      "figure": "3-10",
+      "title": "Event retention",
+      "lessons": [
+        "L016-016"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch03_fig_3_10_event_retention.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 4,
+      "figure": "4-2",
+      "title": "Reservoir sampling",
+      "lessons": [
+        "L016-019"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch04_fig_4_2_reservoir_sampling.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 4,
+      "figure": "4-4",
+      "title": "Weak-supervision labeling functions",
+      "lessons": [
+        "L016-022"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch04_fig_4_4_weak_supervision.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 4,
+      "figure": "4-7",
+      "title": "Uncertainty-based active learning",
+      "lessons": [
+        "L016-023"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch04_fig_4_7_active_learning.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 4,
+      "figure": "4-10",
+      "title": "Over/undersampling",
+      "lessons": [
+        "L016-025"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch04_fig_4_10_resampling.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 5,
+      "figure": "5-7",
+      "title": "Time-based train/validation/test split",
+      "lessons": [
+        "L016-032"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch05_fig_5_7_time_split.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 5,
+      "figure": "5-4",
+      "title": "Feature hashing collisions",
+      "lessons": [
+        "L016-029"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch05_fig_5_4_hash_collisions.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 5,
+      "figure": "5-10",
+      "title": "Feature importance distribution",
+      "lessons": [
+        "L016-033"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch05_fig_5_10_feature_importance.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 6,
+      "figure": "6-7",
+      "title": "Data parallelism vs model parallelism",
+      "lessons": [
+        "L016-039"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch06_fig_6_7_parallelism.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 6,
+      "figure": "6-11",
+      "title": "Model calibration curves",
+      "lessons": [
+        "L016-043"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch06_fig_6_11_calibration.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 6,
+      "figure": "6-1",
+      "title": "Learning curves",
+      "lessons": [
+        "L016-035"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch06_fig_6_1_learning_curves.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 6,
+      "figure": "6-6",
+      "title": "Synchronous vs asynchronous SGD",
+      "lessons": [
+        "L016-039"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch06_fig_6_6_sync_async_sgd.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 7,
+      "figure": "7-4",
+      "title": "Batch prediction architecture",
+      "lessons": [
+        "L016-046"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch07_fig_7_4_batch_prediction.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 7,
+      "figure": "7-5",
+      "title": "Online prediction with batch features",
+      "lessons": [
+        "L016-046"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch07_fig_7_5_online_prediction.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 7,
+      "figure": "7-6",
+      "title": "Online prediction with batch and streaming features",
+      "lessons": [
+        "L016-046"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch07_fig_7_6_streaming_prediction.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 7,
+      "figure": "7-7",
+      "title": "Separate training and inference pipelines",
+      "lessons": [
+        "L016-048"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch07_fig_7_7_training_serving_pipelines.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 7,
+      "figure": "7-12",
+      "title": "IR/compiler lowering",
+      "lessons": [
+        "L016-052"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch07_fig_7_12_ir_compiler.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 7,
+      "figure": "7-13",
+      "title": "Operator fusion",
+      "lessons": [
+        "L016-053"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch07_fig_7_13_operator_fusion.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 8,
+      "figure": "8-3",
+      "title": "Drift and time-window selection",
+      "lessons": [
+        "L016-059"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch08_fig_8_3_drift_window.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 8,
+      "figure": "8-4",
+      "title": "Cumulative metric hiding sudden degradation",
+      "lessons": [
+        "L016-059"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch08_fig_8_4_cumulative_vs_window.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 8,
+      "figure": "8-5",
+      "title": "Monitoring artifacts across the ML pipeline",
+      "lessons": [
+        "L016-060"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch08_fig_8_5_monitoring_artifacts.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 8,
+      "figure": "8-1",
+      "title": "Outlier effect on a decision boundary",
+      "lessons": [
+        "L016-056"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch08_fig_8_1_outlier.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 9,
+      "figure": "9-1",
+      "title": "Champion/challenger continual-learning process",
+      "lessons": [
+        "L016-066",
+        "L016-071"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch09_fig_9_1_champion_challenger.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 9,
+      "figure": "9-2",
+      "title": "Stateless vs stateful training",
+      "lessons": [
+        "L016-067"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch09_fig_9_2_stateful_stateless.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 9,
+      "figure": "9-5",
+      "title": "Measuring value of fresher training data",
+      "lessons": [
+        "L016-070"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch09_fig_9_5_data_freshness.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 9,
+      "figure": "9-3",
+      "title": "Fresh streaming data before warehouse ingestion",
+      "lessons": [
+        "L016-068"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch09_fig_9_3_fresh_streaming_data.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 9,
+      "figure": "9-6",
+      "title": "Interleaving vs A/B testing",
+      "lessons": [
+        "L016-074"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch09_fig_9_6_interleaving_ab.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 10,
+      "figure": "10-2",
+      "title": "Infrastructure layers for ML",
+      "lessons": [
+        "L016-076"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch10_fig_10_2_infrastructure_layers.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 10,
+      "figure": "10-7",
+      "title": "ML workflow represented as a DAG",
+      "lessons": [
+        "L016-080"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch10_fig_10_7_ml_workflow_dag.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 10,
+      "figure": "10-10",
+      "title": "Artifacts tracked by a model store",
+      "lessons": [
+        "L016-083"
+      ],
+      "priority": "REQUIRED",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch10_fig_10_10_model_store_artifacts.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 10,
+      "figure": "10-8",
+      "title": "Scheduler and orchestrator workflow",
+      "lessons": [
+        "L016-080"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch10_fig_10_8_scheduler_orchestrator.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "BOOK-016",
+      "chapter": 11,
+      "figure": "11-3",
+      "title": "Full-cycle developers / end-to-end ownership",
+      "lessons": [
+        "L016-089"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "CORE",
+      "suggested_asset": "assets/manual_figures/book016/ch11_fig_11_3_full_cycle_developers.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 3,
+      "figure": "3.2",
+      "title": "Deployments, ReplicaSets, and Pods",
+      "lessons": [
+        "L016-096"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch03_fig_3_2_deployments_replicasets_pods.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 3,
+      "figure": "3.6",
+      "title": "Kubernetes Service",
+      "lessons": [
+        "L016-097"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch03_fig_3_6_service.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 3,
+      "figure": "3.9",
+      "title": "Horizontal Pod Autoscaler",
+      "lessons": [
+        "L016-097"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch03_fig_3_9_hpa.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 5,
+      "figure": "5.3",
+      "title": "Containers in a pod share network interfaces",
+      "lessons": [
+        "L016-098"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch05_fig_5_3_shared_network.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 5,
+      "figure": "5.4",
+      "title": "Splitting an application into separate pods",
+      "lessons": [
+        "L016-098"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch05_fig_5_4_multi_pod_scaling.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 5,
+      "figure": "5.11",
+      "title": "Init vs regular container startup sequence",
+      "lessons": [
+        "L016-102"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch05_fig_5_11_init_sequence.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 5,
+      "figure": "5.8",
+      "title": "kubectl port-forward architecture",
+      "lessons": [
+        "L016-100"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch05_fig_5_8_port_forward.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 6,
+      "figure": "6.6",
+      "title": "Liveness probe configuration and operation",
+      "lessons": [
+        "L016-105"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch06_fig_6_6_liveness_probe.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 6,
+      "figure": "6.12",
+      "title": "Three stages of pod lifecycle",
+      "lessons": [
+        "L016-107"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch06_fig_6_12_pod_lifecycle.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 6,
+      "figure": "6.15",
+      "title": "Container termination sequence",
+      "lessons": [
+        "L016-107"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch06_fig_6_15_termination.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 6,
+      "figure": "6.5",
+      "title": "Exponential restart backoff",
+      "lessons": [
+        "L016-104"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch06_fig_6_5_restart_backoff.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 6,
+      "figure": "6.8",
+      "title": "Startup and liveness probe sequence",
+      "lessons": [
+        "L016-105"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch06_fig_6_8_startup_liveness.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 8,
+      "figure": "8.4",
+      "title": "Environment-specific ConfigMaps with same workload manifest",
+      "lessons": [
+        "L016-109"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch08_fig_8_4_environment_configmaps.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 8,
+      "figure": "8.5",
+      "title": "Downward API metadata injection",
+      "lessons": [
+        "L016-112"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch08_fig_8_5_downward_api.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 8,
+      "figure": "8.3",
+      "title": "ConfigMap consumption via environment/files",
+      "lessons": [
+        "L016-109"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch08_fig_8_3_configmap_injection.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 8,
+      "figure": "8.1",
+      "title": "Command and argument overrides",
+      "lessons": [
+        "L016-108"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch08_fig_8_1_command_args.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 11,
+      "figure": "11.2",
+      "title": "Exposing pods through Services",
+      "lessons": [
+        "L016-113"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch11_fig_11_2_service_abstraction.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 11,
+      "figure": "11.12",
+      "title": "Headless service direct pod connections",
+      "lessons": [
+        "L016-117"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch11_fig_11_12_headless_service.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 11,
+      "figure": "11.15",
+      "title": "Failed readiness removes pod from service",
+      "lessons": [
+        "L016-119"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch11_fig_11_15_readiness_removal.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 11,
+      "figure": "11.16",
+      "title": "Readiness timing and threshold behavior",
+      "lessons": [
+        "L016-119"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch11_fig_11_16_readiness_timing.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 11,
+      "figure": "11.10",
+      "title": "externalTrafficPolicy Cluster vs Local",
+      "lessons": [
+        "L016-116"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch11_fig_11_10_external_traffic_policy.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 11,
+      "figure": "11.14",
+      "title": "Availability-zone traffic routing",
+      "lessons": [
+        "L016-118"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch11_fig_11_14_topology_routing.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 15,
+      "figure": "15.1",
+      "title": "Deployment to ReplicaSet to Pods",
+      "lessons": [
+        "L016-120"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch15_fig_15_1_deployment_replicaset_pods.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 15,
+      "figure": "15.6",
+      "title": "Rolling update across ReplicaSets, pods, and Service",
+      "lessons": [
+        "L016-122"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch15_fig_15_6_rolling_update.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 15,
+      "figure": "15.11",
+      "title": "Canary with two Deployments",
+      "lessons": [
+        "L016-125"
+      ],
+      "priority": "REQUIRED_IF_TAKING_OPTIONAL_MODULE",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch15_fig_15_11_canary.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 15,
+      "figure": "15.4",
+      "title": "Recreate vs RollingUpdate",
+      "lessons": [
+        "L016-122"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch15_fig_15_4_recreate_rolling.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    },
+    {
+      "source": "SUPPLEMENTAL_KUBERNETES_SOURCE",
+      "chapter": 15,
+      "figure": "15.13",
+      "title": "Blue/Green selector switching",
+      "lessons": [
+        "L016-125"
+      ],
+      "priority": "OPTIONAL",
+      "curriculum_scope": "OPTIONAL_KUBERNETES",
+      "suggested_asset": "assets/manual_figures/kubernetes/ch15_fig_15_13_blue_green.png",
+      "action": "Add manually only if useful; prefer a Masar-original redraw when practical."
+    }
+  ]
+}

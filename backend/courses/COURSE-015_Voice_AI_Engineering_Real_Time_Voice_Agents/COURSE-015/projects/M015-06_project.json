@@ -1,0 +1,6 @@
+{
+  "course_id": "COURSE-015",
+  "module_id": "M015-06",
+  "title": "Project 6 — Voice RAG Assistant",
+  "brief": "Build a browser/mobile or telephony Voice RAG system with external speech components, grounded answers, citations/provenance, interruption, and channel-aware UX."
+}

@@ -11,8 +11,12 @@ Imports the course folders under backend/courses/ into the catalogue.
 The lesson text is read from the files and copied into the database; nothing is
 retyped or generated. What is imported per course: the modules (as course
 topics), lessons, exercises, quizzes and projects, with stable `source_key`s so
-running it again updates rows in place, never duplicates them, never deletes
-one, and never touches a learner's enrolment or progress.
+running it again updates rows in place, never duplicates them, and never touches
+a learner's enrolment or progress. A module, lesson, exercise, quiz or project
+of an imported course that its folder no longer has is RETIRED (deleted) so the
+catalogue matches the folder - unless a learner's progress, attempt or answer refers to
+it, in which case it is kept and reported. Only rows keyed to the course being imported
+are ever considered; tool courses and legacy rows are never touched.
 
 Order of operations (one transaction - a failure changes nothing):
 
@@ -54,19 +58,41 @@ from seeds.sync_curriculum import ensure_curriculum_courses, sync_curriculum
 
 def load_and_validate(only: List[str] | None = None) -> List[CourseSpec]:
     """Load every course folder and validate them together with the registry.
-    Raises `CurriculumError` listing every problem found."""
-    courses = load_all_courses()
-    validate.validate_courses(courses)
-    validate.validate_registry(
-        courses, cfg.COURSE_DIRECTORY_COURSES, goals=cfg.GOALS,
-        stage_courses={slug: members for slug, _t, _a, _p, _k, members in cfg.STAGES},
-    )
+    Raises `CurriculumError` listing every problem found.
+
+    `only` is applied before validation, not after: "import only this course"
+    means exactly that, including while a *different* course folder on disk
+    is still being authored and would otherwise fail validation (e.g. a new
+    course dropped under backend/courses/ ahead of its own launch). Filtering
+    first keeps that folder's problems from blocking every other course's
+    import; the unfiltered folder is still fully validated later, once it is
+    itself named in `--course` or `seeds/curriculum.py`'s registry.
+
+    Filtering happens before a folder is even opened, not only before
+    validation: a course folder that does not *load* at all yet (not merely
+    one that fails semantic validation) stays out of `only`'s way too, and
+    the registry it is checked against narrows the same way - "import only
+    this course" never demands every *other* registry entry's folder exist
+    and load."""
+    registry = cfg.COURSE_DIRECTORY_COURSES
+    wanted = None
     if only:
         wanted = {c.upper() for c in only}
-        unknown = wanted - {c.course_id for c in courses}
+        unknown = wanted - {r["course_id"] for r in registry}
         if unknown:
             raise CurriculumError([f"unknown course id(s): {', '.join(sorted(unknown))}"])
-        courses = [c for c in courses if c.course_id in wanted]
+        registry = [r for r in registry if r["course_id"] in wanted]
+    courses = load_all_courses(only=sorted(wanted) if wanted else None)
+    validate.validate_courses(courses)
+    known = {r["slug"] for r in registry}
+    validate.validate_registry(
+        courses, registry, goals=cfg.GOALS,
+        stage_courses={
+            slug: [m for m in members if not m.startswith("course-") or m in known]
+            for slug, _t, _a, _p, _k, members in cfg.STAGES
+        },
+        known_course_slugs={str(r["slug"]) for r in cfg.COURSE_DIRECTORY_COURSES},
+    )
     return courses
 
 
@@ -121,6 +147,8 @@ def main() -> None:
               f"quizzes {r.quizzes}  projects {r.projects}{figures}")
         for note in r.notes:
             print(f"      note: {note}")
+        if any(r.retired.values()):
+            print("      retired (no longer in the folder): " + ", ".join(f"{k} {v}" for k, v in sorted(r.retired.items()) if v))
         for key in r.stale:
             print(f"      stale (kept, no longer in the folder): {key}")
 

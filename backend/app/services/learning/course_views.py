@@ -173,6 +173,7 @@ def module_out(m: content.ModuleInfo) -> ModuleOut:
         id=m.id, order=m.order, title=m.title, title_ar=m.title_ar, description=m.description,
         description_ar=m.description_ar, estimated_hours=m.estimated_hours, lesson_count=m.lesson_count,
         exercise_count=m.exercise_count, quiz_count=m.quiz_count, project_count=m.project_count,
+        completion_required=m.completion_required, is_optional=m.is_optional,
         completion_pct=pct(m.completion) if m.completion is not None else None, status=m.status,
     )
 
@@ -224,6 +225,7 @@ def course_detail(db: Session, bundle: CatalogBundle, course: Course, learner: L
 
 def course_progress(db: Session, bundle: CatalogBundle, learner: LearnerContext, course: Course) -> V.CourseProgressOut:
     modules = content.course_modules(db, course, learner.user.id if learner.user else None)
+    required_modules = [module for module in modules if module.completion_required]
     row = learner.enrollments.get(course.id)
     enrolled = row is not None and row.status == "active"
     nxt = content.first_incomplete(modules)
@@ -231,9 +233,9 @@ def course_progress(db: Session, bundle: CatalogBundle, learner: LearnerContext,
     status = row.learning_status if enrolled else "enrolled"
     return V.CourseProgressOut(
         course_id=course.id, course_slug=course.slug, enrolled=enrolled, status=status,
-        progress_percentage=pct(fraction), modules_total=len(modules),
-        modules_completed=sum(1 for m in modules if m.status == content.MODULE_COMPLETED),
-        lessons_total=sum(m.lesson_count for m in modules),
+        progress_percentage=pct(fraction), modules_total=len(required_modules),
+        modules_completed=sum(1 for m in required_modules if m.status == content.MODULE_COMPLETED),
+        lessons_total=sum(m.lesson_count for m in required_modules),
         modules=[module_out(m) for m in modules],
         next_module=module_ref(nxt) if nxt else None,
     )

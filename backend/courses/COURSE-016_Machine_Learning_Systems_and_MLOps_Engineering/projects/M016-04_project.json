@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-04",
+  "title": "Production Feature Pipeline & Leakage Audit",
+  "brief": "Audit a flawed feature pipeline for leakage, unknown categories, missing-value issues, train-serving skew, feature coverage, and technical debt.",
+  "optional": false,
+  "completion_required": true
+}

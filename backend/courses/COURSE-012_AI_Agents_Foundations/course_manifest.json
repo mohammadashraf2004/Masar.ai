@@ -1,0 +1,57 @@
+{
+  "course_id": "COURSE-012",
+  "source_id": "BOOK-012",
+  "book_title": "AI Agents in Action",
+  "edition": "SOURCE INFORMATION MISSING",
+  "learning_loop": "Learn → Practice → Build → Debug → Evaluate",
+  "approval_status": "Not explicitly approved",
+  "source_review_status": "Lessons map one-to-one to the book's 11 chapters; not re-verified against the book after the 2026-10 lesson replacement",
+  "level": "Intermediate",
+  "difficulty": "Beginner → Intermediate",
+  "course_title": "AI Agents Foundations",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read. Replaces the earlier 11-module / 91-lesson 'Agentic AI Systems Engineering' design.",
+  "modules": 1,
+  "lessons": 11,
+  "guided_minutes": 2565,
+  "professional_capability": "Build AI agents: give an LLM tools and MCP servers, coordinate multi-agent patterns, add reasoning and planning, memory and RAG, evaluate and guard agent behaviour, deploy agents as services, and run bounded agentic loops.",
+  "prerequisites": {
+    "required": [
+      "COURSE-005 — Applied LLM Engineering"
+    ],
+    "supporting": [
+      "COURSE-006 — Production AI Engineering",
+      "COURSE-009 — Enterprise RAG Engineering",
+      "COURSE-010 — AI Service Engineering with FastAPI"
+    ],
+    "optional": [
+      "COURSE-008 — Vision-Language & Multimodal AI Engineering"
+    ]
+  },
+  "track_roles": {
+    "Data Analyst": "Not applicable",
+    "ML Engineer": "Not applicable",
+    "AI Developer": "Core",
+    "MLOps Engineer": "Not applicable",
+    "AI Engineer": "Supporting"
+  },
+  "module_inventory": [
+    {
+      "id": "M012-01",
+      "title": "Foundations of AI Agents",
+      "lessons": 11,
+      "lesson_ids": [
+        "M01.L01",
+        "M01.L02",
+        "M01.L03",
+        "M01.L04",
+        "M01.L05",
+        "M01.L06",
+        "M01.L07",
+        "M01.L08",
+        "M01.L09",
+        "M01.L10",
+        "M01.L11"
+      ]
+    }
+  ]
+}

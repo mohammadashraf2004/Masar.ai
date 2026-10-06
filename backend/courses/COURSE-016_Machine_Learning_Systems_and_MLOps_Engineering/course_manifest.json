@@ -1,0 +1,171 @@
+{
+  "course_id": "COURSE-016",
+  "source_id": "BOOK-016",
+  "book_title": "Designing Machine Learning Systems",
+  "edition": "SOURCE INFORMATION MISSING",
+  "primary_language": "Arabic",
+  "technical_terminology": "English",
+  "primary_programming_language": "Python",
+  "learning_loop": "Learn → Practice → Build → Debug → Evaluate → Operate",
+  "source_review_status": "Primary source complete; selected Kubernetes supplement complete",
+  "level": "Intermediate → Advanced",
+  "difficulty": "Intermediate → Advanced / Production",
+  "course_title": "Machine Learning Systems & MLOps Engineering",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
+  "modules": 16,
+  "lessons": 17,
+  "guided_minutes": 4665,
+  "professional_capability": "Design, deploy, and operate production ML systems and MLOps pipelines: data and training-data engineering, offline evaluation, serving, monitoring, continual learning, and MLOps on AWS, Azure and GCP.",
+  "prerequisites": {
+    "required": [
+      "COURSE-001 — Machine Learning Foundations"
+    ],
+    "strongly_recommended": [
+      "COURSE-011 — Cloud Deployment & CI/CD for AI Engineers",
+      "COURSE-013 — Applied Data Analysis with Python"
+    ],
+    "supporting": [
+      "COURSE-003 — Applied Deep Learning",
+      "COURSE-006 — Production AI Engineering",
+      "COURSE-010 — AI Service Engineering with FastAPI"
+    ]
+  },
+  "track_roles": {
+    "Data Analyst": "Not applicable",
+    "ML Engineer": "Core",
+    "AI Developer": "Not applicable",
+    "MLOps Engineer": "Core",
+    "AI Engineer": "Core"
+  },
+  "module_inventory": [
+    {
+      "id": "M016-01",
+      "title": "Overview of Machine Learning Systems",
+      "lessons": 1,
+      "lesson_ids": [
+        "M01.L01"
+      ]
+    },
+    {
+      "id": "M016-02",
+      "title": "Designing Machine Learning Systems",
+      "lessons": 1,
+      "lesson_ids": [
+        "M02.L01"
+      ]
+    },
+    {
+      "id": "M016-03",
+      "title": "Data Engineering for Machine Learning Systems",
+      "lessons": 1,
+      "lesson_ids": [
+        "M03.L01"
+      ]
+    },
+    {
+      "id": "M016-04",
+      "title": "Training Data for Machine Learning Systems",
+      "lessons": 1,
+      "lesson_ids": [
+        "M04.L01"
+      ]
+    },
+    {
+      "id": "M016-05",
+      "title": "Feature Engineering for Machine Learning Systems",
+      "lessons": 1,
+      "lesson_ids": [
+        "M05.L01"
+      ]
+    },
+    {
+      "id": "M016-06",
+      "title": "Model Development and Offline Evaluation",
+      "lessons": 1,
+      "lesson_ids": [
+        "M06.L01"
+      ]
+    },
+    {
+      "id": "M016-07",
+      "title": "Model Deployment and Prediction Service",
+      "lessons": 1,
+      "lesson_ids": [
+        "M07.L01"
+      ]
+    },
+    {
+      "id": "M016-08",
+      "title": "Data Distribution Shifts and Monitoring",
+      "lessons": 1,
+      "lesson_ids": [
+        "M08.L01"
+      ]
+    },
+    {
+      "id": "M016-09",
+      "title": "Continual Learning and Test in Production",
+      "lessons": 1,
+      "lesson_ids": [
+        "M09.L01"
+      ]
+    },
+    {
+      "id": "M016-10",
+      "title": "ML Systems, Operations & Responsible AI",
+      "lessons": 2,
+      "lesson_ids": [
+        "M10.L01",
+        "M10.L02"
+      ]
+    },
+    {
+      "id": "M016-11",
+      "title": "Continuous Delivery, AutoML, and KaizenML",
+      "lessons": 1,
+      "lesson_ids": [
+        "M11.L01"
+      ]
+    },
+    {
+      "id": "M016-12",
+      "title": "Monitoring and Logging for MLOps",
+      "lessons": 1,
+      "lesson_ids": [
+        "M12.L01"
+      ]
+    },
+    {
+      "id": "M016-13",
+      "title": "MLOps for AWS",
+      "lessons": 1,
+      "lesson_ids": [
+        "M13.L01"
+      ]
+    },
+    {
+      "id": "M016-14",
+      "title": "MLOps for Azure",
+      "lessons": 1,
+      "lesson_ids": [
+        "M14.L01"
+      ]
+    },
+    {
+      "id": "M016-15",
+      "title": "MLOps for GCP",
+      "lessons": 1,
+      "lesson_ids": [
+        "M15.L01"
+      ]
+    },
+    {
+      "id": "M016-16",
+      "title": "Building MLOps Command Line Tools and Microservices",
+      "lessons": 1,
+      "lesson_ids": [
+        "M16.L01"
+      ]
+    }
+  ]
+}

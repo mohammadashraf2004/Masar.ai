@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "lesson_id": "M02.L01",
+  "source_hash": "5cb82238d7c601021160c03ad3aedbac53425cb80f852413a14ae26484390f6b",
+  "title": "تصنيف النصوص باستخدام DistilBERT",
+  "exercises": [
+    {
+      "id": "COURSE-004.M02.L01.EX01",
+      "title": "افحص تقسيم DistilBERT إلى tokens",
+      "description": "تدرّب على قراءة subword tokens والـ tokens الخاصة ومعرّفات الإدخال وأقنعة attention الناتجة عن tokenizer الخاص بـ DistilBERT.\n\n**المخرَج المتوقع**\n\nمثال Python قصير مع طباعة tokens ومعرّفات الإدخال وأقنعة attention، وتفسير موجز للـ tokens الخاصة وsubwords وpadding وتوافق tokenizer مع النموذج."
+    },
+    {
+      "id": "COURSE-004.M02.L01.EX02",
+      "title": "اختر استراتيجية تصنيف وقيّمها",
+      "description": "اربط استراتيجيتي التدريب في الفصل بقرارات التقييم وتحليل الأخطاء.\n\n**المخرَج المتوقع**\n\nجدول مقارنة موجز وتحليل مكتوب يُظهران فهم frozen features وfine-tuning من البداية إلى النهاية وbaselines ومصفوفات الارتباك (confusion matrices) وتحليل الأخطاء لكل مثال."
+    }
+  ],
+  "questions": [
+    {
+      "question": "لماذا يقارن الفصل المصنِّف المدرَّب بـ baseline الفئة الأغلبية؟",
+      "options": [
+        "لإثبات أن مجموعة validation لا تحتوي على أخطاء في التسميات",
+        "لمنح الدقة الخام نقطة مرجعية ذات معنى حين تكون الفئات غير متوازنة",
+        "لاستبدال الحاجة إلى confusion matrix",
+        "لتحديد حجم مفردات tokenizer"
+      ],
+      "explanation": "في dataset غير متوازنة يمكن لمصنِّف تافه أن يحقق دقة غير تافهة بالتنبؤ دائمًا بالفئة الأكثر تكرارًا. ويبيّن baseline مقدار القيمة التي يضيفها النموذج المدرَّب."
+    },
+    {
+      "question": "ماذا تشير البادئة `##` في token من نوع WordPiece مثل `##izing`؟",
+      "options": [
+        "الـ token هو padding",
+        "الـ token يبدأ كلمة جديدة تمامًا",
+        "الـ token يكمل الـ token السابق دون مسافة",
+        "يجب أن يتجاهل النموذج الـ token"
+      ],
+      "explanation": "تشير البادئة إلى subword استمراري. وتتحد قطع مثل `token` و`##izing` لتعيد تكوين الكلمة الأصلية."
+    },
+    {
+      "question": "لماذا يُعاد attention mask عند إضافة padding إلى التتابعات الأقصر؟",
+      "options": [
+        "ليخبر النموذج بالمواضع التي هي tokens حقيقية وتلك التي هي padding",
+        "لتحويل التسميات من أعداد صحيحة إلى سلاسل نصية",
+        "لاختيار المشاعر ذات أكبر تكرار للفئة",
+        "لتقليل مفردات tokenizer إلى 512 كلمة"
+      ],
+      "explanation": "يجعل padding أطوال tensors التتابعات متساوية، بينما يحدد attention mask المواضع المحشوة كي لا تُعامَل كـ tokens إدخال ذات معنى."
+    },
+    {
+      "question": "ما الفرق المحوري بين feature extraction وfine-tuning في هذا الفصل؟",
+      "options": [
+        "لا يستخدم feature extraction أي tokenizer",
+        "لا يستطيع fine-tuning استخدام أوزان مدرَّبة مسبقًا",
+        "يتطلب feature extraction استخدام TensorFlow بينما يتطلب fine-tuning استخدام PyTorch",
+        "يجمّد feature extraction الـ transformer، بينما يحدّثه fine-tuning لأجل المهمة"
+      ],
+      "explanation": "يستخدم النهج القائم على الـ features حالات مخفية ثابتة من transformer مجمَّد. أما fine-tuning فيحدّث معاملات transformer مع رأس التصنيف."
+    },
+    {
+      "question": "افترض أن عدة أمثلة validation لها loss مرتفع جدًا. باستخدام نهج تحليل الأخطاء في الفصل، اشرح ثلاثة أمور على الأقل ستتحقق منها قبل أن تقرر أن الحل ببساطة هو استخدام نموذج أكبر.",
+      "options": [],
+      "explanation": ""
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+PASS: COURSE-016 structural validation
+Core: 10 modules | 94 lessons | 4815 min (80h15m)
+Optional Kubernetes: 1 module | 31 lessons | 1665 min (27h45m)
+Capstone: M016-12 | Total lesson minutes: 6480 (108h)
+Projects: 10 core + 1 optional + final capstone
+Figures: 25 core required + 15 core optional + 17 K8s required-if-taken + 10 K8s optional

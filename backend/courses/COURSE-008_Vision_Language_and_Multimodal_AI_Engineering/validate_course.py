@@ -23,5 +23,7 @@ assert total==manifest['guided_minutes']==5815,total
 assert len(list((ROOT/'modules').glob('M008_*')))==11
 assert project_count==11,project_count
 assets=list((ROOT/'assets').glob('*.png')); assert len(assets)==manifest['visual_assets']==76,len(assets)
-assert len(json.loads((ROOT/'assets_manifest.json').read_text(encoding='utf-8')))==76
+asset_manifest=json.loads((ROOT/'assets_manifest.json').read_text(encoding='utf-8'))
+assert asset_manifest['version']==1
+assert len(asset_manifest['assets'])==76
 print({'modules':11,'lesson_files':106,'guided_minutes':total,'guided_time':'96h55m','frozen_id_range':'L008-001..L008-106','unique_ids':True,'unique_slugs':True,'module_projects':project_count,'visual_assets':len(assets),'python_syntax':'PASS'})

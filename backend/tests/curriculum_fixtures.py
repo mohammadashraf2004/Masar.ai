@@ -19,7 +19,7 @@ from app.models.progress import UserProgress
 from app.models.tool_course import ToolTopic
 from app.services.curriculum import importer
 from app.services.curriculum.spec import (
-    CourseSpec, ExerciseSpec, LessonSpec, ModuleSpec, ProjectSpec, QuestionSpec,
+    CourseSpec, ExerciseSpec, LessonSpec, ModuleQuizSpec, ModuleSpec, ProjectSpec, QuestionSpec,
 )
 from seeds import curriculum as cfg
 
@@ -39,16 +39,28 @@ def make_spec(course_id: str, *, modules: int = 2, lessons: int = 2, title: str 
                 lesson_id=lesson_id, module_id=module.module_id, order=l, title=f"Lesson {m}.{l} of {number}",
                 content=f"# Lesson {m}.{l}\n\nBody of {lesson_id}.", estimated_minutes=30, difficulty="beginner",
                 skill_tags=["testing"],
-                exercises=[ExerciseSpec(f"Exercise {lesson_id}-{x}", f"Do task {x} of {lesson_id}.", "beginner")
+                exercises=[ExerciseSpec(
+                    f"Exercise {lesson_id}-{x}", f"Do task {x} of {lesson_id}.", "beginner",
+                    exercise_id=f"EX-{lesson_id}-{x:02d}", course_id=course_id,
+                    module_id=module.module_id, lesson_id=lesson_id,
+                )
                            for x in (1, 2)],
                 questions=[
                     QuestionSpec(
                         f"{lesson_id} question {q}: which option is right?",
                         [f"option A of {lesson_id}-{q}", f"option B of {lesson_id}-{q}", f"option C of {lesson_id}-{q}",
-                         f"option D of {lesson_id}-{q}"], 1, f"Explained for {lesson_id}-{q}.")
+                         f"option D of {lesson_id}-{q}"], 1, f"Explained for {lesson_id}-{q}.",
+                        f"Q-{module.module_id}-{(l - 1) * 3 + q:03d}", lesson_id)
                     for q in (1, 2, 3)
                 ],
             ))
+        questions = [question for lesson in module.lessons for question in lesson.questions]
+        for lesson in module.lessons:
+            lesson.questions = []
+        module.quiz = ModuleQuizSpec(
+            quiz_id=f"QUIZ-{module.module_id}", module_id=module.module_id,
+            title=f"Module quiz: {module.title}", questions=questions,
+        )
         module.project = ProjectSpec(f"Project of {module.module_id}", "Build the thing.", "beginner",
                                      objectives=["one", "two"], estimated_hours=2.0)
         spec.modules.append(module)

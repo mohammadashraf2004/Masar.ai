@@ -1,0 +1,6 @@
+{
+  "course_id": "COURSE-015",
+  "module_id": "M015-02",
+  "title": "Project 2 — Streaming STT/TTS Assistant",
+  "brief": "Build a streaming chained assistant with partial transcripts, incremental TTS, interruption, provider adapters, and repeatable provider benchmarks."
+}

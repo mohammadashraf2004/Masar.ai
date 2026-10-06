@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "lesson_id": "M08.L04",
+  "source_hash": "4afde8ff885ba235a622866f7e5d0d9cb15af7f0e6aaabec08643ab60a2c9cd7",
+  "title": "النطاق وشهادات SSL وNginx ونشر HTTPS",
+  "exercises": [
+    {
+      "id": "COURSE-011.M08.L04.EX01",
+      "title": "افصل CSR والشهادة والمفتاح الخاص",
+      "description": "ابنِ تصورًا ذهنيًا صحيحًا لمواد الشهادة.\n\n**المخرَج المتوقع**\n\nجدول ملكية مواد الشهادة واستخدامها."
+    },
+    {
+      "id": "COURSE-011.M08.L04.EX02",
+      "title": "تتبّع الوكيل العكسي (reverse proxy) في Nginx",
+      "description": "اشرح كيف يحوّل Nginx طلب HTTPS خارجيًا إلى طلب Streamlit داخلي.\n\n**المخرَج المتوقع**\n\nمخطط تدفق الوكيل العكسي مع شروح الترويسات."
+    },
+    {
+      "id": "COURSE-011.M08.L04.EX03",
+      "title": "شخّص إخفاق نشر HTTPS",
+      "description": "استخدم معمارية المصدر الكاملة لاستكشاف أخطاء طلب آمن فاشل.\n\n**المخرَج المتوقع**\n\nقائمة تشخيص طبقية لـ HTTPS."
+    }
+  ],
+  "questions": [
+    {
+      "question": "ما القدرتان الرئيسيتان اللتان يضيفهما الفصل 4؟",
+      "options": [
+        "Git وDocker",
+        "اسم النطاق وTLS/SSL",
+        "IAM وS3",
+        "Kubernetes وHelm"
+      ],
+      "explanation": "يضيف المصدر نطاقًا احترافيًا وHTTPS مشفّرًا."
+    },
+    {
+      "question": "أي ملف يجب أن يبقى خاصًا؟",
+      "options": [
+        "CSR",
+        "المفتاح الخاص",
+        "الشهادة العامة",
+        "سجل DNS من نوع CNAME"
+      ],
+      "explanation": "يجب حماية المفتاح الخاص لـ TLS."
+    },
+    {
+      "question": "إلى أين يُرسَل CSR؟",
+      "options": [
+        "سير عمل مزوّد/سلطة الشهادات",
+        "Docker daemon فقط",
+        "فرع Git",
+        "مجموعة IAM"
+      ],
+      "explanation": "يُستخدم CSR لطلب الشهادة."
+    },
+    {
+      "question": "أي نوع سجل DNS يستخدمه المصدر للتحقق من الشهادة؟",
+      "options": [
+        "MX",
+        "TXT",
+        "CNAME",
+        "AAAA"
+      ],
+      "explanation": "يستخدم المصدر سجل CNAME للتحقق من التحكم بالنطاق."
+    },
+    {
+      "question": "ماذا يمثل `@` في واجهة DNS في المصدر؟",
+      "options": [
+        "النطاق الجذر/الأعلى (apex)",
+        "خادم بريد",
+        "حاوية Docker",
+        "مجموعة أهداف"
+      ],
+      "explanation": "يستخدم المصدر @ للإشارة إلى جذر النطاق."
+    },
+    {
+      "question": "ما الذي يُدمَج مع الشهادة المصدَرة في المصدر؟",
+      "options": [
+        "سياسة IAM",
+        "حزمة CA (CA bundle)",
+        "صورة Docker",
+        "commit في Git"
+      ],
+      "explanation": "يضم المصدر الشهادة وحزمة CA معًا."
+    },
+    {
+      "question": "أي خدمة تُنهي TLS في معمارية المصدر؟",
+      "options": [
+        "Streamlit",
+        "Nginx",
+        "GitHub",
+        "IAM"
+      ],
+      "explanation": "يركّب Nginx الشهادة والمفتاح الخاص ويقبل حركة TLS."
+    },
+    {
+      "question": "ماذا تفعل كتلة الخادم على المنفذ 80؟",
+      "options": [
+        "تشغّل Python",
+        "تعيد توجيه HTTP إلى HTTPS",
+        "تنشئ شهادة",
+        "تسجّل مجموعة أهداف"
+      ],
+      "explanation": "تعيد توجيهًا 301 إلى عنوان HTTPS."
+    },
+    {
+      "question": "إلى أين يمرّر Nginx حركة التطبيق؟",
+      "options": [
+        "streamlit_calc:8501",
+        "GitHub:22",
+        "IAM:443",
+        "Elasticsearch:9200"
+      ],
+      "explanation": "يمرّر المصدر إلى خدمة Streamlit الداخلية."
+    },
+    {
+      "question": "تتبّع مسار الطلب الكامل من إدخال عنوان نطاق HTTPS إلى تلقي استجابة Streamlit.",
+      "options": [],
+      "explanation": ""
+    }
+  ]
+}

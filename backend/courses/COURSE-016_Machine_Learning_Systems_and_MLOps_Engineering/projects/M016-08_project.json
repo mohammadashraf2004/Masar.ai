@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-08",
+  "title": "Build a Continual-Learning & Safe Model-Update Pipeline",
+  "brief": "Implement trigger, lineage, challenger evaluation, backtest, shadow/canary or A/B testing, promotion, rollback, and audit history.",
+  "optional": false,
+  "completion_required": true
+}

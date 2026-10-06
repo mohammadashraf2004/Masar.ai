@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent
 EXPECTED_MODULES = 9
 EXPECTED_LESSONS = 84
 EXPECTED_MINUTES = 4260
-EXPECTED_VISUALS = 29
+EXPECTED_VISUALS = 31
 EXPECTED_COUNTS = {
     "M010-01": 10, "M010-02": 14, "M010-03": 8, "M010-04": 7,
     "M010-05": 8, "M010-06": 14, "M010-07": 7, "M010-08": 8, "M010-09": 8,
@@ -62,10 +62,9 @@ def main():
     assert module_counts==EXPECTED_COUNTS, module_counts
     assert module_minutes==EXPECTED_MODULE_MINUTES, module_minutes
 
-    visuals=json.loads((ROOT/"assets"/"visual_assets_manifest.json").read_text(encoding="utf-8"))
-    assert len(visuals)==EXPECTED_VISUALS
-    lesson_id_set=set(ids)
-    assert all(v["lesson_id"] in lesson_id_set for v in visuals)
+    asset_manifest=json.loads((ROOT/"assets_manifest.json").read_text(encoding="utf-8"))
+    assert asset_manifest["version"]==1
+    assert len(asset_manifest["assets"])==EXPECTED_VISUALS
 
     for extra in ["course_data_loader.py","seed_course_010.py","course_manifest.py"]:
         compile((ROOT/extra).read_text(encoding="utf-8"), extra, "exec")

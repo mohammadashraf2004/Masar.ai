@@ -1,0 +1,8 @@
+{
+  "course_id": "COURSE-016",
+  "module_id": "M016-09",
+  "title": "Design an ML Platform for a Growing Product",
+  "brief": "Design compute, development environment, orchestration, model store, feature store, platform boundaries, observability integration, and build-vs-buy decisions.",
+  "optional": false,
+  "completion_required": true
+}

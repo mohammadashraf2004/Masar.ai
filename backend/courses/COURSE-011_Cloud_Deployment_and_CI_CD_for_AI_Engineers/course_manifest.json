@@ -1,92 +1,102 @@
 {
   "course_id": "COURSE-011",
   "course_title": "Cloud Deployment & CI/CD for AI Engineers",
-  "status": "Curriculum design finalized for current scope",
-  "ids_frozen": true,
-  "architecture_frozen": true,
-  "scope_note": "Frozen at the user's requested current scope. Kubernetes and observability are not included.",
-  "professional_capability": "Deploy, secure, automate, and operate production-oriented AI backend services across AWS and GCP using VM, serverless/container, CI/CD, and Infrastructure as Code workflows.",
+  "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
+  "modules": 8,
+  "lessons": 17,
+  "guided_minutes": 3525,
+  "professional_capability": "Deploy, secure, automate, and operate AI backend services on cloud platforms.",
+  "prerequisites": {
+    "required": [
+      "COURSE-010 — AI Service Engineering with FastAPI"
+    ],
+    "supporting": [
+      "COURSE-005 — Applied LLM Engineering",
+      "COURSE-006 — Production AI Engineering",
+      "COURSE-007 — AI Agents with MCP",
+      "COURSE-009 — Enterprise RAG Engineering"
+    ]
+  },
   "track_roles": {
-    "Data Analyst": "Optional",
+    "Data Analyst": "Not applicable",
     "ML Engineer": "Supporting",
-    "AI Developer": "Supporting / Advanced",
+    "AI Developer": "Not applicable",
     "MLOps Engineer": "Core",
     "AI Engineer": "Core"
   },
-  "prerequisites": [
-    "COURSE-006 — Production AI Engineering",
-    "COURSE-010 — AI Service Engineering with FastAPI",
-    "COURSE-005/007/009 as relevant to the workload being deployed"
-  ],
-  "reuse_without_reteaching": [
-    "FastAPI fundamentals",
-    "LLM fundamentals",
-    "RAG fundamentals",
-    "AI Agent fundamentals",
-    "general Docker fundamentals",
-    "application authentication implementation"
-  ],
-  "modules": [
+  "module_inventory": [
     {
-      "module_id": "M011-01",
-      "title": "Cloud & AWS Deployment Foundations",
-      "lesson_count": 9,
-      "sources": [
-        "BOOK-011 Chapters 1, 4, 5, 6, 7, 8"
-      ],
-      "project": "Cloud Foundation Architecture Lab"
+      "id": "M011-01",
+      "title": "DevOps & Cloud Foundations",
+      "lessons": 1,
+      "lesson_ids": [
+        "M01.L01"
+      ]
     },
     {
-      "module_id": "M011-02",
-      "title": "Serverless Deployment for AI Services",
-      "lesson_count": 21,
-      "sources": [
-        "BOOK-011 Chapters 9 and 10"
-      ],
-      "project": "Serverless AI Deployment Integration Project"
+      "id": "M011-02",
+      "title": "Version Control with Git and GitHub",
+      "lessons": 1,
+      "lesson_ids": [
+        "M02.L01"
+      ]
     },
     {
-      "module_id": "M011-03",
-      "title": "Jenkins Automation & Production AI Service Operations",
-      "lesson_count": 13,
-      "sources": [
-        "BOOK-011 Chapters 11, 12, 13"
-      ],
-      "project": "Deployment Automation Integration Project"
+      "id": "M011-03",
+      "title": "Containerization with Docker",
+      "lessons": 1,
+      "lesson_ids": [
+        "M03.L01"
+      ]
     },
     {
-      "module_id": "M011-04",
-      "title": "Git & GitHub Workflow for AI Deployment",
-      "lesson_count": 11,
-      "sources": [
-        "Secondary DevOps source (source ID not provided) — Chapter 3: Mastering Version Control with Git and GitHub"
-      ],
-      "project": "Git & GitHub Integration Lab for an AI Service"
+      "id": "M011-04",
+      "title": "Infrastructure as Code with Terraform",
+      "lessons": 1,
+      "lesson_ids": [
+        "M04.L01"
+      ]
     },
     {
-      "module_id": "M011-05",
-      "title": "Automated CI/CD for AI Services",
-      "lesson_count": 15,
-      "sources": [
-        "Secondary DevOps source (source ID not provided) — Chapter 6: Constructing Your First CI/CD Pipeline"
-      ],
-      "project": "GitHub Actions CI/CD Integration Project"
+      "id": "M011-05",
+      "title": "CI/CD Automation with GitHub Actions",
+      "lessons": 1,
+      "lesson_ids": [
+        "M05.L01"
+      ]
     },
     {
-      "module_id": "M011-06",
-      "title": "Automated Infrastructure Delivery for AI Systems",
-      "lesson_count": 16,
-      "sources": [
-        "Secondary DevOps source (source ID not provided) — Chapter 7: Automating Infrastructure with Terraform and CI/CD"
-      ],
-      "project": "GitOps Infrastructure Delivery Project"
+      "id": "M011-06",
+      "title": "Container Orchestration with Kubernetes",
+      "lessons": 1,
+      "lesson_ids": [
+        "M06.L01"
+      ]
+    },
+    {
+      "id": "M011-07",
+      "title": "Monitoring, Logging, and Observability",
+      "lessons": 1,
+      "lesson_ids": [
+        "M07.L01"
+      ]
+    },
+    {
+      "id": "M011-08",
+      "title": "Secure AWS Deployment Foundations",
+      "lessons": 10,
+      "lesson_ids": [
+        "M08.L01",
+        "M08.L02",
+        "M08.L03",
+        "M08.L04",
+        "M08.L05",
+        "M08.L06",
+        "M08.L07",
+        "M08.L08",
+        "M08.L09",
+        "M08.L10"
+      ]
     }
-  ],
-  "totals": {
-    "modules": 6,
-    "lessons": 85,
-    "required_manual_figures": 14,
-    "optional_manual_figures": 7
-  },
-  "source_note": "BOOK-011 covers the cloud deployment/serverless/Jenkins material. The later Git/GitHub/CI-CD/Terraform source ID was not provided, so the package preserves descriptive source labels instead of inventing an ID."
+  ]
 }

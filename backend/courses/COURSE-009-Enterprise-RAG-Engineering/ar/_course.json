@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "course_id": "COURSE-009",
+  "title": "هندسة RAG للمؤسسات",
+  "modules": {
+    "M009-01": {
+      "title": "أسس RAG",
+      "description": "ابنِ التصور الذهني لـ retrieval-augmented generation: لماذا نحتاج إليه، وكيف تعمل مسارات الإدخال (ingestion) والاستعلام، وكيف يُجمَّع تنفيذ أساسي، وكيف يقارن RAG بـ long-context prompting وfine-tuning."
+    }
+  }
+}

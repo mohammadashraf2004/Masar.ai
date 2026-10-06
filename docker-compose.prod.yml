@@ -77,7 +77,11 @@ services:
       frontend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:2019/config/"]
+      # 127.0.0.1, not `localhost`: in this alpine image `localhost` resolves to ::1 first and busybox wget
+      # tries only the first address, while Caddy's admin API (deploy/Caddyfile: `admin localhost:2019`)
+      # listens on 127.0.0.1 only. With the name, every probe was "connection refused" and the container
+      # stayed `unhealthy` while serving HTTPS normally. Still the admin API, still expecting a 200.
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:2019/config/"]
       interval: 15s
       timeout: 5s
       retries: 5

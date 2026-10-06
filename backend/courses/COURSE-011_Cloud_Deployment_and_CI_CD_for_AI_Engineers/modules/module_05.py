@@ -309,6 +309,8 @@ The technical pipeline prepares a releasable version.
 
 The business or team decides when to expose it to customers.
 
+{{image:production-approval}}
+
 ### Continuous Deployment
 
 Continuous Deployment removes the final manual production gate.
@@ -341,6 +343,8 @@ This requires very strong confidence in:
 | Continuous Deployment | Yes | Yes | Automated |
 
 The source focuses the rest of the chapter on **Continuous Delivery** because it combines high automation with a final layer of control.
+
+{{image:ci-cd-pipeline}}
 
 {{exercise:M05.L01.EX01}}
 

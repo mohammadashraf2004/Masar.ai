@@ -1184,6 +1184,8 @@ removed using:
 - corrupt file check;
 - trivial duration rule.
 
+{{image:finevideo-data-pipeline}}
+
 {{exercise:M01.L04.EX03}}
 
 ---
@@ -1650,6 +1652,8 @@ At minimum:
 - no obvious hallucination;
 - correct number of Q&A items.
 
+{{image:docmatix-synthesis-pipeline}}
+
 {{exercise:M01.L04.EX04}}
 
 ---
@@ -1932,6 +1936,8 @@ Examples include:
 Bridge data can help the model generalize a specialized skill beyond the narrow
 source domain.
 
+{{image:smolvlm-data-mixture-comparison}}
+
 {{exercise:M01.L04.EX05}}
 
 ---
@@ -1997,6 +2003,8 @@ distribution.
 The source discusses research suggesting that, above an appropriate proxy model
 scale and dataset size, some design choices can correlate with larger-model
 results.
+
+{{image:scaling-consistency}}
 
 The practical takeaway is:
 

@@ -879,6 +879,8 @@ This is often useful for:
 - changing saturation,
 - selecting a color while changing brightness separately.
 
+{{image:rgb-vs-hsv-color-space}}
+
 ### CMYK
 
 CMYK uses:
@@ -1145,6 +1147,8 @@ When combining:
 - boxes,
 
 always make the coordinate convention explicit.
+
+{{image:image-array-coordinates}}
 
 ### 8.1 Cropping with slicing
 

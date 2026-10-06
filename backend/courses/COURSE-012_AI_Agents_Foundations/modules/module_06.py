@@ -847,7 +847,7 @@ TOPIC = {
             "\n"
             "### Long-term semantic memory\n"
             "\n"
-            "Persisted facts and conceptual information retrieved later.\n\n"
+            "Persisted facts and conceptual information retrieved later.\n\n{{image:semantic-memory-workflow}}\n"
             "\n"
             "### Episodic memory\n"
             "\n"
@@ -866,7 +866,7 @@ TOPIC = {
             "### Multimodal retrieval\n"
             "\n"
             "The chapter uses the term sensory memory for retrieving images, audio, or other modalities "
-            "using embedding-and-search mechanics similar to text retrieval.\n\n"
+            "using embedding-and-search mechanics similar to text retrieval.\n\n{{image:memory-types}}\n"
             "\n"
             "The main engineering lesson is that the storage and retrieval method should match the information type.\n"
             "\n"
@@ -902,6 +902,9 @@ TOPIC = {
             "- dense graphs create their own scaling and maintenance problems.\n"
             "\n"
             "This motivates **hybrid memory**.\n"
+            "\n"
+            '{{image:graph-memory}}'
+            '\n'
             "\n"
             "---\n"
             "\n"
@@ -1063,6 +1066,9 @@ TOPIC = {
             "\n"
             "But compression has a cost: summarization can remove details. Therefore the compression policy must "
             "match the application's need for fidelity.\n"
+            "\n"
+            '{{image:memory-compression}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

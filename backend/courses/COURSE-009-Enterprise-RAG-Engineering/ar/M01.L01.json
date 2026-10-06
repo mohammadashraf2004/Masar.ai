@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M01.L01",
-  "source_hash": "21286096cf5869509b0add8948326f518da1a61f8fe22ed87a23548f804641e4",
+  "source_hash": "59b7ea23baeb4110e64a3f2210d124303715a4068f45eefd2d69b82ea23b4ffb",
   "title": "مدخل إلى Retrieval-Augmented Generation (RAG)",
   "exercises": [
     {

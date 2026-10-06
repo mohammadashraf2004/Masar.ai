@@ -742,6 +742,8 @@ It is especially useful for:
 - nested data retrieval,
 - decision logic.
 
+{{image:dependency-injection}}
+
 ### Dependency injection is not just convenience
 
 Used well, it changes the structure of your application.
@@ -1036,6 +1038,9 @@ At the center are domain concepts and business rules.
 
 Outer layers handle details such as APIs, external services, persistence, and user interaction.
 
+{{image:onion-architecture}}
+{{image:controllers-services-providers-repositories}}
+
 ### Dependency inversion
 
 The chapter connects onion architecture to the **dependency inversion principle**.
@@ -1237,6 +1242,8 @@ GenAI service
 ```
 
 This is easier to test and reason about because each part has a narrower responsibility.
+
+{{image:course-service-architecture}}
 
 {{exercise:M01.L02.EX05}}
 

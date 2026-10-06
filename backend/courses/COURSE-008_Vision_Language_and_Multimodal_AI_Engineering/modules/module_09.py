@@ -620,6 +620,8 @@ The core insight:
 
 This factorization principle survives into modern transformers.
 
+{{image:factorized-3d-convolution}}
+
 ---
 
 ## 9. Inflated 3D: transfer image knowledge into video
@@ -684,6 +686,8 @@ Question:
 The two streams are later fused.
 
 This architecture made motion explicit.
+
+{{image:two-stream-video-cnn}}
 
 ---
 
@@ -1216,6 +1220,8 @@ This enables:
 - summarization;
 - instruction following;
 - multiturn video discussion.
+
+{{image:video-language-evolution}}
 
 ---
 
@@ -2072,6 +2078,9 @@ features from frames 1–4
 
 Both reduce total visual-token count.
 
+{{image:video-token-reduction-strategies}}
+{{image:videollama3-dynamic-vision-tokens}}
+
 ---
 
 ## 46. Intelligent frame selection
@@ -2095,6 +2104,8 @@ question
 ```
 
 This converts frame selection into a reasoning/search problem.
+
+{{image:videoagent-adaptive-frame-retrieval}}
 
 Potential benefit:
 

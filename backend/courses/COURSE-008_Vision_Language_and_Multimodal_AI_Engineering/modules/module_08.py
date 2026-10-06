@@ -373,6 +373,8 @@ The important source-derived idea remains:
 
 > Extractive systems constrain the output much more tightly to document content.
 
+{{image:extractive-document-understanding}}
+
 {{exercise:M01.L08.EX01}}
 
 ---
@@ -720,6 +722,9 @@ this content is a caption
 
 That makes downstream rendering much more faithful.
 
+{{image:document-to-markdown-anchoring}}
+{{image:smoldocling-otsl-structure}}
+
 ---
 
 ## 11. DocTags-to-document workflow
@@ -968,6 +973,10 @@ This keeps local document detail available at retrieval time.
 
 The source names ColPali as the major example.
 
+{{image:single-vs-multivector-retrieval}}
+{{image:document-screenshot-embedding}}
+{{image:standard-retrieval-vs-colpali}}
+
 ---
 
 ## 17. Late interaction and MaxSim
@@ -1199,6 +1208,8 @@ I-ANSWER
 O
 ```
 
+{{image:funsd-form-fields}}
+
 The prefix:
 
 ```text
@@ -1272,6 +1283,9 @@ autoregressive decoder
 ```
 
 but specialized around document tasks.
+
+{{image:layoutlmv3-architecture}}
+{{image:donut-document-model}}
 
 ---
 

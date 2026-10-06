@@ -40,7 +40,7 @@ class MarkdownBlock(BaseModel):
 
 
 class ImageBlock(BaseModel):
-    """A figure, placed where the lesson's `{{figure:<key>}}` marker was. `url` is
+    """An image, placed where the lesson's `{{image:<key>}}` marker was. `url` is
     relative to the API root (or absolute, once figures move to a CDN); the client
     never builds a path itself. Nothing about where the figure came from is here."""
     type: Literal["image"] = "image"
@@ -48,12 +48,41 @@ class ImageBlock(BaseModel):
     url: str
     alt: str
     caption: Optional[str] = None
+    # The language `alt` / `caption` are actually written in: the reader's when the course wrote one, else
+    # the other. Lets the client set the direction of what it shows (an English fallback inside an Arabic
+    # lesson stays left-to-right).
+    alt_lang: Optional[Literal["en", "ar"]] = None
+    caption_lang: Optional[Literal["en", "ar"]] = None
     figure_number: Optional[str] = None
     width: Optional[int] = None
     height: Optional[int] = None
 
 
-LessonBlock = Annotated[Union[MarkdownBlock, ImageBlock], Field(discriminator="type")]
+class MissingImageBlock(BaseModel):
+    """The lesson places an image the course no longer has. The client shows a note in its place
+    (naming the key in development) so the gap is visible instead of silently collapsing."""
+    type: Literal["image_missing"] = "image_missing"
+    asset_key: str
+
+
+class AuthorMarkerBlock(BaseModel):
+    """An unresolved `[[IMAGE_NEEDED: ...]]` request. Sent outside production only, and only its title: the
+    raw marker is authoring metadata and is never part of a response."""
+    type: Literal["author_marker"] = "author_marker"
+    kind: Literal["image_needed"] = "image_needed"
+    title: str = ""
+
+
+class MissingExerciseBlock(BaseModel):
+    """The lesson points (`{{exercise:<id>}}`) at an exercise it does not have. Outside production only."""
+    type: Literal["exercise_missing"] = "exercise_missing"
+    exercise_id: str
+
+
+LessonBlock = Annotated[
+    Union[MarkdownBlock, ImageBlock, MissingImageBlock, AuthorMarkerBlock, MissingExerciseBlock],
+    Field(discriminator="type"),
+]
 
 
 class LessonResponse(BaseModel):

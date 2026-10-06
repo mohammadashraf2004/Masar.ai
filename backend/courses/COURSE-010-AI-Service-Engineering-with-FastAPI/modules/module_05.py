@@ -280,6 +280,8 @@ worker 3 → prepares drinks
 
 Work truly happens at the same time.
 
+{{image:concurrency-vs-parallelism}}
+
 ### Why GenAI services need both concepts
 
 A service may simultaneously use:
@@ -637,6 +639,8 @@ network completes
 coroutine resumes
 ```
 
+{{image:async-event-loop}}
+
 ### `asyncio.gather`
 
 `asyncio.gather(...)` is useful when several independent asynchronous operations can start together.
@@ -901,6 +905,8 @@ requests B, C, D also wait
 ```
 
 One incorrectly implemented route can reduce responsiveness for the whole application.
+
+{{image:threadpool-vs-async}}
 
 {{exercise:M01.L05.EX04}}
 
@@ -1808,6 +1814,8 @@ new request E fills available slot
 ```
 
 So the inference server keeps the GPU busier.
+
+{{image:continuous-batching}}
 
 ### Why this improves serving
 

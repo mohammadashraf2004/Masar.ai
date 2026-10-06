@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M01.L02",
-  "source_hash": "b78378599abdc7456a67048ee81907b176f7003068f4c597c94e4a8383b73a4f",
+  "source_hash": "4881a90b8414f52e67da7c8f10625089b6f9d6adf1cc154a18304533ee1c5f52",
   "title": "المكوّنات الأساسية: LLMs والـ Prompting وAgents",
   "exercises": [
     {

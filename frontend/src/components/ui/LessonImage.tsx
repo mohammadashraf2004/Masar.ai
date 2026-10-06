@@ -23,7 +23,11 @@ import type { ImageBlock } from '@/types'
  *
  * The caption reads "Figure 4.2 — ..." when the course numbers its figures and
  * is the caption alone otherwise; the alt text is the description a screen
- * reader gets.
+ * reader gets. The caption takes the direction of the language it is written in
+ * (`caption_lang`, set by the API), falling back to the lesson's: an Arabic caption
+ * that starts with a Latin word or holds English terms still reads right-to-left,
+ * and an English caption shown to an Arabic reader (none was written) keeps its
+ * punctuation on the right side.
  */
 export function LessonImage({ block }: { block: ImageBlock }) {
   const { t } = useI18n()
@@ -56,6 +60,7 @@ export function LessonImage({ block }: { block: ImageBlock }) {
           <img
             src={src}
             alt={block.alt}
+            lang={block.alt_lang}
             width={block.width ?? undefined}
             height={block.height ?? undefined}
             loading="lazy"
@@ -72,7 +77,11 @@ export function LessonImage({ block }: { block: ImageBlock }) {
         </button>
       )}
       {caption && (
-        <figcaption dir="auto" className="mx-auto mt-2 max-w-[var(--lc-measure)] text-center text-sm text-soft">
+        <figcaption
+          lang={block.caption_lang}
+          dir={block.caption_lang ? (block.caption_lang === 'ar' ? 'rtl' : 'ltr') : undefined}
+          className="mx-auto mt-2 max-w-[var(--lc-measure)] text-center text-sm text-soft"
+        >
           {caption}
         </figcaption>
       )}

@@ -386,6 +386,8 @@ For this output pixel, where should I sample from in the input image?
 
 This ensures that every output location has a source coordinate to sample.
 
+{{image:forward-vs-inverse-warping}}
+
 ### Interpolation
 
 Inverse mapping often returns non-integer coordinates such as:

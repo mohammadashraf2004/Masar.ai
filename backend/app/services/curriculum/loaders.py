@@ -29,7 +29,7 @@ from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Tuple
 
 from app.services.curriculum import normalize as N
 from app.services.curriculum.arabic import attach_arabic
-from app.services.curriculum.assets import load_assets
+from app.services.curriculum.assets import load_asset_manifest
 from app.services.curriculum.spec import (
     CourseSpec, CurriculumError, LessonSpec, ModuleQuizSpec, ModuleSpec, ProjectSpec,
 )
@@ -1021,7 +1021,9 @@ def load_course_dir(root: Path) -> CourseSpec:
     if not spec.embedded_quizzes_are_canonical:
         _consolidate_module_quizzes(spec, content_root)
     # Figures are course-level, whatever the lesson layout: one manifest per folder.
-    spec.assets, spec.asset_problems = load_assets(content_root)
+    images = load_asset_manifest(content_root, store_root=root.parent)
+    spec.assets, spec.asset_problems = images.assets, images.problems
+    spec.asset_warnings, spec.broken_asset_keys = images.warnings, images.broken_keys
     # Arabic from the folder's `ar/` (absent = none yet); after the quizzes are consolidated, because
     # an Arabic question attaches to the English question it is the twin of.
     attach_arabic(spec, content_root, root)

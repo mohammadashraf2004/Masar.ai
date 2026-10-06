@@ -1454,6 +1454,9 @@ FastAPI remains responsible for application concerns such as:
 
 The external model layer focuses on inference.
 
+{{image:lifespan-model-preloading}}
+{{image:model-lifespan-startup-shutdown}}
+
 ### Decision table
 
 | Strategy | Main advantage | Main trade-off |

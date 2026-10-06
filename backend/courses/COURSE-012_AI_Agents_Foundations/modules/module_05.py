@@ -275,6 +275,9 @@ TOPIC = {
             "\n"
             "A true ReAct loop lets observations modify later decisions.\n"
             "\n"
+            '{{image:react-loop}}'
+            '\n'
+            "\n"
             "---\n"
             "\n"
 
@@ -469,6 +472,9 @@ TOPIC = {
             "A complete ToT system generally needs orchestration code. One prompt can ask for several "
             "candidates, but real pruning and backtracking are external control-flow operations.\n"
             "\n"
+            '{{image:tree-of-thought}}'
+            '\n'
+            "\n"
             "---\n"
             "\n"
 
@@ -518,7 +524,8 @@ TOPIC = {
             "Attempt -> Evaluate -> Critique -> Retry\n"
             "```\n"
             "\n"
-            'A solver creates an answer. A critic identifies a problem and provides feedback. The solver then tries again with that feedback included in its context.\n'
+            'A solver creates an answer. A critic identifies a problem and provides feedback. The solver then tries again with that feedback included in its context.\n\n{{image:reflexion-loop}}'
+            '\n'
             "\n"
             "### Important clarification\n"
             "\n"

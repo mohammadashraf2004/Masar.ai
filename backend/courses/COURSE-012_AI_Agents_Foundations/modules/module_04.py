@@ -353,7 +353,7 @@ TOPIC = {
             "An agent may expose another agent or capability through MCP or a function-like interface.\n"
             "\n"
             "Pros: structured, narrow interface.  \n"
-            "Cons: each exchange has tool-call overhead.\n\n"
+            "Cons: each exchange has tool-call overhead.\n\n{{image:agent-communication-patterns}}\n"
             "\n"
             "| Pattern | Information visibility | Main benefit | Main cost |\n"
             "|---|---|---|---|\n"
@@ -406,6 +406,9 @@ TOPIC = {
             "### Peer-to-peer network\n"
             "\n"
             "Agents communicate without a central leader and coordinate in a decentralized manner.\n"
+            "\n"
+            '{{image:coordination-strategies}}'
+            '\n'
             "\n"
             "---\n"
             "\n"
@@ -625,6 +628,9 @@ TOPIC = {
             "\n"
             "Each agent now has one primary responsibility.\n"
             "\n"
+            '{{image:monolith-to-agent-flow}}'
+            '\n'
+            "\n"
             "---\n"
             "\n"
 
@@ -725,7 +731,7 @@ TOPIC = {
             "The framework transfers control between configured agents.\n"
             "\n"
             "Benefit: less manual transition code.  \n"
-            "Cost: relationships become more implicit and agents must know their handoff targets.\n\n"
+            "Cost: relationships become more implicit and agents must know their handoff targets.\n\n{{image:handoff-patterns}}\n"
             "\n"
             "The right choice depends on whether you prioritize speed of development or fine-grained control.\n"
             "\n"
@@ -912,7 +918,7 @@ TOPIC = {
             "    )\n"
             "```\n"
             "\n"
-            "When the tripwire fires, the runtime raises the corresponding guardrail exception.\n\n"
+            "When the tripwire fires, the runtime raises the corresponding guardrail exception.\n\n{{image:agent-guardrails}}\n"
             "\n"
             "The important pattern is not the example's exact string or length rule. The pattern is:\n"
             "\n"

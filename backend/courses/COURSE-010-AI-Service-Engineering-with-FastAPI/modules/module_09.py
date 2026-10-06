@@ -310,6 +310,8 @@ Goals can include:
 - structured-output checks,
 - tool-selection checks.
 
+{{image:io-guardrails}}
+
 ### Guardrails are not perfect
 
 The source explicitly warns that guardrails remain an active area of research.
@@ -1069,6 +1071,8 @@ number of requests in the last 60 seconds
 ```
 
 This gives smoother enforcement but requires more state.
+
+{{image:rate-limit-strategies}}
 
 ### Source-oriented use cases
 

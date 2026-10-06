@@ -11,18 +11,19 @@ everything that is wrong.
   no lesson file the manifest lists is missing, none on disk is unlisted
   declared module / lesson counts match what was loaded
   no lesson without a title or (where bodies exist) a body
-  every figure a lesson places exists      the asset manifest is sound
+  every image a lesson places exists       the asset manifest is sound
   no empty `<a id="...">` extraction anchor left in a lesson body
   every track mapping refers to a real career goal and a real course
 
 `warnings()` lists what is worth knowing but is not wrong (a course that states
-no lesson durations, a figure no lesson places).
+no lesson durations, an image no lesson places, an `[[IMAGE_NEEDED]]` still waiting for its file).
 """
 from __future__ import annotations
 
 from typing import Iterable, List, Mapping, Sequence
 
-from app.services.content.lesson_blocks import empty_anchors, figure_keys, malformed_markers
+from app.services.content.lesson_blocks import empty_anchors, exercise_ids, malformed_exercise_markers
+from app.services.curriculum import images
 from app.services.curriculum.spec import CourseSpec, CurriculumError
 
 
@@ -33,6 +34,26 @@ def _dupes(values: Iterable[str]) -> List[str]:
             dupes.append(v)
         seen.add(v)
     return dupes
+
+
+def exercise_marker_problems(course: CourseSpec) -> List[str]:
+    """`{{exercise:ID}}` in a lesson body must name one of that lesson's own exercises (by the id the
+    author wrote, or the same id with the course prefix the loader adds), on a line of its own. A marker
+    that points nowhere would otherwise be silently cut out of the lesson."""
+    out: List[str] = []
+    cid = course.course_id
+    for lesson in course.lessons:
+        known = {e.exercise_id for e in lesson.exercises if e.exercise_id}
+        for lang, text in ((("en", lesson.content or ""),) + ((("ar", lesson.content_ar),) if lesson.content_ar else ())):
+            where = f"{cid} {lesson.lesson_id}" + (" (ar)" if lang == "ar" else "")
+            out += [f"{where}: exercise marker is not on a line of its own or is malformed: {m}"
+                    for m in malformed_exercise_markers(text)]
+            for ref in dict.fromkeys(exercise_ids(text)):
+                if ref not in known and f"{cid}.{ref}" not in known:
+                    shown = ", ".join(sorted(e.rsplit(".", 1)[-1] for e in known)) or "none"
+                    out.append(f"{where}: references exercise '{ref}' but the lesson has no such exercise "
+                               f"(it has: {shown})")
+    return out
 
 
 def problems_in_course(course: CourseSpec) -> List[str]:
@@ -108,14 +129,10 @@ def problems_in_course(course: CourseSpec) -> List[str]:
     out += course.asset_problems
     out += course.structure_problems
     out += course.arabic_problems
-    asset_keys = {a.key for a in course.assets}
+    out += images.problems(course)
+    out += exercise_marker_problems(course)
     for lesson in course.lessons:
         where = f"{cid} {lesson.lesson_id}"
-        out += [f"{where}: figure marker is not on a line of its own or is malformed: {m}"
-                for m in malformed_markers(lesson.content)]
-        for key in dict.fromkeys(figure_keys(lesson.content)):
-            if key not in asset_keys:
-                out.append(f"{where}: references figure '{key}' but no corresponding asset exists in {cid}'s assets_manifest.json")
         out += [f"{where}: line {n}: empty extraction anchor {tag} - delete it, it is not learner-facing text "
                 f"({lesson.source_file})" for n, tag in empty_anchors(lesson.content)]
     out += [f"{cid}: manifest lists a file that does not exist: {f}" for f in course.missing_files]
@@ -212,11 +229,7 @@ def warnings(courses: Sequence[CourseSpec]) -> List[str]:
         unstated = [l.lesson_id for l in course.lessons if l.estimated_minutes is None]
         if unstated:
             notes.append(f"{course.course_id}: {len(unstated)} of {len(course.lessons)} lessons state no duration")
-        placed = {k for l in course.lessons for k in figure_keys(l.content)}
-        unused = sorted(a.key for a in course.assets if a.key not in placed)
-        if unused:
-            notes.append(f"{course.course_id}: unused asset{'s' if len(unused) != 1 else ''} (no lesson places "
-                         f"{'them' if len(unused) != 1 else 'it'}): {', '.join(unused)}")
+        notes += images.warnings(course)
         notes += course.arabic_warnings
         no_quiz = [m.module_id for m in course.modules if m.quiz is None]
         if no_quiz:

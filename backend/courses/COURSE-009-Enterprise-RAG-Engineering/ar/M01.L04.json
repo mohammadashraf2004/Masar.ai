@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M01.L04",
-  "source_hash": "91880b1ff86afa047804e37d5defa52c9ef95fc80492e0f42f60c8f7e3df59ea",
+  "source_hash": "bfdffa85ea6ed706e3bd44aae996e63666a3c0f7dcf134f032cdb3ec5b508211",
   "title": "نشر RAG في الإنتاج",
   "exercises": [
     {

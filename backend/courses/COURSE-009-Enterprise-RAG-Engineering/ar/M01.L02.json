@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M01.L02",
-  "source_hash": "fa7843235397944567533b0356eb508af0509062e4ed1f40b4e63fddc56bf7f7",
+  "source_hash": "abd42881ef67eb32ab211046658415367a84df74c2e5a626956e6e9196ccdfa5",
   "title": "حزمة RAG الأساسية (Base RAG Stack)",
   "exercises": [
     {

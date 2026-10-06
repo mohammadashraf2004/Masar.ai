@@ -849,6 +849,8 @@ all routes require valid identity
 
 This is cleaner than remembering to add authentication independently to every route.
 
+{{image:jwt-auth-architecture}}
+
 ### Why routers matter
 
 Security policy becomes visible in architecture:
@@ -1108,6 +1110,8 @@ The provider returns an access token.
 ### Step 7 — use provider resource API
 
 Your server can use the token to fetch permitted information.
+
+{{image:oauth-flow}}
 
 {{exercise:M01.L08.EX04}}
 
@@ -1390,6 +1394,8 @@ The decision may depend on:
 - resource visibility,
 - subscription attributes,
 - environment attributes.
+
+{{image:external-authorization-service}}
 
 ### Enforcement
 
@@ -1742,6 +1748,8 @@ exceptions
 ```
 
 authorization code can become difficult to maintain.
+
+{{image:authorization-models}}
 
 ---
 

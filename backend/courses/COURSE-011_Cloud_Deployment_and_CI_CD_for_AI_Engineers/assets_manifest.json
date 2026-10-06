@@ -7,7 +7,9 @@
       "type": "image",
       "file": "B21848_6_1.png",
       "alt": "Pipeline from code through build and test in continuous integration, then release, deploy, and operate in continuous delivery or deployment; production deployment may be manual or automatic.",
+      "alt_ar": "مسار يبدأ بالكود، ثم Build وTest في Continuous Integration، ثم Release وDeploy وOperate في Continuous Delivery أو Deployment؛ والنشر إلى الإنتاج قد يكون يدويًا أو تلقائيًا.",
       "caption": "CI validates code through build and test; CD carries a release toward production, manually or automatically.",
+      "caption_ar": "يتحقق CI من الكود عبر Build وTest؛ ويحمل CD الإصدار نحو الإنتاج، يدويًا أو تلقائيًا.",
       "source_reference": "Figure 6-1; source file B21848_6_1.png"
     },
     {
@@ -15,7 +17,9 @@
       "type": "image",
       "file": "979-8-8688-1715-1_1_Fig3_HTML.jpg",
       "alt": "AWS EC2 Create key pair dialog with a key-pair name, RSA selected, and PEM private-key format selected for OpenSSH.",
+      "alt_ar": "نافذة Create key pair في AWS EC2 باسم لـ Key Pair، مع اختيار RSA وصيغة PEM للمفتاح الخاص لاستخدامه مع OpenSSH.",
       "caption": "An EC2 key pair provides the private credential needed for secure administrative access to the instance.",
+      "caption_ar": "يوفّر EC2 Key Pair بيانات الاعتماد الخاصة اللازمة للوصول الإداري الآمن إلى الـ Instance.",
       "source_reference": "Figure 1-3; source file 979-8-8688-1715-1_1_Fig3_HTML.jpg"
     },
     {
@@ -31,7 +35,9 @@
       "type": "image",
       "file": "979-8-8688-1715-1_8_Fig12_HTML.jpg",
       "alt": "Google Cloud load-balancer details page showing an HTTPS frontend, a default routing rule, and a backend service with its health check and security policy.",
+      "alt_ar": "صفحة تفاصيل Load Balancer في Google Cloud: HTTPS Frontend، وقاعدة توجيه افتراضية، وBackend Service مع Health Check وSecurity Policy.",
       "caption": "A global application load balancer connects the public HTTPS frontend and routing rules to a health-checked backend service.",
+      "caption_ar": "يربط Global Application Load Balancer واجهة HTTPS العامة وقواعد التوجيه بـ Backend Service خاضعة لـ Health Check.",
       "source_reference": "Figure 8-12; source file 979-8-8688-1715-1_8_Fig12_HTML.jpg"
     },
     {
@@ -39,7 +45,9 @@
       "type": "image",
       "file": "979-8-8688-1715-1_8_Fig4_HTML.jpg",
       "alt": "Google Cloud managed instance group form with autoscaling enabled, minimum and maximum instance counts, an HTTP load-balancing utilization target, and an initialization period.",
+      "alt_ar": "نموذج Managed Instance Group في Google Cloud مع تفعيل Autoscaling، وحدّين أدنى وأقصى لعدد Instances، وهدف استخدام HTTP Load Balancing، وفترة تهيئة.",
       "caption": "Managed instance groups scale between explicit limits in response to a chosen utilization signal.",
+      "caption_ar": "تتحجّم Managed Instance Groups بين حدود صريحة استجابةً لإشارة استخدام مختارة.",
       "source_reference": "Figure 8-4; source file 979-8-8688-1715-1_8_Fig4_HTML.jpg"
     },
     {
@@ -47,7 +55,9 @@
       "type": "image",
       "file": "979-8-8688-1715-1_8_Fig5_HTML.jpg",
       "alt": "Google Cloud instance-group autohealing settings with a global TCP health check on port 443 and configured interval, timeout, healthy, and unhealthy thresholds.",
+      "alt_ar": "إعدادات Autohealing لـ Instance Group في Google Cloud: Global TCP Health Check على المنفذ 443 مع قيم الفاصل والمهلة وعتبتي Healthy وUnhealthy.",
       "caption": "Autohealing depends on a concrete health check whose interval, timeout, and thresholds define when an instance is replaced.",
+      "caption_ar": "يعتمد Autohealing على Health Check محدد، وقيم الفاصل والمهلة والعتبات فيه هي التي تقرر متى يُستبدل الـ Instance.",
       "source_reference": "Figure 8-5; source file 979-8-8688-1715-1_8_Fig5_HTML.jpg"
     },
     {
@@ -55,7 +65,9 @@
       "type": "image",
       "file": "B21848_3_1.png",
       "alt": "Three Git states showing files moving from the working directory to the staging area with git add and into the repository with git commit.",
+      "alt_ar": "ثلاث حالات في Git: ينتقل الملف من Working Directory إلى Staging Area بالأمر git add، ثم إلى Repository بالأمر git commit.",
       "caption": "Git separates local edits, the staged snapshot, and committed history into three distinct states.",
+      "caption_ar": "يفصل Git بين التعديلات المحلية وما هو Staged وما هو Committed في ثلاث حالات متمايزة.",
       "source_reference": "Figure 3-1; source file B21848_3_1.png"
     },
     {
@@ -63,7 +75,9 @@
       "type": "image",
       "file": "B21848_3_2.png",
       "alt": "GitFlow branch diagram with main, develop, feature, release, and hotfix branches and their merge paths.",
+      "alt_ar": "مخطط فروع GitFlow: main وdevelop وfeature وrelease وhotfix ومسارات الدمج بينها.",
       "caption": "GitFlow uses long-lived main and develop branches, with short-lived feature, release, and hotfix branches.",
+      "caption_ar": "يعتمد GitFlow على فرعين طويلَي العمر هما main وdevelop، وفروع feature وrelease وhotfix قصيرة العمر.",
       "source_reference": "Figure 3-2; source file B21848_3_2.png"
     },
     {
@@ -87,7 +101,9 @@
       "type": "image",
       "file": "B21848_7_4.png",
       "alt": "GitHub production-environment dialog for a pending deployment with a comment field and Reject or Approve and deploy actions.",
+      "alt_ar": "نافذة بيئة production في GitHub لعملية نشر معلّقة، فيها حقل تعليق والخياران Reject وApprove and deploy.",
       "caption": "A protected production environment inserts a human approval gate before deployment proceeds.",
+      "caption_ar": "تضيف بيئة production المحمية بوابة موافقة بشرية قبل المتابعة في النشر.",
       "source_reference": "Figure 7-4; source file B21848_7_4.png"
     },
     {
@@ -95,8 +111,18 @@
       "type": "image",
       "file": "B21848_3_4.png",
       "alt": "GitHub Open a pull request page comparing a feature branch with main and providing title, description, reviewer, assignee, label, and project fields.",
+      "alt_ar": "صفحة Open a pull request في GitHub تقارن Feature Branch بـ main، وفيها حقول العنوان والوصف وReviewer وAssignee وLabel والمشروع.",
       "caption": "A pull request packages a branch comparison with review context before changes reach the deployment branch.",
+      "caption_ar": "يجمع Pull Request مقارنة الفرعين مع سياق المراجعة قبل وصول التغييرات إلى فرع النشر.",
       "source_reference": "Figure 3-4; source file B21848_3_4.png"
+    },
+    {
+      "key": "streamlit-etl-dashboard",
+      "type": "image",
+      "file": "979-8-8688-1715-1_12_Fig1_HTML.jpg",
+      "alt": "Streamlit ETL dashboard reading AWS S3 data, with date and payment-gateway filters, count- and amount-based success-rate tables, and a trend chart.",
+      "caption": "A Streamlit dashboard can read durable ETL outputs from S3 while the application remains stateless.",
+      "source_reference": "Figure 12-1; source file 979-8-8688-1715-1_12_Fig1_HTML.jpg"
     },
     {
       "key": "terraform-state-flow",

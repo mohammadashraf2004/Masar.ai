@@ -528,7 +528,8 @@ TOPIC = {
             "```text\n"
             "Realtime interaction -> Edge\n"
             "Normal request/response -> API\n"
-            'Long/bursty work -> Queue + Worker\n```\n'
+            'Long/bursty work -> Queue + Worker\n```\n\n{{image:agent-runtime-decision}}'
+            '\n'
             "\n"
             "{{exercise:M01.L08.EX01}}\n"
             "\n"
@@ -590,6 +591,9 @@ TOPIC = {
             "- an orchestrator,\n"
             "- a collaboration pattern,\n"
             "- several tools.\n"
+            "\n"
+            '{{image:front-door-topology}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

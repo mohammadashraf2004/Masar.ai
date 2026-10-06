@@ -1055,6 +1055,9 @@ That may remove the exact target content we want the model to learn.
 Therefore, the supplied chapter focuses on discarding overlong samples rather
 than blindly truncating them.
 
+{{image:naive-padding}}
+{{image:constrained-padding-512}}
+
 ---
 
 ## 10. Packing: think in token budgets, not individual samples
@@ -1220,6 +1223,10 @@ So advanced packing can track:
 - image count.
 
 This is a distinctly multimodal systems problem.
+
+{{image:naive-packing}}
+{{image:greedy-knapsack-packing}}
+{{image:balanced-knapsack-packing}}
 
 {{exercise:M01.L03.EX03}}
 
@@ -1582,6 +1589,8 @@ g_batch =
 The average tends to reduce example-specific noise.
 
 The source observes a smoother loss curve in the packed batch experiment.
+
+{{image:packed-training-loss}}
 
 ---
 

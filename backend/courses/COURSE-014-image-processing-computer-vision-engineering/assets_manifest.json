@@ -15,7 +15,9 @@
       "type": "image",
       "file": "B19751_05_01.png",
       "alt": "A 3-by-3 averaging kernel slides over a 10-by-10 image in valid mode; the first weighted sum produces the top-left pixel of an 8-by-8 output.",
+      "alt_ar": "Kernel متوسِّط 3×3 ينزلق فوق صورة 10×10 بوضع Valid، وأول مجموع مرجَّح يعطي البكسل العلوي الأيسر في مخرجات 8×8.",
       "caption": "Valid convolution applies the kernel only where its full neighborhood fits, so a 10×10 input becomes an 8×8 output.",
+      "caption_ar": "تطبّق Valid Convolution الـ Kernel فقط حيث يتسع جواره الكامل، فتتحول مدخلات 10×10 إلى مخرجات 8×8.",
       "source_reference": "Figure 5.1; source file B19751_05_01.png"
     },
     {
@@ -23,7 +25,9 @@
       "type": "image",
       "file": "B19751_05_09.png",
       "alt": "Numeric comparison using a 4-by-4 input and a 2-by-2 kernel: correlation uses the original kernel, while convolution flips it in both dimensions and produces different output values.",
+      "alt_ar": "مقارنة رقمية بمدخل 4×4 وKernel 2×2: تستخدم Correlation الـ Kernel كما هو، وتقلبه Convolution في البعدين فتنتج قيمًا مختلفة.",
       "caption": "Convolution flips the kernel before sliding; correlation uses the kernel as given.",
+      "caption_ar": "تقلب Convolution الـ Kernel قبل الانزلاق، أما Correlation فتستخدمه كما هو.",
       "source_reference": "Figure 5.9; source file B19751_05_09.png"
     },
     {
@@ -31,7 +35,9 @@
       "type": "image",
       "file": "B19751_04_42.png",
       "alt": "A photograph of colored pencils repeated in a 3-by-3 tiled grid, illustrating the periodic extension assumed by the discrete Fourier transform.",
+      "alt_ar": "صورة أقلام ملونة مكررة في شبكة 3×3 من البلاطات، توضح الامتداد الدوري الذي تفترضه DFT.",
       "caption": "The DFT treats a finite image as one tile of an infinitely repeated periodic signal.",
+      "caption_ar": "تعامل DFT الصورة المحدودة كبلاطة واحدة من إشارة دورية تتكرر بلا نهاية.",
       "source_reference": "Figure 4.42; source file B19751_04_42.png"
     },
     {
@@ -39,7 +45,9 @@
       "type": "image",
       "file": "B19751_08_03.png",
       "alt": "Equations for second derivatives in x and y, their sum as the Laplacian, and the corresponding five-point convolution kernel with center minus four and four neighboring ones.",
+      "alt_ar": "معادلات المشتقتين الثانيتين في x وy ومجموعهما Laplacian، مع Kernel مقابل لها بخمس نقاط: مركزه سالب أربعة وجيرانه الأربعة واحد.",
       "caption": "The discrete Laplacian sums second derivatives and can be implemented with a five-point convolution kernel.",
+      "caption_ar": "يجمع Laplacian المتقطع المشتقتين الثانيتين، ويمكن تنفيذه بـ Convolution بنواة من خمس نقاط.",
       "source_reference": "Figure 8.3; source file B19751_08_03.png"
     },
     {
@@ -47,7 +55,9 @@
       "type": "image",
       "file": "B19751_07_09.png",
       "alt": "Floyd–Steinberg error-diffusion stencil distributing quantization error to four future pixels with weights 7/16, 3/16, 5/16, and 1/16.",
+      "alt_ar": "قالب Floyd–Steinberg يوزّع خطأ التكميم على أربعة بكسلات لاحقة بأوزان 7/16 و3/16 و5/16 و1/16.",
       "caption": "Floyd–Steinberg dithering diffuses each pixel's quantization error to four unprocessed neighbors.",
+      "caption_ar": "يوزّع Floyd–Steinberg Dithering خطأ التكميم لكل بكسل على أربعة جيران لم تُعالَج بعد.",
       "source_reference": "Figure 7.9; source file B19751_07_09.png"
     },
     {
@@ -55,7 +65,9 @@
       "type": "image",
       "file": "B19751_02_05.png",
       "alt": "Two image grids showing forward warping mapping a source pixel p to output position p-prime, and backward warping tracing an output pixel p-prime back to its source coordinate p.",
+      "alt_ar": "شبكتا صورة: Forward Warping تنقل بكسل المصدر p إلى موضع المخرجات p′، وInverse Warping تتتبع بكسل المخرجات p′ إلى إحداثي مصدره p.",
       "caption": "Forward warping pushes source pixels outward; inverse warping samples each destination pixel from the source.",
+      "caption_ar": "يدفع Forward Warping بكسلات المصدر إلى المخرجات، أما Inverse Warping فيأخذ لكل بكسل وجهة عينة من المصدر.",
       "source_reference": "Figure 2.5; source file B19751_02_05.png"
     },
     {
@@ -63,7 +75,9 @@
       "type": "image",
       "file": "B19751_01_33.png",
       "alt": "Mona Lisa image annotated with x increasing downward along rows and y increasing rightward along columns, matching two-dimensional array indexing.",
+      "alt_ar": "صورة Mona Lisa عليها محور x يزداد نزولًا على الصفوف ومحور y يزداد يمينًا على الأعمدة، بما يطابق فهرسة المصفوفات ثنائية الأبعاد.",
       "caption": "Image arrays index rows downward first and columns rightward second, which can differ from Cartesian x-y intuition.",
+      "caption_ar": "تفهرس مصفوفات الصور الصفوف أولًا من الأعلى إلى الأسفل ثم الأعمدة من اليسار إلى اليمين، وقد يخالف هذا حدس الإحداثيات الديكارتية.",
       "source_reference": "Figure 1.33; source file B19751_01_33.png"
     },
     {
@@ -71,7 +85,9 @@
       "type": "image",
       "file": "B19751_09_01.png",
       "alt": "Image degradation and restoration model where original f(x,y) is blurred by h(x,y) and combined with additive noise n(x,y) to form g(x,y), then restoration estimates f-hat(x,y); spatial and Fourier equations are shown.",
+      "alt_ar": "نموذج التدهور والاستعادة: الصورة الأصلية f(x,y) تُطمَس بالمرشح h(x,y) ويُضاف إليها الضجيج n(x,y) لتكوين g(x,y)، ثم تقدّر الاستعادة f-hat(x,y)، مع معادلات المجالين المكاني وFourier.",
       "caption": "Restoration estimates the original image by modeling both the degradation filter and additive noise.",
+      "caption_ar": "تقدّر الاستعادة الصورة الأصلية بنمذجة مرشح التدهور والضجيج المضاف معًا.",
       "source_reference": "Figure 9.1; source file B19751_09_01.png"
     },
     {
@@ -79,7 +95,9 @@
       "type": "image",
       "file": "B19751_08_01.png",
       "alt": "Forward- and central-difference formulas and kernels for first image derivatives, alongside the gradient vector, magnitude, and direction equations.",
+      "alt_ar": "صيغ Forward Difference وCentral Difference ونواتهما للمشتقات الأولى للصورة، مع معادلات متجه Gradient ومقداره واتجاهه.",
       "caption": "Horizontal and vertical finite differences combine into a gradient whose magnitude and direction describe local intensity change.",
+      "caption_ar": "تتحد الفروق الأفقية والرأسية في Gradient يصف مقداره واتجاهه تغيّر الشدة محليًا.",
       "source_reference": "Figure 8.1; source file B19751_08_01.png"
     },
     {
@@ -87,7 +105,9 @@
       "type": "image",
       "file": "B19751_01_20.png",
       "alt": "Side-by-side 3D representations of an RGB color cube with red, green, and blue axes and an HSV cylinder organized by hue angle, saturation radius, and value height.",
+      "alt_ar": "تمثيلان ثلاثيا الأبعاد: مكعب RGB بمحاور الأحمر والأخضر والأزرق، وأسطوانة HSV بزاوية Hue ونصف قطر Saturation وارتفاع Value.",
       "caption": "RGB mixes color channels directly, while HSV separates hue, saturation, and brightness into more intuitive dimensions.",
+      "caption_ar": "يمزج RGB قنوات اللون مباشرةً، بينما يفصل HSV بين Hue وSaturation والسطوع في أبعاد أكثر بداهة.",
       "source_reference": "Figure 1.20; source file B19751_01_20.png"
     }
   ],

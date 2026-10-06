@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M08.L01",
-  "source_hash": "9eb4be49035afde2ffe20a641bd32d46900867a316b1cd9448c570aeff95ebde",
+  "source_hash": "9dd04217ad191661fbb4bb35ec5d99d5b5bf2b1c751c7e8c105907089b912b1a",
   "title": "إعداد حساب AWS وEC2 الأولي",
   "exercises": [
     {

@@ -7,7 +7,9 @@
       "type": "image",
       "file": "assets/B33146_01_02.png",
       "alt": "Five-stage data-analysis process for customer purchases: collect transaction, product, and customer data; preprocess KPIs; analyze trends and segments; interpret visualized insights; and tell the resulting story.",
+      "alt_ar": "خمس مراحل لتحليل بيانات مشتريات العملاء: جمع بيانات المعاملات والمنتجات والعملاء، ومعالجة مؤشرات الأداء مسبقًا، وتحليل الاتجاهات والشرائح، وتفسير الرؤى المعروضة بصريًا، ثم سرد القصة الناتجة.",
       "caption": "Data analysis moves from collection and preparation through insight finding, interpretation, and communication.",
+      "caption_ar": "ينتقل تحليل البيانات من الجمع والتحضير إلى استخراج الرؤى، ثم التفسير والتواصل.",
       "source_reference": "Figure 1.2; source file B33146_01_02.png"
     },
     {
@@ -15,7 +17,9 @@
       "type": "image",
       "file": "assets/B33146_10_15.png",
       "alt": "Nine scatter plots comparing K-means, agglomerative clustering, and DBSCAN on moon-shaped, concentric-circle, and compact blob datasets.",
+      "alt_ar": "تسعة رسوم Scatter تقارن K-Means وAgglomerative Clustering وDBSCAN على بيانات هلالية الشكل ودوائر متحدة المركز وتجمعات مدمجة.",
       "caption": "Cluster shape matters: centroid, hierarchical, and density-based methods partition nonlinear and compact data differently.",
+      "caption_ar": "شكل البيانات مهم: طرق Centroid والهرمية والقائمة على الكثافة تقسّم البيانات غير الخطية والمدمجة بصور مختلفة.",
       "source_reference": "Figure 10.15; source file B33146_10_15.png"
     },
     {
@@ -23,7 +27,9 @@
       "type": "image",
       "file": "assets/B33146_01_01.png",
       "alt": "Circular CRISP-DM workflow for a song recommender: business understanding, data understanding, data preparation, modeling, model evaluation, and deployment.",
+      "alt_ar": "دورة CRISP-DM لنظام توصية بالأغاني: فهم الأعمال، وفهم البيانات، وتحضير البيانات، والنمذجة، وتقييم الـ Model، والنشر.",
       "caption": "CRISP-DM treats analysis as an iterative cycle from the business question through deployment and renewed understanding.",
+      "caption_ar": "يعامل CRISP-DM التحليل كدورة تكرارية، تبدأ من سؤال الأعمال وتنتهي بالنشر ثم بفهم متجدد.",
       "source_reference": "Figure 1.1; source file B33146_01_01.png"
     },
     {
@@ -31,7 +37,9 @@
       "type": "image",
       "file": "assets/B33146_02_08.png",
       "alt": "A 5-by-4 NumPy array with row indices 1 and 2 paired position-wise with column indices 2 and 3, selecting values 7 and 12.",
+      "alt_ar": "مصفوفة NumPy من 5 صفوف و4 أعمدة، يُقرَن فيها الصفان 1 و2 موضعيًا مع العمودين 2 و3، فتُختار القيمتان 7 و12.",
       "caption": "With paired fancy indices, NumPy selects coordinate pairs `(1, 2)` and `(2, 3)` rather than a rectangular block.",
+      "caption_ar": "عند اقتران Fancy Indices يختار NumPy أزواج الإحداثيات (1,2) و(2,3) لا كتلة مستطيلة.",
       "source_reference": "Figure 2.8; source file B33146_02_08.png"
     },
     {
@@ -39,7 +47,9 @@
       "type": "image",
       "file": "assets/B33146_02_07.png",
       "alt": "A 5-by-4 NumPy array showing arr[[1, 2]] selecting rows 1 and 2 and arr[[2, 3]] selecting rows 2 and 3.",
+      "alt_ar": "مصفوفة NumPy من 5 صفوف و4 أعمدة: arr[[1, 2]] يختار الصفين 1 و2، وarr[[2, 3]] يختار الصفين 2 و3.",
       "caption": "A list of row indices returns the selected rows in the order requested.",
+      "caption_ar": "قائمة مؤشرات الصفوف تعيد الصفوف المختارة بالترتيب الذي طُلبت به.",
       "source_reference": "Figure 2.7; source file B33146_02_07.png"
     }
   ],

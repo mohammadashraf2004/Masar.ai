@@ -612,6 +612,9 @@ TOPIC = {
             "- make validation failures visible,\n"
             "- support predictable workflows despite probabilistic generation.\n"
             "\n"
+            '{{image:typed-agent-workflow}}'
+            '\n'
+            "\n"
             "---\n"
             "\n"
 

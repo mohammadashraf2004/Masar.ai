@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M08.L08",
-  "source_hash": "6c7616142a6b0cc41a987278990cbc3a99ecca2cde3bfc6f11aad03370f6cf1b",
+  "source_hash": "d51b9f4c691e244b6cf9d19dbd3fe4a84d3cf74814e8eb9a643597f2536ba49b",
   "title": "نشر متقدم في GCP: التوسع التلقائي وموازنة الحمل عبر مناطق عالمية",
   "exercises": [
     {

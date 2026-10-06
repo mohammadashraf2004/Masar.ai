@@ -7,7 +7,9 @@
       "type": "image",
       "file": "assets/CH01_F14_Lanham4.png",
       "alt": "A proxy or manager agent exchanges work with product, developer, and QA agents, which can also communicate directly with one another before a report is produced.",
+      "alt_ar": "Proxy Agent أو Manager Agent يتبادل العمل مع Agents للمنتج والتطوير وضمان الجودة، وهذه الـ Agents تتواصل أيضًا مباشرة فيما بينها قبل إنتاج التقرير.",
       "caption": "In collaboration, team agents can communicate laterally while a manager remains the user-facing entry point.",
+      "caption_ar": "في Collaboration يمكن لـ Agents الفريق التواصل فيما بينها بينما يبقى المدير نقطة الدخول التي يتعامل معها المستخدم.",
       "source_reference": "Figure 1.14; source file CH01_F14_Lanham4.png"
     },
     {
@@ -15,7 +17,9 @@
       "type": "image",
       "file": "assets/CH04_F03_Lanham4.png",
       "alt": "Three agent communication patterns: direct message passing, shared conversational memory with handoff control, and agents exposed as MCP tools to an orchestrator.",
+      "alt_ar": "ثلاثة أنماط لتواصل الـ Agents: تمرير الرسائل مباشرةً، وذاكرة محادثة مشتركة مع التحكم في Handoff، وAgents مكشوفة كأدوات MCP لـ Orchestrator.",
       "caption": "Agents can coordinate through explicit messages, shared state, or tool-style calls with different visibility and control trade-offs.",
+      "caption_ar": "تنسّق الـ Agents بينها برسائل صريحة أو حالة مشتركة أو استدعاءات بأسلوب الأدوات، ولكل نمط مقايضاته في الرؤية والتحكم.",
       "source_reference": "Figure 4.3; source file CH04_F03_Lanham4.png"
     },
     {
@@ -23,7 +27,9 @@
       "type": "image",
       "file": "assets/CH07_F01_Lanham4.png",
       "alt": "Agent evaluation ecosystem connecting red-team tests, critics, grounding, benchmarks, users, a feedback store, and a monitoring agent to the primary agent.",
+      "alt_ar": "منظومة تقييم تربط اختبارات Red-Team وCritics وGrounding وBenchmarks والمستخدمين ومخزن Feedback وMonitoring Agent بالـ Agent الرئيسي.",
       "caption": "Reliable agents combine internal feedback with red-team, grounding, benchmark, human, and operational evaluation signals.",
+      "caption_ar": "تجمع الـ Agents الموثوقة بين Feedback داخلي وإشارات تقييم من Red-Team وGrounding وBenchmarks والبشر والتشغيل.",
       "source_reference": "Figure 7.1; source file CH07_F01_Lanham4.png"
     },
     {
@@ -31,7 +37,9 @@
       "type": "image",
       "file": "assets/CH01_F12_Lanham4.png",
       "alt": "Sequential agent flow in which specialized planning, research, and content agents pass control and information forward to produce a report.",
+      "alt_ar": "Agent Flow تسلسلي تمرّر فيه Agents متخصصة للتخطيط والبحث والمحتوى التحكم والمعلومات إلى الأمام لإنتاج تقرير.",
       "caption": "An agent flow assigns each stage to a specialist and passes the evolving task state along a defined sequence.",
+      "caption_ar": "يسند Agent Flow كل مرحلة إلى متخصص ويمرّر حالة المهمة المتطورة عبر تسلسل محدد.",
       "source_reference": "Figure 1.12; source file CH01_F12_Lanham4.png"
     },
     {
@@ -39,7 +47,9 @@
       "type": "image",
       "file": "assets/CH04_F09_Lanham4.png",
       "alt": "Research agent workflow with an input guard before tool use and an output guard validating a typed research plan before a filesystem tool writes the output file.",
+      "alt_ar": "Workflow لـ Research Agent: Input Guard قبل استخدام الأدوات، وOutput Guard يتحقق من خطة بحث مُنمَّطة قبل أن تكتب أداة نظام الملفات ملف المخرجات.",
       "caption": "Input and output guardrails validate the agent boundary before tools act and before results leave the workflow.",
+      "caption_ar": "تتحقق Input وOutput Guardrails من حدود الـ Agent قبل أن تعمل الأدوات وقبل أن تغادر النتائج الـ Workflow.",
       "source_reference": "Figure 4.9; source file CH04_F09_Lanham4.png"
     },
     {
@@ -47,7 +57,9 @@
       "type": "image",
       "file": "assets/CH01_F06_Lanham4.png",
       "alt": "Five nested agent layers: persona at the core, then tools and actions, reasoning and planning, knowledge and memory, and evaluation and feedback.",
+      "alt_ar": "خمس طبقات متداخلة للـ Agent: Persona في القلب، ثم الأدوات والإجراءات، فالاستدلال والتخطيط، فالمعرفة والذاكرة، فالتقييم والـ Feedback.",
       "caption": "Agent capability grows from persona through action, planning, memory, and finally evaluation and feedback.",
+      "caption_ar": "تنمو قدرات الـ Agent من Persona إلى الإجراءات والتخطيط والذاكرة، وتنتهي بالتقييم والـ Feedback.",
       "source_reference": "Figure 1.6; source file CH01_F06_Lanham4.png"
     },
     {
@@ -55,7 +67,9 @@
       "type": "image",
       "file": "assets/CH01_F13_Lanham4.png",
       "alt": "An orchestration agent delegates to knowledge, video-search, and web-search workers, gathers their outputs, and returns a report through the central orchestrator.",
+      "alt_ar": "Orchestration Agent يفوّض العمل إلى Workers للمعرفة والبحث في الفيديو والبحث في الويب، ثم يجمع مخرجاتها ويعيد تقريرًا عبر Orchestrator المركزي.",
       "caption": "Hub-and-spoke orchestration funnels delegation and result synthesis through one coordinating agent.",
+      "caption_ar": "في Orchestration بنمط Hub-and-Spoke يمرّ التفويض وتجميع النتائج عبر Agent منسّق واحد.",
       "source_reference": "Figure 1.13; source file CH01_F13_Lanham4.png"
     },
     {
@@ -63,7 +77,9 @@
       "type": "image",
       "file": "assets/CH08_F08_Lanham4.png",
       "alt": "Deployment decision tree routing low-latency agents to edge clients, medium-latency work to synchronous or asynchronous APIs, and long jobs to event-driven workers, all connected to tools and telemetry.",
+      "alt_ar": "شجرة قرار للنشر: الـ Agents منخفضة الـ Latency على Edge Clients، والأعمال متوسطة الـ Latency في APIs متزامنة أو غير متزامنة، والمهام الطويلة في Workers قائمة على الأحداث، وكلها متصلة بالأدوات والـ Telemetry.",
       "caption": "Latency and tool requirements determine whether an agent belongs at the edge, behind an API, or in an event-driven worker.",
+      "caption_ar": "تحدد متطلبات الـ Latency والأدوات ما إذا كان مكان الـ Agent على Edge أو خلف API أو في Worker قائم على الأحداث.",
       "source_reference": "Figure 8.8; source file CH08_F08_Lanham4.png"
     },
     {
@@ -79,7 +95,9 @@
       "type": "image",
       "file": "assets/CH10_F06_Lanham4.png",
       "alt": "Decision tree reading workspace signals and routing by complexity, task phase, stagnation, contradiction, knowledge gap, completion, or low confidence to response, planning, memory, evaluation, or escalation modules.",
+      "alt_ar": "شجرة قرار تقرأ إشارات الـ Workspace وتوجّه بحسب التعقيد ومرحلة المهمة والركود والتناقض وفجوة المعرفة والاكتمال أو انخفاض الثقة إلى وحدات الاستجابة أو التخطيط أو الذاكرة أو التقييم أو التصعيد.",
       "caption": "Attention routing converts workspace signals into the next cognitive module, including escalation when confidence is too low.",
+      "caption_ar": "يحوّل Attention Routing إشارات الـ Workspace إلى الوحدة المعرفية التالية، ومنها التصعيد حين تنخفض الثقة كثيرًا.",
       "source_reference": "Figure 10.6; source file CH10_F06_Lanham4.png"
     },
     {
@@ -87,7 +105,9 @@
       "type": "image",
       "file": "assets/CH10_F08_Lanham4.png",
       "alt": "A cognitive cycle executes a module, updates workspace, evaluates results, and raises signals inside an outer agentic loop that controls iterations, convergence, and budget limits.",
+      "alt_ar": "دورة معرفية تنفّذ وحدة وتحدّث الـ Workspace وتقيّم النتائج وتطلق إشارات، داخل Agentic Loop خارجية تتحكم في التكرارات والتقارب وحدود الميزانية.",
       "caption": "The inner cognitive cycle selects and evaluates steps; the outer agentic loop controls continuation, convergence, and budgets.",
+      "caption_ar": "تختار الدورة المعرفية الداخلية الخطوات وتقيّمها، وتتحكم Agentic Loop الخارجية في الاستمرار والتقارب والميزانيات.",
       "source_reference": "Figure 10.8; source file CH10_F08_Lanham4.png"
     },
     {
@@ -95,7 +115,9 @@
       "type": "image",
       "file": "assets/CH10_F04_Lanham4.png",
       "alt": "Cognitive agent architecture linking perception, memory, attention, planning, execution, evaluation, a shared workspace, and a confidence gate that can respond, continue, replan, or escalate.",
+      "alt_ar": "معمارية Cognitive Agent تربط الإدراك والذاكرة والانتباه والتخطيط والتنفيذ والتقييم عبر Workspace مشتركة وبوابة ثقة تقرر: الرد أو المتابعة أو إعادة التخطيط أو التصعيد.",
       "caption": "A shared cognitive workspace lets perception, memory, planning, execution, and evaluation coordinate through explicit state.",
+      "caption_ar": "تتيح Workspace معرفية مشتركة أن تتنسق وحدات الإدراك والذاكرة والتخطيط والتنفيذ والتقييم عبر حالة صريحة.",
       "source_reference": "Figure 10.4; source file CH10_F04_Lanham4.png"
     },
     {
@@ -103,7 +125,9 @@
       "type": "image",
       "file": "assets/CH10_F01_Lanham4.png",
       "alt": "Mapping from agent failure modes to cognitive deficits and architecture fixes: wrong answers to evaluation, loops to attention, rigid plans to replanning, overconfidence to confidence gating, and shallow composition to perception.",
+      "alt_ar": "خريطة تربط أنماط فشل الـ Agent بالعجز المعرفي وإصلاحات المعمارية: الإجابات الخاطئة بالتقييم، والحلقات بالانتباه، والخطط الجامدة بإعادة التخطيط، والثقة الزائدة بـ Confidence Gating، والتركيب السطحي بالإدراك.",
       "caption": "Each recurring failure mode points to a missing cognitive capability and a corresponding architectural control.",
+      "caption_ar": "يشير كل نمط فشل متكرر إلى قدرة معرفية ناقصة وإلى ضابط معماري يعالجها.",
       "source_reference": "Figure 10.1; source file CH10_F01_Lanham4.png"
     },
     {
@@ -111,7 +135,9 @@
       "type": "image",
       "file": "assets/CH09_F07_Lanham4.png",
       "alt": "Collaborative agent loop where a turn manager selects researcher, critic, or synthesizer agents, each contributes to shared state, and the process rotates until a consensus check produces final synthesis.",
+      "alt_ar": "حلقة تعاون بين Agents يختار فيها Turn Manager الباحث أو الناقد أو المُركِّب، ويساهم كل منهم في حالة مشتركة، وتتناوب العملية حتى يؤدي فحص الإجماع إلى التركيب النهائي.",
       "caption": "A collaboration loop rotates contributors and critics over shared state until the team reaches a synthesis threshold.",
+      "caption_ar": "تدير Collaboration Loop تناوب المساهمين والنقّاد على حالة مشتركة حتى يبلغ الفريق عتبة التركيب.",
       "source_reference": "Figure 9.7; source file CH09_F07_Lanham4.png"
     },
     {
@@ -119,7 +145,9 @@
       "type": "image",
       "file": "assets/CH04_F04_Lanham4.png",
       "alt": "Four multi-agent coordination layouts: sequential handoff, parallel delegation, hierarchical coordination, and an iterative generate-critique-refine loop.",
+      "alt_ar": "أربعة تخطيطات لتنسيق Multi-Agent: Handoff تسلسلي، وتفويض متوازٍ، وتنسيق هرمي، وحلقة تكرارية من التوليد والنقد والتحسين.",
       "caption": "Sequential, parallel, hierarchical, and iterative coordination patterns fit different task dependencies and review needs.",
+      "caption_ar": "تناسب أنماط التنسيق التسلسلية والمتوازية والهرمية والتكرارية اعتماديات مهام واحتياجات مراجعة مختلفة.",
       "source_reference": "Figure 4.4; source file CH04_F04_Lanham4.png"
     },
     {
@@ -127,7 +155,9 @@
       "type": "image",
       "file": "assets/CH11_F03_Lanham4.png",
       "alt": "Customer-support flow from triage through retrieval and grounding, optional scoped API action with guardrails, answer composition, feedback logging, or handoff to a human.",
+      "alt_ar": "مسار دعم العملاء: Triage، ثم الاسترجاع والـ Grounding، ثم إجراء API اختياري محدود النطاق مع Guardrails، ثم تركيب الإجابة وتسجيل الـ Feedback أو التحويل إلى إنسان.",
       "caption": "A production support agent separates triage, evidence retrieval, grounding, guarded actions, response composition, and human escalation.",
+      "caption_ar": "يفصل Support Agent الإنتاجي بين الفرز واسترجاع الأدلة والـ Grounding والإجراءات المحمية وتركيب الاستجابة والتصعيد إلى البشر.",
       "source_reference": "Figure 11.3; source file CH11_F03_Lanham4.png"
     },
     {
@@ -135,7 +165,9 @@
       "type": "image",
       "file": "assets/CH09_F04_Lanham4.png",
       "alt": "Deep-research state machine that initializes a plan, connects search tools, iterates through questions, updates findings and the plan, checks goal completion, and sends results to a synthesis agent.",
+      "alt_ar": "آلة حالات للبحث العميق: تهيئ خطة، وتصل أدوات البحث، وتتكرر عبر الأسئلة، وتحدّث النتائج والخطة، وتتحقق من اكتمال الهدف، ثم ترسل النتائج إلى Synthesis Agent.",
       "caption": "Deep research externalizes questions, findings, and plan state so the loop can stop, replan, or synthesize deliberately.",
+      "caption_ar": "يُخرج Deep Research الأسئلة والنتائج وحالة الخطة إلى حالة خارجية، فيستطيع الـ Loop أن يتوقف أو يعيد التخطيط أو يركّب النتائج عن قصد.",
       "source_reference": "Figure 9.4; source file CH09_F04_Lanham4.png"
     },
     {
@@ -143,7 +175,9 @@
       "type": "image",
       "file": "assets/CH11_F05_Lanham4.png",
       "alt": "Research planner orchestrating web-search, extraction, and analysis workers, with a critic returning gaps and a writer producing a cited final report.",
+      "alt_ar": "Research Planner ينسّق Workers للبحث في الويب والاستخراج والتحليل، مع Critic يعيد الفجوات وWriter ينتج التقرير النهائي مع الاستشهادات.",
       "caption": "A deep-research system separates evidence gathering, analysis, critique, gap filling, and cited synthesis.",
+      "caption_ar": "يفصل نظام Deep Research بين جمع الأدلة والتحليل والنقد وسدّ الفجوات والتركيب المُستشهَد به.",
       "source_reference": "Figure 11.5; source file CH11_F05_Lanham4.png"
     },
     {
@@ -151,7 +185,9 @@
       "type": "image",
       "file": "assets/CH07_F04_Lanham4.png",
       "alt": "Comparison of grounding, critic, and evaluation agents: grounding checks an answer against retrieved context, a critic applies a rubric and feedback, and an evaluator assigns a score or assessment.",
+      "alt_ar": "مقارنة بين Grounding Agent وCritic Agent وEvaluation Agent: الأول يفحص الإجابة مقابل السياق المسترجع، والثاني يطبّق معيار تقييم ويقدّم Feedback، والثالث يعطي درجة أو تقييمًا.",
       "caption": "Grounders verify evidence, critics drive revision, and evaluators grade outputs without necessarily blocking them.",
+      "caption_ar": "يتحقق Grounders من الأدلة، ويدفع Critics نحو المراجعة، ويقيّم Evaluators المخرجات دون أن يحجبوها بالضرورة.",
       "source_reference": "Figure 7.4; source file CH07_F04_Lanham4.png"
     },
     {
@@ -159,7 +195,9 @@
       "type": "image",
       "file": "assets/CH08_F09_Lanham4.png",
       "alt": "A user-facing front-door orchestrator routes work through APIs, MCP services, or an event hub to microservice agents and scalable long-running worker agents.",
+      "alt_ar": "Orchestrator في الواجهة يتعامل معه المستخدم، يوجّه العمل عبر APIs أو خدمات MCP أو Event Hub إلى Agents بنمط Microservice وإلى Worker Agents طويلة التشغيل وقابلة للتوسع.",
       "caption": "A front-door agent can route interactive work to services and long-running work to a scalable event-driven worker pool.",
+      "caption_ar": "يوجّه Front-Door Agent العمل التفاعلي إلى Services، والعمل الطويل إلى مجموعة Workers قابلة للتوسع وقائمة على الأحداث.",
       "source_reference": "Figure 8.9; source file CH08_F09_Lanham4.png"
     },
     {
@@ -167,7 +205,9 @@
       "type": "image",
       "file": "assets/CH06_F10_Lanham4.png",
       "alt": "Simple and expanded memory graphs representing Back to the Future entities such as people, places, and items with typed relationships including mentored_by, child_of, and located_in.",
+      "alt_ar": "Memory Graph بسيط وآخر موسَّع يمثلان كيانات Back to the Future، كالأشخاص والأماكن والأشياء، بعلاقات مُنمَّطة منها mentored_by وchild_of وlocated_in.",
       "caption": "Graph memory preserves entities, attributes, and typed relationships that flat conversation history cannot express directly.",
+      "caption_ar": "تحفظ Graph Memory الكيانات والخصائص والعلاقات المُنمَّطة التي لا يعبّر عنها سجل المحادثة المسطّح مباشرةً.",
       "source_reference": "Figure 6.10; source file CH06_F10_Lanham4.png"
     },
     {
@@ -183,7 +223,9 @@
       "type": "image",
       "file": "assets/CH04_F07_Lanham4.png",
       "alt": "Comparison of a shared conversational flow, a controlled pass-off flow, and a guarded handoff flow with filtered context and input-output checks between agents.",
+      "alt_ar": "مقارنة بين Flow محادثة مشتركة، وFlow تمرير مضبوط، وFlow Handoff محمي بسياق مُصفّى وفحوص مدخلات ومخرجات بين الـ Agents.",
       "caption": "Handoffs differ in how much conversation state moves forward and where control and guardrails are applied.",
+      "caption_ar": "تختلف أنماط Handoff في مقدار حالة المحادثة المنقولة إلى الأمام، وفي موضع التحكم والـ Guardrails.",
       "source_reference": "Figure 4.7; source file CH04_F07_Lanham4.png"
     },
     {
@@ -191,7 +233,9 @@
       "type": "image",
       "file": "assets/CH03_F07_Lanham4.png",
       "alt": "MCP tools and resources mapped across agent layers: application APIs for persona, tools and workflows for action and planning, data stores for memory, and evaluation tools for feedback.",
+      "alt_ar": "أدوات MCP ومواردها موزّعة على طبقات الـ Agent: APIs التطبيق لـ Persona، والأدوات والـ Workflows للإجراءات والتخطيط، ومخازن البيانات للذاكرة، وأدوات التقييم للـ Feedback.",
       "caption": "MCP can support every functional agent layer, not only direct tool execution.",
+      "caption_ar": "يدعم MCP كل طبقة وظيفية في الـ Agent، لا مجرد تنفيذ الأدوات المباشر.",
       "source_reference": "Figure 3.7; source file CH03_F07_Lanham4.png"
     },
     {
@@ -199,7 +243,9 @@
       "type": "image",
       "file": "assets/CH03_F04_Lanham4.png",
       "alt": "MCP architecture where AI agents, LLM applications, desktop clients, and editors connect through an MCP client and JSON-RPC transport to servers wrapping files, databases, web APIs, and other agents.",
+      "alt_ar": "AI Agents وتطبيقات LLM وClients سطح المكتب والمحررات تتصل عبر MCP Client ووسيلة نقل JSON-RPC بـ Servers تغلّف الملفات وDatabases وWeb APIs وAgents أخرى.",
       "caption": "MCP standardizes how many client types discover and invoke services across local and remote transports.",
+      "caption_ar": "يوحّد MCP طريقة اكتشاف أنواع كثيرة من Clients للخدمات واستدعائها عبر وسائل نقل محلية وبعيدة.",
       "source_reference": "Figure 3.4; source file CH03_F04_Lanham4.png"
     },
     {
@@ -207,7 +253,9 @@
       "type": "image",
       "file": "assets/CH03_F05_Lanham4.png",
       "alt": "MCP server exposing three capability groups: prompt templates, data resources such as files and databases, and actionable tools such as search, email, database queries, and agent invocation.",
+      "alt_ar": "MCP Server يكشف ثلاث مجموعات قدرات: قوالب Prompts، وموارد بيانات كالملفات وDatabases، وأدوات قابلة للتنفيذ كالبحث والبريد والاستعلامات واستدعاء Agent.",
       "caption": "MCP distinguishes reusable prompt templates, readable resources, and callable tools.",
+      "caption_ar": "يميّز MCP بين قوالب Prompts القابلة لإعادة الاستخدام، والموارد القابلة للقراءة، والأدوات القابلة للاستدعاء.",
       "source_reference": "Figure 3.5; source file CH03_F05_Lanham4.png"
     },
     {
@@ -215,7 +263,9 @@
       "type": "image",
       "file": "assets/CH01_F05_Lanham4.png",
       "alt": "An agent calls list_tools on a search MCP server, receives JSON tool descriptions, then invokes a web-search tool over local stdio or remote HTTP transport.",
+      "alt_ar": "Agent يستدعي list_tools على MCP Server للبحث، ويتلقى أوصاف الأدوات بصيغة JSON، ثم يستدعي أداة بحث ويب عبر stdio محلي أو HTTP بعيد.",
       "caption": "MCP tool discovery gives an agent machine-readable schemas before it chooses and invokes a tool.",
+      "caption_ar": "يمنح Tool Discovery في MCP الـ Agent Schemas قابلة للقراءة آليًا قبل أن يختار أداة ويستدعيها.",
       "source_reference": "Figure 1.5; source file CH01_F05_Lanham4.png"
     },
     {
@@ -223,7 +273,9 @@
       "type": "image",
       "file": "assets/CH06_F12_Lanham4.png",
       "alt": "Memory-compression pipeline clustering repetitive time-travel preferences, summarizing them into consolidated knowledge, embedding the summary, and storing it in a vector database.",
+      "alt_ar": "مسار لضغط الذاكرة: يجمّع تفضيلات السفر عبر الزمن المتكررة، ويلخّصها في معرفة موحّدة، ويرمّز الملخص Embedding، ويخزّنه في Vector Database.",
       "caption": "Memory compression turns redundant observations into a compact, retrievable summary instead of storing every repetition.",
+      "caption_ar": "يحوّل ضغط الذاكرة الملاحظات المتكررة إلى ملخص موجز قابل للاسترجاع بدل تخزين كل تكرار.",
       "source_reference": "Figure 6.12; source file CH06_F12_Lanham4.png"
     },
     {
@@ -231,7 +283,9 @@
       "type": "image",
       "file": "assets/CH06_F08_Lanham4.png",
       "alt": "Memory taxonomy dividing sensory, short-term, and long-term memory; long-term memory further branches into explicit episodic and semantic memory and implicit procedural memory.",
+      "alt_ar": "تصنيف الذاكرة إلى حسّية وقصيرة المدى وطويلة المدى؛ وتتفرع الطويلة إلى ذاكرة صريحة (حدثية Episodic ودلالية Semantic) وذاكرة ضمنية إجرائية Procedural.",
       "caption": "Agents most often model conversational short-term memory and explicit long-term episodic or semantic memory.",
+      "caption_ar": "تنمذج الـ Agents غالبًا الذاكرة القصيرة المدى للمحادثة والذاكرة الصريحة طويلة المدى، الحدثية أو الدلالية.",
       "source_reference": "Figure 6.8; source file CH06_F08_Lanham4.png"
     },
     {
@@ -239,7 +293,9 @@
       "type": "image",
       "file": "assets/CH04_F05_Lanham4.png",
       "alt": "Comparison of one agent using three MCP tool servers with a three-agent flow in which research, planning, and filesystem agents each own one tool set and pass work sequentially.",
+      "alt_ar": "مقارنة بين Agent واحد يستخدم ثلاثة MCP Tool Servers وAgent Flow من ثلاثة Agents للبحث والتخطيط ونظام الملفات، لكلٍّ مجموعة أدواته، ويمرّرون العمل بالتسلسل.",
       "caption": "Splitting a monolithic agent into specialists narrows each role, tool set, and handoff contract.",
+      "caption_ar": "تقسيم Agent متراص إلى متخصصين يضيّق كل دور ومجموعة أدواته وعقد الـ Handoff.",
       "source_reference": "Figure 4.5; source file CH04_F05_Lanham4.png"
     },
     {
@@ -255,7 +311,9 @@
       "type": "image",
       "file": "assets/CH07_F06_Lanham4.png",
       "alt": "RAG, research, and support agents sending traces to Phoenix for monitoring, token cost, latency, session metadata, experiments, and custom or agent evaluators.",
+      "alt_ar": "Agents للـ RAG والبحث والدعم ترسل Traces إلى Phoenix للمراقبة وتكلفة Tokens والـ Latency وMetadata الجلسات والتجارب والـ Evaluators المخصصة أو الخاصة بالـ Agents.",
       "caption": "Phoenix centralizes agent traces, costs, latency, session metadata, experiments, and evaluation results.",
+      "caption_ar": "يجمع Phoenix في مكان واحد Traces الـ Agents والتكاليف والـ Latency وMetadata الجلسات والتجارب ونتائج التقييم.",
       "source_reference": "Figure 7.6; source file CH07_F06_Lanham4.png"
     },
     {
@@ -263,7 +321,9 @@
       "type": "image",
       "file": "assets/CH05_F03_Lanham4.png",
       "alt": "Sequence diagram where an LLM alternates thought, tool action, and observation until it reaches the goal and returns a final answer to the user.",
+      "alt_ar": "مخطط تسلسل يتناوب فيه LLM بين الفكرة والإجراء بأداة والملاحظة حتى يبلغ الهدف ويعيد إجابة نهائية للمستخدم.",
       "caption": "ReAct interleaves reasoning with tool actions and observations until the agent can answer or must continue.",
+      "caption_ar": "يمزج ReAct بين الاستدلال وإجراءات الأدوات والملاحظات حتى يستطيع الـ Agent الإجابة أو يلزمه الاستمرار.",
       "source_reference": "Figure 5.3; source file CH05_F03_Lanham4.png"
     },
     {
@@ -271,7 +331,9 @@
       "type": "image",
       "file": "assets/CH05_F05_Lanham4.png",
       "alt": "Reflexion flow from an initial attempt through evaluation and critique; failed attempts generate a reflection stored in context and guide retries until success or a maximum-iteration limit.",
+      "alt_ar": "Reflexion: محاولة أولى فتقييم ونقد؛ تولّد المحاولات الفاشلة Reflection تُخزَّن في السياق وتوجّه إعادة المحاولة حتى النجاح أو بلوغ حد أقصى للتكرارات.",
       "caption": "Reflexion converts evaluation feedback into remembered guidance for the next attempt, bounded by a retry limit.",
+      "caption_ar": "يحوّل Reflexion Feedback التقييم إلى إرشاد متذكَّر للمحاولة التالية، ضمن حد لإعادة المحاولة.",
       "source_reference": "Figure 5.5; source file CH05_F05_Lanham4.png"
     },
     {
@@ -279,7 +341,9 @@
       "type": "image",
       "file": "assets/CH06_F09_Lanham4.png",
       "alt": "Two-part memory workflow: conversations are distilled into preference facts and embedded in a vector database; later queries retrieve those facts and add them to the LLM prompt.",
+      "alt_ar": "Workflow ذاكرة من جزأين: تُستخلص من المحادثات حقائق التفضيلات وتُرمَّز في Vector Database؛ ثم تسترجع الاستعلامات اللاحقة تلك الحقائق وتضيفها إلى Prompt الـ LLM.",
       "caption": "Semantic memory stores distilled facts, then retrieves the relevant ones to augment a later prompt.",
+      "caption_ar": "تخزّن الذاكرة الدلالية حقائق مستخلصة، ثم تسترجع المناسب منها لإثراء Prompt لاحق.",
       "source_reference": "Figure 6.9; source file CH06_F09_Lanham4.png"
     },
     {
@@ -287,7 +351,9 @@
       "type": "image",
       "file": "assets/CH01_F03_Lanham4.png",
       "alt": "Sense-Plan-Act-Learn cycle illustrated by a travel agent that receives a booking goal, plans tasks, calls a flight tool, observes failure, and revises the plan.",
+      "alt_ar": "دورة Sense-Plan-Act-Learn يوضحها وكيل سفر: يتلقى هدف حجز، ويخطط المهام، ويستدعي أداة رحلات، ويلاحظ الفشل، ثم يعدّل الخطة.",
       "caption": "The SPAL cycle turns tool feedback into a revised plan instead of treating execution as a one-shot action.",
+      "caption_ar": "تحوّل دورة SPAL Feedback الأداة إلى خطة معدَّلة بدل معاملة التنفيذ كإجراء يتم مرة واحدة.",
       "source_reference": "Figure 1.3; source file CH01_F03_Lanham4.png"
     },
     {
@@ -295,7 +361,9 @@
       "type": "image",
       "file": "assets/CH09_F02_Lanham4.png",
       "alt": "Comparison of short-horizon goals handled by an internal sense-plan-act-learn loop and long-horizon goals handled by an external decide-plan-tool-state loop.",
+      "alt_ar": "مقارنة بين الأهداف قصيرة الأفق التي تعالجها حلقة Sense-Plan-Act-Learn داخلية، والأهداف طويلة الأفق التي تعالجها حلقة Decide-Plan-Tool-State خارجية.",
       "caption": "Long-horizon work externalizes decisions, state, plans, and tools beyond the agent's internal task loop.",
+      "caption_ar": "يُخرج العمل طويل الأفق القرارات والحالة والخطط والأدوات إلى ما وراء حلقة المهمة الداخلية للـ Agent.",
       "source_reference": "Figure 9.2; source file CH09_F02_Lanham4.png"
     },
     {
@@ -303,7 +371,9 @@
       "type": "image",
       "file": "assets/CH07_F02_Lanham4.png",
       "alt": "Test-driven agent development cycle of Think, Test, Prompt, and Refactor, with expected and wrong benchmark outputs and an evaluator agent checking results.",
+      "alt_ar": "دورة تطوير Agent بالاختبار أولًا: Think وTest وPrompt وRefactor، مع مخرجات Benchmark متوقعة وخاطئة وEvaluator Agent يتحقق من النتائج.",
       "caption": "Test-driven agent development iterates over goals, evaluations, prompts, tools, and regression checks.",
+      "caption_ar": "يتكرر تطوير الـ Agent بالاختبار أولًا عبر الأهداف والتقييمات والـ Prompts والأدوات وفحوص الانحدار.",
       "source_reference": "Figure 7.2; source file CH07_F02_Lanham4.png"
     },
     {
@@ -311,7 +381,9 @@
       "type": "image",
       "file": "assets/CH05_F04_Lanham4.png",
       "alt": "Tree-of-Thought flow branching an initial thought into alternative next steps, evaluating whether a solution is found, and continuing with new branches when needed.",
+      "alt_ar": "مسار Tree-of-Thought يفرّع فكرة أولية إلى خطوات تالية بديلة، ويقيّم هل وُجد حل، ويتابع بفروع جديدة عند الحاجة.",
       "caption": "Tree-of-Thought explores and evaluates alternative reasoning branches instead of committing to one linear path.",
+      "caption_ar": "يستكشف Tree-of-Thought فروع استدلال بديلة ويقيّمها بدل الالتزام بمسار خطي واحد.",
       "source_reference": "Figure 5.4; source file CH05_F04_Lanham4.png"
     },
     {
@@ -319,7 +391,9 @@
       "type": "image",
       "file": "assets/CH02_F05_Lanham4.png",
       "alt": "Comparison of an untyped planning-agent output whose format varies with a typed ResearchPlanModel whose fixed task list can pass directly to an execution agent.",
+      "alt_ar": "مقارنة بين مخرجات Planning Agent غير المُنمَّطة التي يتغير شكلها، وResearchPlanModel مُنمَّط بقائمة مهام ثابتة يمكن تمريرها مباشرة إلى Execution Agent.",
       "caption": "Typed outputs replace fragile free-form handoffs with a schema the next agent can validate and consume directly.",
+      "caption_ar": "تستبدل المخرجات المُنمَّطة عمليات Handoff الحرة الهشة بـ Schema يستطيع الـ Agent التالي التحقق منه واستهلاكه مباشرةً.",
       "source_reference": "Figure 2.5; source file CH02_F05_Lanham4.png"
     }
   ],

@@ -1388,6 +1388,8 @@ run queueing
 memory persistence
 ```
 
+{{image:agent-runtime-control-plane}}
+
 The source's core principle is consistent:
 
 > **Do not make the LLM responsible for deterministic infrastructure behavior
@@ -1876,6 +1878,8 @@ queue never becomes empty
 
 so robot motion does not stall waiting for inference.
 
+{{image:vla-asynchronous-control}}
+
 ---
 
 ## 48. VLA data is a calibrated experiment
@@ -2065,6 +2069,10 @@ update toward target action
 ### Step 5 — Execute
 
 Push clean action chunk into robot action queue.
+
+{{image:groot-dual-system-vla}}
+{{image:groot-n15-action-expert}}
+{{image:pi06-advantage-conditioning}}
 
 ---
 

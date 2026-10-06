@@ -92,7 +92,7 @@ interface Blocked extends Contented {
 }
 
 export interface LocalizedBody extends LocalizedText {
-  /** The body as ordered blocks in the language shown, or null when it places no figure. */
+  /** The body as ordered blocks in the language shown, or null when it holds no authoring syntax. */
   blocks: LessonBlock[] | null
 }
 
@@ -104,5 +104,7 @@ export interface LocalizedBody extends LocalizedText {
 export function localizedBody(row: Blocked, language: UiLanguage): LocalizedBody {
   const text = pickText(row.content, row.content_ar, language)
   const blocks = text.shownIn === 'ar' ? row.blocks_ar : row.blocks
-  return { ...text, blocks: blocks && blocks.length > 0 ? blocks : null }
+  // An empty list is an answer too: a body that held only authoring markers has nothing to show, and
+  // falling back to `content` would put those markers in front of the reader.
+  return { ...text, blocks: Array.isArray(blocks) ? blocks : null }
 }

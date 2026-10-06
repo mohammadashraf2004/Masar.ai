@@ -355,6 +355,8 @@ The standard neighborhood weights used in the chapter are:
 
 Their sum is `1`, so the quantization error is redistributed rather than simply discarded.
 
+{{image:floyd-steinberg-error-diffusion}}
+
 A simplified implementation pattern:
 
 ```python

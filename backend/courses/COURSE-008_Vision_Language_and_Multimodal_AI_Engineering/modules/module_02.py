@@ -437,6 +437,8 @@ The key principle is:
 > "Visual reasoning" is not one single problem. Choose evaluation that matches
 > the actual kind of reasoning required.
 
+{{image:visual-reasoning-example}}
+
 ---
 
 ## 5. Visual-language retrieval
@@ -732,6 +734,8 @@ NDCG@3 ≈ 4.631 / 4.762 ≈ 0.972
 ```
 
 A high score tells us the ranking is close to ideal.
+
+{{image:ndcg-ranking-example}}
 
 {{exercise:M01.L02.EX02}}
 
@@ -1042,6 +1046,8 @@ The lesson is:
 
 > Video systems should be evaluated on the temporal behavior they are actually
 > expected to perform.
+
+{{image:video-question-answering}}
 
 ---
 
@@ -1496,6 +1502,8 @@ mask decoder
     ↓
 pixel segmentation mask
 ```
+
+{{image:paligemma-segmentation}}
 
 ### Detection vs segmentation
 

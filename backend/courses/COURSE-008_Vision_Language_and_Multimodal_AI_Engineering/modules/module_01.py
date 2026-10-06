@@ -883,6 +883,8 @@ unlabeled corpora become useful for pretraining.
 After pretraining, the encoder can be adapted to downstream tasks using
 task-specific heads.
 
+{{image:bert-pretraining-finetuning}}
+
 This mirrors transfer learning in computer vision:
 
 ```text
@@ -1004,6 +1006,8 @@ classification head
 A special classification token may be added to aggregate information for image
 classification.
 
+{{image:vision-transformer-vit}}
+
 ### 9.2 Why position matters
 
 If patches were treated as an unordered set, the model would lose important
@@ -1063,6 +1067,8 @@ encode visible patches
   ↓
 reconstruct missing information
 ```
+
+{{image:masked-autoencoder}}
 
 #### BEiT
 
@@ -1279,6 +1285,8 @@ language-model embedding dimension
 
 The projected visual tokens can then be combined with text embeddings.
 
+{{image:vlm-multimodal-projector}}
+
 ### 11.3 Text decoder
 
 A transformer-based language model receives the multimodal representation and
@@ -1302,6 +1310,8 @@ A common training strategy described in the chapter is:
 4. later train or fine-tune additional parts of the whole system;
 5. use multimodal instruction data for tasks involving images, instructions,
    and responses.
+
+{{image:vlm-pretraining-finetuning}}
 
 ### 11.5 Minimal inference example
 
@@ -1526,6 +1536,8 @@ classifier = pipeline(
 )
 ```
 
+{{image:huggingface-inference-pipeline}}
+
 ### 13.5 `Trainer`
 
 `Trainer` abstracts common training-loop responsibilities such as:
@@ -1665,6 +1677,8 @@ nearest-neighbor search in FAISS
   ↓
 matching images
 ```
+
+{{image:siglip-image-text-retrieval}}
 
 ### 15.2 Why a shared embedding space works
 

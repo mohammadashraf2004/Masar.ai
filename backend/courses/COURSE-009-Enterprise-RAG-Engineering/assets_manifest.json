@@ -7,7 +7,9 @@
       "type": "image",
       "file": "assets/horp_0702.png",
       "alt": "Diagram of an LLM reasoning layer exchanging tool calls and results with an agentic loop connected to Text2SQL, RAG, news, and payment tools.",
+      "alt_ar": "طبقة استدلال LLM تتبادل استدعاءات الأدوات ونتائجها مع Agentic Loop متصلة بأدوات Text2SQL وRAG والأخبار والدفع.",
       "caption": "An agentic loop lets the LLM plan, call specialized tools, inspect their outputs, and continue reasoning.",
+      "caption_ar": "تتيح Agentic Loop للـ LLM أن يخطط ويستدعي أدوات متخصصة ويفحص مخرجاتها ثم يواصل الاستدلال.",
       "source_reference": "Figure 7-2; source file horp_0702.png"
     },
     {
@@ -15,7 +17,9 @@
       "type": "image",
       "file": "assets/horp_0301.png",
       "alt": "Flow diagram showing candidate generation reducing millions of documents to hundreds of chunks, followed by reranking to select a few chunks.",
+      "alt_ar": "مخطط يبدأ بملايين المستندات، فتقلّصها Candidate Generation إلى مئات الـ Chunks، ثم يختار Reranking منها عددًا قليلًا.",
       "caption": "Candidate generation protects recall at scale; reranking spends more effort on the small set that reaches the prompt.",
+      "caption_ar": "تحمي Candidate Generation الـ Recall على نطاق واسع، ويبذل Reranking جهدًا أكبر على المجموعة الصغيرة التي تصل إلى الـ Prompt.",
       "source_reference": "Figure 3-1; source file horp_0301.png"
     },
     {
@@ -23,7 +27,9 @@
       "type": "image",
       "file": "assets/horp_0902.png",
       "alt": "Flow diagram showing a query retrieving chunks from a vector database, enriching them through a graph database, and sending the enriched chunks to an LLM.",
+      "alt_ar": "استعلام يسترجع Chunks من Vector Database، ثم تُثرى عبر Graph Database، وتُرسل الـ Chunks المُثراة إلى LLM.",
       "caption": "Graph enrichment adds connected facts to vector-retrieved chunks before generation.",
+      "caption_ar": "يضيف Graph Enrichment حقائق مترابطة إلى الـ Chunks المسترجعة من Vector Database قبل التوليد.",
       "source_reference": "Figure 9-2; source file horp_0902.png"
     },
     {
@@ -31,7 +37,9 @@
       "type": "image",
       "file": "assets/horp_1001.png",
       "alt": "A large collection of context chunks is filtered into a small set of relevant chunks in a RAG prompt before being sent to a generative LLM.",
+      "alt_ar": "مجموعة كبيرة من الـ Chunks تُصفّى إلى مجموعة صغيرة ذات صلة داخل RAG Prompt قبل إرسالها إلى LLM توليدي.",
       "caption": "Even with long-context models, retrieval should filter a large corpus down to the evidence relevant to the query.",
+      "caption_ar": "حتى مع Models ذات السياق الطويل، ينبغي أن يصفّي الاسترجاع Corpus كبيرًا إلى الأدلة المتصلة بالاستعلام.",
       "source_reference": "Figure 10-1; source file horp_1001.png"
     },
     {
@@ -39,7 +47,9 @@
       "type": "image",
       "file": "assets/horp_0903.png",
       "alt": "A user query branches to a translator LLM and graph database on one path and a vector database on another, then graph nodes and text chunks are combined for generation.",
+      "alt_ar": "يتفرع الاستعلام إلى مسارين: Translator LLM مع Graph Database، وVector Database، ثم تُدمج عقد الـ Graph مع Chunks النص للتوليد.",
       "caption": "Hybrid graph RAG combines structured graph relationships with unstructured vector-retrieved chunks.",
+      "caption_ar": "يجمع Hybrid Graph RAG علاقات الـ Graph المنظَّمة مع Chunks غير المنظَّمة المسترجعة من Vector Database.",
       "source_reference": "Figure 9-3; source file horp_0903.png"
     },
     {
@@ -47,7 +57,9 @@
       "type": "image",
       "file": "assets/horp_0302.png",
       "alt": "Flow diagram in which a user query produces both retrieved chunks and a draft RAG response; a correction model compares them and returns a corrected response.",
+      "alt_ar": "استعلام المستخدم ينتج Chunks مسترجعة ومسودة RAG Response، ويقارن Correction Model بينهما ثم يعيد استجابة مصحَّحة.",
       "caption": "A correction stage checks the draft against retrieved evidence before returning the final response.",
+      "caption_ar": "تفحص مرحلة التصحيح المسودة مقابل الأدلة المسترجعة قبل إعادة الاستجابة النهائية.",
       "source_reference": "Figure 3-2; source file horp_0302.png"
     },
     {
@@ -55,7 +67,9 @@
       "type": "image",
       "file": "assets/horp_0808.png",
       "alt": "Comparison of a healthy vector embedding linked to source coordinates and an object-store file versus an orphan embedding whose metadata link and source file are missing.",
+      "alt_ar": "مقارنة بين Embedding سليم مرتبط بإحداثيات المصدر وبملف في Object Store، وEmbedding يتيم فُقد رابط الـ Metadata وملف المصدر.",
       "caption": "Multimodal provenance breaks when an embedding loses its links to source coordinates or the original object.",
+      "caption_ar": "ينقطع Provenance في البيانات متعددة الـ Modalities حين يفقد الـ Embedding روابطه بإحداثيات المصدر أو بالكائن الأصلي.",
       "source_reference": "Figure 8-8; source file horp_0808.png"
     },
     {
@@ -63,7 +77,9 @@
       "type": "image",
       "file": "assets/horp_0901.png",
       "alt": "Knowledge graph connecting four people to the films Oppenheimer, The Dark Knight, Inception, and Titanic through Directed and Acted_in relationships.",
+      "alt_ar": "Knowledge Graph تربط أربعة أشخاص بالأفلام Oppenheimer وThe Dark Knight وInception وTitanic بعلاقتي Directed وActed_in.",
       "caption": "A knowledge graph represents people and films as nodes, with typed edges carrying their relationships.",
+      "caption_ar": "في Knowledge Graph تمثّل العقد الأشخاص والأفلام، وتحمل الحواف المصنَّفة العلاقات بينها.",
       "source_reference": "Figure 9-1; source file horp_0901.png"
     },
     {
@@ -71,7 +87,9 @@
       "type": "image",
       "file": "assets/horp_0704.png",
       "alt": "A task enters an orchestrator agent, which delegates work to three subagents, gathers their results, and produces a solution.",
+      "alt_ar": "مهمة تدخل Orchestrator Agent فيوزّع العمل على ثلاثة Subagents، ويجمع نتائجها وينتج الحل.",
       "caption": "An orchestrator decomposes a task, delegates subtasks to workers, and combines their results into one solution.",
+      "caption_ar": "يفكك Orchestrator المهمة ويفوّض المهام الفرعية إلى Workers ثم يجمع نتائجهم في حل واحد.",
       "source_reference": "Figure 7-4; source file horp_0704.png"
     },
     {
@@ -79,7 +97,9 @@
       "type": "image",
       "file": "assets/horp_0402.png",
       "alt": "End-to-end RAG architecture from enterprise documents through multimodal extraction, chunking, embeddings, hybrid retrieval, reranking, PII masking, generation, and output guardrails.",
+      "alt_ar": "معمارية RAG كاملة: مستندات المؤسسة، فالاستخراج متعدد الـ Modalities وChunking وEmbeddings وHybrid Retrieval وReranking وحجب PII ثم التوليد وOutput Guardrails.",
       "caption": "A production RAG pipeline connects ingestion, hybrid retrieval, reranking, privacy controls, generation, and output guardrails.",
+      "caption_ar": "يربط RAG Pipeline الإنتاجي بين Ingestion وHybrid Retrieval وReranking وضوابط الخصوصية والتوليد وOutput Guardrails.",
       "source_reference": "Figure 4-2; source file horp_0402.png"
     },
     {
@@ -87,7 +107,9 @@
       "type": "image",
       "file": "assets/horp_0201.png",
       "alt": "Flow diagram showing databases, files, and web pages passing through parsing, chunking, and embedding before storage in a vector database.",
+      "alt_ar": "قواعد بيانات وملفات وصفحات ويب تمر عبر Parsing وChunking وEmbedding قبل التخزين في Vector Database.",
       "caption": "Enterprise ingestion normalizes varied sources into parsed, chunked, embedded records for vector retrieval.",
+      "caption_ar": "يوحّد Ingestion المؤسسي مصادر متنوعة في سجلات مُحلَّلة ومقسَّمة ومُرمَّزة جاهزة للاسترجاع.",
       "source_reference": "Figure 2-1; source file horp_0201.png"
     },
     {
@@ -103,7 +125,9 @@
       "type": "image",
       "file": "assets/horp_0102.png",
       "alt": "RAG stack showing enterprise data ingestion and metadata, extraction and chunking, embeddings, vector and hybrid retrieval, reranking, prompting, generation, and hallucination detection.",
+      "alt_ar": "RAG Stack يعرض Ingestion بياناتِ المؤسسة والـ Metadata، والاستخراج وChunking، وEmbeddings، والاسترجاع Vector وHybrid، وReranking، وبناء Prompt، والتوليد، وكشف Hallucinations.",
       "caption": "The enterprise RAG lifecycle separates ingestion from the query path while sharing embeddings and retrieval infrastructure.",
+      "caption_ar": "في دورة حياة RAG المؤسسية، يفصل Ingestion عن مسار الاستعلام مع مشاركة Embeddings وبنية الاسترجاع.",
       "source_reference": "Figure 1-2; source file horp_0102.png"
     },
     {
@@ -111,7 +135,9 @@
       "type": "image",
       "file": "assets/horp_0802.png",
       "alt": "Two-phase table RAG flow: a table image is extracted, normalized, summarized, embedded, and stored with full JSON; retrieval returns both the summary and full table context to the LLM.",
+      "alt_ar": "مرحلتان: تُستخرج صورة الجدول وتُطبَّع وتُلخَّص وتُرمَّز وتُخزَّن مع JSON الكامل، ثم يعيد الاسترجاع الملخص وسياق الجدول الكامل إلى LLM.",
       "caption": "Table RAG retrieves a compact semantic summary while preserving the full normalized table for answer context.",
+      "caption_ar": "يسترجع Table RAG ملخصًا دلاليًا موجزًا مع الإبقاء على الجدول المطبَّع الكامل ليكون سياقًا للإجابة.",
       "source_reference": "Figure 8-2; source file horp_0802.png"
     }
   ],

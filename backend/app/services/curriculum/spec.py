@@ -33,7 +33,7 @@ class CurriculumError(Exception):
 
 @dataclass
 class AssetSpec:
-    """One figure a course's lessons can place with `{{figure:<key>}}`.
+    """One image a course's lessons can place with `{{image:<key>}}` (or `{{figure:<key>}}`).
 
     `file` is relative to the course folder; `storage_key` is relative to the
     courses root (what the asset store resolves). Type, size, hash and dimensions
@@ -53,6 +53,12 @@ class AssetSpec:
     sha256: str = ""
     width: Optional[int] = None
     height: Optional[int] = None
+    # Arabic description and caption; `alt` / `caption` are the English ones. A missing Arabic
+    # value falls back to the English at read time. The picture itself is shared.
+    alt_ar: Optional[str] = None
+    caption_ar: Optional[str] = None
+    # The lesson the image was made for (informational; any lesson may place it).
+    lesson: Optional[str] = None
 
 
 @dataclass
@@ -229,6 +235,10 @@ class CourseSpec:
     # with that manifest, reported by validation like every other structural fault.
     assets: List[AssetSpec] = field(default_factory=list)
     asset_problems: List[str] = field(default_factory=list)
+    # Things worth fixing in the manifest that do not stop an import.
+    asset_warnings: List[str] = field(default_factory=list)
+    # Keys the manifest declares whose file is missing or unusable; counted by the image report.
+    broken_asset_keys: List[str] = field(default_factory=list)
     # Problems in the optional canonical module-quiz manifest.
     structure_problems: List[str] = field(default_factory=list)
     # Consolidated exports keep the complete lesson and its assessment in one

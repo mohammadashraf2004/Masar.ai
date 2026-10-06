@@ -1363,7 +1363,7 @@ TOPIC = {
             "\n"
             "- moons,\n"
             "- circles,\n"
-            "- blobs.\n\n"
+            "- blobs.\n\n{{image:clustering-shapes}}\n"
             "\n"
             "---\n"
             "\n"

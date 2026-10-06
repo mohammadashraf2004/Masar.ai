@@ -205,6 +205,9 @@ TOPIC = {
             "Missing capability: **compositional reasoning**.  \n"
             "Architectural fix: **perception + planning modules**.\n"
             "\n"
+            '{{image:cognitive-failure-map}}'
+            '\n'
+            "\n"
             "---\n"
             "\n"
 
@@ -348,6 +351,9 @@ TOPIC = {
             "```\n"
             "\n"
             "No single module performs the full task. Behavior emerges from their interaction through shared state.\n"
+            "\n"
+            '{{image:cognitive-architecture}}'
+            '\n'
             "\n"
             "---\n"
             "\n"
@@ -643,6 +649,9 @@ TOPIC = {
             "\n"
             "That makes routing behavior easier to inspect and tune.\n"
             "\n"
+            '{{image:attention-routing}}'
+            '\n'
+            "\n"
             "---\n"
             "\n"
 
@@ -763,6 +772,9 @@ TOPIC = {
             "The inner cognitive cycle controls local processing quality.\n"
             "\n"
             "The attention module sits between them and converts evaluation signals into routing decisions.\n"
+            "\n"
+            '{{image:cognitive-agentic-loop}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { MarkdownLesson } from './MarkdownLesson'
 
 const LESSON = [
@@ -95,13 +95,88 @@ describe('MarkdownLesson with blocks', () => {
     expect(container.querySelector('figure img')).toHaveAttribute('alt', 'A diagram')
   })
 
-  it('falls back to the plain content when there are no blocks (null or empty)', () => {
-    for (const blocks of [null, undefined, []]) {
+  it('puts an image exactly where it was placed: at the start, in the middle and at the end', () => {
+    const order = (blocks: Parameters<typeof MarkdownLesson>[0]['blocks']) => {
+      const { container, unmount } = render(<MarkdownLesson content="x" dir="ltr" blocks={blocks} />)
+      const kinds = Array.from(container.querySelector('.lesson-blocks')!.children).map((el) => el.tagName)
+      unmount()
+      return kinds
+    }
+    const text = (content: string) => ({ type: 'markdown' as const, content })
+    expect(order([figure, text('a'), text('b')])).toEqual(['FIGURE', 'DIV', 'DIV'])
+    expect(order([text('a'), figure, text('b')])).toEqual(['DIV', 'FIGURE', 'DIV'])
+    expect(order([text('a'), text('b'), figure])).toEqual(['DIV', 'DIV', 'FIGURE'])
+  })
+
+  it('shows an Arabic lesson its Arabic alt text and an RTL caption, and an English one its English', () => {
+    const arabic = { ...figure, alt: 'تدفق المعالجة في Transformer', caption: 'تتدفق الرموز عبر الانتباه.' }
+    const { container, unmount } = render(<MarkdownLesson content="x" dir="rtl" blocks={[arabic]} />)
+    expect(screen.getByRole('img', { name: arabic.alt })).toBeInTheDocument()
+    const caption = container.querySelector('figcaption') as HTMLElement
+    expect(caption.textContent).toBe(arabic.caption)
+    // The caption sits in the RTL column and sets no direction of its own, so it reads right to left
+    // even when it opens with a Latin word.
+    expect(caption.closest('[dir]')).toHaveAttribute('dir', 'rtl')
+    expect(caption.hasAttribute('dir')).toBe(false)
+    unmount()
+    const english = render(<MarkdownLesson content="x" dir="ltr" blocks={[figure]} />)
+    expect(screen.getByRole('img', { name: 'A diagram' })).toBeInTheDocument()
+    expect(english.container.querySelector('figcaption')?.closest('[dir]')).toHaveAttribute('dir', 'ltr')
+  })
+
+  it('never prints the raw image token, and shows a visible note for an image the course no longer has', () => {
+    const { container } = render(
+      <MarkdownLesson
+        content="ignored"
+        dir="ltr"
+        blocks={[{ type: 'markdown', content: 'Before.' }, { type: 'image_missing', asset_key: 'gone-image' }, { type: 'markdown', content: 'After.' }]}
+      />,
+    )
+    const note = container.querySelector('[data-missing-image="gone-image"]') as HTMLElement
+    expect(note).not.toBeNull()
+    expect(note).toHaveAttribute('role', 'note')
+    expect(note.textContent).toMatch(/could not be loaded/)
+    expect(note.textContent).toContain('gone-image') // named outside production, for the author
+    expect(Array.from(container.querySelector('.lesson-blocks')!.children)).toHaveLength(3)
+  })
+
+  it('shows consecutive images as independent figures, one after the other in source order, with no gallery wrapper', () => {
+    const second = { ...figure, asset_key: 'second', alt: 'Second view', caption: 'Second caption' }
+    const third = { ...figure, asset_key: 'third', alt: 'Third view', caption: null }
+    const { container } = render(
+      <MarkdownLesson
+        content="ignored"
+        dir="ltr"
+        blocks={[
+          { type: 'markdown', content: 'Before.' },
+          figure,
+          second,
+          third,
+          { type: 'markdown', content: 'After.' },
+        ]}
+      />,
+    )
+    const column = container.querySelector('.lesson-blocks') as HTMLElement
+    expect(Array.from(column.children).map((el) => el.tagName)).toEqual(['DIV', 'FIGURE', 'FIGURE', 'FIGURE', 'DIV'])
+    expect(Array.from(column.querySelectorAll('figure')).map((el) => el.getAttribute('data-figure'))).toEqual(['fig', 'second', 'third'])
+    expect(screen.getAllByRole('img').map((img) => img.getAttribute('alt'))).toEqual(['A diagram', 'Second view', 'Third view'])
+    expect(column.querySelectorAll('figure figure')).toHaveLength(0)
+    expect(column.querySelectorAll('figcaption')).toHaveLength(2) // the third has no caption
+  })
+
+  it('falls back to the plain content when the lesson has no blocks (null or absent)', () => {
+    for (const blocks of [null, undefined]) {
       const { container, unmount } = render(<MarkdownLesson content="Plain body." blocks={blocks} dir="ltr" />)
       expect(container.querySelector('.lesson-blocks')).toBeNull()
       expect(container.querySelector('.lesson-content')?.textContent).toBe('Plain body.')
       unmount()
     }
+  })
+
+  it('shows nothing for an empty list of blocks: the API sends one when a body held only authoring markers', () => {
+    const { container } = render(<MarkdownLesson content="{{exercise:E1}}" blocks={[]} dir="ltr" />)
+    expect(container.querySelector('.lesson-content')).toBeNull()
+    expect(container.textContent).toBe('')
   })
 })
 

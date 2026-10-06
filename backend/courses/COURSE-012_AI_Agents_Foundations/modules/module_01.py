@@ -287,6 +287,9 @@ TOPIC = {
             "The important idea is that **tool output can become input to the next action**. "
             "That connection is called **tool chaining**.\n"
             "\n"
+            '{{image:spal-cycle}}'
+            '\n'
+            "\n"
             "### Native reasoning versus structured reasoning\n"
             "\n"
             "Modern reasoning-capable models can often handle short, low-risk tasks using their "
@@ -395,6 +398,9 @@ TOPIC = {
             "6. Execute it and observe the result.\n"
             "7. Continue the agent loop as needed.\n"
             "\n"
+            '{{image:mcp-tool-discovery}}'
+            '\n'
+            "\n"
             "### Problems MCP is designed to reduce\n"
             "\n"
             "- **Inconsistent tool access:** one consistent protocol reduces provider-specific adaptation.\n"
@@ -428,6 +434,9 @@ TOPIC = {
             "from top to bottom. During an agent run, they interact continuously. Reasoning may "
             "consult the persona, planning may invoke tools, tool results may update memory, and "
             "evaluation may send the system back to revise a plan.\n"
+            "\n"
+            '{{image:agent-layers}}'
+            '\n'
             "\n"
             "### A compact mental model\n"
             "\n"
@@ -627,6 +636,9 @@ TOPIC = {
             "\n"
             "This can solve complex problems that benefit from interaction and criticism, but it "
             "is also more chatty, repetitive, expensive, and slow.\n"
+            "\n"
+            '{{image:agent-flow}}\n{{image:agent-orchestration}}\n{{image:agent-collaboration}}'
+            '\n'
             "\n"
             "### Comparison\n"
             "\n"

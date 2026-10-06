@@ -178,6 +178,8 @@ The source uses a small epsilon in the denominator to avoid division by zero.
 
 A more numerically convenient implementation in general is to use an angle function designed for two components, but the key source concept is the same: the gradient direction describes how intensity changes spatially.
 
+{{image:image-gradient-geometry}}
+
 ### Why gradients reveal edges
 
 In a smooth region:
@@ -229,6 +231,8 @@ laplacian_kernel = [
     [ 0, -1,  0],
 ]
 ```
+
+{{image:first-second-derivatives-zero-crossing}}
 
 ### Gradient versus Laplacian
 

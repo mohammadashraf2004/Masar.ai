@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M02.L01",
-  "source_hash": "66fd04a11bbddac87b1fce366f0928b92093d110fb54bc7bd77e301aa0fc1b4e",
+  "source_hash": "7cf7ec1d8cb23ca961145cc12c7530402ed8ad4655af52cfc2298867e4bf22b1",
   "title": "إتقان التحكم بالإصدارات باستخدام Git وGitHub",
   "exercises": [
     {

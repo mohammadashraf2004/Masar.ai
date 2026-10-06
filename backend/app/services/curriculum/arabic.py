@@ -54,15 +54,17 @@ AR_DIR = "ar"
 COURSE_FILE = "_course.json"
 SCHEMA_VERSION = 1
 _ARABIC_LETTER = re.compile(r"[؀-ۿ]")
-# Lines of prose that the lesson page turns into something: {{figure:key}}, {{exercise:id}}, and the
+# Lines of prose that the lesson page turns into something: {{image:key}}, {{exercise:id}}, and the
 # [[IMAGE_NEEDED: ...]] authoring placeholders. Code placeholders do not protect them.
 # An image request may contain bracketed text (`[CLS]`, `[1, 4, 384]`), so one level of [...] is allowed inside it.
 _MARKER = re.compile(r"\{\{[^{}\n]+\}\}|\[\[IMAGE_NEEDED(?:[^\[\]]|\[[^\[\]\n]*\])*\]\]")
+# `{{image:key|caption}}`: the caption is text and gets translated, so only the key has to match.
+_IMAGE_CAPTION = re.compile(r"^(\{\{(?:image|figure):[^|{}\n]+)\|[^{}\n]*\}\}$")
 
 
 def markers(text: str) -> List[str]:
-    """The lesson's markers in order."""
-    return _MARKER.findall(text or "")
+    """The lesson's markers in order, with the (translatable) caption of an image marker removed."""
+    return [_IMAGE_CAPTION.sub(r"\1}}", m) for m in _MARKER.findall(text or "")]
 
 
 # ─── The English a file is made from ────────────────────────────────────────

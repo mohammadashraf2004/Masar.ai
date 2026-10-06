@@ -665,6 +665,8 @@ The model should not have to own every responsibility.
 
 The web service coordinates those responsibilities.
 
+{{image:ai-service-architecture}}
+
 ### Tool use
 
 A language model can also construct an instruction for another system.

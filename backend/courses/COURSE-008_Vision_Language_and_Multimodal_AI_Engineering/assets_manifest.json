@@ -6,533 +6,665 @@
       "key": "agent-runtime-control-plane",
       "type": "image",
       "file": "assets/agent-runtime-control-plane.png",
-      "alt": "Agent orchestration control plane connecting tools, memory, models, and interfaces.",
-      "caption": "Agent orchestration control plane connecting tools, memory, models, and interfaces."
+      "alt": "Flow diagram showing user interfaces and deterministic adapters feeding an agent gateway that coordinates tool providers, tool calls, memory and traces, and model services.",
+      "alt_ar": "مخطط تتصل فيه واجهات المستخدم والـ Adapters الحتمية بـ Agent Gateway يربط الأدوات والذاكرة والـ Traces وخدمات الـ Model.",
+      "caption": "A production agent gateway coordinates deterministic adapters with tools, memory, models, and traceable actions.",
+      "caption_ar": "في الإنتاج، ينسّق Agent Gateway بين Adapters حتمية والأدوات والذاكرة والـ Models، مع بقاء كل إجراء قابلًا للتتبّع."
     },
     {
       "key": "any-to-any-three-families",
       "type": "image",
       "file": "assets/any-to-any-three-families.png",
-      "alt": "Unified discrete, hybrid AR+diffusion, and modular generation families.",
-      "caption": "Unified discrete, hybrid AR+diffusion, and modular generation families."
+      "alt": "Three architectures comparing fully discrete autoregressive token generation, a hybrid autoregressive-plus-diffusion design with continuous vision features, and an autoregressive model that conditions a pretrained diffusion generator.",
+      "alt_ar": "ثلاث معماريات: توليد Tokens منفصلة بالكامل بطريقة Autoregressive، وتصميم هجين يجمع Autoregressive مع Diffusion، وModel يشترط مولّد Diffusion مدرَّبًا مسبقًا.",
+      "caption": "Any-to-any generation can be fully discrete, combine autoregression with diffusion, or condition a separate pretrained generator.",
+      "caption_ar": "يمكن لتوليد Any-to-Any أن يكون منفصلًا بالكامل، أو يجمع Autoregression مع Diffusion، أو يشترط مولّدًا مستقلًا مدرَّبًا مسبقًا."
     },
     {
       "key": "any-to-any-unified-model",
       "type": "image",
       "file": "assets/any-to-any-unified-model.png",
-      "alt": "Unified encoders, shared model, and decoders for text, image, video, and audio.",
-      "caption": "Unified encoders, shared model, and decoders for text, image, video, and audio."
+      "alt": "Language, image, video, and audio inputs pass through modality-specific encoders into one shared embedding space and unified model, then modality-specific decoders produce each output type.",
+      "alt_ar": "مدخلات اللغة والصورة والفيديو والصوت تمر عبر Encoders خاصة بكل Modality إلى فضاء Embedding مشترك، ثم تنتج Decoders كل نوع من المخرجات.",
+      "caption": "A unified any-to-any model maps each modality into shared representations before decoding the requested output modality.",
+      "caption_ar": "يحوّل Model موحّد من نوع Any-to-Any كل Modality إلى تمثيلات مشتركة قبل فك الترميز إلى الـ Modality المطلوبة."
     },
     {
       "key": "baby-vlm-inference-failure",
       "type": "image",
       "file": "assets/baby-vlm-inference-failure.png",
-      "alt": "Small VLM generation failure used for debugging practice.",
-      "caption": "Small VLM generation failure used for debugging practice."
+      "alt": "Chat screenshot where a vision-language model sees a bear but first calls it a dog with invented details and then calls it a cat, demonstrating ungrounded visual answers.",
+      "caption": "Misidentifying both the animal and visible details shows why multimodal outputs require grounded inspection."
     },
     {
       "key": "balanced-knapsack-packing",
       "type": "image",
       "file": "assets/balanced-knapsack-packing.png",
-      "alt": "Balanced knapsack packing for better utilization.",
-      "caption": "Balanced knapsack packing for better utilization."
+      "alt": "Eight horizontal sequence bars with colored content segments balanced to similar total lengths and only small gray padding regions at the right edge.",
+      "alt_ar": "ثمانية أشرطة تسلسلات بمقاطع محتوى ملونة تتقارب أطوالها، ولا يظهر عند الطرف الأيمن إلا Padding رمادي صغير.",
+      "caption": "Balanced packing spreads content across sequences so padding stays small and evenly distributed.",
+      "caption_ar": "يوزّع Balanced Packing المحتوى على التسلسلات بحيث يبقى الـ Padding صغيرًا ومتساويًا تقريبًا."
     },
     {
       "key": "bert-pretraining-finetuning",
       "type": "image",
       "file": "assets/bert-pretraining-finetuning.png",
-      "alt": "BERT pretraining and fine-tuning as a concise Transformer prerequisite refresher.",
-      "caption": "BERT pretraining and fine-tuning as a concise Transformer prerequisite refresher."
+      "alt": "Two-stage BERT diagram showing masked-language and next-sentence pretraining above, then task-specific fine-tuning for classification and question answering below.",
+      "alt_ar": "مخطط BERT من مرحلتين: Pretraining في الأعلى بمهمتي Masked Language Modeling وNext-Sentence Prediction، وFine-tuning في الأسفل للتصنيف والإجابة عن الأسئلة.",
+      "caption": "BERT pretraining and fine-tuning as a concise Transformer prerequisite refresher.",
+      "caption_ar": "مراجعة موجزة لـ Transformer: يتعلم BERT لغةً عامة في Pretraining، ثم يُكيَّف بـ Fine-tuning لمهمة محددة."
     },
     {
       "key": "constrained-padding-512",
       "type": "image",
       "file": "assets/constrained-padding-512.png",
-      "alt": "Constrained padding with a fixed maximum token length.",
-      "caption": "Constrained padding with a fixed maximum token length."
+      "alt": "Seven sequences of different content lengths padded with gray tokens to a fixed 512-token maximum, leaving large unused regions for shorter examples.",
+      "alt_ar": "سبعة تسلسلات بأطوال مختلفة تُملأ برموز Padding رمادية حتى حدٍّ ثابت قدره 512 Token، فتبقى مساحات كبيرة غير مستخدمة.",
+      "caption": "A fixed 512-token limit wastes most positions when examples are substantially shorter.",
+      "caption_ar": "حين تكون الأمثلة أقصر بكثير من 512 Token، يضيع معظم هذا الحد الثابت في Padding بلا فائدة."
     },
     {
       "key": "data-delivery-formats",
       "type": "image",
       "file": "assets/data-delivery-formats.png",
-      "alt": "Raw, preprocessed, and embedding delivery trade-offs.",
-      "caption": "Raw, preprocessed, and embedding delivery trade-offs."
+      "alt": "Comparison table of raw files, preprocessed data, and embeddings across storage size, loading speed, preprocessing cost, and suitable training or retrieval use cases.",
+      "caption": "Raw files maximize flexibility, while preprocessing and embeddings trade flexibility for smaller storage and faster loading."
     },
     {
       "key": "docmatix-synthesis-pipeline",
       "type": "image",
       "file": "assets/docmatix-synthesis-pipeline.png",
-      "alt": "Synthetic document Q&A generation and hallucination-filtering pipeline.",
-      "caption": "Synthetic document Q&A generation and hallucination-filtering pipeline."
+      "alt": "Docmatix pipeline from a PDFA dataset through page selection and text extraction, prompt templates, Phi-3 question-answer generation, hallucination filtering, chat-format preparation, and hub upload.",
+      "alt_ar": "مسار Docmatix: dataset اسمها PDFA، فاختيار الصفحات واستخراج النص، وقوالب Prompts، وتوليد أسئلة وأجوبة بـ Phi-3، وتصفية الـ Hallucinations، ثم تجهيز صيغة Chat والرفع إلى Hub.",
+      "caption": "Synthetic document Q&A generation and hallucination-filtering pipeline.",
+      "caption_ar": "Pipeline لتوليد أسئلة وأجوبة اصطناعية عن المستندات مع تصفية الـ Hallucinations قبل استخدامها في التدريب."
     },
     {
       "key": "document-page-retrieval",
       "type": "image",
       "file": "assets/document-page-retrieval.png",
-      "alt": "Page-query relevance scoring for visual document retrieval.",
+      "alt": "Two document-page screenshots and the query 'What is SmolVLM?' enter a document retrieval model, which assigns relevance scores of 17.25 to page 1 and 12.5 to page 2.",
       "caption": "Page-query relevance scoring for visual document retrieval."
     },
     {
       "key": "document-screenshot-embedding",
       "type": "image",
       "file": "assets/document-screenshot-embedding.png",
-      "alt": "Document and query encoders producing comparable retrieval representations.",
-      "caption": "Document and query encoders producing comparable retrieval representations."
+      "alt": "A document encoder converts a page and its sub-image patches into visual token sequences while a language model encodes the query; their representations meet at a similarity score.",
+      "alt_ar": "Document Encoder يحوّل الصفحة ومقاطعها الفرعية إلى تسلسلات Visual Tokens، وLanguage Model يرمّز الاستعلام، وتلتقي التمثيلان عند درجة تشابه.",
+      "caption": "Document and query encoders producing comparable retrieval representations.",
+      "caption_ar": "يُنتج Encoder المستند وEncoder الاستعلام تمثيلات قابلة للمقارنة، وهذا ما يجعل الاسترجاع بالتشابه ممكنًا."
     },
     {
       "key": "document-to-markdown-anchoring",
       "type": "image",
       "file": "assets/document-to-markdown-anchoring.png",
-      "alt": "Document anchoring from PDF layout to structured Markdown.",
-      "caption": "Document anchoring from PDF layout to structured Markdown."
+      "alt": "A PDF page with positioned text and a table is mapped to generated Markdown containing headings, paragraphs, and structured table tags that preserve the page content.",
+      "alt_ar": "صفحة PDF فيها نص موضَّع وجدول تقابلها صفحة Markdown مولَّدة تضم العناوين والفقرات ووسوم جدول منظَّمة.",
+      "caption": "Document anchoring from PDF layout to structured Markdown.",
+      "caption_ar": "يحفظ Anchoring بين تخطيط PDF والـ Markdown المنظَّم محتوى الصفحة وبنيتها."
     },
     {
       "key": "donut-document-model",
       "type": "image",
       "file": "assets/donut-document-model.png",
-      "alt": "OCR-free Donut encoder-decoder producing task-specific structured sequences.",
-      "caption": "OCR-free Donut encoder-decoder producing task-specific structured sequences."
+      "alt": "A receipt image and task prompt pass through the Donut transformer encoder-decoder, producing tagged sequences for classification, visual question answering, or parsing that convert into JSON.",
+      "alt_ar": "صورة إيصال وتعليمات مهمة تمر عبر Donut، وهو Encoder-Decoder Transformer، فينتج تسلسلًا موسومًا يُحوَّل إلى JSON للتصنيف أو الإجابة عن الأسئلة أو الـ Parsing.",
+      "caption": "OCR-free Donut encoder-decoder producing task-specific structured sequences.",
+      "caption_ar": "Donut لا يحتاج إلى OCR: ينتج مباشرةً تسلسلات منظَّمة بحسب المهمة المطلوبة."
     },
     {
       "key": "dora-weight-decomposition",
       "type": "image",
       "file": "assets/dora-weight-decomposition.png",
-      "alt": "DoRA decomposition into magnitude and direction with low-rank adaptation.",
-      "caption": "DoRA decomposition into magnitude and direction with low-rank adaptation."
+      "alt": "DoRA diagram decomposing a pretrained weight matrix into magnitude and direction, adapting the direction with low-rank A and B matrices, and merging the result into the final weight.",
+      "alt_ar": "مخطط DoRA: مصفوفة الأوزان المدرَّبة مسبقًا تُفكَّك إلى Magnitude وDirection، ويُكيَّف الاتجاه بمصفوفتين A وB منخفضتي الرتبة، ثم تُدمج النتيجة في الوزن النهائي.",
+      "caption": "DoRA decomposition into magnitude and direction with low-rank adaptation.",
+      "caption_ar": "يفصل DoRA بين Magnitude وDirection للوزن، ويطبّق Low-Rank Adaptation على Direction."
     },
     {
       "key": "early-fusion-classifier",
       "type": "image",
       "file": "assets/early-fusion-classifier.png",
-      "alt": "Early multimodal fusion before a shared classifier.",
-      "caption": "Early multimodal fusion before a shared classifier."
+      "alt": "An image passes through a CNN and text passes through a text encoder; their feature vectors are combined before a single shared classifier.",
+      "alt_ar": "تمر الصورة عبر CNN ويمر النص عبر Text Encoder، ثم تُدمج متجهات الخصائص قبل Classifier مشترك واحد.",
+      "caption": "Early multimodal fusion before a shared classifier.",
+      "caption_ar": "في Early Fusion تُدمج الـ Modalities مبكرًا، قبل أن يتخذ Classifier مشترك قراره."
     },
     {
       "key": "extractive-document-understanding",
       "type": "image",
       "file": "assets/extractive-document-understanding.png",
-      "alt": "Extractive document answer with score and span information.",
-      "caption": "Extractive document answer with score and span information."
+      "alt": "A document page and question enter an extractive document-understanding model, which returns a JSON answer containing the extracted text, confidence score, and start and end offsets.",
+      "alt_ar": "صفحة مستند وسؤال يدخلان Model استخلاصيًا، فيعيد إجابة بصيغة JSON فيها النص المستخرج ودرجة الثقة وموضعا البداية والنهاية.",
+      "caption": "Extractive document answer with score and span information.",
+      "caption_ar": "الإجابة الاستخلاصية تأتي مع درجة ثقة وموضع النص في المستند، فيمكن التحقق منها."
     },
     {
       "key": "factorized-3d-convolution",
       "type": "image",
       "file": "assets/factorized-3d-convolution.png",
-      "alt": "Factorizing 3D convolution into spatial and temporal stages.",
-      "caption": "Factorizing 3D convolution into spatial and temporal stages."
+      "alt": "A video volume is processed by separate 2D convolutions on individual frames followed by a 1D temporal convolution, shown as an approximation of full 3D convolution.",
+      "alt_ar": "حجم فيديو يُعالَج بـ Convolutions ثنائية الأبعاد على كل Frame، ثم Convolution زمنية أحادية البُعد، تقريبًا لـ 3D Convolution كاملة.",
+      "caption": "Factorizing 3D convolution into spatial and temporal stages.",
+      "caption_ar": "تفكيك 3D Convolution إلى مرحلتين: مكانية ثم زمنية."
     },
     {
       "key": "finevideo-data-pipeline",
       "type": "image",
       "file": "assets/finevideo-data-pipeline.png",
-      "alt": "Large-scale video data sourcing, filtering, taxonomy, annotation, and validation pipeline.",
-      "caption": "Large-scale video data sourcing, filtering, taxonomy, annotation, and validation pipeline."
+      "alt": "FineVideo data pipeline from 1.9 million YouTube IDs through raw collection, language and visual filtering, human-curated classification, content selection, Gemini annotation, metadata alignment, and anomaly filtering to 44,000 videos.",
+      "alt_ar": "Pipeline لبيانات FineVideo: من 1.9 مليون معرّف YouTube عبر الجمع والتصفية والتصنيف البشري وتعليقات Gemini وتصفية الحالات الشاذة، وصولًا إلى 44,000 فيديو.",
+      "caption": "Large-scale video data sourcing, filtering, taxonomy, annotation, and validation pipeline.",
+      "caption_ar": "جمع بيانات الفيديو على نطاق واسع يمرّ بالتصفية والتصنيف وإضافة التعليقات والتحقق من الجودة قبل الاستخدام."
     },
     {
       "key": "flamingo-architecture",
       "type": "image",
       "file": "assets/flamingo-architecture.png",
-      "alt": "Flamingo-style perceiver resampling and gated cross-attention.",
-      "caption": "Flamingo-style perceiver resampling and gated cross-attention."
+      "alt": "Interleaved image-text data passes through frozen vision encoders and trainable perceiver resamplers; gated cross-attention layers inject the visual representations into a frozen language model.",
+      "alt_ar": "بيانات صور ونصوص متداخلة تمر عبر Vision Encoders مجمَّدة وPerceiver Resamplers قابلة للتدريب، وتحقن طبقات Gated Cross-Attention التمثيلات البصرية في Language Model مجمَّد.",
+      "caption": "Flamingo-style perceiver resampling and gated cross-attention.",
+      "caption_ar": "يستخدم Flamingo الـ Perceiver Resampling وGated Cross-Attention لإدخال الرؤية إلى Language Model دون تعديل أوزانه."
     },
     {
       "key": "funsd-form-fields",
       "type": "image",
       "file": "assets/funsd-form-fields.png",
-      "alt": "Form-field annotations for layout-aware document understanding.",
-      "caption": "Form-field annotations for layout-aware document understanding."
+      "alt": "Scanned business form with colored bounding boxes around fields and values, plus labeled links that represent semantic relationships between form elements.",
+      "alt_ar": "نموذج ممسوح ضوئيًا تحيط به صناديق ملونة حول الحقول وقيمها، وروابط موسومة بين عناصر النموذج.",
+      "caption": "Form-field annotations for layout-aware document understanding.",
+      "caption_ar": "الـ Annotations الخاصة بالحقول والعلاقات بينها هي ما يحتاجه Model يفهم تخطيط النموذج."
     },
     {
       "key": "gated-cross-attention",
       "type": "image",
       "file": "assets/gated-cross-attention.png",
-      "alt": "Gated cross-attention injecting visual information into language hidden states.",
-      "caption": "Gated cross-attention injecting visual information into language hidden states."
+      "alt": "Visual tokens provide keys and values to cross-attention over language queries, with zero-initialized tanh gates controlling the cross-attention and feed-forward residual paths beside self-attention.",
+      "alt_ar": "Visual Tokens تزوّد Cross-Attention بالمفاتيح والقيم فوق استعلامات اللغة، وبوابات tanh مهيَّأة بالصفر تتحكم في المسارين المتبقيين لـ Cross-Attention وFeed-Forward بجانب Self-Attention.",
+      "caption": "Gated cross-attention injecting visual information into language hidden states.",
+      "caption_ar": "تتحكم بوابة في مقدار ما تحقنه Cross-Attention من معلومات بصرية في الحالات المخفية للغة."
     },
     {
       "key": "generator-conditioning",
       "type": "image",
       "file": "assets/generator-conditioning.png",
-      "alt": "Conditioning paths for diffusion and other modality-specific generators.",
+      "alt": "An MLLM sends hidden states through a connector into several diffusion blocks for denoising, alongside a simplified stack showing an MLLM, connector, and swappable generator module.",
       "caption": "Conditioning paths for diffusion and other modality-specific generators."
     },
     {
       "key": "greedy-knapsack-packing",
       "type": "image",
       "file": "assets/greedy-knapsack-packing.png",
-      "alt": "Greedy knapsack sequence packing.",
-      "caption": "Greedy knapsack sequence packing."
+      "alt": "Eight sequence bars filled greedily with differently colored content segments; most capacity is used, but the remaining gray padding is uneven across sequences.",
+      "alt_ar": "ثمانية أشرطة تسلسلات تُملأ بجشع بمقاطع ملونة؛ يُستغل معظم السعة لكن يبقى Padding رمادي غير متساوٍ.",
+      "caption": "Greedy packing reduces padding, but its locally chosen placements can leave uneven residual capacity.",
+      "caption_ar": "يقلل Greedy Packing من الـ Padding، لكن اختياراته المحلية قد تترك سعة متبقية غير متساوية بين التسلسلات."
     },
     {
       "key": "groot-dual-system-vla",
       "type": "image",
       "file": "assets/groot-dual-system-vla.png",
-      "alt": "Dual-system VLM reasoning and diffusion action generation.",
-      "caption": "Dual-system VLM reasoning and diffusion action generation."
+      "alt": "An image observation, language instruction, and encoded robot state enter a vision-language model for System 2 reasoning, whose action tokens condition a diffusion transformer that denoises a motor action in System 1.",
+      "alt_ar": "ملاحظة صورة وتعليمات لغوية وحالة الروبوت تدخل Vision-Language Model لاستدلال System 2، وتشترط Action Tokens الناتجة Diffusion Transformer يولّد الحركة في System 1.",
+      "caption": "Dual-system VLM reasoning and diffusion action generation.",
+      "caption_ar": "يجمع بين استدلال System 2 في VLM وتوليد الحركة بـ Diffusion Transformer في System 1."
     },
     {
       "key": "groot-n15-action-expert",
       "type": "image",
       "file": "assets/groot-n15-action-expert.png",
-      "alt": "Frozen VLM with state/action encoders and diffusion-transformer action expert.",
-      "caption": "Frozen VLM with state/action encoders and diffusion-transformer action expert."
+      "alt": "A frozen Eagle-2 vision-language model combines image and instruction tokens with encoded robot state and noisy actions in alternating cross- and self-attention DiT blocks, then decodes a motor action over repeated denoising steps.",
+      "alt_ar": "Vision-Language Model مجمَّد من نوع Eagle-2 يجمع Tokens الصورة والتعليمات مع حالة الروبوت وإجراءات مشوَّشة في كتل DiT، ثم يفك الترميز إلى حركة عبر خطوات إزالة ضوضاء متكررة.",
+      "caption": "Frozen VLM with state/action encoders and diffusion-transformer action expert.",
+      "caption_ar": "يبقى VLM مجمَّدًا بينما يتولى Action Expert من نوع Diffusion Transformer تحويل حالة الروبوت إلى حركة."
     },
     {
       "key": "huggingface-inference-pipeline",
       "type": "image",
       "file": "assets/huggingface-inference-pipeline.png",
-      "alt": "Preprocessor, model, and postprocessor in a practical multimodal inference pipeline.",
-      "caption": "Preprocessor, model, and postprocessor in a practical multimodal inference pipeline."
+      "alt": "A bee-on-flower image and two candidate labels pass through a preprocessor, model, and postprocessor, yielding probabilities of 0.937 for 'a bee on a flower' and 0.0623 for 'a bee in a hive'.",
+      "alt_ar": "صورة نحلة على زهرة ووسما تصنيف مرشحان يمران عبر Preprocessor وModel وPostprocessor، فتظهر الاحتمالات 0.937 لـ 'a bee on a flower' و0.0623 لـ 'a bee in a hive'.",
+      "caption": "Preprocessor, model, and postprocessor in a practical multimodal inference pipeline.",
+      "caption_ar": "يتولى Preprocessor وModel وPostprocessor خطوات Inference الثلاث، ويُخفي Pipeline هذه التفاصيل عن المستخدم."
     },
     {
       "key": "janus-pro-architecture",
       "type": "image",
       "file": "assets/janus-pro-architecture.png",
-      "alt": "Janus-style decoupled visual understanding and image generation.",
-      "caption": "Janus-style decoupled visual understanding and image generation."
+      "alt": "A shared autoregressive transformer uses separate visual encoders for understanding and generation, then sends outputs to a text detokenizer for language responses or an image decoder for generated images.",
+      "alt_ar": "Transformer مشترك من نوع Autoregressive بـ Visual Encoders منفصلة للفهم وللتوليد، تنتهي مخرجاته عند Text Detokenizer للنص أو Image Decoder للصور.",
+      "caption": "Janus-style decoupled visual understanding and image generation.",
+      "caption_ar": "يفصل Janus بين Encoder فهم الصور وEncoder توليدها، ويشاركهما Transformer واحد."
     },
     {
       "key": "joint-vs-sequential-multimodal-training",
       "type": "image",
       "file": "assets/joint-vs-sequential-multimodal-training.png",
-      "alt": "Joint versus staged understanding-then-generation training.",
-      "caption": "Joint versus staged understanding-then-generation training."
+      "alt": "Side-by-side training diagrams: joint training updates the LLM, visual features, and diffusion transformer together, while sequential training first learns image understanding and then freezes parts while training image generation.",
+      "alt_ar": "مخططان متجاوران: في التدريب المشترك يُحدَّث LLM والخصائص البصرية وDiffusion Transformer معًا، وفي التدريب المتسلسل يُتعلَّم فهم الصور أولًا ثم يُجمَّد جزء منه أثناء تعلم توليد الصور.",
+      "caption": "Joint training optimizes understanding and generation together; staged training freezes learned understanding components before adding generation.",
+      "caption_ar": "يحسّن التدريب المشترك الفهم والتوليد معًا؛ أما التدريب على مراحل فيجمّد ما تعلّمه الـ Model عن الفهم قبل إضافة التوليد."
     },
     {
       "key": "kv-cache-prefill-decode",
       "type": "image",
       "file": "assets/kv-cache-prefill-decode.png",
-      "alt": "KV-cache reuse from prefill to autoregressive decode.",
+      "alt": "During prefill, attention computes and caches key and value matrices; at a later decode step, one new query reuses the cached past keys and values instead of recomputing them.",
       "caption": "KV-cache reuse from prefill to autoregressive decode."
     },
     {
       "key": "late-conditioning-architecture",
       "type": "image",
       "file": "assets/late-conditioning-architecture.png",
-      "alt": "MLLM query states transformed through a connector into generator conditioning.",
-      "caption": "MLLM query states transformed through a connector into generator conditioning."
+      "alt": "An MLLM produces learnable query states that a connector transforms into conditioning for modality generators, with one row of discrete output tokens and one swappable image diffusion generator.",
+      "alt_ar": "MLLM ينتج Query States قابلة للتعلم يحوّلها Connector إلى Conditioning لمولّدات الـ Modalities، مع صف Tokens منفصلة ومولّد صور Diffusion قابل للاستبدال.",
+      "caption": "MLLM query states transformed through a connector into generator conditioning.",
+      "caption_ar": "ينقل Connector الـ Query States من MLLM إلى مولّد الصور على هيئة Conditioning."
     },
     {
       "key": "late-conditioning-training",
       "type": "image",
       "file": "assets/late-conditioning-training.png",
-      "alt": "Frozen MLLM with trainable connector and denoising generator.",
+      "alt": "A frozen MLLM produces meta-query states for a trainable connector, which conditions multiple trainable diffusion blocks to denoise image inputs.",
       "caption": "Frozen MLLM with trainable connector and denoising generator."
     },
     {
       "key": "layoutlmv3-architecture",
       "type": "image",
       "file": "assets/layoutlmv3-architecture.png",
-      "alt": "LayoutLMv3 text, 1D/2D position, and image-patch representations.",
-      "caption": "LayoutLMv3 text, 1D/2D position, and image-patch representations."
+      "alt": "Words and image patches receive one-dimensional position, two-dimensional spatial, and modality embeddings before entering a multimodal transformer with masked language, word-patch alignment, and masked image heads.",
+      "alt_ar": "الكلمات ورقع الصورة تحصل على Embeddings للموضع والتخطيط والـ Modality قبل دخولها Multimodal Transformer ذي رؤوس Masked Language وWord-Patch Alignment وMasked Image.",
+      "caption": "LayoutLMv3 text, 1D/2D position, and image-patch representations.",
+      "caption_ar": "يدمج LayoutLMv3 النص وموضعه ثنائي الأبعاد ورقع الصورة في تمثيل واحد."
     },
     {
       "key": "linear-quantization-scaling",
       "type": "image",
       "file": "assets/linear-quantization-scaling.png",
-      "alt": "Linear scaling from high precision to INT8 range.",
-      "caption": "Linear scaling from high precision to INT8 range."
+      "alt": "Number-line diagram mapping a symmetric high-precision range from minus alpha to alpha onto signed INT8 values from minus 127 to 127 using a linear scale factor.",
+      "alt_ar": "خط أعداد يحوّل مدى متماثلًا عالي الدقة من سالب alpha إلى alpha إلى قيم INT8 من سالب 127 إلى 127 بمعامل تحجيم خطي.",
+      "caption": "Linear scaling from high precision to INT8 range.",
+      "caption_ar": "Linear Quantization تضغط القيم عالية الدقة في مدى INT8 بمعامل تحجيم واحد."
     },
     {
       "key": "lora-low-rank-adaptation",
       "type": "image",
       "file": "assets/lora-low-rank-adaptation.png",
-      "alt": "Low-rank adapter path around frozen pretrained weights.",
-      "caption": "Low-rank adapter path around frozen pretrained weights."
+      "alt": "A frozen pretrained weight matrix is combined with a low-rank update formed by multiplying trainable matrices A and B, whose inner dimension r is much smaller than the original width and height.",
+      "alt_ar": "مصفوفة أوزان مجمَّدة مدرَّبة مسبقًا يوازيها مسار تحديث منخفض الرتبة من مصفوفتين قابلتين للتدريب A وB، وبُعدهما الداخلي r أصغر بكثير من البعدين الأصليين.",
+      "caption": "Low-rank adapter path around frozen pretrained weights.",
+      "caption_ar": "يدرّب LoRA مصفوفتين صغيرتين فقط ويترك الأوزان الأصلية مجمَّدة."
     },
     {
       "key": "masked-autoencoder",
       "type": "image",
       "file": "assets/masked-autoencoder.png",
-      "alt": "Masked image reconstruction and self-supervised visual representation learning.",
-      "caption": "Masked image reconstruction and self-supervised visual representation learning."
+      "alt": "Most patches of a flamingo image are masked; an encoder processes the visible patches and a decoder combines their representations with mask tokens to reconstruct the target image.",
+      "alt_ar": "معظم رقع صورة طائر النحام مقنَّعة؛ يعالج Encoder الرقع الظاهرة، ويجمع Decoder تمثيلاتها مع Mask Tokens لإعادة بناء الصورة.",
+      "caption": "Masked image reconstruction and self-supervised visual representation learning.",
+      "caption_ar": "إعادة بناء الأجزاء المقنَّعة من الصورة طريقة Self-Supervised Learning لتعلّم تمثيلات بصرية بلا تسميات."
     },
     {
       "key": "mha-gqa-mqa",
       "type": "image",
       "file": "assets/mha-gqa-mqa.png",
-      "alt": "Multi-head, grouped-query, and multi-query attention KV sharing.",
-      "caption": "Multi-head, grouped-query, and multi-query attention KV sharing."
+      "alt": "Comparison showing multi-head attention with separate key-value pairs per query head, grouped-query attention sharing them within groups, and multi-query attention sharing one key-value pair across all query heads.",
+      "alt_ar": "مقارنة بين Multi-Head Attention بأزواج Key-Value منفصلة لكل Query Head، وGrouped-Query Attention التي تتشاركها ضمن مجموعات، وMulti-Query Attention التي تتشارك زوجًا واحدًا.",
+      "caption": "Multi-head, grouped-query, and multi-query attention KV sharing.",
+      "caption_ar": "كلما زادت مشاركة Key-Value بين الـ Heads صغر KV Cache، وهذا ما يفرّق بين MHA وGQA وMQA."
     },
     {
       "key": "multimodal-preference-dataset",
       "type": "image",
       "file": "assets/multimodal-preference-dataset.png",
-      "alt": "Image, question, chosen, and rejected preference-data schema.",
-      "caption": "Image, question, chosen, and rejected preference-data schema."
+      "alt": "Dataset table whose rows pair an image and question with a preferred chosen answer and a lower-quality rejected answer for multimodal preference training.",
+      "alt_ar": "جدول Dataset: كل صف صورة وسؤال مع إجابة Chosen المفضَّلة وإجابة Rejected الأقل جودة.",
+      "caption": "Image, question, chosen, and rejected preference-data schema.",
+      "caption_ar": "بيانات التفضيل متعددة الـ Modalities تتكون من صورة وسؤال وإجابة Chosen وإجابة Rejected."
     },
     {
       "key": "multimodal-vae",
       "type": "image",
       "file": "assets/multimodal-vae.png",
-      "alt": "VAE compression and reconstruction across image, audio, and action modalities.",
-      "caption": "VAE compression and reconstruction across image, audio, and action modalities."
+      "alt": "Image, audio, and robot-action inputs pass through one encoder into a compact latent variable z, then a decoder reconstructs each modality.",
+      "alt_ar": "مدخلات الصورة والصوت وحركة الروبوت تمر عبر Encoder واحد إلى متغير كامن مضغوط z، ثم يعيد Decoder بناء كل Modality.",
+      "caption": "VAE compression and reconstruction across image, audio, and action modalities.",
+      "caption_ar": "يضغط VAE كل Modality إلى تمثيل كامن صغير ثم يعيد بناءها منه."
     },
     {
       "key": "multimodal-vae-comparison",
       "type": "image",
       "file": "assets/multimodal-vae-comparison.png",
-      "alt": "Image, video, and audio latent-compression examples.",
-      "caption": "Image, video, and audio latent-compression examples."
+      "alt": "Comparison table of image, video, and audio VAE systems listing modality, encoder backbone, compression ratio, and notable architectural features.",
+      "alt_ar": "جدول يقارن أنظمة VAE للصورة والفيديو والصوت من حيث الـ Modality والـ Encoder ونسبة الضغط وأبرز الخصائص.",
+      "caption": "Image, video, and audio latent-compression examples.",
+      "caption_ar": "نسبة الضغط الكامن تختلف باختلاف الـ Modality: الصورة والفيديو والصوت."
     },
     {
       "key": "naive-packing",
       "type": "image",
       "file": "assets/naive-packing.png",
-      "alt": "Naive sequence packing with residual padding.",
-      "caption": "Naive sequence packing with residual padding."
+      "alt": "Eight sequence bars contain differently colored packed examples followed by uneven gray gaps, showing residual padding left by a simple packing strategy.",
+      "alt_ar": "ثمانية أشرطة بأمثلة مجمَّعة تتبعها فجوات رمادية غير متساوية من الـ Padding.",
+      "caption": "Naive packing combines examples but still leaves uneven padding gaps when sequence lengths fit poorly.",
+      "caption_ar": "يجمع Naive Packing الأمثلة لكنه يترك فجوات Padding غير متساوية عندما لا تتلاءم الأطوال."
     },
     {
       "key": "naive-padding",
       "type": "image",
       "file": "assets/naive-padding.png",
-      "alt": "Naive padding to the longest sequence in a batch.",
-      "caption": "Naive padding to the longest sequence in a batch."
+      "alt": "Eight content sequences of widely different lengths are extended with gray padding to match the longest sequence at about 750 tokens.",
+      "alt_ar": "ثمانية تسلسلات بأطوال شديدة الاختلاف تُمدَّد بـ Padding رمادي حتى طول أطولها، نحو 750 Token.",
+      "caption": "Padding every example to the batch maximum wastes substantial compute when sequence lengths vary widely.",
+      "caption_ar": "ملء كل مثال حتى أقصى طول في الـ Batch يهدر حوسبة كثيرة عندما تتباين الأطوال."
     },
     {
       "key": "ndcg-ranking-example",
       "type": "image",
       "file": "assets/ndcg-ranking-example.png",
-      "alt": "Worked DCG, IDCG, and NDCG ranking example.",
-      "caption": "Worked DCG, IDCG, and NDCG ranking example."
+      "alt": "A red-sneaker search ranks an exact sneaker second behind a high heel and above an irrelevant blue shoe; the displayed DCG and ideal DCG calculations produce NDCG at 3 of 0.92.",
+      "alt_ar": "بحث عن حذاء رياضي أحمر يضع الحذاء المطابق ثانيًا بعد حذاء بكعب عالٍ وقبل حذاء أزرق غير مرتبط، مع حسابات DCG وIDCG وقيمة NDCG@3 تساوي 0.92.",
+      "caption": "Worked DCG, IDCG, and NDCG ranking example.",
+      "caption_ar": "مثال محلول يوضح كيف يُحسب DCG وIDCG وNDCG لتقييم ترتيب نتائج البحث."
     },
     {
       "key": "online-dpo",
       "type": "image",
       "file": "assets/online-dpo.png",
-      "alt": "Online preference optimization with freshly generated responses.",
-      "caption": "Online preference optimization with freshly generated responses."
+      "alt": "An LLM generates two Paris recommendations for a prompt, an LLM annotator chooses the better response, and the fresh preference pair directly updates the model parameters.",
+      "alt_ar": "LLM يولّد توصيتين عن باريس لـ Prompt واحد، ثم يختار LLM مُقيِّم الأفضل، وزوج التفضيل الجديد يحدّث معاملات الـ Model مباشرة.",
+      "caption": "Online preference optimization with freshly generated responses.",
+      "caption_ar": "في Online DPO تُولَّد الاستجابات من الـ Model الحالي أثناء التدريب، فتبقى بيانات التفضيل مطابقة لسلوكه."
     },
     {
       "key": "packed-training-loss",
       "type": "image",
       "file": "assets/packed-training-loss.png",
-      "alt": "Training-loss comparison before and after packed batching.",
-      "caption": "Training-loss comparison before and after packed batching."
+      "alt": "Line chart over 5,000 training steps where the orange packing-loss curve stays consistently lower and less variable than the blue original-loss curve.",
+      "alt_ar": "رسم خطي على امتداد 5,000 خطوة تدريب: منحنى Packing-Loss البرتقالي أقل وأكثر استقرارًا من منحنى Original-Loss الأزرق.",
+      "caption": "Packed batching produces a lower, steadier training-loss curve than the original batching setup.",
+      "caption_ar": "التدريب بـ Packing يعطي منحنى Loss أقل وأكثر استقرارًا من الإعداد الأصلي."
     },
     {
       "key": "paligemma-segmentation",
       "type": "image",
       "file": "assets/paligemma-segmentation.png",
-      "alt": "Text-guided segmentation using location/segment tokens and decoding.",
-      "caption": "Text-guided segmentation using location/segment tokens and decoding."
+      "alt": "PaliGemma converts a street image and the instruction 'Segment bird; plant' into location and segment tokens, which a VAE decodes into masks labeled bird and plant.",
+      "alt_ar": "PaliGemma يحوّل صورة شارع والتعليمة 'Segment bird; plant' إلى Location Tokens وSegment Tokens، ثم يفك VAE ترميزها إلى Masks موسومة bird وplant.",
+      "caption": "Text-guided segmentation using location/segment tokens and decoding.",
+      "caption_ar": "تُنفَّذ Segmentation الموجَّهة بالنص عبر Tokens خاصة بالموضع والقناع، ثم تُفكّ إلى Masks."
     },
     {
       "key": "pi06-advantage-conditioning",
       "type": "image",
       "file": "assets/pi06-advantage-conditioning.png",
-      "alt": "Advantage-conditioned VLA with pretrained VLM, action expert, and value function.",
-      "caption": "Advantage-conditioned VLA with pretrained VLM, action expert, and value function."
+      "alt": "A pretrained vision-language model and action expert process image, prompt, metadata, and noisy actions while a separate value-function head turns advantages into discrete conditioning bins for action learning.",
+      "alt_ar": "VLM مدرَّب مسبقًا وAction Expert يعالجان الصورة والـ Prompt والـ Metadata وإجراءات مشوَّشة، ورأس Value Function منفصل يحوّل قيم Advantage إلى فئات Conditioning.",
+      "caption": "Advantage-conditioned VLA with pretrained VLM, action expert, and value function.",
+      "caption_ar": "VLA مشروط بقيمة Advantage، يجمع VLM مدرَّبًا مسبقًا وAction Expert ودالة Value."
     },
     {
       "key": "ppo-vs-grpo",
       "type": "image",
       "file": "assets/ppo-vs-grpo.png",
-      "alt": "PPO and group-relative policy optimization structures.",
-      "caption": "PPO and group-relative policy optimization structures."
+      "alt": "PPO uses policy, reference, reward, and value models to compute generalized advantages, while GRPO samples a group of outputs and computes relative advantages without a separate value model.",
+      "alt_ar": "PPO يستخدم Policy وReference وReward وValue Models لحساب Advantages، بينما يأخذ GRPO مجموعة مخرجات ويحسب Advantages نسبية دون Value Model.",
+      "caption": "PPO learns advantages with a value model; GRPO derives them by comparing rewards within a sampled group.",
+      "caption_ar": "يتعلم PPO قيم Advantage بواسطة Value Model؛ أما GRPO فيستخرجها بمقارنة المكافآت داخل مجموعة المخرجات."
     },
     {
       "key": "qwen-image-edit-architecture",
       "type": "image",
       "file": "assets/qwen-image-edit-architecture.png",
-      "alt": "Dual semantic and spatial conditioning for multimodal image editing.",
-      "caption": "Dual semantic and spatial conditioning for multimodal image editing."
+      "alt": "Two-part image-editing architecture showing coordinate-aware edit directions and an MMDiT denoiser conditioned by Qwen2.5-VL prompt-image features plus target and input VAE latents.",
+      "alt_ar": "معمارية تعديل الصور من جزأين: اتجاهات تعديل واعية بالإحداثيات، وMMDiT Denoiser مشروط بخصائص من Qwen2.5-VL وبـ VAE Latents للهدف وللمدخل.",
+      "caption": "Dual semantic and spatial conditioning for multimodal image editing.",
+      "caption_ar": "Conditioning مزدوج، دلالي ومكاني، لتعديل الصور متعدد الـ Modalities."
     },
     {
       "key": "qwen25-omni-thinker-talker",
       "type": "image",
       "file": "assets/qwen25-omni-thinker-talker.png",
-      "alt": "Continuous multimodal input with Thinker reasoning and Talker speech generation.",
+      "alt": "Video frames and audio enter separate encoders and the Qwen2.5-Omni Thinker token stream; hidden states then condition a Talker and streaming codec decoder that generates speech audio.",
       "caption": "Continuous multimodal input with Thinker reasoning and Talker speech generation."
     },
     {
       "key": "rlhf-training-pipeline",
       "type": "image",
       "file": "assets/rlhf-training-pipeline.png",
-      "alt": "Supervised tuning, reward modeling, and PPO-based RLHF pipeline.",
-      "caption": "Supervised tuning, reward modeling, and PPO-based RLHF pipeline."
+      "alt": "Three-step RLHF pipeline: demonstrations train a supervised policy, ranked comparison data trains a reward model, and PPO updates a new policy using that learned reward.",
+      "alt_ar": "ثلاث خطوات: عروض توضيحية تدرّب Supervised Policy، وبيانات مقارنات مرتبة تدرّب Reward Model، ثم يحدّث PPO سياسة جديدة بالمكافأة المتعلَّمة.",
+      "caption": "Supervised tuning, reward modeling, and PPO-based RLHF pipeline.",
+      "caption_ar": "يمرّ RLHF بثلاث مراحل: Supervised Tuning، ثم Reward Modeling، ثم تحسين السياسة بـ PPO."
     },
     {
       "key": "rlhf-vs-dpo",
       "type": "image",
       "file": "assets/rlhf-vs-dpo.png",
-      "alt": "RLHF versus direct preference optimization.",
-      "caption": "RLHF versus direct preference optimization."
+      "alt": "Comparison where RLHF trains a reward model from preference pairs and uses reinforcement learning to update a policy, while DPO directly applies a likelihood objective to the same preference pairs.",
+      "alt_ar": "مقارنة: RLHF يدرّب Reward Model من أزواج التفضيل ثم يحدّث Policy بـ Reinforcement Learning، بينما يطبّق DPO هدف Likelihood مباشرة على الأزواج نفسها.",
+      "caption": "RLHF optimizes through a learned reward model; DPO learns directly from preference pairs without a separate reinforcement-learning loop.",
+      "caption_ar": "يحسّن RLHF عبر Reward Model منفصل؛ أما DPO فيتعلم مباشرة من أزواج التفضيل بلا حلقة Reinforcement Learning."
     },
     {
       "key": "scaling-consistency",
       "type": "image",
       "file": "assets/scaling-consistency.png",
-      "alt": "Scaling-consistency experiments across model and dataset sizes.",
-      "caption": "Scaling-consistency experiments across model and dataset sizes."
+      "alt": "Two R-squared plots: the upper chart relates predictive fit to model size for 0.5B and 7B models, while the lower chart compares fit across dataset fractions for 0.5B, 1.5B, and 4B models.",
+      "alt_ar": "رسمان لقيم R-squared: العلوي يربط جودة التنبؤ بحجم الـ Model لنموذجين 0.5B و7B، والسفلي يقارنها عبر أجزاء الـ Dataset لثلاثة نماذج 0.5B و1.5B و4B.",
+      "caption": "Scaling-consistency tests whether trends measured at smaller model and dataset sizes continue to predict larger runs.",
+      "caption_ar": "اختبار Scaling-Consistency يسأل: هل تظل الاتجاهات المقيسة على Models وDatasets أصغر صالحة للتنبؤ بالتشغيلات الأكبر؟"
     },
     {
       "key": "siglip-image-text-retrieval",
       "type": "image",
       "file": "assets/siglip-image-text-retrieval.png",
-      "alt": "Shared image-text embedding space for semantic retrieval.",
-      "caption": "Shared image-text embedding space for semantic retrieval."
+      "alt": "A SigLIP2 text encoder maps the sentence 'A sunset' to an embedding, which is compared by L2 similarity with stored image embeddings to retrieve the closest image.",
+      "alt_ar": "SigLIP2 Text Encoder يحوّل الجملة 'A sunset' إلى Embedding تُقارَن بتشابه L2 مع Embeddings الصور المخزَّنة لاسترجاع أقرب صورة.",
+      "caption": "Shared image-text embedding space for semantic retrieval.",
+      "caption_ar": "الصورة والنص يعيشان في فضاء Embedding مشترك، ولذلك يمكن استرجاع صورة بنص."
     },
     {
       "key": "single-vs-multivector-retrieval",
       "type": "image",
       "file": "assets/single-vs-multivector-retrieval.png",
-      "alt": "Single-vector versus multivector document retrieval trade-offs.",
-      "caption": "Single-vector versus multivector document retrieval trade-offs."
+      "alt": "Table comparing single-vector and multivector document models: single vectors use less memory and retrieve faster, while multivectors consume more resources but perform better on document understanding.",
+      "alt_ar": "جدول يقارن بين Single-Vector وMultivector لـ Models المستندات: الأول أقل ذاكرة وأسرع، والثاني أكثر استهلاكًا للموارد وأفضل فهمًا.",
+      "caption": "Single-vector versus multivector document retrieval trade-offs.",
+      "caption_ar": "Single-Vector أخف وأسرع، وMultivector أدق في فهم المستندات لكنه أكلف."
     },
     {
       "key": "smoldocling-otsl-structure",
       "type": "image",
       "file": "assets/smoldocling-otsl-structure.png",
-      "alt": "Structured document and table representation with OTSL-style tags.",
-      "caption": "Structured document and table representation with OTSL-style tags."
+      "alt": "A document page’s table structure and cell relationships are converted into OTSL-style tags, linked to a table screenshot, Markdown-like text, and quantitative table results.",
+      "alt_ar": "بنية جدول في صفحة مستند وعلاقات خلاياه تُحوَّل إلى وسوم بأسلوب OTSL، مع لقطة الجدول ونص شبيه بـ Markdown ونتائج كمية.",
+      "caption": "Structured document and table representation with OTSL-style tags.",
+      "caption_ar": "تمثّل وسوم OTSL بنية الجدول وعلاقات خلاياه بصيغة يستطيع الـ Model توليدها."
     },
     {
       "key": "smolvlm-data-mixture-comparison",
       "type": "image",
       "file": "assets/smolvlm-data-mixture-comparison.png",
-      "alt": "Example multimodal dataset-mixture proportions across model sizes.",
-      "caption": "Example multimodal dataset-mixture proportions across model sizes."
+      "alt": "Table comparing training-mixture percentages for 2.2B and 256M or 500M models across OCR, captioning, text instruction, reasoning, chart, visual QA, table, and screenshot-to-code data.",
+      "alt_ar": "جدول يقارن نسب خليط التدريب لنماذج 2.2B و256M أو 500M عبر بيانات OCR وCaptioning وتعليمات نصية واستدلال ومخططات وVisual QA وجداول وتحويل لقطة الشاشة إلى كود.",
+      "caption": "Example multimodal dataset-mixture proportions across model sizes.",
+      "caption_ar": "مثال على نسب خليط البيانات متعددة الـ Modalities عبر أحجام Models مختلفة."
     },
     {
       "key": "smolvlm-unified-sequence",
       "type": "image",
       "file": "assets/smolvlm-unified-sequence.png",
-      "alt": "Unified-sequence vision-language architecture using projected visual tokens.",
-      "caption": "Unified-sequence vision-language architecture using projected visual tokens."
+      "alt": "An input image passes through a vision encoder, pixel shuffle, and linear projection to become coordinate-labeled visual tokens, which are prepended to tokenized text for one language model to answer.",
+      "alt_ar": "صورة تمر عبر Vision Encoder وPixel Shuffle وإسقاط خطي لتصبح Visual Tokens موسومة بالإحداثيات، تُضاف قبل النص المقسَّم إلى Tokens ليجيب Language Model واحد.",
+      "caption": "Unified-sequence vision-language architecture using projected visual tokens.",
+      "caption_ar": "تُحوَّل الصورة إلى Tokens تُوضع في التسلسل نفسه مع النص، فيعاملها Language Model كأي Tokens أخرى."
     },
     {
       "key": "standard-retrieval-vs-colpali",
       "type": "image",
       "file": "assets/standard-retrieval-vs-colpali.png",
-      "alt": "OCR-heavy standard retrieval versus direct visual late-interaction retrieval.",
-      "caption": "OCR-heavy standard retrieval versus direct visual late-interaction retrieval."
+      "alt": "Standard document retrieval uses OCR, layout detection, chunks, and a text embedding before MaxSim, while ColPali directly encodes page images into multiple visual vectors for late-interaction scoring.",
+      "alt_ar": "الاسترجاع القياسي يمر بـ OCR وكشف التخطيط وتقسيم Chunks وText Embedding قبل MaxSim، بينما يرمّز ColPali صور الصفحات مباشرة إلى متجهات بصرية متعددة للمقارنة بأسلوب Late Interaction.",
+      "caption": "OCR-heavy standard retrieval versus direct visual late-interaction retrieval.",
+      "caption_ar": "ColPali يتجاوز مرحلة OCR المعقدة ويقارن الاستعلام بالصفحة مباشرة عبر Late Interaction."
     },
     {
       "key": "standard-vs-flash-attention",
       "type": "image",
       "file": "assets/standard-vs-flash-attention.png",
-      "alt": "Standard attention memory traffic versus fused FlashAttention.",
-      "caption": "Standard attention memory traffic versus fused FlashAttention."
+      "alt": "Standard attention repeatedly loads and writes query, key, value, score, probability, and output matrices to high-bandwidth memory, whereas FlashAttention fuses tiled kernel operations and reduces memory traffic.",
+      "alt_ar": "Standard Attention يحمّل مصفوفات Query وKey وValue والدرجات والاحتمالات والمخرجات ويكتبها مرارًا في ذاكرة High-Bandwidth، بينما يدمج FlashAttention العمليات في Kernel مقسَّم إلى بلاطات.",
+      "caption": "Standard attention memory traffic versus fused FlashAttention.",
+      "caption_ar": "يقلل FlashAttention حركة الذاكرة بدمج الخطوات، وهذا هو سبب سرعته."
     },
     {
       "key": "two-stream-video-cnn",
       "type": "image",
       "file": "assets/two-stream-video-cnn.png",
-      "alt": "Spatial RGB and temporal optical-flow streams for video understanding.",
-      "caption": "Spatial RGB and temporal optical-flow streams for video understanding."
+      "alt": "A two-stream video network sends one RGB frame through a spatial ConvNet and stacked optical-flow frames through a temporal ConvNet, then fuses their class scores.",
+      "alt_ar": "شبكة فيديو ثنائية المسار: Frame واحدة RGB عبر ConvNet مكانية، وإطارات Optical Flow المكدَّسة عبر ConvNet زمنية، ثم تُدمج درجات التصنيف.",
+      "caption": "Spatial RGB and temporal optical-flow streams for video understanding.",
+      "caption_ar": "مسار RGB يعرف ما يظهر في المشهد، ومسار Optical Flow يعرف كيف يتحرك."
     },
     {
       "key": "unified-vocabulary-factorized-heads",
       "type": "image",
       "file": "assets/unified-vocabulary-factorized-heads.png",
-      "alt": "Monolithic, hybrid, and factorized-head multimodal token-generation patterns.",
+      "alt": "Comparison of a unified language model vocabulary that emits modality tokens through one path and a factorized design that routes shared representations through separate autoregressive modality heads.",
       "caption": "Monolithic, hybrid, and factorized-head multimodal token-generation patterns."
     },
     {
       "key": "video-language-evolution",
       "type": "image",
       "file": "assets/video-language-evolution.png",
-      "alt": "Evolution from CLIP/video adaptation to modern video-language models.",
-      "caption": "Evolution from CLIP/video adaptation to modern video-language models."
+      "alt": "Timeline from 2021 to 2025 tracing VideoCLIP, CLIP, Flamingo, CoCa, LLaVA, InternVideo2, Video-ChatGPT, Qwen2VL, Video-Agent, and Apollo as video-language systems evolve.",
+      "alt_ar": "جدول زمني من 2021 إلى 2025 يتتبع VideoCLIP وCLIP وFlamingo وCoCa وLLaVA وInternVideo2 وVideo-ChatGPT وQwen2VL وVideo-Agent وApollo.",
+      "caption": "Evolution from CLIP/video adaptation to modern video-language models.",
+      "caption_ar": "تطورت أنظمة Video-Language من تكييف CLIP إلى Models حديثة تفهم الفيديو وتحاوِر حوله."
     },
     {
       "key": "video-question-answering",
       "type": "image",
       "file": "assets/video-question-answering.png",
-      "alt": "Video question answering with sampled frames and timestamps.",
-      "caption": "Video question answering with sampled frames and timestamps."
+      "alt": "A video is downsampled into three timestamped frames of a deer in a park; the frames and question enter a video-language model that returns a natural-language answer.",
+      "alt_ar": "الفيديو يُخفَّض إلى ثلاث Frames مؤرَّخة لغزال في متنزه، وتدخل الـ Frames مع السؤال إلى Video-Language Model الذي يعيد إجابة بلغة طبيعية.",
+      "caption": "Video question answering with sampled frames and timestamps.",
+      "caption_ar": "الإجابة عن أسئلة الفيديو تعتمد على Frames معاينة مع طوابعها الزمنية."
     },
     {
       "key": "video-token-reduction-strategies",
       "type": "image",
       "file": "assets/video-token-reduction-strategies.png",
-      "alt": "Spatial pooling, temporal pooling, and temporal sampling strategies.",
-      "caption": "Spatial pooling, temporal pooling, and temporal sampling strategies."
+      "alt": "Three panels compare averaging neighboring patches within each frame, averaging the same patch across time, and selecting only certain frames at test time.",
+      "alt_ar": "ثلاث لوحات: متوسط الرقع المتجاورة داخل كل Frame، ومتوسط الرقعة نفسها عبر الزمن، واختيار Frames معينة وقت الاختبار.",
+      "caption": "Spatial pooling, temporal pooling, and temporal sampling strategies.",
+      "caption_ar": "Spatial Pooling وTemporal Pooling وTemporal Sampling ثلاث طرق لتقليل عدد Visual Tokens."
     },
     {
       "key": "videoagent-adaptive-frame-retrieval",
       "type": "image",
       "file": "assets/videoagent-adaptive-frame-retrieval.png",
-      "alt": "Adaptive frame retrieval in a long-video reasoning agent.",
-      "caption": "Adaptive frame retrieval in a long-video reasoning agent."
+      "alt": "VideoAgent generates time-stamped captions, predicts an answer, checks confidence, and if uncertain asks CLIP to retrieve relevant frames before another reasoning round.",
+      "alt_ar": "VideoAgent يولّد تعليقات مؤرَّخة ويتنبأ بإجابة ويفحص الثقة، وإذا لم يكن واثقًا يطلب من CLIP استرجاع Frames ذات صلة قبل جولة استدلال أخرى.",
+      "caption": "Adaptive frame retrieval in a long-video reasoning agent.",
+      "caption_ar": "يسترجع الـ Agent Frames إضافية فقط عندما لا يثق بإجابته، فلا يعالج الفيديو الطويل كله."
     },
     {
       "key": "videollama3-dynamic-vision-tokens",
       "type": "image",
       "file": "assets/videollama3-dynamic-vision-tokens.png",
-      "alt": "Dynamic resolution and video-token compression in a modern Video-LM.",
-      "caption": "Dynamic resolution and video-token compression in a modern Video-LM."
+      "alt": "Images and a video with different resolutions and duration pass through a shared visual encoder and projection, producing variable token counts that a video compressor reduces before the language model.",
+      "alt_ar": "صور وفيديو بدقات ومدد مختلفة تمر عبر Visual Encoder وإسقاط مشتركين وتنتج أعداد Tokens متغيرة، يخفّضها Video Compressor قبل Language Model.",
+      "caption": "Dynamic resolution and video-token compression in a modern Video-LM.",
+      "caption_ar": "يختلف عدد Visual Tokens بحسب الدقة والمدة، ثم يضغطها Video Compressor قبل Language Model."
     },
     {
       "key": "vision-transformer-vit",
       "type": "image",
       "file": "assets/vision-transformer-vit.png",
-      "alt": "Vision Transformer patches, positional embeddings, encoder, and prediction head.",
-      "caption": "Vision Transformer patches, positional embeddings, encoder, and prediction head."
+      "alt": "A Vision Transformer flattens image patches, linearly projects them, adds position and class embeddings, processes them with repeated attention-MLP encoder blocks, and sends the class token to an MLP prediction head.",
+      "alt_ar": "Vision Transformer يسطّح رقع الصورة ويسقطها خطيًا ويضيف Embeddings للموضع والـ Class، ثم تعالجها كتل Encoder متكررة، ويذهب Class Token إلى رأس MLP للتنبؤ.",
+      "caption": "Vision Transformer patches, positional embeddings, encoder, and prediction head.",
+      "caption_ar": "ViT يعامل رقع الصورة كأنها Tokens ويمرّرها عبر Transformer Encoder."
     },
     {
       "key": "visual-reasoning-example",
       "type": "image",
       "file": "assets/visual-reasoning-example.png",
-      "alt": "Visual reasoning example requiring interaction-aware reasoning over image content.",
-      "caption": "Visual reasoning example requiring interaction-aware reasoning over image content."
+      "alt": "A supplement-label photo and question enter a reasoning model, whose trace identifies interactions such as vitamin C with iron and zinc with copper before returning a concise answer.",
+      "alt_ar": "صورة ملصق مكمّل غذائي وسؤال يدخلان Model استدلال، يحدد تفاعلات مثل فيتامين C مع الحديد والزنك مع النحاس قبل أن يعطي إجابة موجزة.",
+      "caption": "Visual reasoning example requiring interaction-aware reasoning over image content.",
+      "caption_ar": "الاستدلال البصري لا يكفيه التعرف على النص في الصورة؛ يحتاج أيضًا إلى فهم التفاعلات بين عناصره."
     },
     {
       "key": "visual-token-kv-growth",
       "type": "image",
       "file": "assets/visual-token-kv-growth.png",
-      "alt": "Persistent visual context and accumulated conversational KV-cache growth.",
+      "alt": "Three memory bars show visual tokens remaining at 110 MB across turns while conversation history grows from none to 75 MB and then 150 MB, and responses grow from 19 MB to 57 MB.",
       "caption": "Persistent visual context and accumulated conversational KV-cache growth."
     },
     {
       "key": "vla-asynchronous-control",
       "type": "image",
       "file": "assets/vla-asynchronous-control.png",
-      "alt": "Asynchronous policy-server and robot-client action chunking loop.",
-      "caption": "Asynchronous policy-server and robot-client action chunking loop."
+      "alt": "Timeline showing a policy server generating action chunks while a robot client executes its current queue, sends new observations after several actions, and merges newly received actions without stopping control.",
+      "alt_ar": "جدول زمني: Policy Server يولّد Action Chunks بينما ينفّذ عميل الروبوت قائمته الحالية، ويرسل ملاحظات جديدة بعد عدة إجراءات ويدمج الإجراءات الجديدة دون توقف.",
+      "caption": "Asynchronous policy-server and robot-client action chunking loop.",
+      "caption_ar": "في التحكم غير المتزامن يتابع الروبوت التنفيذ بينما يولّد Policy Server الدفعة التالية من الإجراءات."
     },
     {
       "key": "vla-dataset-comparison",
       "type": "image",
       "file": "assets/vla-dataset-comparison.png",
-      "alt": "Vision-language-action dataset scale, effort, and quality trade-offs.",
+      "alt": "Table comparing RT-1, Open X-Embodiment, and the SmolVLA Community Dataset by episode count, collection effort, robot diversity, and quality characteristics.",
       "caption": "Vision-language-action dataset scale, effort, and quality trade-offs."
     },
     {
       "key": "vlm-architecture-comparison",
       "type": "image",
       "file": "assets/vlm-architecture-comparison.png",
-      "alt": "Show-and-Tell, Flamingo, and unified-sequence VLM architecture comparison.",
-      "caption": "Show-and-Tell, Flamingo, and unified-sequence VLM architecture comparison."
+      "alt": "Table comparing Show and Tell, Flamingo, and SmolVLM by encoder, image representation, decoder, how image information enters decoding, and late, intermediate, or early fusion type.",
+      "alt_ar": "جدول يقارن Show and Tell وFlamingo وSmolVLM من حيث Encoder وتمثيل الصورة وDecoder وطريقة دخول معلومات الصورة ونوع الدمج: متأخر أو متوسط أو مبكر.",
+      "caption": "Show-and-Tell, Flamingo, and unified-sequence VLM architecture comparison.",
+      "caption_ar": "الفرق بين المعماريات الثلاث هو أين وكيف تدخل معلومات الصورة إلى Decoder."
     },
     {
       "key": "vlm-bf16-int4-memory-efficiency",
       "type": "image",
       "file": "assets/vlm-bf16-int4-memory-efficiency.png",
-      "alt": "Memory usage and tokens-per-second-per-GB across VLM precisions.",
-      "caption": "Memory usage and tokens-per-second-per-GB across VLM precisions."
+      "alt": "Two line charts plot GPU memory usage and tokens per second per GB against model size for BF16 and INT4 variants of SmolVLM2 and Qwen vision-language models.",
+      "alt_ar": "رسمان خطيان لاستهلاك ذاكرة GPU وعدد Tokens في الثانية لكل GB مقابل حجم الـ Model، لنسختي BF16 وINT4 من SmolVLM2 وQwen.",
+      "caption": "Lower-precision VLMs use less memory and deliver more tokens per second per GB, especially as model size grows.",
+      "caption_ar": "VLMs منخفضة الدقة تستهلك ذاكرة أقل وتعطي Tokens أكثر في الثانية لكل GB، خصوصًا مع كِبَر الـ Model."
     },
     {
       "key": "vlm-inference-pipeline",
       "type": "image",
       "file": "assets/vlm-inference-pipeline.png",
-      "alt": "Vision encoding, projection, prefill, and decode latency pipeline.",
-      "caption": "Vision encoding, projection, prefill, and decode latency pipeline."
+      "alt": "A cat image passes through a ViT encoder and adapter before joining tokenized text embeddings; the combined inputs then move through language-model prefill and decode stages with approximate timings.",
+      "alt_ar": "صورة قطة تمر عبر ViT Encoder وAdapter ثم تنضم إلى Embeddings النص، وتمر المدخلات عبر مرحلتي Prefill وDecode مع أزمنة تقريبية.",
+      "caption": "Vision encoding, projection, prefill, and decode latency pipeline.",
+      "caption_ar": "زمن الاستجابة يتوزع بين ترميز الرؤية والإسقاط ثم مرحلتي Prefill وDecode."
     },
     {
       "key": "vlm-multimodal-projector",
       "type": "image",
       "file": "assets/vlm-multimodal-projector.png",
-      "alt": "Projected visual tokens concatenated with text embeddings before language decoding.",
-      "caption": "Projected visual tokens concatenated with text embeddings before language decoding."
+      "alt": "A multimodal projector converts visual features into a sequence of visual tokens, which are concatenated with text embedding tokens before entering a text decoder.",
+      "alt_ar": "Multimodal Projector يحوّل الخصائص البصرية إلى تسلسل Visual Tokens تُلصق مع Text Embeddings قبل دخولها Text Decoder.",
+      "caption": "Projected visual tokens concatenated with text embeddings before language decoding.",
+      "caption_ar": "تُلصق Visual Tokens المُسقَطة مع Text Embeddings في تسلسل واحد قبل فك ترميز اللغة."
     },
     {
       "key": "vlm-pretraining-finetuning",
       "type": "image",
       "file": "assets/vlm-pretraining-finetuning.png",
-      "alt": "VLM pretraining and fine-tuning with frozen and trainable components.",
-      "caption": "VLM pretraining and fine-tuning with frozen and trainable components."
+      "alt": "Pretraining and fine-tuning diagrams show image encoder, multimodal projector, and text decoder paths, with color indicating that pretraining updates the projector while fine-tuning also updates the text decoder and keeps the image encoder frozen.",
+      "alt_ar": "مخططان لـ Pretraining وFine-tuning يعرضان مسارات Image Encoder وMultimodal Projector وText Decoder، ويدل اللون على ما يُحدَّث في كل مرحلة.",
+      "caption": "VLM pretraining and fine-tuning with frozen and trainable components.",
+      "caption_ar": "في Pretraining يتدرب Projector، وفي Fine-tuning يتدرب Text Decoder أيضًا بينما يبقى Image Encoder مجمَّدًا."
     }
   ]
 }

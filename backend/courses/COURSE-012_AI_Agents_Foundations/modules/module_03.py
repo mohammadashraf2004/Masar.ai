@@ -234,6 +234,9 @@ TOPIC = {
             "The agent should not need to know how the underlying service is implemented. It only "
             "needs to understand the interface exposed by the server.\n"
             "\n"
+            '{{image:mcp-architecture}}'
+            '\n'
+            "\n"
             "---\n"
             "\n"
 
@@ -262,7 +265,7 @@ TOPIC = {
             "\n"
             "### Prompts\n"
             "\n"
-            "**Prompts** are reusable templates supplied by a server for common interactions or workflows.\n\n"
+            "**Prompts** are reusable templates supplied by a server for common interactions or workflows.\n\n{{image:mcp-capabilities}}\n"
             "\n"
             "The chapter makes an important distinction about control:\n"
             "\n"
@@ -409,7 +412,7 @@ TOPIC = {
             "\n"
             "### Evaluation and feedback\n"
             "\n"
-            "A server may expose scoring, judging, benchmarking, or human-approval routing.\n\n"
+            "A server may expose scoring, judging, benchmarking, or human-approval routing.\n\n{{image:mcp-agent-layers}}\n"
             "\n"
             "The architectural lesson is that MCP is a **connection pattern**, not merely a category "
             "of action tool.\n"

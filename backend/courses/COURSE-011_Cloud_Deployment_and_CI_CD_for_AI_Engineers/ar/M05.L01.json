@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M05.L01",
-  "source_hash": "051313b468fed661f027fdc7b112cf763737756c4303268d63c37cb695987d95",
+  "source_hash": "ee600010e1ba1bc02c81b28becf652ba84fcac9522bdaaef91210a2570a2ed7b",
   "title": "بناء أول مسار CI/CD لك",
   "exercises": [
     {

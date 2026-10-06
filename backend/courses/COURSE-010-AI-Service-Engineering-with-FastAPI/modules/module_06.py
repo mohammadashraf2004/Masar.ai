@@ -219,6 +219,8 @@ Each solves a slightly different problem.
 | SSE | Persistent HTTP stream | Server → client | LLM output, feeds, dashboards |
 | WebSocket | Persistent upgraded connection | Both directions | Voice, collaboration, interactive streams |
 
+{{image:communication-mechanisms}}
+
 The source stresses that the choice depends on:
 
 - user experience,
@@ -488,6 +490,8 @@ An important advantage from the source is automatic reconnection behavior.
 It is one-way.
 
 If both sides need continuous real-time messaging, WebSocket is more appropriate.
+
+{{image:sse}}
 
 {{exercise:M01.L06.EX02}}
 
@@ -988,6 +992,8 @@ CLOSING
     ↓
 CLOSED
 ```
+
+{{image:websocket-lifecycle}}
 
 ### Message frames
 

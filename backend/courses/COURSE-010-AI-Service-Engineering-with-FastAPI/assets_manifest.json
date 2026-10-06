@@ -7,7 +7,9 @@
       "type": "image",
       "file": "assets/bgai_0104.png",
       "alt": "Layered FastAPI generative AI service with API routers, controls, and data-source integrations connected to models, a database, and external applications.",
+      "alt_ar": "خدمة FastAPI توليدية متعددة الطبقات: API Routers وضوابط وتكاملات مصادر بيانات متصلة بـ Models وDatabase وتطبيقات خارجية.",
       "caption": "The service boundary coordinates HTTP controls, models, persistence, and third-party integrations without collapsing them into one layer.",
+      "caption_ar": "تنسّق حدود الخدمة بين ضوابط HTTP والـ Models والتخزين وتكاملات الأطراف الثالثة دون دمجها في طبقة واحدة.",
       "source_reference": "Figure 1-4; source file bgai_0104.png"
     },
     {
@@ -15,7 +17,9 @@
       "type": "image",
       "file": "assets/bgai_0504.png",
       "alt": "An event loop receives requests from four clients, delegates work to workers, and routes callbacks and responses back to each client.",
+      "alt_ar": "Event Loop تستقبل طلبات أربعة عملاء، وتفوّض العمل إلى Workers، وتعيد الـ Callbacks والاستجابات إلى كل عميل.",
       "caption": "The event loop keeps many requests moving by delegating work and resuming each request when its result is ready.",
+      "caption_ar": "تُبقي Event Loop طلبات كثيرة في حالة تقدّم بتفويض العمل ثم استئناف كل طلب عند جاهزية نتيجته.",
       "source_reference": "Figure 5-4; source file bgai_0504.png"
     },
     {
@@ -23,7 +27,9 @@
       "type": "image",
       "file": "assets/bgai_0811.png",
       "alt": "Nested comparison of RBAC, ReBAC, and ABAC using roles, team relationships, and subscription attributes to control access to text and image models.",
+      "alt_ar": "مقارنة متداخلة بين RBAC وReBAC وABAC تتحكم في الوصول إلى Models النص والصورة بالأدوار وعلاقات الفريق وخصائص الاشتراك.",
       "caption": "RBAC grants by role, ReBAC by relationship, and ABAC by attributes such as subscription tier.",
+      "caption_ar": "يمنح RBAC الصلاحيات بحسب الدور، وReBAC بحسب العلاقة، وABAC بحسب خصائص مثل مستوى الاشتراك.",
       "source_reference": "Figure 8-11; source file bgai_0811.png"
     },
     {
@@ -31,7 +37,9 @@
       "type": "image",
       "file": "assets/bgai_0607.png",
       "alt": "Sequence diagrams comparing HTTP request-response, short polling, long polling, server-sent events, and bidirectional WebSocket communication.",
+      "alt_ar": "مخططات تسلسل لـ HTTP Request-Response وShort Polling وLong Polling وServer-Sent Events وWebSocket ثنائي الاتجاه.",
       "caption": "Choose a communication pattern by update direction, latency needs, and connection lifetime—not by novelty.",
+      "caption_ar": "اختر نمط الاتصال بحسب اتجاه التحديثات واحتياج الـ Latency ومدة الاتصال، لا بحسب حداثته.",
       "source_reference": "Figure 6-7; source file bgai_0607.png"
     },
     {
@@ -39,7 +47,9 @@
       "type": "image",
       "file": "assets/bgai_0501.png",
       "alt": "Nested boxes showing multiprocessing parallelism as one way to execute work within the broader concept of concurrency, which also includes threading and async I/O.",
+      "alt_ar": "صناديق متداخلة: Parallelism عبر Multiprocessing إحدى طرق تنفيذ العمل داخل مفهوم Concurrency الأوسع، الذي يشمل أيضًا Threading وAsync I/O.",
       "caption": "Concurrency coordinates overlapping work; parallelism executes work simultaneously, often across processes.",
+      "caption_ar": "ينسّق Concurrency الأعمال المتداخلة، أما Parallelism فينفّذها في وقت واحد، غالبًا عبر Processes.",
       "source_reference": "Figure 5-1; source file bgai_0501.png"
     },
     {
@@ -47,7 +57,9 @@
       "type": "image",
       "file": "assets/bgai_1203.png",
       "alt": "Side-by-side stacks showing virtual machines with a guest OS per application and containers sharing the host operating system while packaging their own libraries.",
+      "alt_ar": "مكدّسان متجاوران: Virtual Machines بنظام تشغيل ضيف لكل تطبيق، وContainers تتشارك نظام تشغيل المضيف وتغلّف مكتباتها الخاصة.",
       "caption": "Containers share the host OS, while virtual machines package a separate guest OS for each workload.",
+      "caption_ar": "تتشارك Containers نظام تشغيل المضيف، بينما تغلّف Virtual Machines نظام تشغيل ضيفًا منفصلًا لكل Workload.",
       "source_reference": "Figure 12-3; source file bgai_1203.png"
     },
     {
@@ -55,7 +67,9 @@
       "type": "image",
       "file": "assets/bgai_1003.png",
       "alt": "A video-summary query sends an LLM a cache reference while files are stored once in a multimodal cache containing video, image, audio, and document content.",
+      "alt_ar": "استعلام لتلخيص فيديو يرسل إلى LLM مرجعًا إلى Cache فقط، وتُخزَّن الملفات مرة واحدة في Multimodal Cache يضم الفيديو والصورة والصوت والمستندات.",
       "caption": "Context caching lets repeated requests reference previously uploaded multimodal content instead of resending it.",
+      "caption_ar": "يتيح Context Caching للطلبات المتكررة الإشارة إلى محتوى سبق رفعه بدل إعادة إرساله.",
       "source_reference": "Figure 10-3; source file bgai_1003.png"
     },
     {
@@ -63,7 +77,9 @@
       "type": "image",
       "file": "assets/bgai_0516.png",
       "alt": "Two token grids showing continuous batching filling open sequence slots with new prompt tokens as other sequences emit output or stop tokens.",
+      "alt_ar": "شبكتا Tokens: Continuous Batching يملأ الخانات الشاغرة بـ Tokens من Prompts جديدة كلما أنهت تسلسلات أخرى مخرجاتها أو بلغت Token الإيقاف.",
       "caption": "Continuous batching replaces finished sequences immediately, keeping more accelerator slots productive.",
+      "caption_ar": "يستبدل Continuous Batching التسلسلات المنتهية فورًا، فتبقى خانات المسرِّع منتجة أكثر.",
       "source_reference": "Figure 5-16; source file bgai_0516.png"
     },
     {
@@ -71,7 +87,9 @@
       "type": "image",
       "file": "assets/bgai_0205.png",
       "alt": "Layer diagram showing a controller calling services that use a repository and database, and providers that connect to email, GitHub, and other external applications.",
+      "alt_ar": "مخطط طبقات: Controller يستدعي Services تستخدم Repository وDatabase، وProviders تتصل بالبريد وGitHub وتطبيقات خارجية.",
       "caption": "Controllers coordinate use cases; repositories isolate persistence, and providers isolate external systems.",
+      "caption_ar": "تنسّق Controllers حالات الاستخدام، وتعزل Repositories طبقة التخزين، وتعزل Providers الأنظمة الخارجية.",
       "source_reference": "Figure 2-5; source file bgai_0205.png"
     },
     {
@@ -79,7 +97,9 @@
       "type": "image",
       "file": "assets/bgai_0209.png",
       "alt": "FastAPI service architecture with API routers and authentication guards, modality-specific resource controllers, shared services, storage systems, and text, image, video, audio, geometry, and embedding models.",
+      "alt_ar": "معمارية خدمة FastAPI: API Routers وAuthentication Guards وResource Controllers لكل Modality وServices مشتركة وأنظمة تخزين وModels للنص والصورة والفيديو والصوت والهندسة والـ Embedding.",
       "caption": "A modular AI service can expose many modalities while keeping routing, resource control, services, storage, and models separate.",
+      "caption_ar": "تستطيع خدمة AI معيارية أن تعرض Modalities كثيرة مع إبقاء الـ Routing والتحكم بالموارد والـ Services والتخزين والـ Models منفصلة.",
       "source_reference": "Figure 2-9; source file bgai_0209.png"
     },
     {
@@ -87,7 +107,9 @@
       "type": "image",
       "file": "assets/bgai_0202.png",
       "alt": "Dependency graph where get_db feeds get_user, and get_user feeds both a user endpoint and get_user_message for a messages endpoint.",
+      "alt_ar": "Dependency Graph يغذّي فيه get_db الدالة get_user، وتغذّي get_user كلًا من Endpoint المستخدم وget_user_message لـ Endpoint الرسائل.",
       "caption": "FastAPI resolves shared dependencies as a graph, reusing upstream results across endpoint-specific logic.",
+      "caption_ar": "يحلّ FastAPI الـ Dependencies المشتركة كـ Graph، فيعيد استخدام نتائج الطبقات العليا في منطق كل Endpoint.",
       "source_reference": "Figure 2-2; source file bgai_0202.png"
     },
     {
@@ -95,7 +117,9 @@
       "type": "image",
       "file": "assets/bgai_1204.png",
       "alt": "Docker client commands communicate with the Docker daemon, which builds and runs containers from images pulled from a registry.",
+      "alt_ar": "أوامر Docker Client تتصل بـ Docker Daemon الذي يبني Containers ويشغّلها من Images مسحوبة من Registry.",
       "caption": "The Docker client directs the daemon, while registries distribute the images from which containers run.",
+      "caption_ar": "يوجّه Docker Client الـ Daemon، وتوزّع Registries الـ Images التي تعمل منها Containers.",
       "source_reference": "Figure 12-4; source file bgai_1204.png"
     },
     {
@@ -103,7 +127,9 @@
       "type": "image",
       "file": "assets/bgai_1111.png",
       "alt": "RAG pipeline from file upload through extraction, transformation, vector storage, retrieval, and generation, overlaid with separate upload, generation, and full-workflow end-to-end test boundaries.",
+      "alt_ar": "RAG Pipeline من رفع الملف إلى الاستخراج والتحويل وتخزين Vector والاسترجاع والتوليد، مع حدود اختبارات End-to-End للرفع وللتوليد وللمسار الكامل.",
       "caption": "End-to-end tests should cover both individual API workflows and the complete upload-to-answer path.",
+      "caption_ar": "ينبغي أن تغطي اختبارات End-to-End مسارات API المنفردة والمسار الكامل من الرفع إلى الإجابة.",
       "source_reference": "Figure 11-11; source file bgai_1111.png"
     },
     {
@@ -111,7 +137,9 @@
       "type": "image",
       "file": "assets/bgai_0817.png",
       "alt": "A client calls a FastAPI service that asks separate authorization logic to decide an actor-resource-action tuple, then enforces the allow or deny result.",
+      "alt_ar": "Client يستدعي خدمة FastAPI التي تطلب من منطق Authorization منفصل أن يقرر في tuple من Actor وResource وAction، ثم تنفّذ نتيجة السماح أو الرفض.",
       "caption": "Keep policy decisions separate from enforcement: the authorization service decides, and the API applies the result.",
+      "caption_ar": "افصل قرار السياسة عن تنفيذها: خدمة Authorization تقرّر، وAPI تطبّق النتيجة.",
       "source_reference": "Figure 8-17; source file bgai_0817.png"
     },
     {
@@ -119,7 +147,9 @@
       "type": "image",
       "file": "assets/bgai_0901.png",
       "alt": "Comparison of a direct prompt-to-LLM path with a guarded path that checks inputs for PII, off-topic requests, and jailbreaks and checks outputs for hallucinations, profanity, and competitor mentions.",
+      "alt_ar": "مقارنة بين مسار مباشر من Prompt إلى LLM ومسار محمي يفحص المدخلات بحثًا عن PII والطلبات الخارجة عن الموضوع وJailbreaks، ويفحص المخرجات بحثًا عن Hallucinations والألفاظ النابية وذكر المنافسين.",
       "caption": "Guardrails constrain both sides of the model boundary: unsafe inputs before inference and unacceptable outputs afterward.",
+      "caption_ar": "تقيّد Guardrails جانبَي حدود الـ Model: المدخلات غير الآمنة قبل Inference والمخرجات غير المقبولة بعده.",
       "source_reference": "Figure 9-1; source file bgai_0901.png"
     },
     {
@@ -127,7 +157,9 @@
       "type": "image",
       "file": "assets/bgai_1210.png",
       "alt": "Docker host with two separate bridge networks, docker0 and genai-net, each assigning its own subnet addresses to connected containers.",
+      "alt_ar": "مضيف Docker بشبكتي Bridge منفصلتين هما docker0 وgenai-net، تعيّن كل منهما عناوين Subnet خاصة بها للـ Containers المتصلة بها.",
       "caption": "Separate bridge networks create explicit connectivity boundaries between groups of containers.",
+      "caption_ar": "تنشئ شبكات Bridge المنفصلة حدود اتصال صريحة بين مجموعات Containers.",
       "source_reference": "Figure 12-10; source file bgai_1210.png"
     },
     {
@@ -135,7 +167,9 @@
       "type": "image",
       "file": "assets/bgai_0805.png",
       "alt": "FastAPI authentication architecture showing login, registration, and password reset routes, password and token services, user persistence, token issuance, and token-protected resource requests.",
+      "alt_ar": "معمارية Authentication في FastAPI: مسارات Login وRegistration وPassword Reset، وخدمات كلمات المرور والـ Tokens، وحفظ المستخدمين، وإصدار Tokens، وطلبات موارد محمية بـ Token.",
       "caption": "Authentication verifies credentials and issues tokens; protected resource routes validate those tokens on later requests.",
+      "caption_ar": "يتحقق Authentication من بيانات الاعتماد ويصدر Tokens، وتتحقق مسارات الموارد المحمية منها في الطلبات اللاحقة.",
       "source_reference": "Figure 8-5; source file bgai_0805.png"
     },
     {
@@ -143,7 +177,9 @@
       "type": "image",
       "file": "assets/bgai_0329.png",
       "alt": "A model-loading timeline showing a generative model loaded from disk into memory during a request, used for inference, and then unloaded after that request.",
+      "alt_ar": "جدول زمني: Model توليدي يُحمَّل من القرص إلى الذاكرة أثناء الطلب، ثم يُستخدم في Inference، ثم يُفرَّغ بعد الطلب.",
       "caption": "Loading a model inside every request repeats expensive disk-to-memory work and makes latency unpredictable.",
+      "caption_ar": "تحميل الـ Model داخل كل طلب يكرر نقله المكلف من القرص إلى الذاكرة ويجعل الـ Latency غير متوقعة.",
       "source_reference": "Figure 3-29; source file bgai_0329.png"
     },
     {
@@ -151,7 +187,9 @@
       "type": "image",
       "file": "assets/bgai_0330.png",
       "alt": "Application lifespan timeline showing a generative model loaded from disk into RAM at startup, reused for each inference request, and unloaded only after the shutdown signal.",
+      "alt_ar": "جدول زمني لـ Lifespan التطبيق: Model توليدي يُحمَّل من القرص إلى RAM عند Startup، ويُعاد استخدامه لكل طلب Inference، ولا يُفرَّغ إلا بعد إشارة Shutdown.",
       "caption": "FastAPI lifespan loads the model once, reuses it across requests, and releases it during shutdown.",
+      "caption_ar": "يحمّل Lifespan في FastAPI الـ Model مرة واحدة، ويعيد استخدامه عبر الطلبات، ويحرره عند Shutdown.",
       "source_reference": "Figure 3-30; source file bgai_0330.png"
     },
     {
@@ -159,7 +197,9 @@
       "type": "image",
       "file": "assets/bgai_0808.png",
       "alt": "OAuth authorization-code flow where a client requests consent and scopes, exchanges the returned grant code for an access token, and uses the token to call a resource server.",
+      "alt_ar": "تدفق OAuth Authorization Code: يطلب Client الموافقة والـ Scopes، ويستبدل رمز المنحة بـ Access Token، ثم يستدعي به Resource Server.",
       "caption": "OAuth keeps resource-owner consent, token issuance, and protected-resource access as distinct steps.",
+      "caption_ar": "يُبقي OAuth موافقة مالك المورد وإصدار الـ Token والوصول إلى المورد المحمي خطوات منفصلة.",
       "source_reference": "Figure 8-8; source file bgai_0808.png"
     },
     {
@@ -167,7 +207,9 @@
       "type": "image",
       "file": "assets/bgai_0203.png",
       "alt": "Concentric application layers with models and repositories at the center, services, providers, and dependencies around them, and controllers, routers, guards, mappers, and exception filters at the edge.",
+      "alt_ar": "طبقات متداخلة: Models وRepositories في المركز، وServices وProviders وDependencies حولها، وControllers وRouters وGuards وMappers وException Filters عند الحافة.",
       "caption": "Onion architecture keeps domain and persistence abstractions inside, with transport and framework concerns at the edge.",
+      "caption_ar": "تُبقي Onion Architecture تجريدات المجال والتخزين في الداخل، وشواغل النقل والـ Framework عند الحافة.",
       "source_reference": "Figure 2-3; source file bgai_0203.png"
     },
     {
@@ -175,7 +217,9 @@
       "type": "image",
       "file": "assets/bgai_0902.png",
       "alt": "Side-by-side diagrams of a token bucket that admits traffic when tokens are available and a leaky bucket that emits packets at a constant rate and drops overflow.",
+      "alt_ar": "مخططان متجاوران: Token Bucket يسمح بالمرور ما دامت Tokens متاحة، وLeaky Bucket يُخرج الحزم بمعدل ثابت ويُسقط الفائض.",
       "caption": "Token buckets permit controlled bursts; leaky buckets smooth output to a steady rate and discard overflow.",
+      "caption_ar": "يسمح Token Bucket بـ Bursts مضبوطة، بينما ينعّم Leaky Bucket المخرجات إلى معدل ثابت ويتخلص من الفائض.",
       "source_reference": "Figure 9-2; source file bgai_0902.png"
     },
     {
@@ -183,7 +227,9 @@
       "type": "image",
       "file": "assets/bgai_0704.png",
       "alt": "Onion architecture with repositories beside models in the center, separating database access from services and outer transport concerns.",
+      "alt_ar": "Onion Architecture تضع Repositories بجانب Models في المركز، فتفصل الوصول إلى Database عن Services وعن شواغل النقل الخارجية.",
       "caption": "Repositories keep persistence details behind an inner interface that services can use without depending on the database implementation.",
+      "caption_ar": "تُبقي Repositories تفاصيل التخزين خلف واجهة داخلية تستخدمها Services دون الاعتماد على تنفيذ Database.",
       "source_reference": "Figure 7-4; source file bgai_0704.png"
     },
     {
@@ -191,7 +237,9 @@
       "type": "image",
       "file": "assets/bgai_0604.png",
       "alt": "Sequence diagram showing an HTTP handshake and acknowledgment followed by a one-way stream of server-sent messages from server to client.",
+      "alt_ar": "مخطط تسلسل: HTTP Handshake وإقرار، يتبعهما تدفق أحادي الاتجاه من رسائل Server-Sent من Server إلى Client.",
       "caption": "Server-sent events use one persistent HTTP connection for server-to-client updates.",
+      "caption_ar": "تستخدم Server-Sent Events اتصال HTTP دائمًا واحدًا لتحديثات تتجه من Server إلى Client.",
       "source_reference": "Figure 6-4; source file bgai_0604.png"
     },
     {
@@ -199,7 +247,9 @@
       "type": "image",
       "file": "assets/bgai_1207.png",
       "alt": "A container connected to three storage choices on the host: a bind mount in the host filesystem, a Docker-managed volume, and an in-memory tmpfs mount.",
+      "alt_ar": "Container متصل بثلاثة خيارات تخزين على المضيف: Bind Mount في نظام ملفات المضيف، وVolume يديره Docker، وTmpfs في الذاكرة.",
       "caption": "Bind mounts, managed volumes, and tmpfs provide different persistence, ownership, and lifecycle trade-offs.",
+      "caption_ar": "توفر Bind Mounts وManaged Volumes وTmpfs مقايضات مختلفة في الاستمرارية والملكية ودورة الحياة.",
       "source_reference": "Figure 12-7; source file bgai_1207.png"
     },
     {
@@ -207,7 +257,9 @@
       "type": "image",
       "file": "assets/bgai_1101.png",
       "alt": "Three testing scopes: unit tests isolate small code units, integration tests connect code to services or databases, and end-to-end tests exercise a user flow across multiple services.",
+      "alt_ar": "ثلاثة نطاقات اختبار: Unit Tests تعزل وحدات كود صغيرة، وIntegration Tests تربط الكود بخدمات أو Databases، وEnd-to-End Tests تختبر مسار مستخدم عبر عدة خدمات.",
       "caption": "Unit, integration, and end-to-end tests trade isolation for progressively broader system confidence.",
+      "caption_ar": "تتدرج اختبارات Unit وIntegration وEnd-to-End من عزل أكبر إلى ثقة أوسع بالنظام.",
       "source_reference": "Figure 11-1; source file bgai_1101.png"
     },
     {
@@ -215,7 +267,9 @@
       "type": "image",
       "file": "assets/bgai_1109.png",
       "alt": "Inheritance-style diagram showing fake, dummy, stub, spy, and mock as specialized forms of the general test-double concept.",
+      "alt_ar": "مخطط وراثة يعرض Fake وDummy وStub وSpy وMock كأشكال متخصصة من مفهوم Test Double.",
       "caption": "Fakes, dummies, stubs, spies, and mocks replace collaborators for different testing purposes.",
+      "caption_ar": "تستبدل Fakes وDummies وStubs وSpies وMocks الأطراف المتعاونة لأغراض اختبار مختلفة.",
       "source_reference": "Figure 11-9; source file bgai_1109.png"
     },
     {
@@ -223,7 +277,9 @@
       "type": "image",
       "file": "assets/bgai_0505.png",
       "alt": "Timeline comparing serial single-threaded requests, multithreaded requests that alternate CPU ownership under the GIL, and asyncio requests that overlap while waiting for I/O.",
+      "alt_ar": "جدول زمني يقارن طلبات متسلسلة بـ Thread واحد، وطلبات Multithreaded تتناوب على CPU تحت GIL، وطلبات asyncio تتداخل أثناء انتظار I/O.",
       "caption": "Threads and asyncio both overlap I/O waits, but they schedule work through different execution models.",
+      "caption_ar": "يتداخل كلٌّ من Threads وasyncio مع انتظارات I/O، لكنهما يجدولان العمل بنموذجي تنفيذ مختلفين.",
       "source_reference": "Figure 5-5; source file bgai_0505.png"
     },
     {
@@ -247,7 +303,9 @@
       "type": "image",
       "file": "assets/bgai_0606.png",
       "alt": "WebSocket lifecycle from connecting through the HTTP upgrade and 101 response, to bidirectional data frames in the open state, close frames, and TCP termination.",
+      "alt_ar": "دورة حياة WebSocket: الاتصال عبر HTTP Upgrade واستجابة 101، ثم إطارات بيانات ثنائية الاتجاه في حالة Open، ثم Close Frames وإنهاء TCP.",
       "caption": "The WebSocket lifecycle has explicit upgrade, open data-transfer, closing-handshake, and closed states.",
+      "caption_ar": "لدورة حياة WebSocket حالات صريحة: Upgrade، وOpen لنقل البيانات، وClosing Handshake، وClosed.",
       "source_reference": "Figure 6-6; source file bgai_0606.png"
     }
   ],

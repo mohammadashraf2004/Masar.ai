@@ -62,8 +62,6 @@ def test_a_folder_without_a_manifest_has_no_assets_and_no_problems(tmp_path):
 
 
 @pytest.mark.parametrize("entry,expected", [
-    ({"key": "k", "file": "assets/lora.png", "alt": ""}, "no alt text"),
-    ({"key": "k", "file": "assets/lora.png"}, "no alt text"),
     ({"key": "k", "file": "assets/missing.png", "alt": "x"}, "does not exist"),
     ({"key": "k", "file": "../outside.png", "alt": "x"}, "plain path inside the course folder"),
     ({"key": "k", "file": "/etc/passwd", "alt": "x"}, "plain path inside the course folder"),
@@ -81,6 +79,14 @@ def test_an_unsound_asset_entry_is_a_problem_and_nothing_is_imported_from_it(tmp
     assets, problems = load_assets(course)
     assert assets == []
     assert len(problems) == 1 and expected in problems[0], problems
+
+
+@pytest.mark.parametrize("entry", [{"key": "k", "file": "assets/lora.png", "alt": ""}, {"key": "k", "file": "assets/lora.png"}])
+def test_a_missing_alt_text_is_a_warning_the_image_is_still_usable(tmp_path, entry):
+    from app.services.curriculum.assets import load_asset_manifest
+    loaded = load_asset_manifest(_write_course(tmp_path, manifest={"version": 1, "assets": [entry]}))
+    assert loaded.problems == [] and len(loaded.assets) == 1
+    assert [w for w in loaded.warnings if "no alt text" in w] != []
 
 
 def test_duplicate_keys_and_a_non_canonical_manifest_are_problems(tmp_path):
@@ -259,12 +265,12 @@ def test_a_locked_lesson_has_neither_text_nor_figure_urls(learn_client, learn_db
     assert "/assets/" not in json.dumps(lesson)
 
 
-def test_a_figure_whose_asset_was_removed_is_left_out_and_its_marker_is_never_shown(learn_client, learn_db, figure_course):
+def test_a_figure_whose_asset_was_removed_shows_a_named_gap_and_its_marker_is_never_shown(learn_client, learn_db, figure_course):
     learn_db.query(CourseAsset).filter(CourseAsset.key == "parameter-savings").delete()
     learn_db.commit()
     who = register(learn_client)
     blocks = _course_json(learn_client, who)["topics"][0]["lessons"][0]["blocks"]
-    assert [b["type"] for b in blocks] == ["markdown", "image", "markdown", "markdown"]
+    assert [b["type"] for b in blocks] == ["markdown", "image", "markdown", "image_missing", "markdown"]
     assert "{{figure" not in json.dumps(blocks)
 
 

@@ -718,6 +718,8 @@ The source highlights two important trainable components:
 The goal is to add visual capability without heavily modifying the pretrained
 language model.
 
+{{image:flamingo-architecture}}
+
 ---
 
 ## 10. Perceiver resampler: fixed-size visual summary
@@ -965,6 +967,8 @@ class GatedCrossAttentionLayer(nn.Module):
         return text_hidden
 ```
 
+{{image:gated-cross-attention}}
+
 ---
 
 ## 12. Unified sequence: make images look like tokens
@@ -1024,6 +1028,8 @@ the visual tokens must be projected:
 ```
 
 Then both modalities can exist inside the same sequence.
+
+{{image:smolvlm-unified-sequence}}
 
 ---
 
@@ -1665,6 +1671,8 @@ For example, if a vision model compresses a frame into one label:
 
 the later text system cannot recover visual details that were discarded.
 
+{{image:early-fusion-classifier}}
+
 {{exercise:M01.L06.EX04}}
 
 ---
@@ -1816,6 +1824,8 @@ one vector
 The decoder cannot dynamically look back at specific image regions.
 
 Modern attention-based VLMs improve this by keeping many visual tokens.
+
+{{image:vlm-architecture-comparison}}
 
 ---
 

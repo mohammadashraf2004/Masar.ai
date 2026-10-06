@@ -632,6 +632,8 @@ instead of more than 16 million for that matrix.
 
 This is why LoRA can drastically reduce trainable parameter count.
 
+{{image:lora-low-rank-adaptation}}
+
 ### Choosing rank
 
 Higher rank:
@@ -687,6 +689,8 @@ magnitude × direction
 ```
 
 This gives the adaptation more control over how the pretrained weight changes.
+
+{{image:dora-weight-decomposition}}
 
 ### PEFT trade-off
 
@@ -1168,6 +1172,8 @@ rejected response       → lower score
 
 The policy model is then optimized to generate responses with better reward.
 
+{{image:rlhf-training-pipeline}}
+
 ---
 
 ## 16. Reinforcement-learning terms in language-model alignment
@@ -1342,6 +1348,8 @@ chosen assistant answer
 rejected assistant answer
 ```
 
+{{image:rlhf-vs-dpo}}
+
 ---
 
 ## 20. Understanding DPO beta
@@ -1467,6 +1475,8 @@ current policy updates
 
 The preference data stays closer to the current policy's actual behavior.
 
+{{image:online-dpo}}
+
 ### Trade-off
 
 Online methods require generation during training.
@@ -1485,6 +1495,8 @@ images
 chosen
 rejected
 ```
+
+{{image:multimodal-preference-dataset}}
 
 Conceptually:
 
@@ -1715,6 +1727,8 @@ A below-average response receives negative relative advantage.
 It avoids some of the machinery associated with PPO's value estimation.
 
 The source still notes KL regularization against a reference model.
+
+{{image:ppo-vs-grpo}}
 
 {{exercise:M01.L05.EX04}}
 

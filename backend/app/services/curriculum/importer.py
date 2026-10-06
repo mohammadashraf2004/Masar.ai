@@ -512,6 +512,7 @@ def import_assets(db: Session, spec: CourseSpec, tool_course: ToolCourse, report
             "tool_course_id": tool_course.id, "asset_type": "image", "storage_key": asset.storage_key,
             "mime_type": asset.mime_type, "byte_size": asset.byte_size, "width": asset.width, "height": asset.height,
             "sha256": asset.sha256, "alt": asset.alt, "caption": asset.caption,
+            "alt_ar": asset.alt_ar, "caption_ar": asset.caption_ar,
             "figure_number": asset.figure_number, "source_reference": asset.source_reference,
         }
         row = existing.get(asset.key)

@@ -164,6 +164,9 @@ TOPIC = {
             "    +------> evaluate again\n"
             "```\n"
             "\n"
+            '{{image:agent-evaluation-feedback}}'
+            '\n'
+            "\n"
             "---\n"
             "\n"
 
@@ -359,6 +362,9 @@ TOPIC = {
             "```\n"
             "\n"
             "Unlike deterministic software tests, agent tests often need repeated runs because LLM outputs vary.\n"
+            "\n"
+            '{{image:tdad-cycle}}'
+            '\n'
             "\n"
             "---\n"
             "\n"
@@ -611,6 +617,9 @@ TOPIC = {
             "- complex pass/fail decisions.\n"
             "\n"
             "Choosing the narrowest evaluator that matches the requirement usually makes the result easier to understand.\n"
+            "\n"
+            '{{image:evaluator-patterns}}'
+            '\n'
             "\n"
             "---\n"
             "\n"
@@ -885,7 +894,7 @@ TOPIC = {
             "\n"
             "The named trace creates an understandable unit of work inside the observability system.\n"
             "\n"
-            "Phoenix can then expose operational information about the agent and the underlying LLM calls.\n\n"
+            "Phoenix can then expose operational information about the agent and the underlying LLM calls.\n\n{{image:phoenix-observability}}\n"
             "\n"
             "---\n"
             "\n"

@@ -192,6 +192,8 @@ They are often called Git's **three trees**:
 2. Staging Area
 3. Repository
 
+{{image:git-three-trees}}
+
 ### 2.1 Working Directory
 
 The **working directory** is the project folder you actually edit.
@@ -667,6 +669,8 @@ So do not interpret GitFlow as the only correct strategy.
 
 Its value here is that it teaches clear roles for different branch types.
 
+{{image:gitflow}}
+
 ### 5.1 `main`
 
 `main` represents stable released code in the GitFlow model described by the source.
@@ -926,6 +930,8 @@ It creates a collaboration space where the team can:
 - request revisions,
 - run automated checks,
 - approve or reject the merge.
+
+{{image:pull-request}}
 
 ### 7.1 Write a useful PR description
 

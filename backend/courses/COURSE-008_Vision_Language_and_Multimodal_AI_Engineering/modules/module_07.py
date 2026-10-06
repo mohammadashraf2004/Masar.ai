@@ -208,6 +208,8 @@ This matters because every visual token contributes to:
 A long multimodal conversation therefore often costs more memory than a
 comparable text-only chat.
 
+{{image:vlm-inference-pipeline}}
+
 ---
 
 ## 2. Prefill versus decode
@@ -710,6 +712,8 @@ The source presents GQA as a balance between:
 - efficiency;
 - model quality.
 
+{{image:mha-gqa-mqa}}
+
 ---
 
 ## 8. Why inference is often memory-bound
@@ -879,6 +883,8 @@ HBM ↔ SRAM
 ```
 
 mean higher effective throughput.
+
+{{image:standard-vs-flash-attention}}
 
 ---
 
@@ -1052,6 +1058,8 @@ A simplified relationship is:
 w_hat ≈ scale × (q - zero_point)
 ```
 
+{{image:linear-quantization-scaling}}
+
 Different blocks of weights can receive different scales.
 
 This becomes important because weight distributions are not uniform.
@@ -1120,6 +1128,8 @@ The source reports an example where 4-bit loading:
 - reduced memory dramatically;
 - increased TTFT;
 - improved throughput per GB.
+
+{{image:vlm-bf16-int4-memory-efficiency}}
 
 That demonstrates an important deployment distinction:
 

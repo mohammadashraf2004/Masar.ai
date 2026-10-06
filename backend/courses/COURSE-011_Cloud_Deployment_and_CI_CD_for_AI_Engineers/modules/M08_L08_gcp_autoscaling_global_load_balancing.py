@@ -321,6 +321,8 @@ platform observes signal
 managed group adjusts automatically
 ```
 
+{{image:gcp-instance-group-autoscaling}}
+
 ---
 
 ## 5. Autohealing with a global health check
@@ -358,6 +360,8 @@ Healthy threshold: 2 successes
 Unhealthy threshold: 3 failures
 Initial delay: 60 seconds
 ```
+
+{{image:gcp-instance-group-health-check}}
 
 ### Why initial delay?
 
@@ -558,6 +562,8 @@ healthy instance
        ↓
 application stack
 ```
+
+{{image:gcp-global-load-balancer}}
 
 {{exercise:M08.L08.EX03}}
 

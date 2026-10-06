@@ -242,6 +242,8 @@ The chapter creates an EC2 key pair and downloads a file such as:
 my-web-server-key-pair.pem
 ```
 
+{{image:ec2-key-pair}}
+
 This private key will later be used for SSH.
 
 Treat it as sensitive.

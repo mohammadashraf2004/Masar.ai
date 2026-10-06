@@ -65,21 +65,47 @@ export interface MarkdownBlock {
   content: string
 }
 
-/** A figure, placed where the lesson's author put it. `url` is relative to the API root (or absolute). */
+/** An image, placed where the lesson's author put it (`{{image:key}}`). `url` is relative to the API root (or absolute). */
 export interface ImageBlock {
   type: 'image'
   asset_key: string
   url: string
   alt: string
   caption?: string | null
+  /** Language the alt text / caption are actually written in: the reader's language when the course wrote
+   *  one, else the other (so an English fallback inside an Arabic lesson keeps its own direction). */
+  alt_lang?: 'en' | 'ar'
+  caption_lang?: 'en' | 'ar'
   /** Shown before the caption when the course sets one ("Figure 4.2"). */
   figure_number?: string | null
   width?: number | null
   height?: number | null
 }
 
+/** The lesson places an image the course no longer has; shown as a note, never silently dropped. */
+export interface MissingImageBlock {
+  type: 'image_missing'
+  asset_key: string
+}
+
+/**
+ * An unresolved `[[IMAGE_NEEDED: ...]]` authoring request. The API sends it only outside production (title
+ * only, never the raw marker); a learner of a published lesson never receives one.
+ */
+export interface AuthorMarkerBlock {
+  type: 'author_marker'
+  kind: 'image_needed'
+  title: string
+}
+
+/** The lesson points at an exercise it does not have. Sent outside production only, as an author diagnostic. */
+export interface MissingExerciseBlock {
+  type: 'exercise_missing'
+  exercise_id: string
+}
+
 /** A lesson body is an ordered list of these; the browser renders them in the order given. */
-export type LessonBlock = MarkdownBlock | ImageBlock
+export type LessonBlock = MarkdownBlock | ImageBlock | MissingImageBlock | AuthorMarkerBlock | MissingExerciseBlock
 
 export interface Lesson {
   id: number
@@ -87,7 +113,7 @@ export interface Lesson {
   content: string
   title_ar?: string | null
   content_ar?: string | null
-  /** The body as ordered blocks; null for a lesson that places no figure (render `content`). */
+  /** The body as ordered blocks; null for a lesson with no authoring syntax in it (render `content`). */
   blocks?: LessonBlock[] | null
   blocks_ar?: LessonBlock[] | null
   order: number

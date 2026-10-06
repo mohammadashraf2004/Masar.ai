@@ -261,6 +261,8 @@ maintenance ↑
 flakiness risk ↑
 ```
 
+{{image:test-boundaries}}
+
 ### Static checks come even earlier
 
 Before runtime tests, tools such as static type checkers can catch:
@@ -1088,6 +1090,8 @@ upload → index → retrieve → answer
 → E2E test
 ```
 
+{{image:e2e-boundaries}}
+
 ---
 
 ## 18. Organize and run pytest tests
@@ -1514,6 +1518,8 @@ with which arguments?
 ### Mock
 
 Encodes expected interactions and can fail if the component uses the dependency incorrectly.
+
+{{image:test-doubles}}
 
 ### Do not replace the behavior you want to test
 

@@ -16,10 +16,11 @@ import { TermAnnotationScope, useTermAnnotation } from './TermAnnotator'
 interface MarkdownLessonProps {
   content: string
   /**
-   * The body as ordered blocks (text runs and figures), when the lesson places
-   * figures. They are rendered in the order given, inside the one term-annotation
-   * scope, so the first-mention rule is still per lesson and not per text run.
-   * Without blocks the body is `content`, exactly as before.
+   * The body as ordered blocks (text runs, figures, author notes), when the lesson
+   * holds authoring syntax. They are rendered in the order given, inside the one
+   * term-annotation scope, so the first-mention rule is still per lesson and not per
+   * text run. An empty list renders nothing (never the raw `content`). Without blocks
+   * (null) the body is `content`, exactly as before.
    */
   blocks?: LessonBlock[] | null
   /**
@@ -267,6 +268,46 @@ function MarkdownBody({
   )
 }
 
+/**
+ * A lesson places an image the course does not have (removed after the lesson was imported).
+ * Validation stops this at import, so it is rare; when it happens the gap is visible: a learner
+ * sees that a figure is unavailable, and outside production the note names the key.
+ */
+function MissingImage({ assetKey }: { assetKey: string }) {
+  const { t } = useI18n()
+  return (
+    <div
+      role="note"
+      data-missing-image={process.env.NODE_ENV !== 'production' ? assetKey : undefined}
+      className="mx-auto my-4 max-w-full rounded-lg border border-dashed border-border bg-surface px-4 py-6 text-center text-sm text-soft"
+    >
+      {t('lesson.figureUnavailable')}
+      {process.env.NODE_ENV !== 'production' && (
+        <code className="mt-1 block text-xs" dir="ltr">{`image "${assetKey}" - no such image in this course`}</code>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Authoring notes (an unresolved image request, an exercise marker with no exercise behind it). The API sends
+ * them outside production only; a production build of the app drops them as well, so nothing here can reach a
+ * published lesson even if a development API is pointed at it.
+ */
+function AuthorNote({ kind, children }: { kind: string; children: React.ReactNode }) {
+  if (process.env.NODE_ENV === 'production') return null
+  return (
+    <div
+      role="note"
+      data-author-note={kind}
+      dir="auto"
+      className="mx-auto max-w-[var(--lc-measure)] rounded-md border border-dashed border-border px-3 py-1.5 text-center text-xs text-ghost"
+    >
+      {children}
+    </div>
+  )
+}
+
 export function MarkdownLesson({ content, blocks, dir, compact = false }: MarkdownLessonProps) {
   const { language, annotateTerms } = useI18n()
   const resolvedDir = dir ?? (language === 'ar' ? 'rtl' : 'ltr')
@@ -275,13 +316,19 @@ export function MarkdownLesson({ content, blocks, dir, compact = false }: Markdo
     // A fresh scope per lesson: the first-mention rule is per lesson, not
     // per session, so every lesson re-introduces the terms it uses.
     <TermAnnotationScope key={content} enabled={annotateTerms}>
-      {blocks && blocks.length > 0 ? (
+      {blocks ? (
         <div className="lesson-blocks" dir={resolvedDir}>
           {blocks.map((block, i) =>
             block.type === 'image' ? (
               <LessonImage key={`${i}-${block.asset_key}`} block={block} />
+            ) : block.type === 'image_missing' ? (
+              <MissingImage key={`${i}-${block.asset_key}`} assetKey={block.asset_key} />
             ) : block.type === 'markdown' ? (
               <MarkdownBody key={i} content={block.content} dir={resolvedDir} compact={compact} />
+            ) : block.type === 'author_marker' ? (
+              <AuthorNote key={i} kind={block.kind}>Image needed{block.title ? `: ${block.title}` : ''}</AuthorNote>
+            ) : block.type === 'exercise_missing' ? (
+              <AuthorNote key={i} kind="exercise_missing">Exercise {block.exercise_id} not found for this lesson</AuthorNote>
             ) : null,
           )}
         </div>

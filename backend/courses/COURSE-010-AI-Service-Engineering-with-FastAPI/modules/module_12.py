@@ -499,6 +499,8 @@ Containers share the host kernel rather than carrying a complete guest OS per ap
 - repeatable runtime environment,
 - easier horizontal scaling.
 
+{{image:containers-vs-vms}}
+
 ---
 
 ## 7. Docker architecture
@@ -556,6 +558,8 @@ Examples include:
 - public registries,
 - private cloud registries,
 - self-hosted registries.
+
+{{image:docker-platform}}
 
 ---
 
@@ -805,6 +809,8 @@ The chapter introduces three storage/mount approaches:
 | Volume | Docker-managed host storage | Yes | Persistent/shared container data |
 | Bind mount | Explicit host path | Yes | Local development/source sharing |
 | tmpfs | Host RAM | No | Fast temporary/sensitive data |
+
+{{image:storage-mounts}}
 
 ---
 
@@ -1207,6 +1213,8 @@ db
 as a hostname.
 
 You do not need to hard-code the container's changing internal IP.
+
+{{image:isolated-bridge-networks}}
 
 ---
 

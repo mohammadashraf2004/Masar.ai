@@ -891,6 +891,8 @@ Sharp discontinuities introduce high-frequency energy.
 
 Therefore, the spectrum can contain strong components caused by the **image boundary**, not only by meaningful internal structure.
 
+{{image:dft-periodic-extension}}
+
 ### Windowing
 
 Windowing multiplies the image by a smooth function that is large near the center and tapers toward the boundaries.

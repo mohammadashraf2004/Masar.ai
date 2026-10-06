@@ -259,6 +259,8 @@ and
 modality-specific representation/generation
 ```
 
+{{image:any-to-any-unified-model}}
+
 ---
 
 ## 2. Why modalities do not naturally behave the same
@@ -424,6 +426,8 @@ Strength:
 Weakness:
 
 - the conditioning interface can become a bottleneck.
+
+{{image:any-to-any-three-families}}
 
 {{exercise:M01.L10.EX01}}
 
@@ -671,6 +675,8 @@ discrete visual codes
 ```
 
 This reduces the "one encoder must do everything" tension.
+
+{{image:janus-pro-architecture}}
 
 ---
 
@@ -1169,6 +1175,8 @@ input media
 → reconstruction
 ```
 
+{{image:multimodal-vae}}
+
 Examples from the source illustrate compression of:
 
 - images;
@@ -1176,6 +1184,8 @@ Examples from the source illustrate compression of:
 - audio.
 
 The exact compression factor depends on the model.
+
+{{image:multimodal-vae-comparison}}
 
 The role is consistent:
 
@@ -1755,6 +1765,8 @@ Examples:
 - video diffusion model;
 - TTS engine.
 
+{{image:late-conditioning-architecture}}
+
 ---
 
 ## 36. Trigger tokens in late conditioning
@@ -1952,6 +1964,8 @@ appearance-preserving control
 →
 diffusion editing
 ```
+
+{{image:qwen-image-edit-architecture}}
 
 ---
 
@@ -2213,6 +2227,8 @@ can pull shared parameters in conflicting directions.
 Separating stages reduces negative transfer.
 
 The source cites BLIP3-o as an example of this philosophy.
+
+{{image:joint-vs-sequential-multimodal-training}}
 
 ---
 

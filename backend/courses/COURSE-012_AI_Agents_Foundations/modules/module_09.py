@@ -155,6 +155,9 @@ TOPIC = {
             "\n"
             "Each layer adds a wider control horizon.\n"
             "\n"
+            '{{image:task-loop-layers}}'
+            '\n'
+            "\n"
             "---\n"
             "\n"
 
@@ -278,7 +281,8 @@ TOPIC = {
             "   |           |\n"
             " stop      continue\n"
             "   |           |\n"
-            '   v           +-----> next iteration\nSynthesis\n```\n'
+            '   v           +-----> next iteration\nSynthesis\n```\n\n{{image:deep-research-loop}}'
+            '\n'
             "\n"
             "The quality of the loop depends heavily on three areas emphasized by the chapter:\n"
             "\n"
@@ -936,6 +940,9 @@ TOPIC = {
             "The consensus threshold is another termination condition.\n"
             "\n"
             "It should not replace the maximum-round safety ceiling.\n"
+            "\n"
+            '{{image:collaboration-loop}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

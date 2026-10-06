@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M01.L02",
-  "source_hash": "b7d18070190b2a7762485924531cc5721277bbc7d96ac6dc6c07cd0f0fb76592",
+  "source_hash": "05d9bb2187daaf4b36890a90c5cce0ebe0fca5720b93b9171a139ffca73ab449",
   "title": "البدء مع FastAPI",
   "exercises": [
     {

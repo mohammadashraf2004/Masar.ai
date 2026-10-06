@@ -1,4 +1,4 @@
-"""A course's figures: the images its lessons place with `{{figure:<key>}}`.
+"""A course's figures: the images its lessons place with `{{image:<key>}}`.
 
 The row is the *description* of an asset (what it shows, its alt text and caption,
 what type it is and how big) plus the storage key that says where the bytes are.
@@ -33,6 +33,10 @@ class CourseAsset(Base):
     sha256 = Column(String(64), nullable=False)
     alt = Column(Text, nullable=False)
     caption = Column(Text, nullable=True)
+    # The same picture serves both languages; only what is said about it differs. An empty
+    # Arabic value falls back to the English one when a lesson is read.
+    alt_ar = Column(Text, nullable=True)
+    caption_ar = Column(Text, nullable=True)
     # Shown to the learner only when the manifest sets it.
     figure_number = Column(String(40), nullable=True)
     # Where the figure came from in the course's source material. Kept for the

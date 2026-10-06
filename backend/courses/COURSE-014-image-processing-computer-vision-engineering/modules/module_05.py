@@ -160,6 +160,8 @@ This is why convolution appears throughout:
 - signal processing,
 - convolutional neural networks.
 
+{{image:convolution-sliding-window}}
+
 ### A kernel changes what the filter responds to
 
 A normalized box blur:
@@ -525,6 +527,8 @@ correlation result = convolution result
 for that symmetric kernel.
 
 With an asymmetric kernel, outputs can differ.
+
+{{image:convolution-vs-correlation}}
 
 ### SciPy comparison
 

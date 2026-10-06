@@ -149,6 +149,8 @@ observed image
 
 Restoration tries to move in the opposite direction.
 
+{{image:image-degradation-restoration-model}}
+
 ### Why the problem is ill-posed
 
 The source describes the problem in Hadamard's sense:

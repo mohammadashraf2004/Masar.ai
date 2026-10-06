@@ -797,6 +797,9 @@ TOPIC = {
             "\n"
             "This architecture separates retrieval, validation, action, and presentation rather than making one agent responsible for every concern.\n"
             "\n"
+            '{{image:customer-support-system}}'
+            '\n'
+            "\n"
             "{{exercise:M01.L11.EX01}}\n"
             "\n"
             "---\n"
@@ -978,6 +981,9 @@ TOPIC = {
             "Workers should remain as stateless and tool-like as possible unless they need their own decision-making loops.\n"
             "\n"
             "This keeps strategic state centralized while specialized workers stay simple.\n"
+            "\n"
+            '{{image:deep-research-system}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

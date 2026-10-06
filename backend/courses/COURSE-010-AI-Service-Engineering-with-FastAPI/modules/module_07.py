@@ -1022,6 +1022,8 @@ Repositories should focus on:
 
 They should not become giant containers for all application behavior.
 
+{{image:repository-layer}}
+
 ---
 
 ## 12. Add a service layer for business logic

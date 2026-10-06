@@ -1488,7 +1488,7 @@ TOPIC = {
             "(row 2, column 3) → 12\n"
             "```\n"
             "\n"
-            ""
+            "{{image:fancy-indexing}}\n{{image:fancy-index-pairs}}\n"
             "\n"
             "---\n"
             "\n"

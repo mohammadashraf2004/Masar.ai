@@ -841,6 +841,8 @@ Question B → reuse cached context
 Question C → reuse cached context
 ```
 
+{{image:context-caching}}
+
 ### Suitable scenarios from the chapter
 
 - long system instructions,

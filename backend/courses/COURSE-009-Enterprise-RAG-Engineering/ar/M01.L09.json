@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M01.L09",
-  "source_hash": "d1fee2e8bba56972e5544c8718bd68063976a570d84be7dd186403d0cf80d63b",
+  "source_hash": "baff283eb1fbf92f96f29874bbe0da186193899812ce47000ced842cec67969e",
   "title": "RAG المعزَّز بالمعرفة (Knowledge-Enhanced RAG)",
   "exercises": [
     {

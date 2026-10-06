@@ -24,6 +24,9 @@ and the reasons for it are in app/services/curriculum/arabic.py).
     # fences to review before translating: untagged ones, and `text` ones that look like code
     python seeds/arabic_course_files.py audit --course COURSE-001
 
+    # (status also prints, for a course that has images: found / referenced / missing /
+    # broken references / unused / IMAGE_NEEDED left. Linking them: seeds/link_images.py)
+
     # the whole course checked exactly as an import would check it (no database)
     python seeds/import_courses.py --validate-only
 
@@ -40,7 +43,7 @@ from typing import List
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app.services.curriculum import arabic
+from app.services.curriculum import arabic, images
 from app.services.language import arabic_review as R
 from app.services.curriculum.loaders import COURSES_ROOT, course_dirs, course_id_of, load_course_dir
 from app.services.curriculum.spec import CourseSpec
@@ -57,6 +60,10 @@ def _load(only: List[str]) -> List[CourseSpec]:
 
 def _folder(spec: CourseSpec) -> Path:
     return COURSES_ROOT / spec.source_dir / arabic.AR_DIR
+
+
+def format_images(picture: images.ImageReport) -> str:
+    return "\n".join([f"  {picture.course_id} images:", images.format_report(picture)])
 
 
 def status(only: List[str]) -> int:
@@ -80,6 +87,13 @@ def status(only: List[str]) -> int:
             print(f"    problem: {problem}")
         for warning in spec.arabic_warnings:
             print(f"    warning: {warning}")
+        # Images are reported beside the Arabic because the same key is placed in both languages.
+        picture = images.report(spec)
+        if picture.interesting:
+            print(format_images(picture))
+            for problem in spec.asset_problems + images.problems(spec):
+                print(f"    problem: {problem}")
+            broken += 1 if (picture.missing or picture.broken) else 0
     return 1 if broken else 0
 
 

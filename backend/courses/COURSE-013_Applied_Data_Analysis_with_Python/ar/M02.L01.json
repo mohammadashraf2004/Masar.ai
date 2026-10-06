@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M02.L01",
-  "source_hash": "3f333cbfcdccd128b24727240e1a68e69feb9f4f8b4424aeb208c32c757d78f2",
+  "source_hash": "67ada21e8f5ef79b3d4f81cb2469c620f538e98eab6b9ec51df174e8b7a65598",
   "title": "NumPy وPandas",
   "exercises": [
     {

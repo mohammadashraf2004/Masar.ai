@@ -147,9 +147,8 @@ TOPIC = {
             "- How do we minimize token use while preserving capability?\n"
             "- Which work should be done deterministically in code instead of round-tripping through the model?\n"
             "\n"
-            "[[IMAGE_NEEDED: MCP ecosystem beyond the core protocol | "
-            "A diagram with Core MCP in the center and branches for registry/discovery, governance/gateways, context management, testing, extensions, and contribution/governance | "
-            "Learner should notice that the core protocol is only one layer of the larger MCP ecosystem]]\n"
+            '{{image:mcp-ecosystem-overview}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

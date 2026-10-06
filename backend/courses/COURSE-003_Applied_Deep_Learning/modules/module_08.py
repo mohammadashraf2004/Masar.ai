@@ -107,10 +107,8 @@ TOPIC = {
             "- **local connectivity**,\n"
             "- **weight sharing across spatial locations**,\n"
             "- dramatically fewer parameters than equivalent dense image processing.\n\n"
-            "[[IMAGE_NEEDED: Fully connected image processing versus convolution | Left side shows a flattened "
-            "image densely connected to hidden units; right side shows a small kernel applied locally at many "
-            "positions | Learner should notice that convolution reuses the same small set of weights instead "
-            "of learning independent weights for every pixel-location relationship]]\n\n"
+            '{{image:fully-connected-vs-convolution}}'
+            '\n\n'
             "---\n\n"
 
             "## 2. What a convolution does\n\n"

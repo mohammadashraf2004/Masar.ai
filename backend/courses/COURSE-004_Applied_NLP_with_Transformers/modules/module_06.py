@@ -115,11 +115,8 @@ TOPIC = {
             "short target summary\n"
             "```\n"
             "\n"
-            "[[IMAGE_NEEDED: Summarization as sequence-to-sequence learning | "
-            "A long document entering an encoder-decoder transformer and a short summary "
-            "coming out, with arrows showing compression from source sequence to target sequence | "
-            "Learner should notice that the output is a newly generated sequence rather than "
-            "a fixed class label]]\n"
+            '{{image:summarization-seq2seq}}'
+            '\n'
             "\n"
             "### Extractive versus abstractive summarization\n"
             "\n"

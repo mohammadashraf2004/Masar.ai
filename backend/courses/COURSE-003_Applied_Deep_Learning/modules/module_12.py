@@ -123,9 +123,8 @@ TOPIC = {
             "  ↓\n"
             "validation\n"
             "```\n\n"
-            "[[IMAGE_NEEDED: Chapter 13 end-to-end training pipeline | LunaDataset feeds DataLoader batches into a 3D classifier; "
-            "the training branch computes loss, backward, and optimizer step, while the validation branch computes read-only metrics | "
-            "Learner should notice that this is the first complete train-and-evaluate loop for the CT project]]\n\n"
+            '{{image:ct-classifier-training-pipeline}}'
+            '\n\n'
             "Getting an imperfect but measurable end-to-end system is valuable because later experiments can be compared against a real baseline.\n\n"
             "---\n\n"
 

@@ -135,11 +135,8 @@ TOPIC = {
             "- generative QA,\n"
             "- multimodal QA.\n"
             "\n"
-            "[[IMAGE_NEEDED: Two-stage question answering system | "
-            "A question enters a retriever that selects relevant documents, then a reader "
-            "extracts an answer span from one of those documents | "
-            "Learner should notice that document retrieval and answer extraction are separate "
-            "problems in a practical QA system]]\n"
+            '{{image:two-stage-question-answering}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

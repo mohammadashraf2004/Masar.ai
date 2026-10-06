@@ -111,9 +111,8 @@ TOPIC = {
             "          ↓\n"
             "PyTorch tensors + metadata\n"
             "```\n\n"
-            "[[IMAGE_NEEDED: Raw CT data to PyTorch sample | Raw .mhd/.raw files and candidate CSV metadata flow through "
-            "loading, coordinate conversion, cropping, tensor conversion, and finally a training-sample tuple | Learner should "
-            "notice that model-ready data is the result of several transformations, not one file-read call]]\n\n"
+            '{{image:raw-ct-data-to-pytorch-sample}}'
+            '\n\n'
             "This is a reusable engineering lesson: serious ML projects often require a substantial bridge between **source data** and **model input**.\n\n"
             "---\n\n"
 

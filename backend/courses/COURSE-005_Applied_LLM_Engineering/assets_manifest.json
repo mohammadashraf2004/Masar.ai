@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "course_id": "COURSE-005",
+  "assets": [
+    {
+      "key": "text-classification-overview",
+      "type": "image",
+      "file": "assets/text-classification-overview.png",
+      "lesson": "M04.L01",
+      "alt": "Four example customer messages feed a language-model classifier that outputs the labels Positive, Negative, Billing Issue and Shipping Issue.",
+      "alt_ar": "أربع رسائل عملاء نموذجية تدخل إلى Classifier قائم على نموذج لغوي يُخرج التسميات Positive وNegative وBilling Issue وShipping Issue.",
+      "caption": "Classification maps unstructured text to one label from a small, predefined set.",
+      "caption_ar": "يحوّل التصنيف نصًا غير منظّم إلى تسمية واحدة من مجموعة صغيرة محددة مسبقًا."
+    },
+    {
+      "key": "classification-vs-clustering",
+      "type": "image",
+      "file": "assets/classification-vs-clustering.png",
+      "lesson": "M05.L01",
+      "alt": "Left: labeled customer messages train a classification model that assigns a new text to a predefined category. Right: unlabeled messages go through a clustering algorithm that forms three groups: positive feedback, negative feedback, and shipping and delivery.",
+      "alt_ar": "على اليسار رسائل موسومة تدرّب نموذج Classification يسند نصًا جديدًا إلى فئة محددة مسبقًا. وعلى اليمين رسائل غير موسومة تمر عبر خوارزمية Clustering فتكوّن ثلاث مجموعات: ملاحظات إيجابية وسلبية والشحن والتوصيل.",
+      "caption": "Classification learns predefined labels from labeled data; clustering finds natural groups in unlabeled data.",
+      "caption_ar": "يتعلم التصنيف تسميات محددة مسبقًا من بيانات موسومة، بينما يكتشف الـ Clustering مجموعات طبيعية في بيانات غير موسومة."
+    },
+    {
+      "key": "prompt-engineering-feedback-loop",
+      "type": "image",
+      "file": "assets/prompt-engineering-feedback-loop.png",
+      "lesson": "M06.L01",
+      "alt": "A five-step loop: define task requirements, draft a prompt, read the LLM output, evaluate it against the requirements, and revise the prompt, then repeat.",
+      "alt_ar": "حلقة من خمس خطوات: تحديد متطلبات المهمة، وكتابة Prompt أولي، وقراءة مخرجات الـ LLM، وتقييمها مقابل المتطلبات، ثم تعديل الـ Prompt وتكرار الحلقة.",
+      "caption": "Prompt engineering is an iterative optimization loop, not a one-time act of wording.",
+      "caption_ar": "هندسة الـ Prompt حلقة تحسين متكررة، وليست صياغة تتم مرة واحدة."
+    },
+    {
+      "key": "llm-system-building-blocks",
+      "type": "image",
+      "file": "assets/llm-system-building-blocks.png",
+      "lesson": "M07.L01",
+      "alt": "An LLM at the center connected to six blocks: model input/output, prompt templates and chains, memory, tools, agent logic, and output processing.",
+      "alt_ar": "LLM في المركز متصل بست كتل: مدخلات النموذج ومخرجاته، وقوالب الـ Prompt والـ Chains، والذاكرة، والأدوات، ومنطق الـ Agent، ومعالجة المخرجات.",
+      "caption": "The language model is one component inside a larger application architecture.",
+      "caption_ar": "النموذج اللغوي مكوّن واحد داخل معمارية تطبيق أكبر."
+    },
+    {
+      "key": "keyword-vs-semantic-search",
+      "type": "image",
+      "file": "assets/keyword-vs-semantic-search.png",
+      "lesson": "M08.L01",
+      "alt": "The query 'how to reduce model overfitting' runs through keyword search, which highlights matching words, and through semantic search with text embeddings, which ranks documents by similarity of meaning. Result lists with scores are shown for both.",
+      "alt_ar": "يمر الاستعلام how to reduce model overfitting عبر البحث بالكلمات المفتاحية الذي يبرز الكلمات المطابقة، وعبر Semantic search بـ Text embeddings الذي يرتّب المستندات بتشابه المعنى. وتظهر قائمة نتائج مع scores لكل منهما.",
+      "caption": "Keyword search needs shared words; semantic search can find relevant documents that word the idea differently.",
+      "caption_ar": "يتطلب البحث بالكلمات المفتاحية كلمات مشتركة، بينما يجد Semantic search مستندات ذات صلة تصوغ الفكرة بعبارات مختلفة."
+    },
+    {
+      "key": "multimodal-model-overview",
+      "type": "image",
+      "file": "assets/multimodal-model-overview.png",
+      "lesson": "M09.L01",
+      "alt": "A multimodal model in the center, with input modalities on the left (text, image, audio, video, sensors) and possible output modalities on the right (text, image, audio, video, structured data), plus key takeaways and example applications.",
+      "alt_ar": "نموذج متعدد الوسائط في المركز، مع وسائط المدخلات على اليسار (نص وصورة وصوت وفيديو وحساسات) ووسائط المخرجات المحتملة على اليمين (نص وصورة وصوت وفيديو وبيانات منظّمة)، إضافة إلى أهم الملاحظات وأمثلة التطبيقات.",
+      "caption": "Which modalities a model accepts and which it can produce are separate capabilities.",
+      "caption_ar": "الوسائط التي يقبلها النموذج والوسائط التي يستطيع إنتاجها قدرتان منفصلتان."
+    },
+    {
+      "key": "text-to-embedding",
+      "type": "image",
+      "file": "assets/text-to-embedding.png",
+      "lesson": "M10.L01",
+      "alt": "A document, a sentence and a short phrase enter an embedding model, and each becomes a dense numeric vector, with a small plot of similar and different texts in vector space.",
+      "alt_ar": "يدخل مستند وجملة وعبارة قصيرة إلى Embedding model فيتحول كل منها إلى متجه رقمي كثيف، مع رسم صغير لنصوص متشابهة وأخرى مختلفة في فضاء المتجهات.",
+      "caption": "Embeddings are learned numeric representations of meaning, and they work for text of any length.",
+      "caption_ar": "الـ Embeddings تمثيلات رقمية متعلَّمة للمعنى، وتصلح لنص بأي طول."
+    },
+    {
+      "key": "three-stage-llm-training",
+      "type": "image",
+      "file": "assets/three-stage-llm-training.png",
+      "lesson": "M12.L01",
+      "alt": "An untrained transformer goes through pretraining to become a base model, supervised fine-tuning to become an instruction or chat model, and preference tuning to become an aligned model, each stage with its data, purpose and objective.",
+      "alt_ar": "يمر Transformer غير مدرَّب بـ Pretraining فيصبح Base model، ثم بـ Supervised fine-tuning فيصبح نموذج تعليمات أو محادثة، ثم بـ Preference tuning فيصبح نموذجًا مُوائمًا، مع بيانات كل مرحلة وغرضها وهدفها.",
+      "caption": "Each stage has a different purpose: pretraining builds language ability, supervised fine-tuning teaches instruction following, and preference tuning aligns behavior with human preferences.",
+      "caption_ar": "لكل مرحلة غرض مختلف: يبني الـ Pretraining القدرة اللغوية، ويعلّم الـ Supervised fine-tuning اتباع التعليمات، ويوائم الـ Preference tuning السلوك مع تفضيلات البشر."
+    }
+  ]
+}

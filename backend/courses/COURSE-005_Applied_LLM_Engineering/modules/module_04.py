@@ -167,7 +167,7 @@ It is being asked to decide:
 
 > Which class best describes this input?
 
-[[IMAGE_NEEDED: Text classification overview | Show several example text inputs flowing into a language model/classifier and emerging as labels such as Positive, Negative, Billing Issue, and Shipping Issue | Learner should notice that classification converts unstructured text into a small predefined set of labels]]
+{{image:text-classification-overview}}
 
 ### Classification can be binary or multiclass
 

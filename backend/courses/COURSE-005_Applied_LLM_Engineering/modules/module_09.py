@@ -187,7 +187,7 @@ but produce only:
 text
 ```
 
-[[IMAGE_NEEDED: Multimodal model overview | Show several modalities—text, image, audio, video, sensors—feeding a multimodal model, with text as one possible output | Learner should notice that input modality support and output modality support are separate capabilities]]
+{{image:multimodal-model-overview}}
 
 ### Why multimodality matters
 

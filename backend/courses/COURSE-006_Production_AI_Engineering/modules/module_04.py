@@ -156,11 +156,8 @@ TOPIC = {
             "It means difficult applications require more deliberate investment in "
             "evaluation infrastructure.\n"
             "\n"
-            "[[IMAGE_NEEDED: Evaluation-driven development loop | A loop showing "
-            "define criteria -> build prototype -> evaluate -> improve -> deploy -> "
-            "collect production evidence -> refine criteria | Learner should notice "
-            "that evaluation starts before implementation and continues throughout "
-            "the application's lifecycle]]\n"
+            '{{image:evaluation-driven-development-loop}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

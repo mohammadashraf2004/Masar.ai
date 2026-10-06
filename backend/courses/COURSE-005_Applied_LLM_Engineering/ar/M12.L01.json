@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M12.L01",
-  "source_hash": "5cd7b3aa51cf7b29174e50b3414b7c7de513c8ae7892e3be24565bf13ac077a2",
+  "source_hash": "fedf6f5b553a690081ba84db87fab70b10774501f889111356a54e423e3bcefe",
   "title": "Fine-Tuning للنماذج التوليدية",
   "exercises": [
     {

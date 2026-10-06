@@ -113,9 +113,8 @@ TOPIC = {
             "> **Learn enough of the training data's probability structure that we can sample new, plausible examples.**\n\n"
             "For text, a sample is a sequence of tokens. For images, a sample is a structured grid of pixel values. "
             "The representation and architecture change, but the generative-learning goal remains.\n\n"
-            "[[IMAGE_NEEDED: Text generation versus image generation | Left side shows next-token probability generation; "
-            "right side shows spatial image generation; both feed into a shared box labeled learn data distribution and sample "
-            "new examples | Learner should notice that different data structures can share the same generative objective]]\n\n"
+            '{{image:text-vs-image-generation}}'
+            '\n\n'
             "---\n\n"
 
             "## 2. Before diffusion: VAEs and GANs\n\n"

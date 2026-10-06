@@ -134,10 +134,8 @@ TOPIC = {
             "A grayscale image may store one number per pixel. An RGB image stores three values per "
             "pixel: the intensity of red, green, and blue.\n"
             "\n"
-            "[[IMAGE_NEEDED: RGB image channels | "
-            "A color image shown alongside separate red, green, and blue intensity maps | "
-            "Learner should notice that a color image is represented as multiple aligned numerical "
-            "channels rather than one scalar per pixel]]\n"
+            '{{image:rgb-image-channels}}'
+            '\n'
             "\n"
             "Consumer images commonly use 8-bit integer values, while scientific or medical images "
             "may use higher numerical precision.\n"

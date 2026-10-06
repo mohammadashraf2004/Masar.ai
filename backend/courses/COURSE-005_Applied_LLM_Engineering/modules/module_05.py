@@ -170,7 +170,7 @@ discover similarity structure
 groups of related documents
 ```
 
-[[IMAGE_NEEDED: Supervised classification versus unsupervised clustering | Left side shows labeled documents being assigned to predefined categories; right side shows unlabeled documents automatically forming semantic groups | Learner should notice that clustering discovers structure rather than learning predefined labels]]
+{{image:classification-vs-clustering}}
 
 ### Why clustering can be useful
 

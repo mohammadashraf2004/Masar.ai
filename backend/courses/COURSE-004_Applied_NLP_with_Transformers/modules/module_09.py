@@ -136,12 +136,8 @@ TOPIC = {
             "\n"
             "Standard supervised fine-tuning becomes a natural choice.\n"
             "\n"
-            "[[IMAGE_NEEDED: Low-label method decision tree | "
-            "A decision tree beginning with 'Do you have labeled data?', then branching by "
-            "amount of labeled data and availability of unlabeled data toward zero-shot, "
-            "few-shot/embedding methods, domain adaptation/UDA/UST, or ordinary fine-tuning | "
-            "Learner should notice that the correct method depends on the available supervision, "
-            "not on which technique sounds most advanced]]\n"
+            '{{image:low-label-method-decision-tree}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

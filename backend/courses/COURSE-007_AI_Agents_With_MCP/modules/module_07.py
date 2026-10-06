@@ -135,9 +135,8 @@ TOPIC = {
             "\n"
             "This separation is why the same client/server logic can work over local stdio, remote Streamable HTTP, or a custom transport without rewriting the application itself.\n"
             "\n"
-            "[[IMAGE_NEEDED: MCP abstraction stack | "
-            "A layered diagram showing application → MCP protocol/session → transport → network/process layer, with one JSON-RPC message flowing downward and upward | "
-            "Learner should notice that the transport does not decide tool semantics; it only carries protocol messages]]\n"
+            '{{image:mcp-abstraction-stack}}'
+            '\n'
             "\n"
             "### The transport's responsibilities\n"
             "\n"

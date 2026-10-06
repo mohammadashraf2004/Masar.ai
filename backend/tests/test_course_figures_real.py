@@ -5,7 +5,7 @@ from app.services.content.lesson_blocks import FigureBlock, figure_keys, split_l
 from app.services.curriculum import validate
 from app.services.curriculum.loaders import load_all_courses
 
-IMAGE_COURSES = {f"COURSE-{n:03d}" for n in range(8, 15)}
+IMAGE_COURSES = {f"COURSE-{n:03d}" for n in range(3, 15)}
 
 
 @pytest.fixture(scope="module")
@@ -29,7 +29,7 @@ def test_every_placed_figure_resolves_and_every_manifest_is_sound(courses):
             assert set(figure_keys(lesson.content)) <= keys, lesson.lesson_id
 
 
-def test_courses_one_to_seven_have_no_assets_and_are_untouched(courses):
+def test_courses_one_and_two_have_no_assets_and_are_untouched(courses):
     for course in courses:
         if course.course_id not in IMAGE_COURSES:
             assert course.assets == []
@@ -38,7 +38,7 @@ def test_courses_one_to_seven_have_no_assets_and_are_untouched(courses):
 
 @pytest.mark.xfail(strict=True, reason=(
     "The 2026-09 content restructure replaced the lesson files that placed `{{figure:key}}` markers with "
-    "files carrying [[IMAGE_NEEDED]] placeholders, so figures in COURSE-008..011, 013 and 014 are shipped but "
+    "files carrying [[IMAGE_NEEDED]] placeholders, so some figures in COURSE-008..011, 013 and 014 are shipped but "
     "unplaced (see `validate.warnings`). Re-place them; this test then XPASSes and the mark must be removed."))
 def test_the_image_courses_ship_their_figures_and_place_them(courses):
     by_id = {c.course_id: c for c in courses}

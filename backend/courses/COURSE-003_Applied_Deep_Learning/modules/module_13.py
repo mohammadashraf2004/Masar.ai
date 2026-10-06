@@ -132,9 +132,8 @@ TOPIC = {
             "| Negative | Negative | True negative (TN) |\n"
             "| Negative | Positive | False positive (FP) |\n"
             "| Positive | Negative | False negative (FN) |\n\n"
-            "[[IMAGE_NEEDED: Four binary-classification quadrants | A clean 2×2 confusion-grid showing true positive, true negative, "
-            "false positive, and false negative with nodule/non-nodule examples | Learner should immediately see that false positives "
-            "and false negatives are different mistakes with different consequences]]\n\n"
+            '{{image:binary-classification-quadrants}}'
+            '\n\n'
             "For the CT project:\n\n"
             "- **TP:** a real nodule correctly flagged as a nodule.\n"
             "- **TN:** a non-nodule correctly rejected.\n"

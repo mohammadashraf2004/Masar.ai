@@ -137,12 +137,8 @@ TOPIC = {
             "| ONNX Runtime | Optimize and execute a standardized computation graph efficiently |\n"
             "| Pruning | Remove less important weights/connections to create sparsity |\n"
             "\n"
-            "[[IMAGE_NEEDED: Transformer production optimization overview | "
-            "A large accurate transformer on the left and four optimization paths labeled "
-            "distillation, quantization, ONNX Runtime, and pruning leading toward a smaller/"
-            "faster deployment model | "
-            "Learner should notice that several techniques can be combined rather than treated "
-            "as mutually exclusive choices]]\n"
+            '{{image:transformer-production-optimization}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

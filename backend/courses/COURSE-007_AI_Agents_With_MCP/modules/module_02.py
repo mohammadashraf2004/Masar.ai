@@ -146,10 +146,8 @@ TOPIC = {
             "                    └───────────────┘\n"
             "```\n"
             "\n"
-            "[[IMAGE_NEEDED: Host application with LLM and MCP clients | "
-            "A diagram showing a user interacting with one host application that contains both an LLM-provider client and an MCP client; "
-            "the LLM client points to the model API while the MCP client points to an MCP server | "
-            "Learner should notice that the two clients solve different communication problems but are coordinated by the same host]]\n"
+            '{{image:host-app-llm-and-mcp-clients}}'
+            '\n'
             "\n"
             "### Keep secrets out of source code\n"
             "\n"

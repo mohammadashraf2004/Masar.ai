@@ -160,10 +160,8 @@ TOPIC = {
             "not a one-way pipeline. You often move back and forth as experiments "
             "reveal new weaknesses.\n"
             "\n"
-            "[[IMAGE_NEEDED: Dataset engineering lifecycle | A circular workflow "
-            "showing define behavior -> acquire/annotate -> synthesize -> verify -> "
-            "inspect/process -> train/evaluate -> return to curation | Learner "
-            "should notice that dataset engineering is iterative rather than linear]]\n"
+            '{{image:dataset-engineering-lifecycle}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

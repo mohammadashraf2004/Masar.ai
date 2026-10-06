@@ -122,11 +122,8 @@ TOPIC = {
             "| Long-sequence cost | Efficient attention |\n"
             "| Text-only understanding | Vision, audio, tables, multimodal models |\n"
             "\n"
-            "[[IMAGE_NEEDED: Three transformer research directions | "
-            "A central transformer branching into three paths labeled scaling, efficient attention, "
-            "and multimodal/beyond-text learning | "
-            "Learner should notice that the chapter treats these as distinct but complementary "
-            "ways of extending transformer capability]]\n"
+            '{{image:transformer-research-directions}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

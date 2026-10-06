@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M12.L01",
-  "source_hash": "4c49a399561fd73d16739c12755c83fd36ae559262f1b2417b0d10bc21e56a36",
+  "source_hash": "8f470a2db230349a9fd108484b7f9fc2c155d8a253db9d05596395b25fdf0476",
   "title": "تدريب model تصنيف لكشف الأورام المشتبه بها",
   "exercises": [
     {

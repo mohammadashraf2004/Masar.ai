@@ -140,10 +140,8 @@ TOPIC = {
             "Agent = Augmented LLM + Self-directed multi-step action/feedback loops\n"
             "```\n"
             "\n"
-            "[[IMAGE_NEEDED: Evolution from chatbot to augmented LLM | "
-            "A four-stage diagram showing basic LLM chat, RAG with a vector database, function calling with an execution environment, "
-            "and an augmented LLM with retrieval, tools, and memory | "
-            "Learner should notice that each stage adds capability around the model rather than replacing the model itself]]\n"
+            '{{image:chatbot-to-augmented-llm}}'
+            '\n'
             "\n"
             "The key transition is not simply 'the model has tools.' The key transition is that the model can use those tools "
             "inside an iterative process where each result changes what it decides to do next.\n"

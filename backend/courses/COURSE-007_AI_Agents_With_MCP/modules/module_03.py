@@ -138,10 +138,8 @@ TOPIC = {
             "modern specification/SDK direction. They are still taught so that clients can support older servers. Treat these as "
             "version-specific compatibility topics rather than features you should automatically add to every new system.\n"
             "\n"
-            "[[IMAGE_NEEDED: Bidirectional MCP client capabilities | "
-            "A diagram showing Host + MCP Client in the center, server-provided primitives flowing from MCP Server to Host, and "
-            "client-provided capabilities sampling/roots/elicitation flowing back toward the server through callbacks | "
-            "Learner should notice that the client becomes an active boundary, not merely a passive connector]]\n"
+            '{{image:bidirectional-mcp-client-capabilities}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

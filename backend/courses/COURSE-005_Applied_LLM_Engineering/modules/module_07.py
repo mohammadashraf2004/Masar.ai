@@ -172,7 +172,7 @@ Memory  Chains  Tools
         Output
 ```
 
-[[IMAGE_NEEDED: LLM system building blocks | Show an LLM in the center connected to model I/O, prompt templates/chains, memory, tools, and agent logic | Learner should notice that the language model is one component inside a larger application architecture]]
+{{image:llm-system-building-blocks}}
 
 ### The central lesson
 

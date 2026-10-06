@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M06.L01",
-  "source_hash": "493a3e9623c6ba441075e8c80327e5dd4bf0ad977c44b7044f579143f78edce0",
+  "source_hash": "137acad65721c405335fd56343adcfa87132edcdb089ff4f6a2d9a44ab5afbd6",
   "title": "استخدام شبكة عصبية لملاءمة البيانات",
   "exercises": [
     {

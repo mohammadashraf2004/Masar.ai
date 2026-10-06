@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M04.L01",
-  "source_hash": "05b82cb8bbcf5a0e7d257ab2d65aa7c907b6a010d18020b36c72284a916ff7f8",
+  "source_hash": "b7d0973e6c71e11ffb1b72f1e9e44940f81348fcc03da727a9e85102a20cdd53",
   "title": "تمثيل بيانات العالم الحقيقي بالـ Tensors",
   "exercises": [
     {

@@ -164,10 +164,8 @@ TOPIC = {
             "and instruction following. The chapter especially emphasizes its use "
             "for behavior that is difficult to obtain reliably through prompting alone.\n"
             "\n"
-            "[[IMAGE_NEEDED: Prompting versus finetuning | A side-by-side diagram "
-            "where prompting changes instructions/context around fixed model "
-            "weights while finetuning updates some or all model weights | Learner "
-            "should notice that the adaptation happens in different places]]\n"
+            '{{image:prompting-vs-finetuning}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "course_id": "COURSE-007",
+  "assets": [
+    {
+      "key": "chatbot-to-augmented-llm",
+      "type": "image",
+      "file": "assets/chatbot-to-augmented-llm.png",
+      "lesson": "M01.L01",
+      "alt": "Four stages left to right: a basic LLM chat, RAG with documents, embeddings and a vector database, function calling with an execution environment, and an augmented LLM that combines retrieval, tools and memory.",
+      "alt_ar": "أربع مراحل من اليسار إلى اليمين: محادثة LLM أساسية، ثم RAG مع مستندات وEmbeddings وVector database، ثم Function calling مع بيئة تنفيذ، ثم LLM معزَّز يجمع الاسترجاع والأدوات والذاكرة.",
+      "caption": "Each stage adds capability around the model rather than replacing the model itself.",
+      "caption_ar": "تضيف كل مرحلة قدرة حول النموذج بدل أن تستبدله."
+    },
+    {
+      "key": "host-app-llm-and-mcp-clients",
+      "type": "image",
+      "file": "assets/host-app-llm-and-mcp-clients.png",
+      "lesson": "M02.L01",
+      "alt": "A user talks to a host application whose orchestrator coordinates an LLM-provider client, which calls the model API, and an MCP client, which connects to an MCP server that exposes tools, resources and prompts.",
+      "alt_ar": "مستخدم يتحدث إلى Host application ينسّق فيه Orchestrator بين LLM-provider client الذي يستدعي Model API وMCP client الذي يتصل بـ MCP server يعرض الأدوات والموارد والـ Prompts.",
+      "caption": "The two clients solve different communication problems, but the same host coordinates them.",
+      "caption_ar": "يحل العميلان مشكلتي اتصال مختلفتين، لكن Host واحدًا هو الذي ينسّق بينهما."
+    },
+    {
+      "key": "bidirectional-mcp-client-capabilities",
+      "type": "image",
+      "file": "assets/bidirectional-mcp-client-capabilities.png",
+      "lesson": "M02.L02",
+      "alt": "A host application with an MCP client in the center. Tools, resources and prompts flow from the MCP server to the host, while sampling, roots and elicitation flow back from the client to the server through a callback layer.",
+      "alt_ar": "Host application في المركز ومعه MCP client. تتدفق الأدوات والموارد والـ Prompts من MCP server إلى الـ Host، بينما تعود قدرات Sampling وRoots وElicitation من العميل إلى الخادم عبر طبقة Callbacks.",
+      "caption": "An MCP client is an active boundary, not just a passive connector: it consumes server primitives and exposes capabilities back.",
+      "caption_ar": "عميل MCP حدّ فاعل وليس موصِّلًا سلبيًا: يستهلك مكوّنات الخادم الأساسية ويعرض قدرات تعود إليه."
+    },
+    {
+      "key": "mcp-server-distribution-layer",
+      "type": "image",
+      "file": "assets/mcp-server-distribution-layer.png",
+      "lesson": "M03.L01",
+      "alt": "Before: three applications each keep their own custom integrations to a tool API, a knowledge base, a database and prompt templates. After: three MCP clients connect to one reusable MCP server that provides tools, resources and prompts for all of them.",
+      "alt_ar": "قبل: ثلاثة تطبيقات يحتفظ كل منها بتكاملات مخصصة مع Tool API وقاعدة معرفة وقاعدة بيانات وقوالب Prompts. بعد: ثلاثة MCP clients تتصل بـ MCP server واحد قابل لإعادة الاستخدام يوفّر الأدوات والموارد والـ Prompts للجميع.",
+      "caption": "MCP moves integration knowledge out of each host application and into one reusable server boundary.",
+      "caption_ar": "ينقل MCP معرفة التكامل من كل تطبيق مضيف إلى حدّ خادم واحد يمكن إعادة استخدامه."
+    },
+    {
+      "key": "mcp-server-capability-map",
+      "type": "image",
+      "file": "assets/mcp-server-capability-map.png",
+      "lesson": "M03.L02",
+      "alt": "Two columns feeding the MCP server workflows of tools, prompts and resources: server utilities (transport and sessions, authentication, validation, logging, caching and rate limits) and client-provided capabilities (sampling, roots, elicitation, callbacks).",
+      "alt_ar": "عمودان يغذيان مسارات عمل MCP server من أدوات وPrompts وموارد: أدوات الخادم المساندة (النقل والجلسات، والمصادقة، والتحقق، والتسجيل، والتخزين المؤقت وحدود المعدل) وقدرات يوفرها العميل (Sampling وRoots وElicitation وCallbacks).",
+      "caption": "Utilities improve how the server operates, while client capabilities let server workflows request input from the outside world.",
+      "caption_ar": "تحسّن الأدوات المساندة طريقة تشغيل الخادم، بينما تتيح قدرات العميل لمسارات عمل الخادم طلب مدخلات من العالم الخارجي."
+    },
+    {
+      "key": "mcp-abstraction-stack",
+      "type": "image",
+      "file": "assets/mcp-abstraction-stack.png",
+      "lesson": "M04.L01",
+      "alt": "Four stacked layers: application, MCP protocol and session, transport (stdio, HTTP, WebSocket) and network or process layer, with an example JSON-RPC tools/call request and response passing through the protocol layer.",
+      "alt_ar": "أربع طبقات متراصة: التطبيق، وبروتوكول MCP والجلسة، والنقل (stdio وHTTP وWebSocket)، وطبقة الشبكة أو العملية، مع مثال لطلب JSON-RPC من نوع tools/call واستجابته يمران عبر طبقة البروتوكول.",
+      "caption": "The transport only carries protocol messages; the MCP protocol layer defines what they mean.",
+      "caption_ar": "لا يفعل النقل سوى حمل رسائل البروتوكول؛ أما طبقة بروتوكول MCP فهي التي تحدد معناها."
+    },
+    {
+      "key": "mcp-ecosystem-overview",
+      "type": "image",
+      "file": "assets/mcp-ecosystem-overview.png",
+      "lesson": "M05.L01",
+      "alt": "Core MCP (client, server and JSON-RPC) in the center, surrounded by six areas: registry and discovery, governance and gateways, context management, testing and evaluation, extensions and integrations, and community contribution and governance.",
+      "alt_ar": "نواة MCP (العميل والخادم وJSON-RPC) في المركز تحيط بها ست مجالات: السجل والاكتشاف، والحوكمة والبوابات، وإدارة السياق، والاختبار والتقييم، والامتدادات والتكاملات، ومساهمات المجتمع وحوكمته.",
+      "caption": "The core protocol is only one layer of a larger ecosystem of discovery, governance, testing, extensions and community.",
+      "caption_ar": "البروتوكول الأساسي ليس سوى طبقة واحدة في منظومة أوسع من الاكتشاف والحوكمة والاختبار والامتدادات والمجتمع."
+    }
+  ]
+}

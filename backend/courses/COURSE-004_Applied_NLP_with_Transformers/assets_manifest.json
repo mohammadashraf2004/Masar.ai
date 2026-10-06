@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "course_id": "COURSE-004",
+  "assets": [
+    {
+      "key": "transformer-evolution-timeline",
+      "type": "image",
+      "file": "assets/transformer-evolution-timeline.png",
+      "lesson": "M01.L01",
+      "alt": "Timeline from the 2017 Transformer paper through ULMFiT, GPT and BERT in 2018 to the expansion of transformer models from 2019 onward, each with a one-line description.",
+      "alt_ar": "خط زمني يبدأ بورقة Transformer عام 2017 ثم ULMFiT وGPT وBERT عام 2018 وصولًا إلى توسع نماذج Transformer منذ 2019، مع وصف من سطر واحد لكل محطة.",
+      "caption": "Modern transformer NLP came from combining a new architecture with practical transfer-learning methods.",
+      "caption_ar": "نشأ NLP الحديث القائم على Transformer من الجمع بين معمارية جديدة وطرق عملية لـ Transfer learning."
+    },
+    {
+      "key": "transformer-encoder-decoder-overview",
+      "type": "image",
+      "file": "assets/transformer-encoder-decoder-overview.png",
+      "lesson": "M01.L02",
+      "alt": "Source tokens enter an encoder stack of self-attention and feed-forward layers; the encoder outputs feed a decoder stack with masked self-attention and cross-attention, which generates target tokens one at a time.",
+      "alt_ar": "تدخل tokens المصدر إلى Encoder stack من طبقات Self-attention وFeed-forward، وتغذي مخرجات الـ Encoder الـ Decoder stack ذا Masked self-attention وCross-attention، فيولّد tokens الهدف واحدًا تلو الآخر.",
+      "caption": "The encoder reads the whole source sequence; the decoder generates the target one token at a time, using the encoder outputs and its own earlier tokens.",
+      "caption_ar": "يقرأ الـ Encoder تسلسل المصدر كاملًا، بينما يولّد الـ Decoder الهدف token بعد token مستفيدًا من مخرجات الـ Encoder ومن الـ tokens التي ولّدها سابقًا."
+    },
+    {
+      "key": "autoregressive-generation-loop",
+      "type": "image",
+      "file": "assets/autoregressive-generation-loop.png",
+      "lesson": "M01.L04",
+      "alt": "A six-step loop: a prompt enters a pretrained language model, which outputs next-token probabilities; one token is selected and appended, and the loop repeats. Below, a greedy-decoding example extends 'The future of AI is' token by token until an end token.",
+      "alt_ar": "حلقة من ست خطوات: يدخل Prompt إلى Language model مدرَّب مسبقًا فيُخرج احتمالات الـ token التالي، ثم يُختار token ويُضاف إلى المدخل وتتكرر الحلقة. وفي الأسفل مثال Greedy decoding يوسّع الجملة The future of AI is بـ token بعد token حتى token النهاية.",
+      "caption": "Each new token is chosen from a probability distribution and appended to the input for the next step.",
+      "caption_ar": "يُختار كل token جديد من توزيع احتمالي ثم يُضاف إلى مدخل الخطوة التالية."
+    },
+    {
+      "key": "summarization-seq2seq",
+      "type": "image",
+      "file": "assets/summarization-seq2seq.png",
+      "lesson": "M01.L05",
+      "alt": "A long climate-change article is tokenized, encoded by a transformer encoder and decoded by a transformer decoder into a short summary, shown token by token.",
+      "alt_ar": "تُجزَّأ مقالة طويلة عن تغير المناخ إلى tokens، ويرمّزها Transformer encoder ثم يفك ترميزها Transformer decoder إلى ملخص قصير يظهر token بعد token.",
+      "caption": "Summarization is a generative task: the model writes a new, shorter sequence rather than choosing a label.",
+      "caption_ar": "التلخيص مهمة توليدية: يكتب النموذج تسلسلًا جديدًا أقصر بدل اختيار تسمية."
+    },
+    {
+      "key": "transformer-production-optimization",
+      "type": "image",
+      "file": "assets/transformer-production-optimization.png",
+      "lesson": "M01.L06",
+      "alt": "A large accurate transformer on the left and a smaller, faster production model on the right, connected by four techniques: distillation, quantization, ONNX Runtime and pruning, each with its benefits.",
+      "alt_ar": "Transformer كبير ودقيق على اليسار ونموذج إنتاج أصغر وأسرع على اليمين، تصل بينهما أربع تقنيات: Distillation وQuantization وONNX Runtime وPruning، مع فوائد كل منها.",
+      "caption": "Distillation, quantization, ONNX Runtime and pruning attack size and latency differently, and can be combined.",
+      "caption_ar": "تعالج تقنيات Distillation وQuantization وONNX Runtime وPruning الحجم وزمن الاستجابة بطرق مختلفة، ويمكن الجمع بينها."
+    },
+    {
+      "key": "two-stage-question-answering",
+      "type": "image",
+      "file": "assets/two-stage-question-answering.png",
+      "lesson": "M01.L07",
+      "alt": "A question about the Eiffel Tower goes to a retriever that ranks documents, then to a reader that extracts the answer span '1889' from the top document.",
+      "alt_ar": "يذهب سؤال عن برج إيفل إلى Retriever يرتّب المستندات، ثم إلى Reader يستخرج مقطع الإجابة 1889 من أعلى مستند.",
+      "caption": "Document retrieval and answer extraction are separate stages, each with its own model and failure modes.",
+      "caption_ar": "استرجاع المستندات واستخراج الإجابة مرحلتان منفصلتان، لكل منهما نموذجه وأنماط إخفاقه."
+    },
+    {
+      "key": "low-label-method-decision-tree",
+      "type": "image",
+      "file": "assets/low-label-method-decision-tree.png",
+      "lesson": "M01.L08",
+      "alt": "A decision tree that starts with 'Do you have labeled data?' and branches by how much labeled and unlabeled data exists, leading to zero-shot learning, unsupervised domain adaptation, few-shot or embedding methods, semi-supervised training, or ordinary fine-tuning.",
+      "alt_ar": "شجرة قرار تبدأ بالسؤال: هل لديك بيانات موسومة؟ ثم تتفرع بحسب كمية البيانات الموسومة وغير الموسومة إلى Zero-shot learning أو Unsupervised domain adaptation أو طرق Few-shot وEmbeddings أو التدريب شبه الخاضع للإشراف أو Fine-tuning العادي.",
+      "caption": "The right method depends on how much labeled data you have and whether unlabeled in-domain data is available.",
+      "caption_ar": "تعتمد الطريقة المناسبة على كمية البيانات الموسومة وعلى توفر بيانات غير موسومة من المجال نفسه."
+    },
+    {
+      "key": "transformer-research-directions",
+      "type": "image",
+      "file": "assets/transformer-research-directions.png",
+      "lesson": "M01.L09",
+      "alt": "A central transformer block branching into three directions: scaling (bigger models, more data, emergent capabilities), efficient attention (sparse and approximate attention, lower cost) and multimodal learning beyond text.",
+      "alt_ar": "كتلة Transformer مركزية تتفرع إلى ثلاثة اتجاهات: Scaling (نماذج أكبر وبيانات أكثر وقدرات ناشئة)، وEfficient attention (انتباه متفرق وتقريبي بتكلفة أقل)، وتعلّم متعدد الوسائط يتجاوز النص.",
+      "caption": "Scaling, efficient attention and multimodal learning are distinct but complementary ways to extend transformers.",
+      "caption_ar": "الـ Scaling والـ Efficient attention والتعلم متعدد الوسائط اتجاهات متمايزة لكنها متكاملة لتوسيع قدرات Transformer."
+    },
+    {
+      "key": "fine-tuning-vs-training-from-scratch",
+      "type": "image",
+      "file": "assets/fine-tuning-vs-training-from-scratch.png",
+      "lesson": "M01.L10",
+      "alt": "Two paths: fine-tuning a pretrained model on a small domain dataset, and training from scratch on a massive domain corpus with a custom tokenizer and randomly initialized weights, followed by a comparison table and guidance on when to choose each.",
+      "alt_ar": "مساران: Fine-tuning لنموذج مدرَّب مسبقًا على مجموعة بيانات صغيرة من المجال، أو التدريب من الصفر على مدونة ضخمة مع Tokenizer مخصص وأوزان تُهيَّأ عشوائيًا، يليهما جدول مقارنة وإرشاد لوقت اختيار كل منهما.",
+      "caption": "Fine-tune when a suitable pretrained model and a modest dataset exist; train from scratch only with a very large, distinct corpus and ample compute.",
+      "caption_ar": "استخدم Fine-tuning عند وجود نموذج مدرَّب مناسب وبيانات متوسطة، ولا تدرّب من الصفر إلا مع مدونة ضخمة ومميزة وحوسبة كافية."
+    }
+  ]
+}

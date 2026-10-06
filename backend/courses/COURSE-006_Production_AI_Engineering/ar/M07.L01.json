@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M07.L01",
-  "source_hash": "25a9e3f6e431d3d7107c7393ed0e66fa6077e3e6227fbdcddb2c8abf3530853b",
+  "source_hash": "75352fd6ac0cd45c5471d1986161ec1224955029ee7e58b54e0ea9e5628ac1b8",
   "title": "Finetuning: ضبط النماذج الأساسية",
   "exercises": [
     {

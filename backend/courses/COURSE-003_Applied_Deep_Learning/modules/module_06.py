@@ -71,10 +71,8 @@ TOPIC = {
             "backpropagation, gradients, optimizer, training data, and validation data.\n\n"
             "That means we can replace the simple model with a more expressive differentiable model "
             "without replacing the whole learning process.\n\n"
-            "[[IMAGE_NEEDED: Same training loop, different model | A diagram showing input and target "
-            "entering the familiar training loop, with the model box changing from a linear equation "
-            "to a neural network while loss, backward pass, optimizer, and validation stay the same | "
-            "Learner should notice that the model architecture changes but the training mechanics remain]]\n\n"
+            '{{image:same-training-loop-different-model}}'
+            '\n\n'
             "This is the first major transition from machine-learning mechanics into deep learning.\n\n"
             "---\n\n"
 

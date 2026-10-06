@@ -135,12 +135,8 @@ TOPIC = {
             "        → consider tokenizer + model pretraining from scratch\n"
             "```\n"
             "\n"
-            "[[IMAGE_NEEDED: Fine-tuning versus training from scratch | "
-            "A decision diagram comparing a small domain dataset flowing into pretrained-model "
-            "fine-tuning versus a massive distinct domain corpus flowing into custom tokenizer "
-            "training and fresh model pretraining | "
-            "Learner should notice that training from scratch requires both much more data and "
-            "much more compute]]\n"
+            '{{image:fine-tuning-vs-training-from-scratch}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

@@ -157,10 +157,8 @@ TOPIC = {
             "The server author can understand the underlying service deeply and distribute that knowledge once, "
             "while client developers concentrate on their own application behavior.\n"
             "\n"
-            "[[IMAGE_NEEDED: MCP server as a reusable distribution layer | "
-            "A before-and-after diagram showing several applications each maintaining custom integrations versus several MCP clients "
-            "connecting to one reusable MCP server | "
-            "Learner should notice that MCP moves integration knowledge out of each host application and into a reusable server boundary]]\n"
+            '{{image:mcp-server-distribution-layer}}'
+            '\n'
             "\n"
             "### Why server design quality matters\n"
             "\n"

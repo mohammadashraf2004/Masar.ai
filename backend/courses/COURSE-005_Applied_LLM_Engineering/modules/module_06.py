@@ -162,7 +162,7 @@ The chapter makes an important point:
 
 A prompt that works well for one model may work less well for another because models differ in training, instruction tuning, context handling, and generation behavior.
 
-[[IMAGE_NEEDED: Prompt engineering feedback loop | Show task requirements → draft prompt → LLM output → evaluate output → revise prompt → repeat | Learner should notice that prompt engineering is an optimization loop rather than a one-time wording exercise]]
+{{image:prompt-engineering-feedback-loop}}
 
 ---
 

@@ -98,10 +98,8 @@ TOPIC = {
             "- we need minibatches,\n"
             "- and the model must somehow use visual information to separate classes.\n\n"
             "The chapter builds a complete classification pipeline for two classes: **airplane** and **bird**.\n\n"
-            "[[IMAGE_NEEDED: End-to-end bird-vs-airplane classifier | A pipeline showing CIFAR-10 images "
-            "entering preprocessing, a neural-network classifier, class scores, loss during training, "
-            "and predicted bird/airplane labels during inference | Learner should notice that the image "
-            "classification system contains data preparation, model, loss, optimization, and evaluation]]\n\n"
+            '{{image:bird-vs-airplane-classifier}}'
+            '\n\n'
             "---\n\n"
 
             "## 2. CIFAR-10: a small image-classification dataset\n\n"

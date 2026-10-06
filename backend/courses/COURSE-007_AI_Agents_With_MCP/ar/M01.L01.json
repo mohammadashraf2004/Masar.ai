@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M01.L01",
-  "source_hash": "05c636cc081aaca1f2e1b3c88b6d1d71330f3ca41a03c7129af5cb12451d9607",
+  "source_hash": "e171ec74853ea2b15b51d517b1dcf8eaf24854008c3b3397e0face33f670b1c7",
   "title": "من LLMs إلى Agents وModel Context Protocol",
   "exercises": [
     {

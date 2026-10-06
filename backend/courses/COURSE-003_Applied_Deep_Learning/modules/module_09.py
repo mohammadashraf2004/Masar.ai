@@ -114,10 +114,8 @@ TOPIC = {
             "Instead of programming explicit grammar rules, we learn patterns from examples and estimate what "
             "is likely to come next.\n\n"
             "This is the bridge from simple statistical generation to modern language models.\n\n"
-            "[[IMAGE_NEEDED: Prediction versus generation | Left side shows regression/classification with one "
-            "input leading to a constrained target; right side shows a text prefix branching into many plausible "
-            "next-token continuations | Learner should notice that generation is handled by modeling a probability "
-            "distribution rather than selecting one permanently fixed answer]]\n\n"
+            '{{image:prediction-vs-generation}}'
+            '\n\n'
             "The chapter uses early rule-based systems such as ELIZA as historical contrast: convincing language-like "
             "behavior can be produced without genuinely modeling rich conversational context. Transformers address the "
             "context problem using learned representations and attention rather than hand-authored response rules.\n\n"

@@ -160,13 +160,8 @@ TOPIC = {
             "gravity from training every model yourself toward adapting, "
             "evaluating, integrating, and operating powerful existing models.\n"
             "\n"
-            "[[IMAGE_NEEDED: From traditional ML to AI engineering | "
-            "A two-lane diagram comparing the traditional workflow of collecting "
-            "data and training a task-specific model with the foundation-model "
-            "workflow of selecting an existing model, adapting it, evaluating it, "
-            "and integrating it into an application | Learner should notice that "
-            "AI engineering shifts much of the effort from model creation toward "
-            "model adaptation and product development]]\n"
+            '{{image:traditional-ml-vs-ai-engineering}}'
+            '\n'
             "\n"
             "### The key mental model\n"
             "\n"

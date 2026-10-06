@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "course_id": "COURSE-006",
+  "assets": [
+    {
+      "key": "traditional-ml-vs-ai-engineering",
+      "type": "image",
+      "file": "assets/traditional-ml-vs-ai-engineering.png",
+      "lesson": "M01.L01",
+      "alt": "Two lanes: the traditional ML workflow (collect data, label, engineer features, train a task-specific model, evaluate, deploy) and the foundation-model workflow (select a model, adapt it by prompting, fine-tuning, RAG or tools, evaluate, integrate, deploy and monitor).",
+      "alt_ar": "مساران: سير عمل ML التقليدي (جمع البيانات ووسمها وهندسة الـ Features وتدريب نموذج مخصص للمهمة ثم التقييم والنشر) وسير عمل Foundation model (اختيار نموذج وتكييفه بالـ Prompting أو Fine-tuning أو RAG أو الأدوات ثم التقييم والدمج والنشر والمراقبة).",
+      "caption": "AI engineering shifts effort from creating a model toward adapting it and building the product around it.",
+      "caption_ar": "تنقل هندسة الذكاء الاصطناعي الجهد من إنشاء النموذج إلى تكييفه وبناء المنتج حوله."
+    },
+    {
+      "key": "foundation-model-design-map",
+      "type": "image",
+      "file": "assets/foundation-model-design-map.png",
+      "lesson": "M02.L01",
+      "alt": "Four boxes (training data, architecture and scale, post-training, and sampling at inference) feeding a row of downstream behaviors: accuracy, style, helpfulness, latency, cost, safety, consistency and application performance.",
+      "alt_ar": "أربعة صناديق (بيانات التدريب، والمعمارية والحجم، وما بعد التدريب، والـ Sampling أثناء الـ Inference) تغذي صفًا من السلوكيات اللاحقة: الدقة والأسلوب والفائدة وزمن الاستجابة والتكلفة والسلامة والاتساق وأداء التطبيق.",
+      "caption": "Application behavior is shaped by choices made during both training and inference.",
+      "caption_ar": "يتشكل سلوك التطبيق بقرارات تُتخذ أثناء التدريب وأثناء الـ Inference معًا."
+    },
+    {
+      "key": "evaluation-driven-development-loop",
+      "type": "image",
+      "file": "assets/evaluation-driven-development-loop.png",
+      "lesson": "M04.L01",
+      "alt": "A seven-step cycle: define criteria, build a prototype, evaluate, improve, deploy, collect production evidence and refine the criteria, each with its output.",
+      "alt_ar": "دورة من سبع خطوات: تحديد المعايير، وبناء نموذج أولي، والتقييم، والتحسين، والنشر، وجمع أدلة الإنتاج، ثم تنقيح المعايير، مع مخرجات كل خطوة.",
+      "caption": "Evaluation starts before implementation and continues after deployment, feeding back into the criteria.",
+      "caption_ar": "يبدأ التقييم قبل التنفيذ ويستمر بعد النشر، ويعود ليغذي المعايير."
+    },
+    {
+      "key": "prompting-vs-finetuning",
+      "type": "image",
+      "file": "assets/prompting-vs-finetuning.png",
+      "lesson": "M07.L01",
+      "alt": "Left: prompting changes instructions, retrieved context and the query around a pretrained model whose weights stay fixed. Right: finetuning uses training data and a training process to update the model weights.",
+      "alt_ar": "على اليسار يغيّر الـ Prompting التعليمات والسياق المسترجَع والاستعلام حول نموذج مدرَّب مسبقًا تبقى أوزانه ثابتة. وعلى اليمين يستخدم الـ Finetuning بيانات تدريب وعملية تدريب لتحديث أوزان النموذج.",
+      "caption": "Prompting adapts the instructions around fixed weights; finetuning adapts the weights themselves.",
+      "caption_ar": "يكيّف الـ Prompting التعليمات المحيطة بأوزان ثابتة، بينما يكيّف الـ Finetuning الأوزان نفسها."
+    },
+    {
+      "key": "dataset-engineering-lifecycle",
+      "type": "image",
+      "file": "assets/dataset-engineering-lifecycle.png",
+      "lesson": "M08.L01",
+      "alt": "A seven-stage circular workflow: define behavior, acquire and annotate data, synthesize data, verify and filter, inspect and process, train and evaluate, then return to curation.",
+      "alt_ar": "سير عمل دائري من سبع مراحل: تحديد السلوك المطلوب، وجمع البيانات ووسمها، وتوليد بيانات اصطناعية، والتحقق والتصفية، والفحص والمعالجة، والتدريب والتقييم، ثم العودة إلى الانتقاء.",
+      "caption": "Dataset engineering is an iterative cycle, and evaluation results send you back to curate the data again.",
+      "caption_ar": "هندسة مجموعات البيانات دورة متكررة، وتعيدك نتائج التقييم إلى انتقاء البيانات من جديد."
+    },
+    {
+      "key": "inference-optimization-levels",
+      "type": "image",
+      "file": "assets/inference-optimization-levels.png",
+      "lesson": "M09.L01",
+      "alt": "Three levels of inference optimization (model, hardware and service), each with example techniques, combining into an efficient inference system with lower latency, lower cost, higher throughput and maintained quality.",
+      "alt_ar": "ثلاثة مستويات لتحسين الـ Inference (النموذج والعتاد والخدمة)، لكل منها تقنيات نموذجية، تجتمع في نظام Inference فعّال بزمن استجابة أقل وتكلفة أقل وإنتاجية أعلى وجودة محافظ عليها.",
+      "caption": "Inference efficiency is a systems problem: the biggest gains come from combining optimizations at all three levels.",
+      "caption_ar": "كفاءة الـ Inference مشكلة أنظمة: تأتي أكبر المكاسب من الجمع بين التحسينات في المستويات الثلاثة."
+    }
+  ]
+}

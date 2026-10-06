@@ -158,11 +158,8 @@ TOPIC = {
             "works. Post-training shapes how it responds to people. Sampling "
             "controls how one particular output is chosen.**\n"
             "\n"
-            "[[IMAGE_NEEDED: Foundation-model design map | A four-part diagram "
-            "showing training data, architecture/scale, post-training, and sampling "
-            "all feeding into downstream model behavior | Learner should notice "
-            "that application behavior is influenced by choices made both during "
-            "training and during inference]]\n"
+            '{{image:foundation-model-design-map}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

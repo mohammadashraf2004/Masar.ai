@@ -125,11 +125,8 @@ TOPIC = {
             "then adapt it to a specific task instead of building every NLP system from "
             "scratch.\n"
             "\n"
-            "[[IMAGE_NEEDED: Transformer evolution timeline | A simple chronological "
-            "timeline showing the 2017 Transformer paper, ULMFiT, GPT, BERT, and the "
-            "subsequent expansion of transformer models | Learner should notice that "
-            "modern transformer NLP emerged from the combination of a new architecture "
-            "and practical transfer-learning methods]]\n"
+            '{{image:transformer-evolution-timeline}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

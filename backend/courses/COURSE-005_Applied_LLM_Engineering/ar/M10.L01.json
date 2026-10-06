@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M10.L01",
-  "source_hash": "c8310c99dcdafcbe47d19b758bf11af00b32dbab659f3ed4eee4af0f65237dcf",
+  "source_hash": "ecd8381533d3b7e3d842a5ee3f4d969e2489744ac41ab6264a2110b551cf352e",
   "title": "إنشاء نماذج Text Embedding",
   "exercises": [
     {

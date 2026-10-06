@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "course_id": "COURSE-003",
+  "assets": [
+    {
+      "key": "pretrained-inference-pipeline",
+      "type": "image",
+      "file": "assets/pretrained-inference-pipeline.png",
+      "lesson": "M02.L01",
+      "alt": "Six-step pipeline: a dog photo is resized, center-cropped and normalized into a tensor, passed through a pretrained classifier, scored for 1,000 ImageNet classes and reduced to the top three labels.",
+      "alt_ar": "مسار من ست خطوات: تُغيَّر أبعاد صورة كلب وتُقتطع من المنتصف وتُطبَّع إلى Tensor، ثم تمر عبر Classifier مدرَّب مسبقًا ويُحسب لها score لكل من 1,000 فئة في ImageNet، وتُختزل إلى أعلى ثلاث تسميات.",
+      "caption": "Inference needs more than the trained network: inputs must be preprocessed exactly as during training, and the output scores must be turned into labels.",
+      "caption_ar": "لا يكفي النموذج المدرَّب وحده في الـ Inference: يجب معالجة المدخلات مسبقًا كما حدث أثناء التدريب، وتحويل الـ scores في المخرجات إلى تسميات."
+    },
+    {
+      "key": "input-intermediate-output-representations",
+      "type": "image",
+      "file": "assets/input-intermediate-output-representations.png",
+      "lesson": "M03.L01",
+      "alt": "A dog photo passes through preprocessing into a numeric tensor, then through several layers of floating-point activations, and ends as 1,000 class scores and top-five labels. The upper row shows the pipeline; the lower row labels the three kinds of representation.",
+      "alt_ar": "تتحول صورة كلب بعد المعالجة المسبقة إلى Tensor رقمي، ثم تمر عبر عدة طبقات من قيم Activations عشرية، وتنتهي بـ scores لـ 1,000 فئة وأعلى خمس تسميات. يعرض الصف العلوي المسار ويسمّي الصف السفلي أنواع التمثيل الثلاثة.",
+      "caption": "A network turns a human-readable input into numbers, transforms them through intermediate layers, and converts the final numbers back into something a person can use.",
+      "caption_ar": "تحوّل الشبكة مدخلًا مفهومًا للإنسان إلى أرقام، وتعالجها عبر طبقات وسيطة، ثم تعيد المخرجات الرقمية إلى صيغة يستفيد منها الإنسان."
+    },
+    {
+      "key": "rgb-image-channels",
+      "type": "image",
+      "file": "assets/rgb-image-channels.png",
+      "lesson": "M04.L01",
+      "alt": "A color photo of a macaw next to three grayscale images showing the red, green and blue channel intensities, with the note that an image tensor has shape height × width × 3.",
+      "alt_ar": "صورة ملونة لببغاء ماكاو بجانب ثلاث صور رمادية تمثل شدة القنوات الحمراء والخضراء والزرقاء، مع الإشارة إلى أن شكل الـ Tensor هو height × width × 3.",
+      "caption": "A color image is stored as several aligned numeric channels, not as a single value per pixel.",
+      "caption_ar": "تُخزَّن الصورة الملونة في عدة قنوات رقمية متوافقة، وليس بقيمة واحدة لكل بكسل."
+    },
+    {
+      "key": "mental-model-of-learning",
+      "type": "image",
+      "file": "assets/mental-model-of-learning.png",
+      "lesson": "M05.L01",
+      "alt": "Seven-step training loop: an input and target enter the model, the prediction is compared with the target by a loss, gradients flow back through backpropagation, the parameters are updated, and the loop repeats.",
+      "alt_ar": "حلقة تدريب من سبع خطوات: يدخل المدخل والهدف إلى النموذج، وتُقارَن التنبؤات بالهدف عبر Loss، ثم تتدفق Gradients للخلف بـ Backpropagation، وتُحدَّث المعاملات، وتتكرر الحلقة.",
+      "caption": "Learning is one repeated loop: predict, measure the loss, compute gradients, update the parameters.",
+      "caption_ar": "التعلم حلقة واحدة متكررة: تنبؤ، ثم قياس الـ Loss، ثم حساب الـ Gradients، ثم تحديث المعاملات."
+    },
+    {
+      "key": "same-training-loop-different-model",
+      "type": "image",
+      "file": "assets/same-training-loop-different-model.png",
+      "lesson": "M06.L01",
+      "alt": "Two copies of the same training loop: on the left a linear model, on the right a neural network, both followed by loss, gradients, parameter updates and a shared validation step.",
+      "alt_ar": "نسختان من حلقة التدريب نفسها: على اليسار نموذج خطي وعلى اليمين شبكة عصبية، وتتبع كلاً منهما خطوات Loss وGradients وتحديث المعاملات، مع خطوة Validation مشتركة.",
+      "caption": "Changing the model from linear to neural does not change the training mechanics; only the function being fitted changes.",
+      "caption_ar": "تغيير النموذج من خطي إلى عصبي لا يغيّر آلية التدريب، وإنما تتغير الدالة التي يجري ملاءمتها فقط."
+    },
+    {
+      "key": "bird-vs-airplane-classifier",
+      "type": "image",
+      "file": "assets/bird-vs-airplane-classifier.png",
+      "lesson": "M07.L01",
+      "alt": "Two pipelines for a CIFAR-10 bird-versus-airplane classifier: a training pipeline with preprocessing, a CNN, class scores, loss, backpropagation and evaluation, and an inference pipeline that predicts a label for a new image.",
+      "alt_ar": "مساران لمصنّف طيور وطائرات على CIFAR-10: مسار تدريب يضم المعالجة المسبقة وشبكة CNN وscores الفئات والـ Loss والـ Backpropagation والتقييم، ومسار Inference يتنبأ بتسمية لصورة جديدة.",
+      "caption": "Training and inference share the same preprocessing and network; training adds the loss, parameter updates and evaluation.",
+      "caption_ar": "يتشارك التدريب والـ Inference المعالجة المسبقة والشبكة نفسيهما؛ ويضيف التدريب الـ Loss وتحديث المعاملات والتقييم."
+    },
+    {
+      "key": "fully-connected-vs-convolution",
+      "type": "image",
+      "file": "assets/fully-connected-vs-convolution.png",
+      "lesson": "M08.L01",
+      "alt": "A 5×5 cat image flattened and connected to every hidden unit on the left, and on the right a 3×3 kernel sliding across the image to produce a feature map, with the multiply-and-sum arithmetic for one position.",
+      "alt_ar": "على اليسار صورة قطة 5×5 بعد التسطيح متصلة بكل وحدة مخفية، وعلى اليمين Kernel بحجم 3×3 ينزلق فوق الصورة لينتج Feature map، مع حساب الضرب والجمع لموضع واحد.",
+      "caption": "Convolution reuses a small kernel at every position and keeps spatial structure, so it needs far fewer weights than a fully connected layer.",
+      "caption_ar": "يعيد الـ Convolution استخدام Kernel صغير في كل موضع ويحافظ على البنية المكانية، فيحتاج أوزانًا أقل بكثير من الطبقة المتصلة بالكامل."
+    },
+    {
+      "key": "prediction-vs-generation",
+      "type": "image",
+      "file": "assets/prediction-vs-generation.png",
+      "lesson": "M09.L01",
+      "alt": "Left: classification and regression produce one constrained output, such as the label dog or a house price. Right: a language model turns a text prefix into a probability distribution over next tokens and several different continuations. A table compares the two.",
+      "alt_ar": "على اليسار ينتج Classification وRegression مخرجًا واحدًا محدَّدًا مثل التسمية dog أو سعر منزل. وعلى اليمين يحوّل Language model بادئة نصية إلى توزيع احتمالات للـ tokens التالية وعدة استكمالات مختلفة. ويقارن جدول بين الحالتين.",
+      "caption": "Prediction picks one target from a constrained set; generation models a distribution over many plausible outputs and samples from it.",
+      "caption_ar": "يختار التنبؤ هدفًا واحدًا من مجموعة محدودة، بينما يمثّل التوليد توزيعًا على مخرجات كثيرة محتملة ويسحب منها."
+    },
+    {
+      "key": "text-vs-image-generation",
+      "type": "image",
+      "file": "assets/text-vs-image-generation.png",
+      "lesson": "M10.L01",
+      "alt": "Two generation paths: a language model sampling the next token from a text prefix, and an image model producing a picture from random noise. Both feed a shared box that learns a data distribution and samples new examples.",
+      "alt_ar": "مساران للتوليد: Language model يسحب الـ token التالي من بادئة نصية، ونموذج صور ينتج صورة من ضوضاء عشوائية. ويغذي المساران صندوقًا مشتركًا يتعلم توزيع البيانات ويسحب أمثلة جديدة.",
+      "caption": "Text and image generation differ in format but share one objective: learn the data distribution, then sample new examples from it.",
+      "caption_ar": "يختلف توليد النص عن توليد الصور في الشكل لكنهما يشتركان في هدف واحد: تعلّم توزيع البيانات ثم سحب أمثلة جديدة منه."
+    },
+    {
+      "key": "raw-ct-data-to-pytorch-sample",
+      "type": "image",
+      "file": "assets/raw-ct-data-to-pytorch-sample.png",
+      "lesson": "M11.L01",
+      "alt": "Six steps from raw CT files to a training sample: .mhd/.raw files and a CSV, loading the volume, converting world coordinates to voxel indices, cropping a 3D patch, converting it to a tensor, and returning an input tensor with its label.",
+      "alt_ar": "ست خطوات من ملفات CT الخام إلى عينة تدريب: ملفات .mhd/.raw وملف CSV، ثم تحميل الحجم، وتحويل الإحداثيات العالمية إلى voxel indices، واقتطاع Patch ثلاثي الأبعاد، وتحويله إلى Tensor، وإرجاع Tensor المدخل مع تسميته.",
+      "caption": "Model-ready data is the result of several transformations, not a single file read.",
+      "caption_ar": "البيانات الجاهزة للنموذج ناتجة عن عدة تحويلات متتابعة، وليست قراءة ملف واحد."
+    },
+    {
+      "key": "ct-classifier-training-pipeline",
+      "type": "image",
+      "file": "assets/ct-classifier-training-pipeline.png",
+      "lesson": "M12.L01",
+      "alt": "End-to-end pipeline for the LUNA16 CT project: a dataset and DataLoader feed batches to a 3D CNN; the training branch computes loss, backward pass and optimizer step, and the validation branch computes metrics without gradient updates, repeated every epoch.",
+      "alt_ar": "مسار متكامل لمشروع CT في LUNA16: يغذي Dataset وDataLoader دفعات إلى شبكة 3D CNN؛ يحسب فرع التدريب الـ Loss وBackward pass وخطوة Optimizer، ويحسب فرع Validation المقاييس دون تحديث الـ Gradients، ويتكرر ذلك في كل Epoch.",
+      "caption": "Training updates the parameters from the loss, while validation only measures performance; the epoch loop alternates between them.",
+      "caption_ar": "يحدّث التدريب المعاملات اعتمادًا على الـ Loss، بينما يقيس الـ Validation الأداء فقط، وتتناوب حلقة الـ Epoch بينهما."
+    },
+    {
+      "key": "binary-classification-quadrants",
+      "type": "image",
+      "file": "assets/binary-classification-quadrants.png",
+      "lesson": "M13.L01",
+      "alt": "A 2×2 grid of CT lung crops for nodule versus non-nodule classification, labeled true positive, false positive, false negative and true negative, with red circles marking the nodules.",
+      "alt_ar": "شبكة 2×2 من مقاطع CT للرئة لتصنيف nodule مقابل non-nodule، موسومة True positive وFalse positive وFalse negative وTrue negative، مع دوائر حمراء تحدد العُقيدات.",
+      "caption": "False positives and false negatives are different mistakes with different consequences: unnecessary follow-up versus a missed disease.",
+      "caption_ar": "الـ False positive والـ False negative خطآن مختلفان بعواقب مختلفة: متابعة غير ضرورية في الأول، ومرض فائت في الثاني."
+    }
+  ]
+}

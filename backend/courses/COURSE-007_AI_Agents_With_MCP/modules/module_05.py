@@ -147,9 +147,8 @@ TOPIC = {
             "- **roots** → request filesystem scope information,\n"
             "- **cancellation** → allow a client/user to stop long-running work.\n"
             "\n"
-            "[[IMAGE_NEEDED: Advanced MCP server capability map | "
-            "A two-column diagram with server utilities on one side and client-provided capabilities on the other, both feeding into tools/prompts/resources | "
-            "Learner should notice that utilities improve operation while client capabilities let server workflows obtain external input]]\n"
+            '{{image:mcp-server-capability-map}}'
+            '\n'
             "\n"
             "> **Version note from the source:** the chapter states that protocol-level logging, sampling, and roots are deprecated in the "
             "2026-07-28 MCP specification direction. They are still taught for compatibility and architectural understanding.\n"

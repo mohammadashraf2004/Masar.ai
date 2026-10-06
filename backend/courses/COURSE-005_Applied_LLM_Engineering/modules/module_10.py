@@ -173,7 +173,7 @@ The important goal is:
 
 > The numbers should preserve information that matters for the task.
 
-[[IMAGE_NEEDED: Text to embedding | Show a document, sentence, and phrase entering an embedding model and each becoming a dense numerical vector | Learner should understand embeddings as learned numerical representations rather than arbitrary encodings]]
+{{image:text-to-embedding}}
 
 ### Why embeddings matter
 

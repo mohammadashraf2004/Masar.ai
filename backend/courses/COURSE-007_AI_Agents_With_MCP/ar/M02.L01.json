@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M02.L01",
-  "source_hash": "50d97eb5c067ce2ed4827770144afc57a22260e77e294c9625ed5203893be60e",
+  "source_hash": "ecfbb85a89b702e56c26213c7b237adc74167d7c2525476c58906170ebbac5cb",
   "title": "بناء تطبيقات agentic باستخدام عملاء MCP",
   "exercises": [
     {

@@ -125,10 +125,8 @@ TOPIC = {
             "These levels interact. A quantized model may fit on cheaper hardware. A "
             "better serving scheduler may increase utilization without changing model weights.\n"
             "\n"
-            "[[IMAGE_NEEDED: Three levels of inference optimization | A layered diagram "
-            "showing model-level, hardware-level, and service-level optimizations feeding "
-            "latency and cost outcomes | Learner should notice that inference efficiency "
-            "is a systems problem, not only a model problem]]\n"
+            '{{image:inference-optimization-levels}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

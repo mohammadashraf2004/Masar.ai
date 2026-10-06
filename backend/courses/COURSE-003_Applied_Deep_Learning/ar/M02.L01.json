@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M02.L01",
-  "source_hash": "ad205f9250f44d7ce1477e41703b7f46da30f9bde98ffb5099006b30ec8e1332",
+  "source_hash": "81a281650502f510e3eb31714c7bbe6869d2e1da93f17e95e5ed6ee95b64eded",
   "title": "الشبكات المدرَّبة مسبقًا: من التعرّف على الصور إلى الـ models متعددة الوسائط",
   "exercises": [
     {

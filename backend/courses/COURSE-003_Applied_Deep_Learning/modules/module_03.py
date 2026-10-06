@@ -117,11 +117,8 @@ TOPIC = {
             "for recognizing more complex structures. These intermediate values are learned for the task "
             "from examples rather than manually defined one by one.\n"
             "\n"
-            "[[IMAGE_NEEDED: Input-to-intermediate-to-output representations | "
-            "A simple neural-network pipeline showing a human-interpretable input on the left, several "
-            "layers of floating-point intermediate representations in the middle, and a human-usable "
-            "output on the right | Learner should notice that the network repeatedly transforms numeric "
-            "representations and that the hidden intermediate representations are task-dependent]]\n"
+            '{{image:input-intermediate-output-representations}}'
+            '\n'
             "\n"
             "PyTorch therefore needs an efficient way to store and manipulate large collections of "
             "numbers. That data structure is the **tensor**.\n"

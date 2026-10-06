@@ -116,11 +116,8 @@ TOPIC = {
             "can normally use context from both sides of a token. Decoder generation must "
             "prevent a position from seeing future tokens.\n"
             "\n"
-            "[[IMAGE_NEEDED: Transformer encoder-decoder overview | "
-            "A clean diagram showing input tokens entering an encoder stack, encoder outputs "
-            "feeding a decoder stack, and the decoder generating output tokens one by one | "
-            "Learner should notice that the encoder processes the source sequence while the "
-            "decoder produces the target sequence autoregressively]]\n"
+            '{{image:transformer-encoder-decoder-overview}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

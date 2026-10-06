@@ -167,7 +167,7 @@ This is the core idea of **semantic search**:
 
 The chapter explains that language models improved mature search systems because they can create contextual representations that capture more than raw keywords.
 
-[[IMAGE_NEEDED: Keyword search versus semantic search | Show the same query entering two pipelines: keyword search matching shared words and semantic search matching a differently worded but meaning-equivalent passage | Learner should notice that semantic relevance does not require exact query terms]]
+{{image:keyword-vs-semantic-search}}
 
 ---
 

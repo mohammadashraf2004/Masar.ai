@@ -138,11 +138,8 @@ TOPIC = {
             "Generation stops when the model produces an end-of-sequence token or when "
             "a configured length limit is reached.\n"
             "\n"
-            "[[IMAGE_NEEDED: Autoregressive text generation loop | "
-            "A step-by-step diagram showing prompt -> language model -> next-token "
-            "probabilities -> selected token -> append token to prompt -> repeat | "
-            "Learner should notice that one new token is chosen per decoding step and "
-            "the generated token becomes part of the next input]]\n"
+            '{{image:autoregressive-generation-loop}}'
+            '\n'
             "\n"
             "### The first key distinction\n"
             "\n"

@@ -177,11 +177,8 @@ TOPIC = {
             "class indices -> human-readable labels\n"
             "```\n"
             "\n"
-            "[[IMAGE_NEEDED: Pretrained image-classification inference pipeline | "
-            "A diagram showing an input photograph being resized/cropped/normalized into a tensor, "
-            "passed through a pretrained classifier, producing one score for each ImageNet class, "
-            "followed by top-k label selection | Learner should notice that inference requires both "
-            "the trained network and the correct input/output processing around it]]\n"
+            '{{image:pretrained-inference-pipeline}}'
+            '\n'
             "\n"
             "### Why preprocessing matters\n"
             "\n"

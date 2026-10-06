@@ -142,11 +142,8 @@ TOPIC = {
             "        repeat\n"
             "```\n"
             "\n"
-            "[[IMAGE_NEEDED: Mental model of learning | "
-            "A loop diagram showing input and target entering a model, model output compared with target "
-            "through a loss function, gradients flowing backward to parameters, and parameters being "
-            "updated before the next forward pass | Learner should notice that learning is an iterative "
-            "feedback process driven by prediction error]]\n"
+            '{{image:mental-model-of-learning}}'
+            '\n'
             "\n"
             "Deep neural networks are much larger and more flexible than the simple model in this lesson, "
             "but the same training logic remains.\n"

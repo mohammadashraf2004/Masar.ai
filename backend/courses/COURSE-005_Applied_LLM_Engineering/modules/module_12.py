@@ -195,7 +195,7 @@ Among plausible responses,
 which kinds do humans or the target system prefer?
 ```
 
-[[IMAGE_NEEDED: Three-stage LLM training pipeline | Show an untrained Transformer progressing through pretraining → base model, supervised fine-tuning → instruction/chat model, and preference tuning → aligned model | Learner should memorize the different purpose of each stage]]
+{{image:three-stage-llm-training}}
 
 The important idea is:
 

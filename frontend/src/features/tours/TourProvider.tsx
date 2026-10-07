@@ -4,10 +4,11 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/store'
 import { blockedRoute, modalOpen, pickTour, showsNewTag } from './eligibility'
 import { ReplayBar } from './ReplayBar'
-import { saveRecord, type TourStatus } from './records'
+import { type TourStatus } from './records'
 import { TOURS, homeRoute, routeMatches, tourById, type Device, type TourDef, type TourId, type TourStep } from './registry'
 import { MIN_STEPS, resolveSteps } from './targets'
 import { clearPendingReplay, markTourSession, peekPendingReplay, setPendingReplay, toursEnabled, tourRanThisSession } from './session'
+import { ensureSynced, saveAndSync } from './sync'
 import { Tour } from './Tour'
 
 /**
@@ -76,6 +77,13 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   const latest = useRef({ user, run })
   useEffect(() => { latest.current = { user, run } })
 
+  // Pull the account's tour records onto this browser, and push up anything only it has —
+  // fire-and-forget, so it never delays a tour that is already due locally. See sync.ts.
+  useEffect(() => {
+    if (!userId || !toursEnabled()) return
+    void ensureSynced(userId)
+  }, [userId])
+
   /** Wait for the page to be ready, then start `tour`. Returns how to cancel. */
   const launch = useCallback((tour: TourDef, replay: boolean, pathname: string): (() => void) => {
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -137,7 +145,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     if (!running) return
     // A replay changes nothing: it must not turn a finished tour into a skipped one.
     if (!running.replay && account) {
-      saveRecord(account.id, running.tour.id, { status, version: running.tour.version })
+      saveAndSync(account.id, running.tour.id, { status, version: running.tour.version })
     }
     setRun(null)
     setEnded(running.tour.id)

@@ -1,11 +1,18 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AccountMenu } from '@/components/layout/AccountMenu'
+import { useAuthStore } from '@/lib/store'
 import { router, setPathname } from '@/test/nav'
 import { getRecord, saveRecord } from './records'
 import { resetTourSession, setToursEnabled, tourRanThisSession } from './session'
+import { resetSyncedForTests } from './sync'
 import { TourProvider } from './TourProvider'
 import { OLD_ACCOUNT, ONBOARDING_DESKTOP, ONBOARDING_MOBILE, Targets, mockLayout, signIn } from './tourTestKit'
+
+// Every tour finish/skip fires a background PUT, and the provider fetches the account's
+// records once per session — neither should ever reach a real network in a test.
+vi.mock('@/lib/api', () => ({ api: { getMyTours: vi.fn(), putTour: vi.fn() } }))
+import { api } from '@/lib/api'
 
 /** Everything the mentor page (and, for the test's sake, a lesson) could be pointing at. */
 const MENTOR_PAGE = ['interview-tab', 'credits', 'lang-switch', 'lesson-terms', 'mentor-lang']
@@ -35,6 +42,9 @@ beforeEach(() => {
   mockLayout()
   setPathname('/dashboard')
   signIn()
+  resetSyncedForTests()
+  vi.mocked(api.getMyTours).mockResolvedValue([])
+  vi.mocked(api.putTour).mockResolvedValue({ tour_id: 'onboarding', status: 'completed', version: 1, at: new Date().toISOString() })
 })
 
 afterEach(() => {
@@ -132,6 +142,56 @@ describe('remembering', () => {
     saveRecord(7, 'onboarding', { status: 'done', version: 1 })
     render(page(ONBOARDING_DESKTOP))
     expect(card()).toBeNull()
+  })
+})
+
+describe('syncing with the server', () => {
+  it('pushes a finish as completed', async () => {
+    render(page(ONBOARDING_DESKTOP))
+    fireEvent.click(button('Skip tour'))
+    await act(async () => { await Promise.resolve() })
+    expect(api.putTour).toHaveBeenCalledWith('onboarding', expect.objectContaining({ status: 'skipped', version: 1 }))
+  })
+
+  it('pushes a completed tour with the wire status, not the local one', async () => {
+    vi.useFakeTimers()
+    render(page(ONBOARDING_DESKTOP))
+    for (let n = 0; n < 3; n++) {
+      fireEvent.click(button('Next'))
+      await tick(200)
+    }
+    fireEvent.click(button('Get started'))
+    await act(async () => { await Promise.resolve() })
+    expect(api.putTour).toHaveBeenCalledWith('onboarding', expect.objectContaining({ status: 'completed', version: 1 }))
+  })
+
+  it('does not run a tour a previous sync already recorded as done', async () => {
+    vi.mocked(api.getMyTours).mockResolvedValue([
+      { tour_id: 'onboarding', status: 'completed', version: 1, at: new Date().toISOString() },
+    ])
+    const { ensureSynced } = await import('./sync')
+    await ensureSynced(7)                     // what a previous mount's merge already did
+    expect(getRecord(7, 'onboarding')).toMatchObject({ status: 'done', version: 1 })
+
+    render(page(ONBOARDING_DESKTOP))
+    expect(card()).toBeNull()
+  })
+
+  it('fetches the account once per session, not on every mount', async () => {
+    const first = render(page(ONBOARDING_DESKTOP))
+    await act(async () => { await Promise.resolve() })
+    first.unmount()
+
+    render(page(ONBOARDING_DESKTOP))
+    await act(async () => { await Promise.resolve() })
+    expect(api.getMyTours).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not fetch or push while signed out', async () => {
+    useAuthStore.setState({ user: null })
+    render(page(ONBOARDING_DESKTOP))
+    await act(async () => { await Promise.resolve() })
+    expect(api.getMyTours).not.toHaveBeenCalled()
   })
 })
 

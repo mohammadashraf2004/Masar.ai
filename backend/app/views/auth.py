@@ -6,6 +6,7 @@ from pydantic import BaseModel, EmailStr, Field, StrictBool, field_validator
 
 from app.core.security import PASSWORD_MAX_BYTES, PASSWORD_MIN_LENGTH, normalize_email, validate_password_strength
 from app.models.user import ExperienceLevel, UserRole
+from app.models.user_tour import TourRecordStatus
 
 # Anything a user can store and another user's browser might later be
 # handed as a link. Only these two schemes are ever safe to put in an
@@ -179,3 +180,23 @@ class TokenResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+
+class TourRecordWrite(BaseModel):
+    """A walkthrough's status, as the client last knew it locally."""
+    status: TourRecordStatus
+    version: int = Field(..., ge=1)
+    # When this status became true on the client, not when the request was sent —
+    # see app.services.tour_service.upsert. Optional: a caller with no local clock
+    # to trust can omit it and get the server's own time.
+    at: Optional[datetime] = None
+
+
+class TourRecordResponse(BaseModel):
+    tour_id: str
+    status: TourRecordStatus
+    version: int
+    at: datetime
+
+    class Config:
+        from_attributes = True

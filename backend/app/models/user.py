@@ -89,6 +89,7 @@ class User(Base):
     update_acknowledgements = relationship(
         "UserUpdateAcknowledgement", back_populates="user", cascade="all, delete-orphan",
     )
+    tours = relationship("UserTour", back_populates="user", cascade="all, delete-orphan")
 
     @property
     def pending_updates(self) -> list:

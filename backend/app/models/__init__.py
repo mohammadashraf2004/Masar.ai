@@ -25,3 +25,5 @@ from app.models.billing import (  # noqa: F401
 )
 
 from app.models.course_asset import CourseAsset  # noqa: F401
+
+from app.models.user_tour import UserTour  # noqa: F401

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.exc import IntegrityError
@@ -22,12 +22,12 @@ from app.db.session import get_db
 from app.models.auth_token import EmailToken, EmailTokenPurpose
 from app.models.update_ack import UserUpdateAcknowledgement
 from app.models.user import User
-from app.services import update_service
+from app.services import tour_service, update_service
 from app.services.email.resend_service import send_password_reset_email, send_verification_email
 from app.services.wallet.wallet_service import add_credits, grant_launch_promo
 from app.views.auth import (
     ForgotPasswordRequest, LegalAcceptance, MessageResponse, ResetPasswordRequest, TokenResponse,
-    UserCreate, UserLogin, UserResponse, UserUpdate, VerifyEmailRequest,
+    TourRecordResponse, TourRecordWrite, UserCreate, UserLogin, UserResponse, UserUpdate, VerifyEmailRequest,
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -294,6 +294,46 @@ def acknowledge_update(
     db.refresh(current_user)
     return current_user
 
+
+@router.get("/me/tours", response_model=List[TourRecordResponse])
+def list_my_tours(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Every walkthrough record the signed-in account has, in one call; the
+    client fetches this once on load rather than once per tour."""
+    return tour_service.list_records(db, current_user.id)
+
+
+@router.get("/me/tours/{tour_id}", response_model=TourRecordResponse)
+def get_my_tour(
+    tour_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if tour_id not in tour_service.KNOWN_TOUR_IDS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown tour")
+    record = tour_service.get_record(db, current_user.id, tour_id)
+    if record is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not seen")
+    return record
+
+
+@router.put("/me/tours/{tour_id}", response_model=TourRecordResponse)
+@limiter.limit("60/minute")
+def put_my_tour(
+    request: Request,
+    tour_id: str,
+    payload: TourRecordWrite,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upsert the signed-in account's record for one tour. Idempotent, and safe
+    to retry: see app.services.tour_service.upsert for the last-write-wins rule
+    that makes a queued, out-of-order retry harmless."""
+    if tour_id not in tour_service.KNOWN_TOUR_IDS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown tour")
+    return tour_service.upsert(db, current_user.id, tour_id, payload.status, payload.version, payload.at)
 
 @router.patch("/me", response_model=UserResponse)
 def update_me(

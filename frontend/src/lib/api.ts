@@ -23,6 +23,14 @@ import { useAuthStore } from '@/lib/store'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
+/** A walkthrough record as the wire has it (docs/backend-requests.md section 6); the tours feature
+ * translates this into its own local shape (frontend/src/features/tours/sync.ts). */
+export interface TourRecordApi {
+  tour_id: string
+  status: 'completed' | 'skipped' | 'in_progress'
+  version: number
+  at: string
+}
 /**
  * The address the browser loads a lesson figure from. The API hands out a path
  * relative to its own root (or, once figures are served from a CDN, a full URL);
@@ -176,6 +184,19 @@ class ApiClient {
     return res.data
   }
 
+  /** Every walkthrough record the account has (see docs/backend-requests.md section 6), in one call,
+   * not one per tour. */
+  async getMyTours() {
+    const res = await this.http.get<TourRecordApi[]>('/auth/me/tours')
+    return res.data
+  }
+
+  /** Upsert one tour's record. `at` is when the status became true on the client, not the
+   * request's arrival time; see app.services.tour_service.upsert. */
+  async putTour(tourId: string, data: { status: 'completed' | 'skipped'; version: number; at?: string }) {
+    const res = await this.http.put<TourRecordApi>(`/auth/me/tours/${encodeURIComponent(tourId)}`, data)
+    return res.data
+  }
   async verifyEmail(token: string) {
     const res = await this.http.post<{ message: string }>('/auth/verify-email', { token })
     return res.data

@@ -23,6 +23,7 @@ from app.models.learning_path import Course
 from app.models.user import User
 from app.models.wallet import CreditPackage
 from app.services.billing.access_service import active_enrollment
+from app.services.billing import pro_ai_allowance as pro_ai
 from app.services.billing.course_billing import current_offer
 from app.services.billing.refunds import (
     RefundError, refund_eligibility, request_refund, transition_refund,
@@ -299,6 +300,25 @@ def my_subscription(current_user: User = Depends(get_current_user), db: Session 
         "subscription": _subscription_out(current_subscription(db, current_user.id)),
         "latest_order": _subscription_order_out(latest_order) if latest_order else None,
         "refund_policy": _refund_policy(),
+    }
+
+
+@router.get("/billing/ai-allowance")
+def my_ai_allowance(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """The account's plan, its included AI allowance (paid Pro only; `null` on Free and
+    during the trial, whose AI actions are paid from the wallet) and whether every
+    course is open. Every value comes from server-side subscription and usage records."""
+    subscription = pro_ai.eligible_subscription(db, current_user.id)
+    plan = current_plan_code(db, current_user.id)
+    current = current_subscription(db, current_user.id)
+    return {
+        "plan": plan,
+        "ai_allowance": pro_ai.allowance_status(db, current_user.id).as_dict() if subscription else None,
+        "all_courses_access": plan == "pro",
+        # Where this account's AI actions are paid from right now. A trial opens every
+        # course but pays for AI from the wallet until the first payment.
+        "ai_billing": "allowance" if subscription else "wallet",
+        "trial": bool(current and current.status == "trialing" and subscription_is_entitled(current)),
     }
 
 

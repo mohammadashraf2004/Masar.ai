@@ -111,6 +111,38 @@ their progress row for the old module to the row for the new one
 (`importer._carry_progress`; the import report shows `progress_carried`). Nothing is
 dropped. Re-importing is safe: a second import carries nothing.
 
+## Pro: all courses plus 50 AI credits per rolling 4 hours (decisions 2026-10-08)
+
+**Courses.** An entitled Pro subscription - paid (active, or cancelled until its paid
+period ends) or the 7-day trial - opens every course, unchanged. Free previews,
+purchases, `legacy_free` enrollments and admin grants are untouched.
+
+**AI.** A *paid* Pro subscription pays for AI actions from an included allowance instead
+of the wallet: **50 credits** (`PRO_AI_CREDITS_PER_WINDOW`) per **rolling 4 hours**
+(`PRO_AI_WINDOW_SECONDS=14400`), at the existing per-action prices. The **trial** pays
+for AI from the wallet until the first payment (`PRO_AI_INCLUDE_TRIAL=false`); the
+billing page says so. Only actions that call the model provider count (mentor chat and
+message, code review, skill gap, mock interview, roadmap, exercise feedback, project and
+challenge hints); challenge enrolment and everything deterministic stay on the wallet,
+and the free AI features with their own limits (quiz translation, AI project review) are
+not counted. At the limit the request is refused before the provider is called (`429
+pro_ai_limit_reached`, with `remaining`, `next_credit_available_at`, `retry_at`,
+`Retry-After`; shown localized everywhere); wallet credits are never used instead.
+
+**Accounting.** One `pro_ai_usage` row per action (migration **036**): reserved under a
+per-account advisory lock before the call; consumed when the request answers 2xx/3xx;
+released (with `release_reason`) when it fails - every provider error, timeout or
+unusable answer is refunded by its endpoint, and any other failed response is released
+by `AllowanceRequestMiddleware`. A reservation nobody settled within
+`PRO_AI_RESERVATION_TTL_SECONDS` (300; a worker killed mid-request) is released, not
+counted. A usage counts for 4 hours from its reservation; the window belongs to the
+account, so resubscribing does not refill it. Mentor v2's cap of 3 refunded
+(validation-failed) replies per day counts allowance releases too. No AI endpoint
+streams; a client that disconnects after the server answered keeps no refund - mentor
+chat, Mentor v2 (replayed free by `requestId`) and exercise feedback keep the answer
+server-side; code review, mock-interview questions, skill gap, roadmap and hints do not.
+`GET /api/v1/billing/ai-allowance` reports plan, allowance, `ai_billing` and `trial`.
+
 ## Limits and policies introduced with this release
 
 * AI-reviewed project submissions: **10 per account per rolling 24 hours**

@@ -372,3 +372,37 @@ def _subscription_order_reference(_mapper, _connection, target: SubscriptionOrde
     # tests. The database unique index remains the final concurrency guard.
     if not target.reference_number:
         target.reference_number = generate_reference_number()
+
+
+class ProAiUsage(Base):
+    """One AI action paid from a Pro subscriber's included allowance.
+
+    `reserved` before the provider call, `consumed` once the request succeeded,
+    `released` when it failed or never answered (the credits come back, and
+    `release_reason` says why). Consumed rows, and reserved rows still within the
+    reservation lifetime, count against the rolling window from `reserved_at`, so
+    a call that runs across a window boundary is counted exactly once, at the
+    moment it was let through. See app/services/billing/pro_ai_allowance.py."""
+
+    __tablename__ = "pro_ai_usage"
+    __table_args__ = (
+        CheckConstraint("status IN ('reserved', 'consumed', 'released')", name="ck_pro_ai_usage_status"),
+        CheckConstraint("credits > 0", name="ck_pro_ai_usage_credits_positive"),
+        Index("ix_pro_ai_usage_user_reserved", "user_id", "reserved_at"),
+        Index(
+            "uq_pro_ai_usage_user_request", "user_id", "request_key", unique=True,
+            postgresql_where=text("request_key IS NOT NULL"),
+        ),
+    )
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    subscription_id = Column(Integer, ForeignKey("user_subscriptions.id", ondelete="SET NULL"), nullable=True)
+    action_type = Column(String(64), nullable=False)
+    credits = Column(Integer, nullable=False)
+    status = Column(String(16), nullable=False, default="reserved", server_default="reserved")
+    request_key = Column(String(160), nullable=True)
+    reserved_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    finalized_at = Column(DateTime(timezone=True), nullable=True)
+    released_at = Column(DateTime(timezone=True), nullable=True)
+    release_reason = Column(String(120), nullable=True)

@@ -15,6 +15,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.core import security_log
 from app.core.config import settings
 from app.core.body_limit import BodySizeLimitMiddleware
+from app.services.billing.pro_ai_allowance import AllowanceRequestMiddleware
 from app.core.http_security import SecurityHeadersMiddleware
 from app.core.limiter import limiter, verify_storage_reachable
 from app.core.metrics import (
@@ -134,6 +135,11 @@ class UnhandledErrorMiddleware(BaseHTTPMiddleware):
 # other middleware does.
 if settings.METRICS_ENABLED:
     app.add_middleware(MetricsMiddleware)
+
+# Pro AI allowance: settles each request's reservations once its status is known.
+# Inside UnhandledErrorMiddleware, so a crashed request is seen as a failure and
+# its reservations are released. See app/services/billing/pro_ai_allowance.py.
+app.add_middleware(AllowanceRequestMiddleware)
 
 # Added after MetricsMiddleware and before SecurityHeadersMiddleware, which
 # puts it between the two in the stack. See the class docstring — the order

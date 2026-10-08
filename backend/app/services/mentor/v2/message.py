@@ -28,6 +28,7 @@ from app.models.user import User
 from app.models.wallet import TransactionType, UserWallet, WalletTransaction
 from app.services import get_llm
 from app.core.authz import is_email_verified
+from app.services.billing import pro_ai_allowance as pro_ai
 from app.services.billing.access_service import require_content_access
 from app.services.mentor.observability import MentorEvent, mentor_event
 from app.services.mentor.v2 import intent as intent_service
@@ -308,9 +309,11 @@ VALIDATION_REFUND = "Refund: mentor reply failed validation"
 
 def _validation_refunds_today(db: Session, user_id: int) -> int:
     """Validation-failure refunds this account received in the last 24 hours, read from the
-    ledger so every API worker sees the same count."""
+    ledgers so every API worker sees the same count: wallet refunds, plus Pro allowance
+    charges given back for the same reason (a Pro send never touches the wallet, so
+    without this the cap would never apply to Pro)."""
     since = datetime.now(timezone.utc) - timedelta(days=1)
-    return (
+    return pro_ai.released_since(db, user_id, ACTION, VALIDATION_REFUND, since) + (
         db.query(WalletTransaction.id)
         .join(UserWallet, UserWallet.id == WalletTransaction.wallet_id)
         .filter(

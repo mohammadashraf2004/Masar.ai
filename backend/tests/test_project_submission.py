@@ -363,3 +363,59 @@ def test_failed_hint_refunds_the_credit(client, db, project, monkeypatch):
     assert resp.status_code == 503
     db.expire_all()
     assert _balance(db, user_id) == before
+
+
+def test_a_malformed_hint_refunds_the_credit(client, db, project, monkeypatch):
+    """A model answer the response schema rejects is as undelivered as a provider
+    error: refunded and a 503, not a charged 500."""
+    monkeypatch.setattr(tracks_controller, "get_llm", lambda: object())
+    monkeypatch.setattr(tracks_controller, "get_project_hint", lambda **kwargs: {"hint": 42})
+
+    token, user_id = _register(client)
+    before = _balance(db, user_id)
+
+    resp = client.post(
+        f"/api/v1/tracks/projects/{project.id}/hint",
+        headers=_auth(token), json={"stuck_on": "help"},
+    )
+    assert resp.status_code == 503
+    db.expire_all()
+    assert _balance(db, user_id) == before
+
+
+@pytest.mark.parametrize("outcome, status_code, usage_status", [
+    ("hint", 200, "consumed"), ("provider_down", 503, "released"), ("malformed", 503, "released"),
+])
+def test_a_pro_hint_uses_the_included_allowance_and_gets_it_back_when_undelivered(
+    client, db, project, monkeypatch, outcome, status_code, usage_status,
+):
+    """Paid Pro: the hint is paid from the 50-credit allowance, never the wallet; a hint
+    that never arrived (provider error, unusable answer) gives the credit back."""
+    from datetime import datetime, timedelta, timezone
+
+    from app.models.billing import BillingPlan, ProAiUsage, UserSubscription
+
+    def provider_down(**kwargs):
+        raise TimeoutError("provider timed out")
+
+    hint = {"hint": lambda **kw: dict(FAKE_HINT), "provider_down": provider_down,
+            "malformed": lambda **kw: {"hint": 42}}[outcome]
+    monkeypatch.setattr(tracks_controller, "get_llm", lambda: object())
+    monkeypatch.setattr(tracks_controller, "get_project_hint", hint)
+
+    token, user_id = _register(client)
+    now = datetime.now(timezone.utc)
+    plan = db.query(BillingPlan).filter(BillingPlan.code == "pro").one()
+    db.add(UserSubscription(user_id=user_id, plan_id=plan.id, status="active", billing_period="monthly",
+                            payment_provider="kashier", provider_subscription_id=f"t-{uuid.uuid4().hex}",
+                            current_period_start=now, current_period_end=now + timedelta(days=30)))
+    db.commit()
+    before = _balance(db, user_id)
+
+    resp = client.post(f"/api/v1/tracks/projects/{project.id}/hint",
+                       headers=_auth(token), json={"stuck_on": "help"})
+    assert resp.status_code == status_code
+    db.expire_all()
+    assert _balance(db, user_id) == before
+    [usage] = db.query(ProAiUsage).filter(ProAiUsage.user_id == user_id).all()
+    assert (usage.action_type, usage.credits, usage.status) == ("project_hint", 1, usage_status)

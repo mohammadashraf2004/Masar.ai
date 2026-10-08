@@ -186,6 +186,22 @@ class Settings(BaseSettings):
     RUNNER_USER_SECONDS: int = 120
     RUNNER_USER_WINDOW_SECONDS: int = 600
 
+    # ─── Pro plan: included AI usage ──────────────────────────────────────
+    # A Pro subscriber's AI actions draw on an allowance instead of the
+    # wallet: this many credits (the same per-action prices as the wallet)
+    # per rolling window, counted from each request's reservation time.
+    PRO_AI_CREDITS_PER_WINDOW: int = 50
+    PRO_AI_WINDOW_SECONDS: int = 14400
+    # The seven-day trial opens every course but its AI actions are paid from
+    # the wallet: the allowance starts with the first payment (decision
+    # 2026-10-08).
+    PRO_AI_INCLUDE_TRIAL: bool = False
+    # A reservation neither finalized nor released after this long belongs to
+    # a request that never answered (a worker killed mid-request): it is
+    # released, not counted - nothing was delivered. Well above the longest
+    # request (gunicorn --timeout 60).
+    PRO_AI_RESERVATION_TTL_SECONDS: int = 300
+
     # ─── CORS ─────────────────────────────────────────────────────────────
     FRONTEND_URL: str = "http://localhost:3000"
     # Comma-separated list of extra allowed origins for production

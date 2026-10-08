@@ -1457,9 +1457,10 @@ def test_unspent_legacy_promo_credits_are_removed_after_the_window(client, db):
     wallet.promo_expires_at = datetime.now(timezone.utc) - timedelta(days=1)
     db.commit()
 
-    assert expire_promo_credits_if_due(wallet, db) == 500
+    # Down to the Free plan's 40, never to zero (release decision 2026-10-08).
+    assert expire_promo_credits_if_due(wallet, db) == 460
     db.refresh(wallet)
-    assert wallet.credit_balance == 0
+    assert wallet.credit_balance == 40
     assert wallet.promo_credits_remaining == 0
     assert wallet.promo_expires_at is None
 
@@ -1500,8 +1501,8 @@ def test_spending_draws_down_legacy_promo_credits_first(client, db):
 
 
 def test_expired_promo_credits_are_not_spendable(client, db):
-    """The balance must not merely display as zero — an AI action after
-    expiry has to be refused."""
+    """The lapsed credits must not merely disappear from the display — a spend
+    that needs them has to be refused. Only the Free plan's 40 stay spendable."""
     from fastapi import HTTPException
     from app.models.wallet import UserWallet
     from app.services.wallet.wallet_service import deduct_credits
@@ -1514,8 +1515,9 @@ def test_expired_promo_credits_are_not_spendable(client, db):
     db.commit()
 
     with pytest.raises(HTTPException) as exc:
-        deduct_credits(user_id, "mentor_chat", db)
+        deduct_credits(user_id, "challenge_enroll", db, cost=41)
     assert exc.value.status_code == 402
+    assert exc.value.detail["credits_available"] == 40
 
 
 def test_free_credits_do_not_unlock_paid_exams(client, seeded_exam):
@@ -1542,8 +1544,8 @@ def test_promo_expiry_is_recorded_in_the_ledger(client, db):
                 WalletTransaction.action_type == "promo_expiry")
         .one()
     )
-    assert tx.credits == -500
-    assert tx.balance_after == 0
+    assert tx.credits == -460
+    assert tx.balance_after == 40
 
 
 # ─────────────────────────────────────────────────────────────────────────

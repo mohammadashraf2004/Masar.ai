@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
 import { LabProjectsSection } from '@/features/project-lab/LabProjectsSection'
+import { proAiLimitMessage } from '@/lib/aiErrors'
 import {
   Zap, Lock, CheckCircle, Code2, Download,
   ChevronRight, AlertTriangle, Trophy, Star,
@@ -305,7 +306,10 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
       setHintQuestion('')
     } catch (e: any) {
       const detail = (e as any)?.response?.data?.detail
-      if (typeof detail === 'object' && detail?.error === 'insufficient_credits') {
+      const proLimit = proAiLimitMessage(e)
+      if (proLimit) {
+        setHintError(proLimit)
+      } else if (typeof detail === 'object' && detail?.error === 'insufficient_credits') {
         setHintError('Not enough credits. Buy more from the wallet.')
       } else {
         setHintError(typeof detail === 'string' ? detail : 'Failed to get hint.')

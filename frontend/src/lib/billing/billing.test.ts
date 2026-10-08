@@ -6,7 +6,7 @@ import { apiCatalogSource } from '@/lib/billing/catalog'
 import { currencyLabel, formatMoney } from '@/lib/billing/money'
 import { MockPaymentProvider, mockOutcomeFromUrl } from '@/lib/billing/mockPayments'
 import { getPaymentProvider, type PaymentProvider, type PaymentRequest } from '@/lib/billing/payments'
-import { PAYMOB_NOT_CONFIGURED, PaymobProvider } from '@/lib/billing/paymobProvider'
+import { KASHIER_NOT_CONFIGURED, KashierProvider } from '@/lib/billing/kashierProvider'
 import {
   formatAmount, installment, monthlyYearTotal, priceOrder, round2, subtotalOf, yearlySavingPercent, yearlyTotal,
 } from '@/lib/billing/pricing'
@@ -239,35 +239,35 @@ describe('the mock payment provider', () => {
   })
 })
 
-describe('the Paymob provider: redirects to a backend-priced hosted checkout', () => {
+describe('the Kashier provider: redirects to a backend-priced hosted checkout', () => {
   const proRequest: PaymentRequest = { cart: { type: 'plan', id: 'pro' }, cycle: 'yearly', method: 'card', amount: 2199, currency: 'EGP', promoCode: null }
 
   it('lists cards and mobile wallets, and nothing the gateway does not take', async () => {
-    const provider = new PaymobProvider()
+    const provider = new KashierProvider()
     expect(provider.isMock).toBe(false)
     expect(await provider.listMethods()).toEqual(['card', 'wallet'])
   })
 
   it('asks the backend for a checkout order and redirects to its hosted URL, never pricing the sale itself', async () => {
-    vi.mocked(api.checkoutSubscription).mockResolvedValue({ order_id: 7, payment_url: 'https://accept.paymob.com/pay/7', amount: 219900, currency: 'EGP' })
-    const provider = new PaymobProvider()
+    vi.mocked(api.checkoutSubscription).mockResolvedValue({ order_id: 7, payment_url: 'https://checkout.kashier.io/session/7', amount: 219900, currency: 'EGP' })
+    const provider = new KashierProvider()
 
-    expect(await provider.pay(proRequest)).toEqual({ status: 'redirect', url: 'https://accept.paymob.com/pay/7' })
+    expect(await provider.pay(proRequest)).toEqual({ status: 'redirect', url: 'https://checkout.kashier.io/session/7' })
     expect(api.checkoutSubscription).toHaveBeenCalledWith('pro', 'yearly', 'card')
   })
 
   it('refuses anything that is not the Pro plan: nothing else sells through it yet', async () => {
-    const provider = new PaymobProvider()
-    await expect(provider.pay({ ...proRequest, cart: { type: 'pack', id: 'p1' } })).rejects.toThrow(PAYMOB_NOT_CONFIGURED)
+    const provider = new KashierProvider()
+    await expect(provider.pay({ ...proRequest, cart: { type: 'pack', id: 'p1' } })).rejects.toThrow(KASHIER_NOT_CONFIGURED)
   })
 
-  it('fails cleanly for a method Paymob does not take', async () => {
-    const provider = new PaymobProvider()
+  it('fails cleanly for a method Kashier does not take', async () => {
+    const provider = new KashierProvider()
     expect(await provider.pay({ ...proRequest, method: 'mada' })).toEqual({ status: 'failed', reason: 'unavailable' })
   })
 
   it('has no card fields of its own: it redirects to a hosted checkout', () => {
-    const provider: PaymentProvider = new PaymobProvider()
+    const provider: PaymentProvider = new KashierProvider()
     expect(provider.CardFields).toBeUndefined()
   })
 
@@ -275,14 +275,21 @@ describe('the Paymob provider: redirects to a backend-priced hosted checkout', (
     for (const env of ['development', 'production']) {
       vi.stubEnv('NODE_ENV', env)
       vi.stubEnv('NEXT_PUBLIC_PAYMENTS_MOCK', '1')
-      expect(getPaymentProvider()?.id).not.toBe('paymob')
+      expect(getPaymentProvider()?.id).not.toBe('kashier')
     }
     vi.unstubAllEnvs()
   })
 
   it('is used once NEXT_PUBLIC_PAYMENTS_PROVIDER explicitly selects it', () => {
+    vi.stubEnv('NEXT_PUBLIC_PAYMENTS_PROVIDER', 'kashier')
+    expect(getPaymentProvider()?.id).toBe('kashier')
+    vi.unstubAllEnvs()
+  })
+
+  it('no longer starts Paymob: the retired value selects no real provider in production', () => {
+    vi.stubEnv('NODE_ENV', 'production')
     vi.stubEnv('NEXT_PUBLIC_PAYMENTS_PROVIDER', 'paymob')
-    expect(getPaymentProvider()?.id).toBe('paymob')
+    expect(getPaymentProvider()).toBeNull()
     vi.unstubAllEnvs()
   })
 })

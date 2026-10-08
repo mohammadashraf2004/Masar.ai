@@ -11,6 +11,8 @@ import { OfferBanner, type PromoError } from '@/components/billing/OfferBanner'
 import { PackTile } from '@/components/billing/PackTile'
 import { PlanCard } from '@/components/billing/PlanCard'
 import { RefundPolicySummary } from '@/components/billing/RefundPolicySummary'
+import { AiAllowanceCard } from '@/components/billing/AiAllowanceCard'
+import { PlanTerms } from '@/components/billing/PlanTerms'
 import { Button } from '@/components/ui/Button'
 import { Card, Spinner } from '@/components/ui/index'
 import { billingCatalog } from '@/lib/billing/catalog'
@@ -239,6 +241,8 @@ export default function BillingPage() {
               />
             )}
 
+            {catalog.currentPlan === 'pro' && <AiAllowanceCard />}
+
             <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
               {catalog.plans.map((plan) => (
                 <PlanCard
@@ -274,6 +278,7 @@ export default function BillingPage() {
                 />
               </div>
             </div>
+            <PlanTerms />
             <RefundPolicySummary />
           </>
         )}

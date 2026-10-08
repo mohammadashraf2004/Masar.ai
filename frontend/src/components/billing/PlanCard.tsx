@@ -27,6 +27,9 @@ export function PlanCard({
   const price = cycle === 'yearly' ? plan.yearly : plan.monthly
   const { money, label: currencyName } = useMoney(currency)
   const name = t(`billing.plan.${plan.id}.name` as StringKey)
+  // The card's heading says what the plan includes; elsewhere (the order summary, the
+  // receipt, "Choose …") the plan goes by its short name.
+  const title = t(`billing.plan.${plan.id}.title` as StringKey)
 
   const note = free
     ? t('billing.note.free')
@@ -47,7 +50,7 @@ export function PlanCard({
       style={selected ? { boxShadow: '0 0 0 4px rgb(var(--acc) / var(--acc-soft-a))' } : undefined}
     >
       <div className="flex items-center justify-between gap-2.5">
-        <h3 className="text-lg font-bold text-white">{name}</h3>
+        <h3 className="text-lg font-bold text-white">{title}</h3>
         {plan.popular && (
           <span className="rounded-full bg-amber px-2.5 py-0.5 text-[11px] font-semibold text-on-amber">{t('billing.popular')}</span>
         )}

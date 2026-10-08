@@ -36,6 +36,9 @@ export function mentorErrorKey(error: unknown): StringKey {
   if (resp.status === 403 && accessCode === 'COURSE_PURCHASE_REQUIRED') return 'mentor.error.locked'
   // A lesson or exercise id that does not exist, or ids that do not belong together.
   if (resp.status === 404) return 'mentor.error.notFound'
+  // Pro's included AI credits for the rolling 4-hour window are used up. Course access is
+  // unaffected, and nothing was taken from the wallet.
+  if (resp.status === 429 && code === 'pro_ai_limit_reached') return 'mentor.error.proLimit'
   if (resp.status === 429) return 'mentor.error.rateLimit'
   // 422: the input broke a length limit or a schema rule.
   if (resp.status === 422) return 'mentor.error.invalid'

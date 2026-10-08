@@ -25,6 +25,25 @@ import { useLanguageStore } from '@/lib/language'
 import type { BillingCycle, CreditPack, Offer, PlanId, RefundPolicySummary, RefundStatus, SubscriptionOrder } from '@/lib/billing/types'
 import { mentorV2EndpointLive, mentorV2Live } from '@/features/mentor/flag'
 
+export interface AiAllowance {
+  limit: number
+  window_seconds: number
+  used: number
+  remaining: number
+  /** When the next credit leaves the rolling window; null while credits remain. */
+  next_credit_available_at: string | null
+}
+
+export interface AiAllowanceResponse {
+  plan: PlanId
+  ai_allowance: AiAllowance | null
+  all_courses_access: boolean
+  /** Where AI actions are paid from now: the included allowance (paid Pro) or the wallet
+   *  (Free, and the trial until its first payment). */
+  ai_billing: 'allowance' | 'wallet'
+  trial: boolean
+}
+
 export interface BillingCatalogApi {
   currency: string
   vat_rate: number
@@ -516,10 +535,10 @@ class ApiClient {
     return res.data
   }
 
-  /** Starts a real Paymob checkout for a wallet top-up. Returns a
-   * checkout_url to redirect the browser to (card iframe or wallet OTP
-   * redirect) — credits are released by the server-side webhook once
-   * Paymob confirms payment, not by this call. */
+  /** Starts a Kashier checkout for a wallet top-up. Returns a checkout_url
+   * (Kashier's hosted page, which offers card and mobile wallet) to redirect
+   * the browser to — credits are released by the server-side webhook once
+   * Kashier confirms payment, not by this call. */
   async initWalletTopUp(data: { package_id: number; method: 'card' | 'wallet'; phone_number?: string }) {
     const res = await this.http.post('/payments/wallet/topup/init', data)
     return res.data as { checkout_url: string; merchant_order_id: string }
@@ -582,7 +601,7 @@ class ApiClient {
     return res.data
   }
 
-  /** Starts a real Paymob checkout for an exam fee. See initWalletTopUp
+  /** Starts a Kashier checkout for an exam fee. See initWalletTopUp
    * for the confirmation model — the webhook is authoritative, not this
    * call's response. */
   async initExamPayment(data: { exam_id: number; method: 'card' | 'wallet'; phone_number?: string }) {
@@ -590,7 +609,7 @@ class ApiClient {
     return res.data as { checkout_url: string; merchant_order_id: string }
   }
 
-  /** Polled by the /payments/result page after a Paymob checkout redirect
+  /** Polled by the /payments/result page after a checkout redirect
    * — only ever reflects what the server-side webhook has confirmed. */
   async getPaymentStatus(merchantOrderId: string) {
     const res = await this.http.get(`/payments/status/${merchantOrderId}`)
@@ -961,6 +980,13 @@ class ApiClient {
       latest_order: SubscriptionOrder | null
       refund_policy: RefundPolicySummary
     }>('/billing/subscription')
+    return res.data
+  }
+
+  /** The plan, Pro's included AI allowance (null on Free) and whether every course is open -
+   *  all computed by the server from subscription and usage records. */
+  async getAiAllowance() {
+    const res = await this.http.get<AiAllowanceResponse>('/billing/ai-allowance')
     return res.data
   }
 

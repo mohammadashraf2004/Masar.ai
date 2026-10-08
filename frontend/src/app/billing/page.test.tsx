@@ -16,6 +16,7 @@ vi.mock('@/hooks/useAuth', () => ({
 }))
 vi.mock('@/lib/api', () => ({ api: {
   getWallet: vi.fn(), search: vi.fn(), getBillingCatalog: vi.fn(), startSubscriptionTrial: vi.fn(),
+  getAiAllowance: vi.fn(),
 } }))
 
 // The provider is the test's to steer: which outcome it gives, or none at all (payments not open).
@@ -55,11 +56,12 @@ function useProvider(outcome: MockOutcome = 'paid'): MockPaymentProvider {
 
 const total = () => within(screen.getByText('Total').closest('div') as HTMLElement)
 const payButton = () => screen.getByRole('button', { name: /^Pay / })
+const PRO = 'Pro — All Courses + AI Access'
 const plan = (name: string) => within(screen.getByRole('heading', { level: 3, name }).closest('article') as HTMLElement)
 
 async function renderBilling({ methods = true } = {}) {
   render(<BillingPage />)
-  await screen.findByRole('heading', { level: 3, name: 'Pro' })
+  await screen.findByRole('heading', { level: 3, name: PRO })
   // the payment methods are the provider's to list, so they arrive a moment after the plans
   if (methods) await screen.findByRole('radio', { name: /mada/ })
 }
@@ -77,7 +79,7 @@ describe('plans & offers: the starting order', () => {
   it('opens on the yearly Pro plan, paid with mada', async () => {
     await renderBilling()
     expect(screen.getByRole('button', { name: 'Yearly', pressed: true })).toBeInTheDocument()
-    expect(plan('Pro').getByRole('button', { name: 'Selected' })).toHaveAttribute('aria-pressed', 'true')
+    expect(plan(PRO).getByRole('button', { name: 'Selected' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('radio', { name: /mada/ })).toBeChecked()
     expect(screen.getByText('Pro plan — Yearly')).toBeInTheDocument()
     expect(payButton()).toHaveTextContent('Pay EGP 2,199')
@@ -90,11 +92,12 @@ describe('plans & offers: the starting order', () => {
 
   it('shows each plan with its price, its year total and its features', async () => {
     await renderBilling()
-    expect(plan('Pro').getByText('2,199')).toBeInTheDocument()
-    expect(plan('Pro').getByText('EGP / year')).toBeInTheDocument()
-    expect(plan('Pro').getByText('Billed yearly: EGP 2,199 instead of EGP 3,588 — save EGP 1,389')).toBeInTheDocument()
-    expect(plan('Pro').getByText('All lessons in every available course')).toBeInTheDocument()
-    expect(plan('Pro').getByText('Most popular')).toBeInTheDocument()
+    expect(plan(PRO).getByText('2,199')).toBeInTheDocument()
+    expect(plan(PRO).getByText('EGP / year')).toBeInTheDocument()
+    expect(plan(PRO).getByText('Billed yearly: EGP 2,199 instead of EGP 3,588 — save EGP 1,389')).toBeInTheDocument()
+    expect(plan(PRO).getByText('Full access to every published course: all modules, lessons, exercises, quizzes and projects')).toBeInTheDocument()
+    expect(plan(PRO).getByText('50 included AI credits per rolling 4 hours on the paid plan — your wallet credits are never used')).toBeInTheDocument()
+    expect(plan(PRO).getByText('Most popular')).toBeInTheDocument()
     expect(plan('Free').getByText('Free forever')).toBeInTheDocument()
   })
 
@@ -132,8 +135,8 @@ describe('choosing what to buy', () => {
     await user.click(screen.getByRole('button', { name: 'Monthly' }))
 
     expect(screen.getByRole('button', { name: 'Monthly', pressed: true })).toBeInTheDocument()
-    expect(plan('Pro').getByText('299')).toBeInTheDocument()
-    expect(plan('Pro').getByText('Billed monthly · cancel any time')).toBeInTheDocument()
+    expect(plan(PRO).getByText('299')).toBeInTheDocument()
+    expect(plan(PRO).getByText('Billed monthly · no automatic renewal · cancel any time')).toBeInTheDocument()
     expect(screen.getByText('Pro plan — Monthly')).toBeInTheDocument()
     expect(payButton()).toHaveTextContent('Pay EGP 299')
   })
@@ -144,7 +147,7 @@ describe('choosing what to buy', () => {
     await user.click(screen.getByRole('button', { name: /1,200.*EGP 300/ }))
 
     expect(screen.getByRole('button', { name: /1,200.*EGP 300/ })).toHaveAttribute('aria-pressed', 'true')
-    expect(plan('Pro').getByRole('button', { name: 'Choose Pro' })).toBeInTheDocument()
+    expect(plan(PRO).getByRole('button', { name: 'Choose Pro' })).toBeInTheDocument()
     expect(screen.getByText('1,200 credits', { selector: 'span.text-sm' })).toBeInTheDocument()
     expect(screen.getByText('Includes 100 free bonus credits')).toBeInTheDocument()
     expect(payButton()).toHaveTextContent('Pay EGP 300')
@@ -157,7 +160,7 @@ describe('choosing what to buy', () => {
     expect(current).toHaveAttribute('aria-disabled', 'true')
 
     await user.click(current)
-    expect(plan('Pro').getByRole('button', { name: 'Selected' })).toBeInTheDocument()
+    expect(plan(PRO).getByRole('button', { name: 'Selected' })).toBeInTheDocument()
     expect(payButton()).toHaveTextContent('Pay EGP 2,199')
   })
 })
@@ -323,8 +326,8 @@ describe('what the catalog and the provider decide', () => {
     vi.mocked(api.getBillingCatalog).mockResolvedValueOnce({ ...CATALOG, currency: 'USD' })
     await renderBilling()
 
-    expect(plan('Pro').getByText('USD / year')).toBeInTheDocument()
-    expect(plan('Pro').getByText('Billed yearly: USD 2,199 instead of USD 3,588 — save USD 1,389')).toBeInTheDocument()
+    expect(plan(PRO).getByText('USD / year')).toBeInTheDocument()
+    expect(plan(PRO).getByText('Billed yearly: USD 2,199 instead of USD 3,588 — save USD 1,389')).toBeInTheDocument()
     expect(payButton()).toHaveTextContent('Pay USD 2,199')
   })
 
@@ -334,8 +337,39 @@ describe('what the catalog and the provider decide', () => {
       plans: [{ id: 'pro', monthly: 299, yearly: 2199, signup_credits: 0, features: ['billing.plan.free.f1'] }],
     })
     await renderBilling()
-    expect(plan('Pro').getByText('First 2 lessons of every course')).toBeInTheDocument()
-    expect(plan('Pro').queryByText('All lessons in every available course')).toBeNull()
+    expect(plan(PRO).getByText('First 2 lessons of every course')).toBeInTheDocument()
+    expect(plan(PRO).queryByText('Full access to every published course: all modules, lessons, exercises, quizzes and projects')).toBeNull()
+  })
+})
+
+describe('Pro: all courses, included AI credits and plain terms', () => {
+  it('states how Pro works before anyone pays: manual renewal, cancellation, Kashier', async () => {
+    await renderBilling()
+    const terms = within(screen.getByRole('complementary', { name: 'How Pro works' }))
+    expect(terms.getByText(/does not renew automatically/)).toBeInTheDocument()
+    expect(terms.getByText('Cancel any time: Pro stays until the end of the period you paid for.')).toBeInTheDocument()
+    expect(terms.getByText('Payments are processed by Kashier. Masar never sees your card details.')).toBeInTheDocument()
+    expect(terms.getByText(/During the trial, AI actions use your wallet credits/)).toBeInTheDocument()
+    expect(screen.queryByText(/Renews every month/)).toBeNull()
+  })
+
+  it('shows a Pro subscriber their included AI credits and, at the limit, that courses stay open', async () => {
+    vi.mocked(api.getBillingCatalog).mockResolvedValueOnce({ ...CATALOG, current_plan: 'pro' })
+    vi.mocked(api.getAiAllowance).mockResolvedValue({
+      plan: 'pro', all_courses_access: true, ai_billing: 'allowance', trial: false,
+      ai_allowance: { limit: 50, window_seconds: 14400, used: 50, remaining: 0, next_credit_available_at: '2026-10-08T14:00:00Z' },
+    })
+    await renderBilling()
+    expect(await screen.findByText('0 of 50 credits left in the current 4-hour window')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      "You've used your 50 included AI credits for the current 4-hour window. Your course access remains available.",
+    )
+  })
+
+  it('shows no allowance on Free, whose AI actions are paid from the wallet', async () => {
+    await renderBilling()
+    expect(screen.queryByText('Included AI credits')).toBeNull()
+    expect(api.getAiAllowance).not.toHaveBeenCalled()
   })
 })
 
@@ -359,6 +393,14 @@ describe('in Arabic', () => {
     for (const english of ['Order summary', 'Payment method', 'VAT included', 'Most popular']) {
       expect(screen.queryByText(english)).toBeNull()
     }
+  })
+
+  it('names Pro and its terms in Arabic, and never promises an automatic renewal', async () => {
+    render(<BillingPage />)
+    expect(await screen.findByRole('heading', { level: 3, name: 'Pro — كل الدورات + الذكاء الاصطناعي' })).toBeInTheDocument()
+    expect(screen.getByText(/لا تتجدد خطة Pro تلقائيًا/)).toBeInTheDocument()
+    expect(screen.getByText(/50 رصيدًا مضمّنًا للذكاء الاصطناعي/)).toBeInTheDocument()
+    expect(screen.queryByText(/تجديد تلقائي/)).toBeNull()
   })
 
   it('names the methods in Arabic and keeps the brand names as they are', async () => {

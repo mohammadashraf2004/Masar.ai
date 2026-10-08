@@ -47,6 +47,44 @@ SELECT count(*), sum(credits) FROM wallet_transactions
  WHERE action_type = 'free_plan_40_migration_v1';               -- wallets raised, credits added
 ```
 
+### Production comes from before the catalogue existed: run the backfill after seeding
+
+Production is at revision **008**. `courses` is created (empty) by 011 and filled by the
+seeds, so when 018 and 021 run inside `alembic upgrade head` there is no catalogue yet:
+018 enrolls nobody and 021 grandfathers nobody. Before 011 every course was open to
+everyone, so the learners who were already taking a course must keep it — that is what
+`seeds/backfill_legacy_enrollments.py` does, once the catalogue exists. For each account
+created before `--legacy-before`, every course it was working in before that moment (a
+tool-course enrollment, or progress in the course's tool topics or a track level's
+topics) gets an active **`legacy_free`** enrollment, recorded in
+`course_enrollment_legacy_free` exactly like 021's own (021's downgrade turns it back into
+`free`). Purchases, admin grants and inactive enrollments are left alone; no wallet,
+progress or legacy row is touched; a second run changes nothing. Activity or accounts from
+`--legacy-before` onwards never count.
+
+Deploy order (`--legacy-before` = when the release window began, before the migrations,
+with its UTC offset):
+
+```sh
+alembic upgrade head
+python seed.py
+python seeds/seed_tool_courses.py            # + seed_tool_{langchain,langgraph,llamaindex,qdrant,fastapi}.py
+python seeds/seed_arabic_first_demo.py
+python seeds/seed_learning_paths.py
+python seeds/import_courses.py
+python seeds/backfill_legacy_enrollments.py --legacy-before 2026-10-09T18:00:00+00:00 --dry-run
+python seeds/backfill_legacy_enrollments.py --legacy-before 2026-10-09T18:00:00+00:00
+```
+
+Check: `SELECT source, status, count(*) FROM course_enrollments GROUP BY 1, 2;` shows one
+active `legacy_free` row per pre-launch learner/course pair, and
+`SELECT count(*) FROM course_enrollment_legacy_free;` the same number.
+
+Rehearsed 2026-10-08 on a database built by the 008-era code and seeds with production's
+shape (99 learners and promo wallets, 67 track enrollments, 30 tool enrollments over 19
+learners, 3 progress rows): every user, wallet, ledger row, enrollment and progress row
+unchanged by the upgrade; all 30 learner/course pairs end with `legacy_free` access.
+
 Recovering the pre-launch course state by hand, if ever needed (prefer `alembic
 downgrade` when possible):
 

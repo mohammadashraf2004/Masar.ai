@@ -38,6 +38,10 @@ docker compose exec api python seeds/seed_tool_fastapi.py
 docker compose exec api python seeds/seed_arabic_first_demo.py   # Arabic-first reference lesson
 docker compose exec api python seeds/seed_learning_paths.py       # levels/fields/career-goal relationships, stages, path templates
 docker compose exec api python seeds/import_courses.py            # the curriculum folders under backend/courses/ -> the course catalogue
+
+# 5. Only when upgrading a database that predates migration 011 (existing learners):
+#    keep each learner's courses - see docs/release-2026-10-masar-launch.md
+docker compose exec api python seeds/backfill_legacy_enrollments.py --legacy-before <release-window-start, ISO with offset>
 ```
 
 All seed scripts are idempotent — safe to re-run any time (e.g. after adding more content to a seed file).

@@ -85,6 +85,14 @@ shape (99 learners and promo wallets, 67 track enrollments, 30 tool enrollments 
 learners, 3 progress rows): every user, wallet, ledger row, enrollment and progress row
 unchanged by the upgrade; all 30 learner/course pairs end with `legacy_free` access.
 
+### Launch-promo expiry never goes below 40 (decision 2026-10-08)
+
+Pre-launch accounts hold a 500-credit launch promo that lapses 30 days after signup (the
+first on 2026-10-10). Expiry still withdraws unspent promo credits, but never takes a
+wallet below the Free plan's **40**: a 500-credit promo wallet ends at 40, not 0; a
+balance already under 40 loses nothing; purchased credits are never withdrawn. The
+`promo_expiry` ledger row records exactly what was removed.
+
 Recovering the pre-launch course state by hand, if ever needed (prefer `alembic
 downgrade` when possible):
 

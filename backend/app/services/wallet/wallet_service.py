@@ -113,7 +113,10 @@ def expire_promo_credits_if_due(wallet: UserWallet, db: Session, commit: bool = 
     still spendable. Returns how many credits were removed.
 
     Only ever removes promo credits the user did not spend — purchased
-    credits are untouched, and the balance is floored at zero.
+    credits are untouched — and never takes the balance below the Free
+    plan's 40 credits (release decision 2026-10-08): a launch-promo wallet
+    ends where a new signup starts, not at zero. A balance already under 40
+    loses nothing.
 
     `commit=False` is for callers that are already inside a transaction
     holding SELECT ... FOR UPDATE on this wallet row — deduct_credits is
@@ -132,8 +135,9 @@ def expire_promo_credits_if_due(wallet: UserWallet, db: Session, commit: bool = 
     if datetime.now(timezone.utc) < expires_at:
         return 0
 
-    removed = min(wallet.promo_credits_remaining, wallet.credit_balance)
-    wallet.credit_balance = max(0, wallet.credit_balance - removed)
+    balance = wallet.credit_balance or 0
+    removed = min(wallet.promo_credits_remaining, max(0, balance - FREE_PLAN_CREDITS))
+    wallet.credit_balance = balance - removed
     wallet.promo_credits_remaining = 0
     wallet.promo_expires_at = None
 

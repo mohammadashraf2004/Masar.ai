@@ -24,7 +24,9 @@ from tests.conftest import verify_registered
 
 STRONG_PASSWORD = "correct-horse-battery-staple-7"
 ENROLL_COST = 25          # what the fixture challenge charges
+PRICEY_COST = 60          # more than the Free plan's 40 a lapsed promo leaves behind
 HINT_COST = CREDIT_COSTS["challenge_hint"]
+FREE_FLOOR = 40           # expiry never takes a wallet below this (release decision 2026-10-08)
 
 FAKE_HINT = {
     "hint": "Look at how the dates are formatted.",
@@ -85,12 +87,22 @@ def _lapse_promo(db, user_id: int):
 
 @pytest.fixture()
 def challenge(db) -> ChallengeProject:
+    return _make_challenge(db, ENROLL_COST)
+
+
+@pytest.fixture()
+def pricey_challenge(db) -> ChallengeProject:
+    """Costs more than the 40 credits a lapsed promo wallet keeps."""
+    return _make_challenge(db, PRICEY_COST)
+
+
+def _make_challenge(db, cost: int) -> ChallengeProject:
     ch = ChallengeProject(
         title="Messy Sales Data",
         slug=f"messy-sales-{uuid.uuid4().hex[:8]}",
         description="Clean it.",
         difficulty=ChallengeDifficulty.beginner,
-        credit_cost=ENROLL_COST,
+        credit_cost=cost,
         passing_score=70.0,
         max_attempts=3,
         is_active=True,
@@ -179,24 +191,27 @@ def test_challenge_spends_are_recorded_in_the_ledger(client, db, monkeypatch, ch
 # 2. Expired promo credits cannot be spent
 # ─────────────────────────────────────────────────────────────────────────
 
-def test_expired_promo_credits_cannot_pay_for_enrolment(client, db, monkeypatch, challenge):
+def test_expired_promo_credits_cannot_pay_for_enrolment(client, db, monkeypatch, pricey_challenge):
     """Before the fix this route never ran the expiry check, so a lapsed
-    500-credit promo balance still bought challenges."""
+    500-credit promo balance still bought challenges. The lapse now leaves the
+    Free plan's 40, which does not cover a 60-credit challenge."""
     token, user_id = _register(client)
     _grant_legacy_promo(db, user_id, credits=500)
     _lapse_promo(db, user_id)
 
-    resp = _enroll(client, token, challenge)
+    resp = _enroll(client, token, pricey_challenge)
     assert resp.status_code == 402, resp.text
     assert resp.json()["detail"]["error"] == "insufficient_credits"
-    assert resp.json()["detail"]["credits_needed"] == ENROLL_COST
+    assert resp.json()["detail"]["credits_needed"] == PRICEY_COST
 
     wallet = _wallet(db, user_id)
-    assert wallet.credit_balance == 0
+    assert wallet.credit_balance == FREE_FLOOR
     assert wallet.promo_credits_remaining == 0
 
 
-def test_expired_promo_credits_cannot_pay_for_a_hint(client, db, monkeypatch, challenge, stub_hint):
+def test_a_lapsed_promo_leaves_only_the_free_floor_for_a_hint(client, db, monkeypatch, challenge, stub_hint):
+    """The 475 unspent promo credits are withdrawn down to the Free plan's 40;
+    the hint is paid from those 40, never from the lapsed promo."""
     token, user_id = _register(client)
     _grant_legacy_promo(db, user_id, credits=500)
     assert _enroll(client, token, challenge).status_code == 200
@@ -204,11 +219,12 @@ def test_expired_promo_credits_cannot_pay_for_a_hint(client, db, monkeypatch, ch
     _lapse_promo(db, user_id)
 
     resp = _hint(client, token, challenge)
-    assert resp.status_code == 402, resp.text
-    assert _wallet(db, user_id).credit_balance == 0
+    assert resp.status_code == 200, resp.text
+    assert _wallet(db, user_id).credit_balance == FREE_FLOOR - HINT_COST
+    assert [t.credits for t in _txs(db, user_id, TransactionType.expiry)] == [-(500 - ENROLL_COST - FREE_FLOOR)]
 
 
-def test_a_refused_enrolment_creates_no_attempt(client, db, monkeypatch, challenge):
+def test_a_refused_enrolment_creates_no_attempt(client, db, monkeypatch, pricey_challenge):
     """A 402 must leave no trace — no attempt row consuming one of the
     three tries, and no ledger entry."""
     from app.models.challenge import ChallengeAttempt
@@ -217,7 +233,7 @@ def test_a_refused_enrolment_creates_no_attempt(client, db, monkeypatch, challen
     _grant_legacy_promo(db, user_id, credits=500)
     _lapse_promo(db, user_id)
 
-    assert _enroll(client, token, challenge).status_code == 402
+    assert _enroll(client, token, pricey_challenge).status_code == 402
 
     attempts = db.query(ChallengeAttempt).filter(
         ChallengeAttempt.user_id == user_id,

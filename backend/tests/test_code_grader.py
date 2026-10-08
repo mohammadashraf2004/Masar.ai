@@ -1,0 +1,274 @@
+import asyncio
+
+from app.services.code_execution import LocalPythonRunner
+from app.services.code_grading import PythonGrader, SQLGrader, TextGrader
+from app.services.code_grading.authoring import (
+    build_fill_in_blank_exercise,
+    build_static_python_tests,
+    count_python_blanks,
+)
+from app.services.code_grading.text_grader import text_fingerprint
+
+
+def run(coro):
+    return asyncio.run(coro)
+
+
+def test_value_checks_accept_semantically_equivalent_answers():
+    tests = [{"id": "x", "type": "value_equals", "variable": "x", "expected": 10, "feedback": "wrong"}]
+    grader = PythonGrader()
+    assert run(grader.grade("x = 10", tests)).passed
+    assert run(grader.grade("x = 5 + 5", tests)).passed
+
+
+def test_variable_type_and_first_failure_feedback():
+    tests = [
+        {"id": "exists", "type": "variable_exists", "variable": "answer", "feedback": {"en": "Create answer", "ar": "أنشئ answer"}},
+        {"id": "type", "type": "type_equals", "variable": "answer", "expected": "int", "feedback": "Use an integer"},
+        {"id": "value", "type": "value_equals", "variable": "answer", "expected": 42, "feedback": "Check answer"},
+    ]
+    missing = run(PythonGrader().grade("pass", tests))
+    assert (missing.failed_test_id, missing.tests_passed) == ("exists", 0)
+    wrong_type = run(PythonGrader().grade("answer = '42'", tests))
+    assert (wrong_type.failed_test_id, wrong_type.tests_passed) == ("type", 1)
+
+
+def test_required_technique_even_when_value_is_correct():
+    tests = [
+        {"id": "exists", "type": "variable_exists", "variable": "result", "feedback": "missing"},
+        {"id": "round", "type": "function_called", "function": "round", "feedback": "Use round"},
+        {"id": "digits", "type": "function_argument", "function": "round", "argument_index": 1, "expected": 2, "feedback": "Use two places"},
+        {"id": "value", "type": "value_equals", "variable": "result", "expected": 3.14, "feedback": "wrong value"},
+    ]
+    direct = run(PythonGrader().grade("result = 3.14", tests))
+    assert direct.failed_test_id == "round"
+    wrong_argument = run(PythonGrader().grade("result = round(3.14159)", tests))
+    assert wrong_argument.failed_test_id == "digits"
+    assert run(PythonGrader().grade("result = round(3.14159, 2)", tests)).passed
+
+
+def test_zero_required_tests_can_never_award_a_vacuous_full_mark():
+    result = run(PythonGrader().grade("answer = 'wrong'", [
+        {
+            "id": "optional", "type": "value_equals", "variable": "answer",
+            "expected": "right", "required": False, "feedback": "wrong",
+        },
+    ]))
+    assert result.status == "grading_error"
+    assert result.passed is False
+    assert result.feedback_code == "INVALID_TEST_CONFIGURATION"
+    assert (result.tests_passed, result.tests_total) == (0, 0)
+
+
+def test_qdrant_custom_checks_reject_a_non_numeric_vector():
+    result = run(PythonGrader().grade(
+        "point = {'vector': 'not a vector'}",
+        [{
+            "id": "vector", "type": "custom", "checker": "check_qdrant_vector",
+            "feedback": "Use a numeric vector.",
+        }],
+    ))
+    assert result.passed is False
+    assert result.failed_test_id == "vector"
+
+
+def test_function_count_not_called_definition_and_return_value():
+    tests = [
+        {"id": "defined", "type": "function_exists", "function": "double", "feedback": "define it"},
+        {"id": "return", "type": "return_value_equals", "function": "double", "args": [4], "expected": 8, "feedback": "wrong return"},
+        {"id": "called", "type": "function_call_count", "function": "double", "expected": 1, "feedback": "call once"},
+        {"id": "no_print", "type": "function_not_called", "function": "print", "feedback": "do not print"},
+    ]
+    result = run(PythonGrader().grade("def double(x):\n    return x * 2\nanswer = double(3)\n", tests))
+    assert result.passed
+
+
+def test_stdout_syntax_runtime_timeout_and_forbidden_operations():
+    # Give normal Windows process startup enough headroom; use the short
+    # runner only for the intentional infinite loop below.
+    grader = PythonGrader(LocalPythonRunner(timeout_seconds=2.0))
+    stdout = run(grader.grade("print('hello world')", [
+        {"id": "out", "type": "stdout_contains", "expected": "hello", "feedback": "print hello"},
+    ]))
+    assert stdout.passed and stdout.execution.stdout == "hello world\n"
+    assert run(grader.grade("if:", [])).status == "syntax_error"
+    assert run(grader.grade("raise RuntimeError('boom')", [])).status == "runtime_error"
+    timeout_grader = PythonGrader(LocalPythonRunner(timeout_seconds=0.25))
+    assert run(timeout_grader.grade("while True: pass", [])).status == "timeout"
+    assert run(grader.grade("open('secret.txt')", [])).status == "forbidden_operation"
+    assert run(grader.grade("import socket", [])).status == "forbidden_operation"
+
+
+def test_collection_pre_exercise_and_output_limit_checks():
+    tests = [
+        {"id": "list", "type": "list_length", "variable": "items", "expected": 3, "feedback": "three"},
+        {"id": "key", "type": "dict_contains_key", "variable": "record", "key": "ready", "feedback": "key"},
+        {"id": "hidden", "type": "value_equals", "variable": "result", "expected": 7, "feedback": "value"},
+    ]
+    result = run(PythonGrader().grade(
+        "items = [1, 2, 3]\nrecord = {'ready': True}\nresult = hidden_value",
+        tests, pre_exercise_code="hidden_value = 7",
+    ))
+    assert result.passed
+
+
+def test_legacy_static_tests_reject_starter_and_accept_solution_without_execution():
+    starter = "from unavailable_framework import Client\nclient = None\n\ndef build():\n    pass\n"
+    solution = (
+        "from unavailable_framework import Client\n"
+        "client = Client(url='local')\n\n"
+        "def build():\n    return client.create_collection(name='docs')\n"
+    )
+    tests = build_static_python_tests(starter, solution)
+
+    class RunnerThatMustNotRun:
+        async def run(self, *args, **kwargs):
+            raise AssertionError("static grading must not execute framework code")
+
+    grader = PythonGrader(RunnerThatMustNotRun())
+    unchanged = run(grader.grade(starter, tests))
+    assert not unchanged.passed
+    assert unchanged.failed_test_id == "starter_changed"
+    assert run(grader.grade(solution, tests)).passed
+
+
+def test_legacy_static_tests_accept_an_alternative_implementation_but_reject_placeholders():
+    starter = "result = None\n\ndef transform(value):\n    pass\n"
+    solution = "result = transform('x')\n\ndef transform(value):\n    return value.upper()\n"
+    tests = build_static_python_tests(starter, solution)
+    grader = PythonGrader()
+
+    incomplete = run(grader.grade("result = 'changed'\n\ndef transform(value):\n    pass\n", tests))
+    assert not incomplete.passed
+    assert incomplete.failed_test_id == "placeholders_removed"
+
+    alternative = "def transform(item):\n    return item.title()\n\nresult = transform('different')\n"
+    assert run(grader.grade(alternative, tests)).passed
+
+
+def test_fill_in_blank_authoring_checks_each_field_before_execution():
+    starter = (
+        "numbers = [1, 2, 3, 4]\n"
+        "# TODO: calculate the requested summary values\n"
+        "total = None\n"
+        "average = None\n"
+    )
+    solution = (
+        "numbers = [1, 2, 3, 4]\n"
+        "total = sum(numbers)\n"
+        "average = total / len(numbers)\n"
+    )
+    behavioral_tests = [
+        {"id": "total", "type": "value_equals", "variable": "total", "expected": 10, "feedback": "Check the total."},
+        {"id": "average", "type": "value_equals", "variable": "average", "expected": 2.5, "feedback": "Check the average."},
+    ]
+    blanked, tests, labels = build_fill_in_blank_exercise(starter, solution, behavioral_tests)
+
+    assert count_python_blanks(blanked) == 2
+    assert "numbers = [1, 2, 3, 4]" in blanked
+    assert labels == ["the expression assigned to `total`", "the expression assigned to `average`"]
+
+    class RunnerThatMustNotRun:
+        async def run(self, *args, **kwargs):
+            raise AssertionError("an unresolved blank must fail before execution")
+
+    grader = PythonGrader(RunnerThatMustNotRun())
+    first = run(grader.grade(blanked, tests))
+    assert (first.failed_test_id, first.tests_passed, first.feedback_code) == ("blank_1", 0, "BLANK_INCORRECT")
+
+    first_completed = blanked.replace("___", "sum(numbers)", 1)
+    second = run(grader.grade(first_completed, tests))
+    assert (second.failed_test_id, second.tests_passed) == ("blank_2", 1)
+    assert "Blank 2" in second.feedback["en"]
+
+    assert run(PythonGrader().grade(solution, tests)).passed
+
+
+def test_static_configuration_grader_accepts_valid_variants_and_rejects_starter():
+    starter = "# TODO: write a Dockerfile\n"
+    tests = [
+        {
+            "id": "changed", "type": "text_changed",
+            "starter_fingerprint": text_fingerprint(starter), "feedback": "complete it",
+        },
+        {
+            "id": "required", "type": "regex_all",
+            "patterns": [r"^FROM\s+python:3\.12-slim$", r"^WORKDIR\s+/app$"],
+            "feedback": "missing instruction",
+        },
+        {
+            "id": "safe", "type": "regex_none", "patterns": [r"^ENV\s+API_KEY"],
+            "feedback": "do not bake secrets",
+        },
+    ]
+    grader = TextGrader()
+    assert not run(grader.grade(starter, tests)).passed
+    assert run(grader.grade("FROM python:3.12-slim\nWORKDIR /app\n", tests)).passed
+    unsafe = run(grader.grade("FROM python:3.12-slim\nWORKDIR /app\nENV API_KEY=secret\n", tests))
+    assert not unsafe.passed
+    assert unsafe.failed_test_id == "safe"
+
+    blank = run(grader.grade("FROM ___\n", [{
+        "id": "blank_1", "type": "regex_all", "patterns": [r"^FROM python:3\.12-slim$"],
+        "feedback": {"en": "Blank 1: choose the base image.", "ar": "الفراغ 1: اختر الصورة الأساسية."},
+    }]))
+    assert blank.feedback_code == "BLANK_INCORRECT"
+    assert blank.feedback["en"].startswith("Blank 1")
+
+
+def test_sql_grader_checks_fields_individually_then_hidden_result():
+    starter = (
+        "SELECT /* blank:1 */ ___ /* endblank */ AS customer_id, "
+        "/* blank:2 */ ___ /* endblank */ AS orders "
+        "FROM purchases GROUP BY customer_id ORDER BY customer_id;"
+    )
+    tests = [
+        {
+            "id": "blank_1", "type": "sql_blank", "blank": 1,
+            "accepted": ["customer_id"],
+            "feedback": {"en": "Blank 1: select the customer.", "ar": "الفراغ 1: اختر العميل."},
+        },
+        {
+            "id": "blank_2", "type": "sql_blank", "blank": 2,
+            "accepted": ["COUNT(*)", "count(1)"],
+            "feedback": {"en": "Blank 2: count the rows.", "ar": "الفراغ 2: عد الصفوف."},
+        },
+        {
+            "id": "result", "type": "sql_result",
+            "setup_sql": (
+                "CREATE TABLE purchases(customer_id INTEGER);"
+                "INSERT INTO purchases VALUES (1),(1),(2);"
+            ),
+            "expected_columns": ["customer_id", "orders"],
+            "expected_rows": [[1, 2], [2, 1]], "ordered": True,
+            "feedback": {"en": "Check the result.", "ar": "راجع النتيجة."},
+        },
+    ]
+    grader = SQLGrader()
+
+    first = run(grader.grade(starter, tests))
+    assert (first.failed_test_id, first.tests_passed) == ("blank_1", 0)
+
+    one_field = starter.replace("___", "customer_id", 1)
+    second = run(grader.grade(one_field, tests))
+    assert (second.failed_test_id, second.tests_passed) == ("blank_2", 1)
+
+    solution = one_field.replace("___", "count(*)", 1)
+    result = run(grader.grade(solution, tests))
+    assert result.passed
+    assert result.execution.stdout == "customer_id\torders\n1\t2\n2\t1\n"
+
+
+def test_sql_grader_rejects_writes_and_multiple_statements():
+    tests = [{
+        "id": "result", "type": "sql_result",
+        "setup_sql": "CREATE TABLE records(value INTEGER); INSERT INTO records VALUES (1);",
+        "expected_rows": [[1]], "feedback": "Use a read-only query.",
+    }]
+    grader = SQLGrader()
+
+    write = run(grader.grade("DELETE FROM records", tests))
+    assert write.status == "forbidden_operation"
+
+    multiple = run(grader.grade("SELECT value FROM records; SELECT 2", tests))
+    assert multiple.status == "syntax_error"

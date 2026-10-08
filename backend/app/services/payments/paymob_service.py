@@ -220,6 +220,33 @@ def _stringify(value) -> str:
     return str(value)
 
 
+def classify_transaction(obj: dict) -> Literal["payment", "reversal", "authorization"]:
+    """What a verified callback represents. Only "payment" may ever grant.
+
+    Refunds and voids arrive as transactions of their own, often with
+    success=true and the original amount, so `success` alone is not "money was
+    taken". The refund/void flags outside the HMAC can only make this answer
+    more conservative, never turn a reversal into a payment."""
+    def flag(key: str) -> bool:
+        return obj.get(key) is True or str(obj.get(key)).lower() == "true"
+
+    if any(flag(k) for k in ("is_refunded", "is_voided", "is_refund", "is_void")):
+        return "reversal"
+    if flag("has_parent_transaction") and not flag("is_capture"):
+        return "reversal"
+    if flag("is_auth") and not flag("is_capture"):
+        return "authorization"
+    return "payment"
+
+
+def provider_order_matches(obj: dict, provider_order_id: str | None) -> bool:
+    """The signed `order.id` is the binding between a callback and our record;
+    `order.merchant_order_id` is not covered by the HMAC."""
+    order = obj.get("order") if isinstance(obj.get("order"), dict) else {}
+    signed = order.get("id")
+    return provider_order_id is not None and signed is not None and str(signed) == str(provider_order_id)
+
+
 def verify_webhook_hmac(transaction_obj: dict, received_hmac: str) -> bool:
     """`transaction_obj` is the `obj` field of Paymob's webhook payload.
     Returns False (never raises) on any malformed input — a webhook that

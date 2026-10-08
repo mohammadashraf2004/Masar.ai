@@ -92,7 +92,8 @@ def test_a_single_course_is_available_on_its_own_with_structure_but_no_lesson_te
 def test_a_course_lists_the_roadmaps_it_appears_in_as_information_only(learn_client, content):
     body = _get(learn_client, "/courses/course-004").json()
     roles = {r["career_goal"]["slug"]: r["track_role"] for r in body["roadmaps"]}
-    assert roles == {"ml-engineer": "core", "ai-developer": "supporting", "ai-engineer": "core"}
+    # See seeds/curriculum.py:TRACK_WORKFLOWS - the canonical career-track mapping.
+    assert roles == {"ml-engineer": "optional", "ai-developer": "core", "ai-engineer": "core"}
     assert all(r["position"] and r["total"] >= r["position"] for r in body["roadmaps"])
 
 
@@ -350,7 +351,9 @@ def test_a_career_goal_sharpens_recommendations_but_never_controls_access(learn_
     assert saved.status_code == 200, saved.text
     body, groups = _groups(learn_client, who)
     assert body["career_goal"]["slug"] == "ml-engineer"
-    assert groups["recommended_next"]["course-001"]["reason_code"] == "next_in_roadmap"
+    # The ML Engineer roadmap opens with 013 (Python and data; supporting), then 001.
+    assert groups["recommended_next"]["course-013"]["reason_code"] == "next_in_roadmap"
+    assert groups["recommended_next"]["course-001"]["reason_code"] == "roadmap_course"
     # A course outside the goal's roadmap is still open to enroll in.
     assert _post(learn_client, "/courses/course-012/enroll", who).status_code in (200, 409)   # 409 only because 012 is a shell here
     assert _post(learn_client, "/courses/course-013/enroll", who).status_code == 200
@@ -369,8 +372,11 @@ def test_one_canonical_course_belongs_to_many_tracks_with_a_different_role_and_o
     ids = {slug: r["course-004"]["course"]["id"] for slug, r in roadmaps.items()}
     assert len(set(ids.values())) == 1                                       # the same course object everywhere
     assert learn_db.query(Course).filter(Course.slug == "course-004").count() == 1
+    # course-004's weight per goal now comes from the canonical career-track
+    # workflow mapping (seeds/curriculum.py:TRACK_WORKFLOWS): an optional ML
+    # Engineer specialisation branch, core for AI Developer and AI Engineer.
     assert {s: r["course-004"]["track_role"] for s, r in roadmaps.items()} == {
-        "ml-engineer": "core", "ai-developer": "supporting", "ai-engineer": "core"}
+        "ml-engineer": "optional", "ai-developer": "core", "ai-engineer": "core"}
     assert len({r["course-004"]["position"] for r in roadmaps.values()}) > 1     # its place differs per roadmap
     for r in roadmaps.values():
         positions = sorted(c["position"] for c in r.values())
@@ -412,6 +418,12 @@ def _module_items(db, topic_id):
 
 def test_progress_moves_the_enrollment_from_enrolled_to_in_progress_to_completed(learn_client, learn_db, content):
     who = register(learn_client)
+    # Exercises are topic-level, not lesson-level, so they fall outside the
+    # two-lesson free preview (access_service.free_lesson_ids) and need Pro
+    # or a purchase; grant one directly so this test can exercise lifecycle
+    # status transitions, which are its actual subject.
+    learn_db.add(CourseEnrollment(user_id=who["id"], course_id=content["course-013"].id, source="purchase"))
+    learn_db.commit()
     _post(learn_client, "/courses/course-013/enroll", who)
     first, second = topic_ids(learn_db, content["course-013"])
 
@@ -501,7 +513,10 @@ def test_a_free_enrollment_never_opens_a_course_that_is_later_made_paid(learn_cl
 
     access = _get(learn_client, "/courses/course-013/access", who).json()
     assert access["has_access"] is False and access["reason"] == "purchase_required"
-    topic = topic_ids(learn_db, content["course-013"])[0]
+    # The course's first two lessons (by order) stay open as the Free plan's
+    # preview regardless of the individual paid offer; the second module's
+    # lessons are past that preview and are the ones actually locked.
+    topic = topic_ids(learn_db, content["course-013"])[1]
     locked = learn_client.get(f"/api/v1/tool-courses/topics/{topic}", headers=who["headers"]).json()
     assert all(l["is_locked"] for l in locked["lessons"]) and all(not l["content"] for l in locked["lessons"])
 

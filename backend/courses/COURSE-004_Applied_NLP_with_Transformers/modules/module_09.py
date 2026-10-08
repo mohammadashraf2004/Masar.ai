@@ -13,8 +13,8 @@ from app.models.learning import DifficultyLevel
 # ---------------------------------------------------------------------------
 
 LESSON_CODE = "M01.L08"
-MODULE_ORDER = 1
-MODULE_TITLE = "Transformer Foundations"
+MODULE_ORDER = 9
+MODULE_TITLE = "NLP with Few or No Labels"
 MODULE_DESCRIPTION = (
     "Learn how to build useful NLP classifiers when labeled data is scarce by "
     "using zero-shot learning, augmentation, embeddings, few-shot prompting, "

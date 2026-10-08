@@ -110,7 +110,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-001", "slug": "course-001",
         "title": "Machine Learning Foundations", "track": ML_ENGINEER,
         "level": "beginner", "fields": ["machine-learning"],
-        "roles": {_ML: _C, _AID: _S, _OPS: _S, _AIE: _C},
+        "roles": {_DA: _S, _ML: _C, _AID: _S, _OPS: _C, _AIE: _C},
         "skills": ["machine-learning", "python", "scikit-learn"],
         "prerequisites": [], "phase": "foundations", "path_field": None,
         "capability": "Build and evaluate foundational machine-learning models.",
@@ -128,7 +128,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-003", "slug": "course-003",
         "title": "Applied Deep Learning", "track": ML_ENGINEER,
         "level": "intermediate", "fields": ["machine-learning"],
-        "roles": {_ML: _C, _AID: _S, _AIE: _C},
+        "roles": {_ML: _C, _AID: _S, _OPS: _S, _AIE: _C},
         "skills": ["deep-learning", "pytorch"],
         "prerequisites": ["course-002"], "phase": "foundations", "path_field": None,
         "capability": "Implement, debug, evaluate, profile, and fine-tune applied PyTorch systems.",
@@ -137,7 +137,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-004", "slug": "course-004",
         "title": "Applied NLP with Transformers", "track": ML_ENGINEER,
         "level": "intermediate", "fields": ["nlp"],
-        "roles": {_ML: _C, _AID: _S, _AIE: _C},
+        "roles": {_ML: _O, _AID: _C, _AIE: _C},
         "skills": ["transformers", "machine-learning", "evaluation"],
         "prerequisites": ["course-003"],
         "phase": "specialization", "path_field": "nlp",
@@ -157,7 +157,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-006", "slug": "course-006",
         "title": "Production AI Engineering", "track": AI_DEVELOPER,
         "level": "advanced", "fields": ["machine-learning", "nlp"],
-        "roles": {_ML: _S, _AID: _S, _OPS: _C, _AIE: _C},
+        "roles": {_AID: _C, _OPS: _O, _AIE: _C},
         "skills": ["evaluation", "observability", "production-deployment", "system-design"],
         "prerequisites": ["course-001"],
         "phase": "engineering", "path_field": None,
@@ -167,7 +167,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-007", "slug": "course-007",
         "title": "AI Agents with MCP", "track": AI_DEVELOPER,
         "level": "advanced", "fields": ["nlp"],
-        "roles": {_AID: _S, _AIE: _S},
+        "roles": {_AID: _C, _AIE: _S},
         "skills": ["ai-agents", "llms", "mcp"],
         "prerequisites": ["course-005"],
         "phase": "specialization", "path_field": "nlp",
@@ -177,7 +177,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-008", "slug": "course-008",
         "title": "Vision-Language & Multimodal AI Engineering", "track": AI_ENGINEER,
         "level": "advanced", "fields": ["computer-vision", "multimodal"],
-        "roles": {_ML: _O, _AID: _O, _AIE: _C},
+        "roles": {_AID: _O, _AIE: _O},
         "skills": ["multimodal", "vision-language-models", "deep-learning"],
         "prerequisites": ["course-003"],
         "phase": "multimodal", "path_field": "multimodal",
@@ -187,7 +187,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-009", "slug": "course-009",
         "title": "Enterprise RAG Engineering", "track": AI_DEVELOPER,
         "level": "advanced", "fields": ["nlp"],
-        "roles": {_ML: _O, _AID: _C, _AIE: _S},
+        "roles": {_AID: _C, _AIE: _S},
         "skills": ["rag", "retrieval", "vector-databases", "evaluation", "observability"],
         "prerequisites": ["course-005"],
         "phase": "specialization", "path_field": "nlp",
@@ -197,7 +197,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-010", "slug": "course-010",
         "title": "AI Service Engineering with FastAPI", "track": AI_DEVELOPER,
         "level": "intermediate", "fields": ["machine-learning"],
-        "roles": {_AID: _C, _OPS: _C, _AIE: _S},
+        "roles": {_ML: _S, _AID: _C, _OPS: _C, _AIE: _S},
         "skills": ["fastapi", "api-design", "production-deployment", "python"],
         "prerequisites": ["course-001"],
         "phase": "engineering", "path_field": None,
@@ -207,7 +207,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-011", "slug": "course-011",
         "title": "Cloud Deployment & CI/CD for AI Engineers", "track": MLOPS_ENGINEER,
         "level": "advanced", "fields": ["machine-learning"],
-        "roles": {_ML: _O, _AID: _S, _OPS: _C, _AIE: _C},
+        "roles": {_ML: _S, _OPS: _C, _AIE: _C},
         "skills": ["cloud-deployment", "ci-cd", "docker", "production-deployment"],
         "prerequisites": ["course-010"],
         "phase": "engineering", "path_field": None,
@@ -227,7 +227,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-013", "slug": "course-013",
         "title": "Applied Data Analysis with Python", "track": DATA_ANALYST,
         "level": "beginner", "fields": ["data"],
-        "roles": {_DA: _C, _ML: _S, _AIE: _S},
+        "roles": {_DA: _C, _ML: _S, _OPS: _S, _AIE: _S},
         "skills": ["sql", "data-analysis", "statistics", "python", "numpy", "pandas"],
         "prerequisites": [], "phase": "foundations", "path_field": "data",
         "capability": "Load, clean, analyze, visualize, model, and communicate findings from real datasets.",
@@ -236,7 +236,7 @@ COURSE_DIRECTORY_COURSES = [
         "course_id": "COURSE-014", "slug": "course-014",
         "title": "Image Processing & Computer Vision Engineering", "track": ML_ENGINEER,
         "level": "intermediate", "fields": ["computer-vision"],
-        "roles": {_ML: _C, _AID: _S, _OPS: _S, _AIE: _C},
+        "roles": {_ML: _O, _AIE: _O},
         "skills": ["computer-vision"],
         "prerequisites": ["course-001", "course-002"], "phase": "specialization", "path_field": "computer-vision",
         "capability": "Design, implement, debug, and evaluate classical and modern image-processing and computer-vision pipelines.",
@@ -265,9 +265,133 @@ COURSE_DIRECTORY_COURSES = [
         "phase": "engineering", "path_field": None,
         "capability": "Design, deploy, and operate production ML systems and MLOps pipelines: data and training-data engineering, offline evaluation, serving, monitoring, continual learning, and MLOps on AWS, Azure and GCP.",
     },
+    {
+        "course_id": "COURSE-017", "slug": "course-017",
+        "title": "Data Analysis with SQL", "track": DATA_ANALYST,
+        "level": "beginner", "fields": ["data"],
+        "roles": {_DA: _C, _AIE: _S},
+        "skills": ["sql", "data-analysis", "statistics"],
+        # Starts from what SQL and a database are; its lessons assume no other course.
+        "prerequisites": [], "phase": "foundations", "path_field": "data",
+        "capability": "Query, prepare, and analyze data in SQL: profiling and cleaning, time series, cohorts, text, anomalies, experiments, and production-ready analytical datasets.",
+    },
+    {
+        "course_id": "COURSE-018", "slug": "course-018",
+        "title": "Applied Machine Learning with Scikit-Learn", "track": ML_ENGINEER,
+        "level": "intermediate", "fields": ["machine-learning"],
+        "roles": {_ML: _S, _AIE: _S},
+        "skills": ["machine-learning", "scikit-learn", "python"],
+        # Self-contained (it introduces ML from the landscape up), so it is a
+        # deeper, supporting companion to COURSE-001, never a hard dependency.
+        "prerequisites": [], "phase": "foundations", "path_field": None,
+        "capability": "Frame, build, evaluate, and tune classical machine-learning systems with Scikit-Learn: end-to-end projects, classification, linear models, decision trees, ensembles, dimensionality reduction, and clustering.",
+    },
 ]
 
 COURSE_ROLES.update({course["slug"]: course["roles"] for course in COURSE_DIRECTORY_COURSES})
+
+# ─── Career track workflow ──────────────────────────────────────────────────
+# The five fixed career tracks, each an explicit, ordered workflow over these
+# same canonical courses. One entry per (goal, course): position is this
+# list's own order (1-based, never the course's id); `required` gates that
+# goal's required-completion percentage; `section` groups AI Engineer's apex
+# path into named parts. This is the single source `sync_track_workflow`
+# (seeds/sync_curriculum.py) writes onto `course_roles.position/required/section`.
+TRACK_WORKFLOWS: Dict[str, List[Tuple[str, str, bool, Optional[str]]]] = {
+    # SQL (017) is the analyst's second core language, after Python (013).
+    DATA_ANALYST: [
+        ("course-013", _C, True, None),
+        ("course-017", _C, True, None),
+        ("course-001", _S, False, None),
+    ],
+    # 013 (Python + data) leads: COURSE-001 names it a strongly-recommended
+    # prerequisite. Everything required has all of its hard prerequisites
+    # earlier in the list and required (`is_locked` locks on any unfinished
+    # hard prerequisite, so a missing or optional one would trap a learner).
+    # 018 deepens 001's classical ML; it supports the track but is not required.
+    ML_ENGINEER: [
+        ("course-013", _S, False, None),
+        ("course-001", _C, True, None),
+        ("course-018", _S, False, None),
+        ("course-002", _C, True, None),
+        ("course-003", _C, True, None),
+        ("course-010", _S, True, None),
+        ("course-011", _S, True, None),
+        ("course-016", _C, True, None),
+        ("course-004", _O, False, None),
+        ("course-014", _O, False, None),
+    ],
+    # 004 hard-requires 003, which requires 002: the whole chain is part of
+    # this track, as supporting foundations. 008 and 015 are optional
+    # specialisations at the end, never between required courses.
+    AI_DEVELOPER: [
+        ("course-001", _S, True, None),
+        ("course-002", _S, True, None),
+        ("course-003", _S, True, None),
+        ("course-004", _C, True, None),
+        ("course-005", _C, True, None),
+        ("course-006", _C, True, None),
+        ("course-010", _C, True, None),
+        ("course-009", _C, True, None),
+        ("course-012", _C, True, None),
+        ("course-007", _C, True, None),
+        ("course-008", _O, False, None),
+        ("course-015", _O, False, None),
+    ],
+    # Deep learning is optional here: nothing required (010, 011, 016) depends
+    # on it. 006 is optional and only needs 001.
+    MLOPS_ENGINEER: [
+        ("course-013", _S, False, None),
+        ("course-001", _C, True, None),
+        ("course-002", _S, False, None),
+        ("course-003", _S, False, None),
+        ("course-010", _C, True, None),
+        ("course-011", _C, True, None),
+        ("course-016", _C, True, None),
+        ("course-006", _O, False, None),
+    ],
+    # Multimodal (008) follows the vision and speech specialisations: it needs
+    # at least one modality, and two are recommended.
+    AI_ENGINEER: [
+        ("course-013", _S, True, "foundations"),
+        ("course-017", _S, False, "foundations"),
+        ("course-001", _C, True, "foundations"),
+        ("course-018", _S, False, "foundations"),
+        ("course-002", _C, True, "foundations"),
+        ("course-003", _C, True, "foundations"),
+        ("course-004", _C, True, "language-generative-ai"),
+        ("course-005", _C, True, "language-generative-ai"),
+        ("course-006", _C, True, "application-production"),
+        ("course-010", _S, True, "application-production"),
+        ("course-011", _C, True, "application-production"),
+        ("course-016", _C, True, "application-production"),
+        ("course-009", _S, True, "advanced-ai-systems"),
+        ("course-012", _S, True, "advanced-ai-systems"),
+        ("course-007", _S, True, "advanced-ai-systems"),
+        ("course-014", _O, False, "specializations"),
+        ("course-015", _O, False, "specializations"),
+        ("course-008", _O, False, "specializations"),
+    ],
+}
+
+
+def workflow_roles_for(course_slug: str) -> List[Dict[str, object]]:
+    """Every track workflow this course is placed in, as the enriched
+    `{slug, relation, position, required, section}` entries
+    `catalog_admin.set_course_relations(roles=...)` takes."""
+    entries: List[Dict[str, object]] = []
+    for goal, items in TRACK_WORKFLOWS.items():
+        for position, (slug, relation, required, section) in enumerate(items, start=1):
+            if slug == course_slug:
+                entries.append({
+                    "slug": goal, "relation": relation, "position": position,
+                    "required": required, "section": section,
+                })
+    return entries
+
+
+# Every course slug placed in at least one track workflow above.
+TRACK_WORKFLOW_COURSES = {slug for items in TRACK_WORKFLOWS.values() for slug, *_ in items}
 
 # The courses that have lessons today. Everything else in COURSE_ROLES is a
 # shell. Adding a course to this tuple is a claim that it has lessons; a
@@ -279,15 +403,11 @@ COURSES_WITH_LESSONS = (
     "langchain", "langgraph", "llamaindex", "qdrant", "fastapi-serving",
 )
 
-# 14 of the 16 directory courses have a primary placement below; COURSE-015 and
-# COURSE-016 are deferred (see DEFERRED_PLACEMENTS).  `course_roles`
-# remains broader than a template where that is useful for catalogue discovery:
-# an optional ML specialisation, for example, should be discoverable without
-# silently becoming part of every ML Engineer journey.
-DEFERRED_PLACEMENTS: Dict[str, Dict[str, str]] = {
-    AI_ENGINEER: {"course-015": "catalogued and importable; not yet placed in a roadmap template"},
-    MLOPS_ENGINEER: {"course-016": "catalogued and importable; not yet placed in a roadmap template"},
-}
+# All 18 directory courses have a primary placement in a template below.
+# `course_roles` remains broader than a template where that is useful for
+# catalogue discovery: an optional specialisation should be discoverable without
+# silently becoming part of every journey. Nothing is currently deferred.
+DEFERRED_PLACEMENTS: Dict[str, Dict[str, str]] = {}
 
 # ─── Placeholder levels to catalogue as (empty) courses ─────────────────────
 # (course slug, legacy track slug, level order, learner level, fields)
@@ -394,95 +514,49 @@ STAGES.extend(
 # ─── Templates ──────────────────────────────────────────────────────────────
 # One journey per career goal: an ordered list of (stage, field). A stage tied
 # to a field appears only when that field is in the learner's route; `None`
-# means every route. "AI Engineer - Computer Vision" is this template filtered
-# to `computer-vision` - there is no separate list for it anywhere.
-_AI_ENGINEER_STAGES: List[Tuple[str, Optional[str]]] = [
-    ("foundations", None), ("machine-learning", None), ("deep-learning", None),
-    ("nlp-llm", "nlp"), ("rag", "nlp"), ("agents", "nlp"), ("llm-production", "nlp"),
-    ("computer-vision", "computer-vision"), ("advanced-cv", "computer-vision"),
-    ("vision-language", "computer-vision"),
-    ("audio-processing", "speech"), ("speech-recognition", "speech"), ("text-to-speech", "speech"),
-    ("voice-ai", "speech"), ("realtime-voice-agents", "speech"),
-    ("multimodal", "multimodal"),
-    ("production", None), ("capstone-ai-engineer", None),
-]
-
-# (template slug, career goal, title, title_ar, [(stage, field)])
+# means every route. Every journey is made of the canonical COURSE-0xx courses
+# only - each course is its own stage (`course-0xx`, see STAGES below) - so the
+# roadmap, the fixed track workflow (TRACK_WORKFLOWS) and the course prerequisite
+# graph all describe the same courses. The legacy track-level and tool courses
+# stay catalogued (Explore, their own pages, saved paths) but no template lists
+# them; the older stages that hold them are kept so saved learner paths resolve.
+#
+# A field gates the course that belongs to it: NLP gates 004/005/006/007/009/012
+# (the LLM chain), computer-vision gates 014, speech gates 015, multimodal gates
+# 008. Multimodal's own field rule (at least one of NLP / vision / speech,
+# ideally two) is enforced by the generator from the `multimodal` field's
+# prerequisite configuration, never by a hard course dependency.
 TEMPLATES: List[Tuple[str, str, str, str, List[Tuple[str, Optional[str]]]]] = [
     ("data-analyst-path", DATA_ANALYST, "Data Analyst path", "مسار محلل بيانات", [
-        ("data-foundations", "data"), ("data-analysis", "data"), ("data-tooling", "data"),
-        ("capstone-data-analyst", None),
+        ("course-013", "data"), ("course-017", "data"), ("capstone-data-analyst", None),
     ]),
     ("ml-engineer-path", ML_ENGINEER, "ML Engineer path", "مسار مهندس تعلّم آلة", [
-        ("machine-learning", None), ("feature-engineering", None), ("deep-learning", None),
-        ("model-evaluation", None), ("nlp-transformers", "nlp"),
-        ("computer-vision", "computer-vision"), ("advanced-cv", "computer-vision"),
-        ("audio-processing", "speech"), ("speech-recognition", "speech"),
-        ("mlops-tooling", None), ("production", None),
-        ("llm-applications", "nlp"),
+        ("course-013", "data"), ("course-001", None), ("course-018", None),
+        ("course-002", None), ("course-003", None),
+        ("course-010", None), ("course-011", None), ("course-016", None),
+        ("course-004", "nlp"), ("course-014", "computer-vision"),
         ("capstone-ml-engineer", None),
     ]),
     ("ai-developer-path", AI_DEVELOPER, "AI Developer path", "مسار مطوّر تطبيقات ذكاء اصطناعي", [
-        ("foundations", None), ("nlp-llm", "nlp"), ("rag", "nlp"), ("agents", "nlp"),
-        ("llm-production", "nlp"), ("multimodal", "multimodal"), ("production", None),
+        ("course-001", None), ("course-002", None), ("course-003", None),
+        ("course-004", "nlp"), ("course-005", "nlp"), ("course-006", "nlp"),
+        ("course-010", None), ("course-009", "nlp"), ("course-012", "nlp"), ("course-007", "nlp"),
+        ("course-008", "multimodal"), ("course-015", "speech"),
         ("capstone-ai-developer", None),
     ]),
     ("mlops-engineer-path", MLOPS_ENGINEER, "MLOps Engineer path", "مسار مهندس MLOps", [
-        ("machine-learning", None), ("mlops-tooling", None), ("production", None),
+        ("course-013", "data"), ("course-001", None),
+        ("course-010", None), ("course-011", None), ("course-016", None),
         ("capstone-mlops-engineer", None),
     ]),
-    ("ai-engineer-path", AI_ENGINEER, "AI Engineer path", "مسار مهندس ذكاء اصطناعي", _AI_ENGINEER_STAGES),
-]
-
-_COURSE_STAGES_BY_GOAL = {
-    _DA: {
-        "data-foundations": [("course-013", "data")],
-    },
-    _ML: {
-        "machine-learning": [("course-001", None), ("course-013", "data")],
-        "deep-learning": [("course-002", None), ("course-003", None)],
-        "nlp-transformers": [("course-004", "nlp")],
-        "computer-vision": [("course-014", "computer-vision")],
-    },
-    _AID: {
-        "foundations": [("course-001", None), ("course-002", None), ("course-003", None)],
-        "nlp-llm": [("course-004", "nlp"), ("course-005", "nlp")],
-        "llm-production": [
-            ("course-006", "nlp"), ("course-007", "nlp"), ("course-009", "nlp"),
-            ("course-010", "nlp"), ("course-011", "nlp"), ("course-012", "nlp"),
-        ],
-        "multimodal": [("course-008", "multimodal")],
-    },
-    _OPS: {
-        "machine-learning": [("course-001", None), ("course-002", None)],
-        "production": [("course-006", None), ("course-010", None), ("course-011", None)],
-    },
-    _AIE: {
-        "machine-learning": [("course-001", None), ("course-013", "data")],
-        "deep-learning": [("course-002", None), ("course-003", None)],
-        "nlp-llm": [("course-004", "nlp"), ("course-005", "nlp")],
-        "llm-production": [
-            ("course-006", "nlp"), ("course-007", "nlp"), ("course-009", "nlp"),
-            ("course-010", "nlp"), ("course-011", "nlp"), ("course-012", "nlp"),
-        ],
-        "computer-vision": [("course-014", "computer-vision")],
-        "multimodal": [("course-008", "multimodal")],
-    },
-}
-
-
-def _with_course_stages(goal: str, stages: List[Tuple[str, Optional[str]]]) -> List[Tuple[str, Optional[str]]]:
-    """Insert canonical course stages immediately after their prerequisite stage."""
-    result: List[Tuple[str, Optional[str]]] = []
-    for stage in stages:
-        result.append(stage)
-        result.extend(_COURSE_STAGES_BY_GOAL[goal].get(stage[0], []))
-    return result
-
-
-TEMPLATES = [
-    (slug, goal, title, title_ar, _with_course_stages(goal, stages))
-    for slug, goal, title, title_ar, stages in TEMPLATES
+    ("ai-engineer-path", AI_ENGINEER, "AI Engineer path", "مسار مهندس ذكاء اصطناعي", [
+        ("course-013", None), ("course-001", None), ("course-002", None), ("course-003", None),
+        ("course-004", "nlp"), ("course-005", "nlp"), ("course-006", "nlp"),
+        ("course-010", None), ("course-011", None), ("course-016", None),
+        ("course-009", "nlp"), ("course-012", "nlp"), ("course-007", "nlp"),
+        ("course-014", "computer-vision"), ("course-015", "speech"), ("course-008", "multimodal"),
+        ("capstone-ai-engineer", None),
+    ]),
 ]
 
 

@@ -14,6 +14,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core import security_log
 from app.core.config import settings
+from app.core.body_limit import BodySizeLimitMiddleware
 from app.core.http_security import SecurityHeadersMiddleware
 from app.core.limiter import limiter, verify_storage_reachable
 from app.core.metrics import (
@@ -29,7 +30,9 @@ from app.controllers.exam_payment_controller import router as exam_payment_route
 from app.controllers.payments_controller import router as payments_router
 from app.controllers.tool_courses_controller import router as tool_courses_router
 from app.controllers.answer_evaluation_controller import router as answer_evaluation_router
+from app.controllers.code_exercise_controller import router as code_exercise_router
 from app.controllers.terminology_controller import router as terminology_router
+from app.controllers.vocabulary_term_controller import router as vocabulary_term_router
 from app.controllers.search_controller import router as search_router
 from app.controllers.admin_analytics_controller import router as admin_analytics_router
 from app.controllers.learning_controller import router as learning_router
@@ -37,6 +40,8 @@ from app.controllers.learning_courses_controller import router as learning_cours
 from app.controllers.legal_controller import router as legal_router
 from app.controllers.admin_learning_controller import router as admin_learning_router
 from app.controllers.billing_controller import router as billing_router
+from app.controllers.mentor_v2_controller import router as mentor_v2_router
+from app.controllers.project_lab_controller import router as project_lab_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -139,6 +144,11 @@ app.add_middleware(UnhandledErrorMiddleware)
 # ─── Security headers ───────────────────────────────────────────────────────
 app.add_middleware(SecurityHeadersMiddleware)
 
+# ─── Request body ceiling ───────────────────────────────────────────────────
+# Inside CORS (added before it) so a 413 still carries the CORS headers the
+# browser needs to show the error. See app/core/body_limit.py.
+app.add_middleware(BodySizeLimitMiddleware, max_bytes=settings.MAX_REQUEST_BODY_BYTES)
+
 # ─── CORS ─────────────────────────────────────────────────────────────────────
 # allow_credentials is on because the browser-side client may send an
 # Authorization header; combined with an explicit origin allowlist (never
@@ -214,6 +224,7 @@ API_PREFIX = "/api/v1"
 app.include_router(auth_controller.router,        prefix=API_PREFIX)
 app.include_router(tracks_controller.router,      prefix=API_PREFIX)
 app.include_router(mentor_controller.router,      prefix=API_PREFIX)
+app.include_router(mentor_v2_router,               prefix=API_PREFIX)
 app.include_router(community_controller.router,   prefix=API_PREFIX)
 app.include_router(exam_controller.router,        prefix=API_PREFIX)
 app.include_router(profile_controller.router,     prefix=f"{API_PREFIX}/profile",       tags=["Profile"])
@@ -223,7 +234,10 @@ app.include_router(exam_payment_router,           prefix=f"{API_PREFIX}/exam-pay
 app.include_router(payments_router,               prefix=f"{API_PREFIX}/payments",      tags=["Payments"])
 app.include_router(tool_courses_router,           prefix=API_PREFIX)
 app.include_router(answer_evaluation_router,      prefix=API_PREFIX)
+app.include_router(code_exercise_router,           prefix=API_PREFIX)
+app.include_router(project_lab_router,            prefix=API_PREFIX)
 app.include_router(terminology_router,            prefix=API_PREFIX)
+app.include_router(vocabulary_term_router,        prefix=API_PREFIX)
 app.include_router(search_router,                 prefix=API_PREFIX)
 app.include_router(learning_router,               prefix=API_PREFIX)
 app.include_router(learning_courses_router,       prefix=API_PREFIX)

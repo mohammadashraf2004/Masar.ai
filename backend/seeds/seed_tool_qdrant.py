@@ -18,8 +18,7 @@ import app.models.community, app.models.wallet, app.models.auth_token  # noqa: F
 import app.models.challenge, app.models.exam                         # noqa: F401
 from app.models.learning import Lesson, Exercise, Quiz, Project, DifficultyLevel
 from app.models.tool_course import ToolCourse, ToolTopic
-
-require_migrated_schema()
+from app.services.code_grading.authoring import complete_seed_exercises
 
 TOOL_SLUG = "qdrant"  # must already exist — created by seed_tool_courses.py
 
@@ -200,6 +199,18 @@ That's enough for Lesson 1.
                 "difficulty":    DifficultyLevel.beginner,
                 "starter_code":  "point = {\n    \"vector\": [0.12, -0.45, 0.87],  # pretend embedding\n    \"payload\": {\n        # TODO: add fields that describe this document chunk\n        # (e.g. text, course code, document type, source)\n    }\n}\n",
                 "solution_code": "point = {\n    \"vector\": [0.12, -0.45, 0.87],  # pretend embedding\n    \"payload\": {\n        \"text\": \"Students must complete the enrollment process before adding subjects.\",\n        \"course\": \"CSE251\",\n        \"doc_type\": \"enrollment_policy\",\n        \"source\": \"student_handbook_2025.pdf\",\n        \"chunk_id\": 14\n    }\n}\n",
+                "exercise_type": "code",
+                "language": "python",
+                "hint": "Store filterable metadata such as `course`, `doc_type`, and `source` inside `point[\"payload\"]`.",
+                "success_message": "Correct! Your point contains a vector and useful filterable payload metadata.",
+                "grading_tests": [
+                    {"id": "point_exists", "type": "variable_exists", "variable": "point", "feedback": {"en": "Create a variable named `point`.", "ar": "أنشئ متغيرًا باسم `point`."}},
+                    {"id": "point_type", "type": "type_equals", "variable": "point", "expected": "dict", "feedback": {"en": "Store the point as a dictionary.", "ar": "خزّن `point` في قاموس."}},
+                    {"id": "vector_key", "type": "dict_contains_key", "variable": "point", "key": "vector", "feedback": {"en": "Keep the embedding under the `vector` key.", "ar": "احتفظ بالتضمين داخل المفتاح `vector`."}},
+                    {"id": "vector_value", "type": "custom", "checker": "check_qdrant_vector", "feedback": {"en": "Store a non-empty numeric embedding list under `vector`.", "ar": "خزّن قائمة تضمين رقمية غير فارغة داخل `vector`."}},
+                    {"id": "payload_key", "type": "dict_contains_key", "variable": "point", "key": "payload", "feedback": {"en": "Add a `payload` dictionary to the point.", "ar": "أضف قاموس `payload` إلى `point`."}},
+                    {"id": "payload_metadata", "type": "custom", "checker": "check_qdrant_payload", "feedback": {"en": "Add non-empty `text`, `course`, `doc_type`, and `source` fields to the payload.", "ar": "أضف الحقول غير الفارغة `text` و`course` و`doc_type` و`source` داخل `payload`."}},
+                ],
                 "skill_tested":  ["qdrant", "payload-design", "rag"],
             },
         ],
@@ -3703,6 +3714,8 @@ Text → Embedding → Qdrant → Similarity Search → Relevant Text
 # ---------------------------------------------------------------------------
 # Seed logic — do not modify below this line
 # ---------------------------------------------------------------------------
+complete_seed_exercises(TOPICS)
+
 TOPIC_FIELDS = ("title", "slug", "description", "order", "difficulty",
                  "estimated_hours", "skill_tags", "prerequisite_ids")
 
@@ -3732,12 +3745,20 @@ def seed(db):
         else:
             print("    - Lesson exists, skipping")
 
-        if db.query(Exercise).filter(Exercise.tool_topic_id == topic.id).count() == 0:
-            for ex in t["exercises"]:
+        for ex in t["exercises"]:
+            existing = db.query(Exercise).filter(
+                Exercise.tool_topic_id == topic.id,
+                Exercise.title == ex["title"],
+            ).first()
+            if existing:
+                # Content seeds are authoritative for authored exercise
+                # metadata. This also migrates the first deterministic
+                # exercise when the seed is re-run against an existing DB.
+                for key, value in ex.items():
+                    setattr(existing, key, value)
+            else:
                 db.add(Exercise(tool_topic_id=topic.id, **ex))
-            print(f"    + {len(t['exercises'])} exercise(s) added")
-        else:
-            print("    - Exercises exist, skipping")
+        print(f"    ~ {len(t['exercises'])} exercise(s) synchronized")
 
         if not db.query(Quiz).filter(Quiz.tool_topic_id == topic.id).first():
             db.add(Quiz(tool_topic_id=topic.id, **t["quiz"]))
@@ -3756,6 +3777,7 @@ def seed(db):
 
 
 if __name__ == "__main__":
+    require_migrated_schema()
     db = SessionLocal()
     try:
         seed(db)

@@ -10,7 +10,7 @@
   "difficulty": "Intermediate / Advanced",
   "course_title": "Applied NLP with Transformers",
   "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
-  "modules": 2,
+  "modules": 11,
   "lessons": 11,
   "guided_minutes": 1380,
   "professional_capability": "Build, fine-tune, evaluate, debug, compare, and optimize Transformer NLP systems.",
@@ -33,28 +33,69 @@
   "module_inventory": [
     {
       "id": "M004-01",
-      "title": "Transformer Foundations & First Applications",
-      "lessons": 10,
-      "lesson_ids": [
-        "M01.L01",
-        "M01.L02",
-        "M01.L03",
-        "M01.L04",
-        "M01.L05",
-        "M01.L06",
-        "M01.L07",
-        "M01.L08",
-        "M01.L09",
-        "M01.L10"
-      ]
+      "title": "Transformer NLP Workflow & Hugging Face Ecosystem",
+      "lessons": 1,
+      "lesson_ids": ["M01.L01"]
     },
     {
       "id": "M004-02",
-      "title": "Text Classification",
+      "title": "End-to-End Transformer Text Classification",
       "lessons": 1,
-      "lesson_ids": [
-        "M02.L01"
-      ]
+      "lesson_ids": ["M02.L01"]
+    },
+    {
+      "id": "M004-03",
+      "title": "Transformer Internals for Applied NLP",
+      "lessons": 1,
+      "lesson_ids": ["M01.L02"]
+    },
+    {
+      "id": "M004-04",
+      "title": "Multilingual NLP & Token Classification",
+      "lessons": 1,
+      "lesson_ids": ["M01.L03"]
+    },
+    {
+      "id": "M004-05",
+      "title": "Controlled Text Generation & Decoding",
+      "lessons": 1,
+      "lesson_ids": ["M01.L04"]
+    },
+    {
+      "id": "M004-06",
+      "title": "Sequence-to-Sequence NLP & Summarization",
+      "lessons": 1,
+      "lesson_ids": ["M01.L05"]
+    },
+    {
+      "id": "M004-07",
+      "title": "Extractive Question Answering & Retrieval Systems",
+      "lessons": 1,
+      "lesson_ids": ["M01.L07"]
+    },
+    {
+      "id": "M004-08",
+      "title": "Efficient Transformer Inference & Model Compression",
+      "lessons": 1,
+      "lesson_ids": ["M01.L06"]
+    },
+    {
+      "id": "M004-09",
+      "title": "NLP with Few or No Labels",
+      "lessons": 1,
+      "lesson_ids": ["M01.L08"]
+    },
+    {
+      "id": "M004-10",
+      "title": "Training Custom Transformers from Scratch",
+      "lessons": 1,
+      "lesson_ids": ["M01.L10"]
+    },
+    {
+      "id": "M004-11",
+      "title": "Transformer Frontiers: Scaling, Efficient Attention & Multimodal Systems",
+      "lessons": 1,
+      "lesson_ids": ["M01.L09"]
     }
   ],
   "capstone": "Production-Oriented Transformer NLP System"

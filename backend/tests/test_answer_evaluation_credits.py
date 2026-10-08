@@ -91,10 +91,12 @@ def topic(db) -> Topic:
 def exercise(db, topic) -> Exercise:
     ex = Exercise(
         topic_id=topic.id,
-        title="Reverse a list",
-        description="Write a function that reverses a list.",
-        starter_code="def rev(xs): ...",
-        solution_code="def rev(xs): return xs[::-1]",
+        # This suite covers the still-supported conversational assessment
+        # path. Executable exercises now use the deterministic code grader.
+        title="Explain list reversal",
+        description="Explain two ways to reverse a Python list.",
+        starter_code=None,
+        solution_code="A slice or reversed() can produce reverse order.",
         skill_tested=["python"],
     )
     db.add(ex)
@@ -277,6 +279,29 @@ def test_unparseable_but_usable_reply_is_still_charged(client, db, exercise, unp
     assert resp.status_code == 200, resp.text
     assert _wallet(db, user_id).credit_balance == before - COST
     assert _txs(db, user_id, TransactionType.refund) == []
+
+
+def test_unresolved_turn_clears_an_earlier_full_mark(client, exercise, monkeypatch, stub_llm):
+    """A malformed/clarifying second reply must not reuse the first turn's
+    correct=True and score=100 values."""
+    replies = iter([
+        {"reply": "Correct.", "is_correct": True, "score": 100, "suggested_actions": []},
+        {"reply": "Please clarify your answer.", "is_correct": None, "score": None, "suggested_actions": []},
+    ])
+    monkeypatch.setattr(
+        answer_evaluation_controller.answer_evaluator_service,
+        "evaluate_answer",
+        lambda **kw: next(replies),
+    )
+    token, _ = _register(client)
+
+    first = _answer_exercise(client, token, exercise)
+    second = _answer_exercise(client, token, exercise, content="something unrelated")
+
+    assert first.json()["is_correct"] is True
+    assert first.json()["score"] == 100
+    assert second.json()["is_correct"] is None
+    assert second.json()["score"] is None
 
 
 def test_failed_turn_leaves_no_half_written_submission(client, db, exercise, broken_provider):

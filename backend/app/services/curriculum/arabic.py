@@ -253,6 +253,8 @@ def _apply_course(course: CourseSpec, data: Any, where: str) -> None:
         course.arabic_problems.append(f"{where}: course_id {data.get('course_id')!r} is not {course.course_id}")
     if _text(data.get("title")):
         course.title_ar = _text(data["title"])
+    if _text(data.get("description")):
+        course.description_ar = _text(data["description"])
     modules = data.get("modules") or {}
     known = {m.module_id: m for m in course.modules}
     for module_id, entry in (modules.items() if isinstance(modules, dict) else []):

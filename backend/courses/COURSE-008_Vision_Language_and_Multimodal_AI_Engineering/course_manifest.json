@@ -14,7 +14,8 @@
   "difficulty": "Intermediate → Advanced",
   "course_title": "Vision-Language & Multimodal AI Engineering",
   "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
-  "modules": 1,
+  "consolidated_file_modules": true,
+  "modules": 11,
   "lessons": 11,
   "guided_minutes": 3300,
   "professional_capability": "Build and evaluate vision-language and multimodal AI systems.",
@@ -40,21 +41,69 @@
   "module_inventory": [
     {
       "id": "M008-01",
-      "title": "Foundations of Vision and Language",
-      "lessons": 11,
-      "lesson_ids": [
-        "M01.L01",
-        "M01.L02",
-        "M01.L03",
-        "M01.L04",
-        "M01.L05",
-        "M01.L06",
-        "M01.L07",
-        "M01.L08",
-        "M01.L09",
-        "M01.L10",
-        "M01.L11"
-      ]
+      "title": "Introduction to Vision and Language",
+      "lessons": 1,
+      "lesson_ids": ["M01.L01"]
+    },
+    {
+      "id": "M008-02",
+      "title": "Vision Language Model Applications",
+      "lessons": 1,
+      "lesson_ids": ["M01.L02"]
+    },
+    {
+      "id": "M008-03",
+      "title": "Vision Language Model Training",
+      "lessons": 1,
+      "lesson_ids": ["M01.L03"]
+    },
+    {
+      "id": "M008-04",
+      "title": "Multimodality and Data Engineering for Vision-Language Systems",
+      "lessons": 1,
+      "lesson_ids": ["M01.L04"]
+    },
+    {
+      "id": "M008-05",
+      "title": "Post-Training Vision-Language Models",
+      "lessons": 1,
+      "lesson_ids": ["M01.L05"]
+    },
+    {
+      "id": "M008-06",
+      "title": "Core Architectures of Vision-Language Models",
+      "lessons": 1,
+      "lesson_ids": ["M01.L06"]
+    },
+    {
+      "id": "M008-07",
+      "title": "Deploying Vision-Language Models for Inference at Scale",
+      "lessons": 1,
+      "lesson_ids": ["M01.L07"]
+    },
+    {
+      "id": "M008-08",
+      "title": "Document AI with Vision-Language Models",
+      "lessons": 1,
+      "lesson_ids": ["M01.L08"]
+    },
+    {
+      "id": "M008-09",
+      "title": "Video-Language Models",
+      "lessons": 1,
+      "lesson_ids": ["M01.L09"]
+    },
+    {
+      "id": "M008-10",
+      "title": "Any-to-Any Multimodal Models",
+      "lessons": 1,
+      "lesson_ids": ["M01.L10"]
+    },
+    {
+      "id": "M008-11",
+      "title": "Agentic VLMs and Vision-Language-Action Models",
+      "lessons": 1,
+      "lesson_ids": ["M01.L11"]
     }
   ],
   "capstone": "Production Multimodal AI System Capstone"

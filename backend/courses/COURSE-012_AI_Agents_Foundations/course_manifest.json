@@ -10,7 +10,8 @@
   "difficulty": "Beginner → Intermediate",
   "course_title": "AI Agents Foundations",
   "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read. Replaces the earlier 11-module / 91-lesson 'Agentic AI Systems Engineering' design.",
-  "modules": 1,
+  "consolidated_file_modules": true,
+  "modules": 11,
   "lessons": 11,
   "guided_minutes": 2565,
   "professional_capability": "Build AI agents: give an LLM tools and MCP servers, coordinate multi-agent patterns, add reasoning and planning, memory and RAG, evaluate and guard agent behaviour, deploy agents as services, and run bounded agentic loops.",
@@ -37,21 +38,69 @@
   "module_inventory": [
     {
       "id": "M012-01",
-      "title": "Foundations of AI Agents",
-      "lessons": 11,
-      "lesson_ids": [
-        "M01.L01",
-        "M01.L02",
-        "M01.L03",
-        "M01.L04",
-        "M01.L05",
-        "M01.L06",
-        "M01.L07",
-        "M01.L08",
-        "M01.L09",
-        "M01.L10",
-        "M01.L11"
-      ]
+      "title": "The Rise of AI Agents",
+      "lessons": 1,
+      "lesson_ids": ["M01.L01"]
+    },
+    {
+      "id": "M012-02",
+      "title": "Core Components: LLMs, Prompting, and Agents",
+      "lessons": 1,
+      "lesson_ids": ["M01.L02"]
+    },
+    {
+      "id": "M012-03",
+      "title": "Actions with Model Context Protocol for AI Agents",
+      "lessons": 1,
+      "lesson_ids": ["M01.L03"]
+    },
+    {
+      "id": "M012-04",
+      "title": "Architecting and Building Multi-Agent Systems",
+      "lessons": 1,
+      "lesson_ids": ["M01.L04"]
+    },
+    {
+      "id": "M012-05",
+      "title": "Agent Reasoning and Planning",
+      "lessons": 1,
+      "lesson_ids": ["M01.L05"]
+    },
+    {
+      "id": "M012-06",
+      "title": "Working with Memory and Knowledge RAG for Agents",
+      "lessons": 1,
+      "lesson_ids": ["M01.L06"]
+    },
+    {
+      "id": "M012-07",
+      "title": "Building Robust Agents with Evaluation and Feedback",
+      "lessons": 1,
+      "lesson_ids": ["M01.L07"]
+    },
+    {
+      "id": "M012-08",
+      "title": "Deploying Agents and Agentic Systems",
+      "lessons": 1,
+      "lesson_ids": ["M01.L08"]
+    },
+    {
+      "id": "M012-09",
+      "title": "Understanding the Agentic Loop",
+      "lessons": 1,
+      "lesson_ids": ["M01.L09"]
+    },
+    {
+      "id": "M012-10",
+      "title": "Exploring the Cognitive Agent That Thinks, Monitors, and Adapts",
+      "lessons": 1,
+      "lesson_ids": ["M01.L10"]
+    },
+    {
+      "id": "M012-11",
+      "title": "Tips for Building Agentic Systems",
+      "lessons": 1,
+      "lesson_ids": ["M01.L11"]
     }
   ]
 }

@@ -1172,6 +1172,71 @@ TOPIC = {
                 "Precision, recall, and F1 calculations plus a short interpretation "
                 "of threshold trade-offs and class imbalance."
             ),
+            "type": "code",
+            "language": "python",
+            "starter_code": (
+                "tp = 80\n"
+                "fp = 20\n"
+                "fn = 20\n"
+                "tn = 880\n\n"
+                "# TODO: calculate all three minority-class metrics.\n"
+                "precision = None\n"
+                "recall = None\n"
+                "f1 = None\n"
+            ),
+            "solution_code": (
+                "tp = 80\n"
+                "fp = 20\n"
+                "fn = 20\n"
+                "tn = 880\n\n"
+                "precision = tp / (tp + fp)\n"
+                "recall = tp / (tp + fn)\n"
+                "f1 = 2 * precision * recall / (precision + recall)\n"
+            ),
+            "hint": "Use TP / (TP + FP), TP / (TP + FN), then the harmonic mean of precision and recall.",
+            "success_message": "Correct! Precision, recall, and F1 are all 0.8 for this confusion matrix.",
+            "tests": [
+                {
+                    "id": "precision_is_numeric",
+                    "type": "type_equals",
+                    "variable": "precision",
+                    "expected": "float",
+                    "feedback": {
+                        "en": "Calculate `precision` as a numeric value.",
+                        "ar": "احسب `precision` كقيمة رقمية.",
+                    },
+                },
+                {
+                    "id": "precision_value",
+                    "type": "value_approx",
+                    "variable": "precision",
+                    "expected": 0.8,
+                    "feedback": {
+                        "en": "Check the precision denominator: TP + FP.",
+                        "ar": "راجع مقام precision: ‏TP + FP.",
+                    },
+                },
+                {
+                    "id": "recall_value",
+                    "type": "value_approx",
+                    "variable": "recall",
+                    "expected": 0.8,
+                    "feedback": {
+                        "en": "Check the recall denominator: TP + FN.",
+                        "ar": "راجع مقام recall: ‏TP + FN.",
+                    },
+                },
+                {
+                    "id": "f1_value",
+                    "type": "value_approx",
+                    "variable": "f1",
+                    "expected": 0.8,
+                    "feedback": {
+                        "en": "Calculate F1 as the harmonic mean of precision and recall.",
+                        "ar": "احسب F1 بوصفه المتوسط التوافقي لـ precision وrecall.",
+                    },
+                },
+            ],
             "difficulty": DifficultyLevel.beginner,
             "skill_tested": [
                 "precision",

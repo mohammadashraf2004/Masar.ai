@@ -1970,12 +1970,7 @@ more cache memory
 less repeated attention computation
 ```
 
-[[IMAGE_NEEDED: Prefill versus decode with KV cache |
-Show the full prompt processed once during prefill, creating per-layer K/V
-cache. Then show each generated token computing only new Q/K/V while attending
-to cached K/V |
-Learner should understand that history is still available even though most old
-attention projections are not recomputed]]
+{{image:kv-cache-prefill-decode}}
 
 {{exercise:M01.L03.EX05}}
 

@@ -53,8 +53,8 @@ def _catalogue_counts(db):
 
 def test_course_directory_registry_covers_stable_ids_and_supported_metadata():
     courses = cfg.COURSE_DIRECTORY_COURSES
-    assert [course["course_id"] for course in courses] == [f"COURSE-{n:03d}" for n in range(1, 17)]
-    assert len({course["slug"] for course in courses}) == 16
+    assert [course["course_id"] for course in courses] == [f"COURSE-{n:03d}" for n in range(1, 19)]
+    assert len({course["slug"] for course in courses}) == 18
     assert {course["slug"] for course in courses} <= set(cfg.COURSE_ROLES)
     assert {course["track"] for course in courses} <= set(cfg.GOALS)
 
@@ -73,10 +73,14 @@ def test_course_directory_registry_covers_stable_ids_and_supported_metadata():
 
 
 def test_course_directory_ids_match_the_16_curriculum_sources():
+    # COURSE-016 is on disk and in the registry (as a catalogued, ordered
+    # track-workflow member) but is authored by a separate, concurrent
+    # process and currently fails full lesson-content validation - see
+    # test_curriculum_import.py's `specs` fixture, which excludes it.
     courses_root = Path(__file__).resolve().parents[1] / "courses"
     source_ids = {directory.name[:10] for directory in courses_root.iterdir() if directory.is_dir()}
     registry_ids = {course["course_id"] for course in cfg.COURSE_DIRECTORY_COURSES}
-    assert registry_ids == source_ids == {f"COURSE-{n:03d}" for n in range(1, 17)}
+    assert registry_ids == source_ids == {f"COURSE-{n:03d}" for n in range(1, 19)}
 
 
 def test_course_directory_prerequisites_are_known_and_acyclic():
@@ -150,10 +154,11 @@ def test_empty_database_normal_seed_bootstrap_has_exact_curriculum_shape_and_syn
     created = seed_learning_catalog(learn_db)
     first_counts = _catalogue_counts(learn_db)
 
-    # +2 over the historical 50: COURSE-015 and COURSE-016, seeded as shells
-    # like every other not-yet-imported directory course.
-    assert created["courses"] == 52
-    assert first_counts["courses"] == 52
+    # +3 over the historical 51: COURSE-016, 017 and 018, real, catalogued,
+    # ordered track-workflow members (see seeds/curriculum.py:TRACK_WORKFLOWS),
+    # seeded as shells like every other not-yet-imported directory course.
+    assert created["courses"] == 54
+    assert first_counts["courses"] == 54
     assert first_counts["course_roles"] == sum(len(roles) for roles in cfg.COURSE_ROLES.values())
     # Required prerequisites come from the registry; each directory course also gets the
     # other courses its own manifest names, as *recommended* ones (advice, never read by
@@ -351,10 +356,13 @@ def test_directory_courses_are_independent_courses_with_their_own_route_and_type
         assert learn_client.get(f"{API}/courses/{definition['slug'].upper()}").status_code == 200
 
 
-def test_legacy_rag_remains_an_ml_engineer_nlp_elective():
+def test_legacy_courses_stay_catalogued_but_are_in_no_roadmap_template():
+    # They keep their catalogue roles (Explore filters, /tools and /tracks pages, saved paths) ...
     assert cfg.COURSE_ROLES["rag-knowledge-systems"][cfg.ML_ENGINEER] == cfg.OPTIONAL
-    assert "rag-knowledge-systems" not in cfg.template_courses(cfg.ML_ENGINEER, fields=[])
-    assert "rag-knowledge-systems" in cfg.template_courses(cfg.ML_ENGINEER, fields=["nlp"])
+    # ... but a personalised roadmap is built from the canonical COURSE-0xx courses only.
+    for goal in cfg.GOALS:
+        for fields in (None, [], ["nlp"], ["computer-vision"], ["speech"], ["multimodal"], ["data"]):
+            assert all(slug.startswith("course-") for slug in cfg.template_courses(goal, fields)), (goal, fields)
 
 
 def _directory_prerequisite_edges(db):

@@ -229,6 +229,22 @@ def test_closed_tracks_are_still_listed_and_browsable(client, db):
     assert set(COMING_SOON_SLUGS) <= slugs
 
 
+def test_guest_track_catalogue_has_zero_progress_without_fake_presentation_stages(client, db):
+    _ensure_track("ai-engineer")
+
+    listing = client.get("/api/v1/tracks/")
+    card = next(row for row in listing.json() if row["slug"] == "ai-engineer")
+    assert card["status"] == "open"
+    assert card["progress"] == 0
+
+    detail = client.get("/api/v1/tracks/ai-engineer")
+    assert detail.status_code == 200, detail.text
+    body = detail.json()
+    assert body["levels"] == []
+    assert body["stages"] == []
+    assert body["projects"] == []
+
+
 # ─── Unrelated enrolment behaviour is unchanged ───────────────────────────
 
 def test_unknown_track_id_still_404s(client, db):

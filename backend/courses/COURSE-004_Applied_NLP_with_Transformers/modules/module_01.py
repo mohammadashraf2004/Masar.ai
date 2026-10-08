@@ -16,7 +16,7 @@ LESSON_CODE = "M01.L01"
 
 MODULE_ORDER = 1
 
-MODULE_TITLE = "Transformer Foundations & First Applications"
+MODULE_TITLE = "Transformer NLP Workflow & Hugging Face Ecosystem"
 
 MODULE_DESCRIPTION = (
     "Build an intuitive mental model of transformers by connecting sequence models, "

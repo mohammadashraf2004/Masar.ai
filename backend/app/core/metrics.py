@@ -34,7 +34,8 @@ import logging
 import os
 import time
 from contextlib import contextmanager
-from typing import Iterator, Optional
+from contextvars import ContextVar
+from typing import Iterator, List, Optional
 
 # ── Must run BEFORE prometheus_client is imported ────────────────────────
 # prometheus_client decides in-process vs multiprocess mode exactly once, at
@@ -270,6 +271,42 @@ learning_catalog_issues_total = Counter(
     ["issue"],
 )
 
+# Project Lab execution (learner code in the project-runner). Labels are fixed
+# vocabularies — never a user, attempt, path or any learner content.
+project_lab_executions_total = Counter(
+    "project_lab_executions_total",
+    "Project Lab executions finished, by action (run, check), kind (python, sql) and "
+    "status (success, error, timeout, infrastructure_error).",
+    ["action", "kind", "status"],
+)
+
+project_lab_execution_seconds = Histogram(
+    "project_lab_execution_seconds",
+    "Wall time of one Project Lab execution as seen by the API (queueing included).",
+    ["action"],
+    buckets=(0.25, 0.5, 1, 2, 4, 8, 15, 30, 60),
+)
+
+project_lab_checks_total = Counter(
+    "project_lab_checks_total",
+    "Check Step results, by outcome (pass, fail, error) and error kind "
+    "(none, execution, infrastructure).",
+    ["outcome", "error_kind"],
+)
+
+project_lab_validator_failures_total = Counter(
+    "project_lab_validator_failures_total",
+    "Validators that could not produce a verdict (unknown_key, exception) — platform bugs, "
+    "reported to learners as an infrastructure error.",
+    ["reason"],
+)
+
+project_lab_rejected_total = Counter(
+    "project_lab_rejected_total",
+    "Run/Check requests refused before execution (concurrent: the learner already has one running).",
+    ["reason"],
+)
+
 
 # ─── Recording helpers ───────────────────────────────────────────────────
 # Thin wrappers so call sites never import prometheus_client directly, and
@@ -286,6 +323,24 @@ class _LLMCall:
     def record_usage(self, input_tokens: Optional[int], output_tokens: Optional[int]) -> None:
         self.input_tokens = int(input_tokens or 0)
         self.output_tokens = int(output_tokens or 0)
+
+
+# Per-request collection of provider usage, for the structured mentor event log. Prometheus
+# aggregates tokens by provider/model only; a request that wants its own numbers (to log one
+# line per mentor reply) opens `collect_llm_usage()` around its provider calls.
+_usage_sink: ContextVar[Optional[List[dict]]] = ContextVar("llm_usage_sink", default=None)
+
+
+@contextmanager
+def collect_llm_usage() -> Iterator[List[dict]]:
+    """Yield a list that receives one dict per provider call made inside the block:
+    provider, model, input_tokens, output_tokens, seconds, outcome."""
+    sink: List[dict] = []
+    token = _usage_sink.set(sink)
+    try:
+        yield sink
+    finally:
+        _usage_sink.reset(token)
 
 
 @contextmanager
@@ -314,6 +369,13 @@ def observe_llm_call(provider: str, model: str) -> Iterator[_LLMCall]:
                 llm_tokens_total.labels(provider, model, "output").inc(call.output_tokens)
         except Exception:  # noqa: BLE001 — telemetry must never break a call
             pass
+        sink = _usage_sink.get()
+        if sink is not None:
+            sink.append({
+                "provider": provider, "model": model, "outcome": outcome,
+                "input_tokens": call.input_tokens, "output_tokens": call.output_tokens,
+                "seconds": round(elapsed, 3),
+            })
 
 
 def record_credits_spent(action: str, credits: int) -> None:
@@ -465,3 +527,32 @@ def render_metrics() -> Response:
         from prometheus_client import REGISTRY as registry  # type: ignore[assignment]
 
     return Response(content=generate_latest(registry), media_type=CONTENT_TYPE_LATEST)
+
+
+def record_project_lab_execution(action: str, kind: str, status: str, seconds: float) -> None:
+    try:
+        project_lab_executions_total.labels(action, kind, status).inc()
+        project_lab_execution_seconds.labels(action).observe(seconds)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def record_project_lab_check(outcome: str, error_kind: Optional[str]) -> None:
+    try:
+        project_lab_checks_total.labels(outcome, error_kind or "none").inc()
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def record_project_lab_validator_failure(reason: str) -> None:
+    try:
+        project_lab_validator_failures_total.labels(reason).inc()
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def record_project_lab_rejected(reason: str) -> None:
+    try:
+        project_lab_rejected_total.labels(reason).inc()
+    except Exception:  # noqa: BLE001
+        pass

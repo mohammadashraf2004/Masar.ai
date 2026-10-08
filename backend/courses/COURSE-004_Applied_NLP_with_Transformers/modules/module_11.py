@@ -13,8 +13,8 @@ from app.models.learning import DifficultyLevel
 # ---------------------------------------------------------------------------
 
 LESSON_CODE = "M01.L09"
-MODULE_ORDER = 1
-MODULE_TITLE = "Transformer Foundations"
+MODULE_ORDER = 11
+MODULE_TITLE = "Transformer Frontiers: Scaling, Efficient Attention & Multimodal Systems"
 MODULE_DESCRIPTION = (
     "Explore the research directions that push transformers beyond their original "
     "limits: scaling, efficient attention, long-context processing, vision, tables, "

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M02.L01",
-  "source_hash": "5cb82238d7c601021160c03ad3aedbac53425cb80f852413a14ae26484390f6b",
+  "source_hash": "8e0337c55dc3c723da8d6fac5b2363b8dbca5caf76f474236ce22d470765d55f",
   "title": "تصنيف النصوص باستخدام DistilBERT",
   "exercises": [
     {

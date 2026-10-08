@@ -2,7 +2,8 @@
   "course_id": "COURSE-011",
   "course_title": "Cloud Deployment & CI/CD for AI Engineers",
   "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
-  "modules": 8,
+  "consolidated_file_modules": true,
+  "modules": 17,
   "lessons": 17,
   "guided_minutes": 3525,
   "professional_capability": "Deploy, secure, automate, and operate AI backend services on cloud platforms.",
@@ -27,76 +28,105 @@
   "module_inventory": [
     {
       "id": "M011-01",
-      "title": "DevOps & Cloud Foundations",
+      "title": "DevOps & Cloud Foundations: From Culture to Your First Workstation",
       "lessons": 1,
-      "lesson_ids": [
-        "M01.L01"
-      ]
+      "lesson_ids": ["M01.L01"]
     },
     {
       "id": "M011-02",
-      "title": "Version Control with Git and GitHub",
+      "title": "Mastering Version Control with Git and GitHub",
       "lessons": 1,
-      "lesson_ids": [
-        "M02.L01"
-      ]
+      "lesson_ids": ["M02.L01"]
     },
     {
       "id": "M011-03",
-      "title": "Containerization with Docker",
+      "title": "Introduction to Containerization with Docker",
       "lessons": 1,
-      "lesson_ids": [
-        "M03.L01"
-      ]
+      "lesson_ids": ["M03.L01"]
     },
     {
       "id": "M011-04",
-      "title": "Infrastructure as Code with Terraform",
+      "title": "Introduction to Infrastructure as Code with Terraform",
       "lessons": 1,
-      "lesson_ids": [
-        "M04.L01"
-      ]
+      "lesson_ids": ["M04.L01"]
     },
     {
       "id": "M011-05",
-      "title": "CI/CD Automation with GitHub Actions",
+      "title": "Constructing Your First CI/CD Pipeline",
       "lessons": 1,
-      "lesson_ids": [
-        "M05.L01"
-      ]
+      "lesson_ids": ["M05.L01"]
     },
     {
       "id": "M011-06",
       "title": "Container Orchestration with Kubernetes",
       "lessons": 1,
-      "lesson_ids": [
-        "M06.L01"
-      ]
+      "lesson_ids": ["M06.L01"]
     },
     {
       "id": "M011-07",
       "title": "Monitoring, Logging, and Observability",
       "lessons": 1,
-      "lesson_ids": [
-        "M07.L01"
-      ]
+      "lesson_ids": ["M07.L01"]
     },
     {
       "id": "M011-08",
-      "title": "Secure AWS Deployment Foundations",
-      "lessons": 10,
-      "lesson_ids": [
-        "M08.L01",
-        "M08.L02",
-        "M08.L03",
-        "M08.L04",
-        "M08.L05",
-        "M08.L06",
-        "M08.L07",
-        "M08.L08",
-        "M08.L09",
-        "M08.L10"
-      ]
+      "title": "Initial AWS Account and EC2 Setup",
+      "lessons": 1,
+      "lesson_ids": ["M08.L01"]
+    },
+    {
+      "id": "M011-09",
+      "title": "SSH, Server Tooling, GitHub, Python, and First Streamlit Deployment",
+      "lessons": 1,
+      "lesson_ids": ["M08.L02"]
+    },
+    {
+      "id": "M011-10",
+      "title": "AWS Network Load Balancer and Target Groups",
+      "lessons": 1,
+      "lesson_ids": ["M08.L03"]
+    },
+    {
+      "id": "M011-11",
+      "title": "Domain, SSL Certificates, Nginx, and HTTPS Deployment",
+      "lessons": 1,
+      "lesson_ids": ["M08.L04"]
+    },
+    {
+      "id": "M011-12",
+      "title": "Deploying More Robust Applications: Jenkins, Flask, and Streamlit",
+      "lessons": 1,
+      "lesson_ids": ["M08.L05"]
+    },
+    {
+      "id": "M011-13",
+      "title": "Create and Secure Your Subdomains",
+      "lessons": 1,
+      "lesson_ids": ["M08.L06"]
+    },
+    {
+      "id": "M011-14",
+      "title": "How to Set Up This Infrastructure on Google Cloud Platform",
+      "lessons": 1,
+      "lesson_ids": ["M08.L07"]
+    },
+    {
+      "id": "M011-15",
+      "title": "Advanced Deployment in GCP: Autoscaling and Load Balancing Across Global Regions",
+      "lessons": 1,
+      "lesson_ids": ["M08.L08"]
+    },
+    {
+      "id": "M011-16",
+      "title": "Serverless Deployment with Google Cloud Run",
+      "lessons": 1,
+      "lesson_ids": ["M08.L09"]
+    },
+    {
+      "id": "M011-17",
+      "title": "Serverless Deployment with AWS ECS Fargate",
+      "lessons": 1,
+      "lesson_ids": ["M08.L10"]
     }
   ]
 }

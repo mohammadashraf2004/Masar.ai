@@ -73,6 +73,15 @@ class RoleInfo:
 
 
 @dataclass(frozen=True)
+class CourseRoleWorkflow:
+    role_slug: str
+    relation: str
+    position: int
+    required: bool
+    section: Optional[str] = None
+
+
+@dataclass(frozen=True)
 class CourseInfo:
     id: int
     slug: str
@@ -82,6 +91,11 @@ class CourseInfo:
     # (career goal slug, 'core' | 'supporting' | 'optional'), sorted. Descriptive
     # metadata for display and discovery: no generation rule reads it.
     role_relations: Tuple[Tuple[str, str], ...] = ()
+    # (career goal slug, relation, position, required, section) - the same
+    # relationship with its workflow placement. `position` is this goal's own
+    # explicit order (never this course's id, never alphabetical); `section`
+    # is only set for goals whose workflow reads in named parts.
+    role_workflow: Tuple["CourseRoleWorkflow", ...] = ()
     teaches: FrozenSet[str] = frozenset()
     assumes: FrozenSet[str] = frozenset()
     # Required prerequisites: the only ones the path generator orders a roadmap by.
@@ -102,6 +116,11 @@ class CourseInfo:
     def relation_for(self, role_slug: str) -> Optional[str]:
         """This course's weight in one career goal, or None when it is not tagged for it."""
         return next((rel for slug, rel in self.role_relations if slug == role_slug), None)
+
+    def workflow_for(self, role_slug: str) -> Optional["CourseRoleWorkflow"]:
+        """This course's full workflow placement in one career goal's track,
+        or None when it is not part of that goal's workflow."""
+        return next((w for w in self.role_workflow if w.role_slug == role_slug), None)
 
 
 @dataclass(frozen=True)

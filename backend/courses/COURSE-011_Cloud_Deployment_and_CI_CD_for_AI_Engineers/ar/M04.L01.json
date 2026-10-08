@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "lesson_id": "M04.L01",
-  "source_hash": "e44ea6f28861fc073053defde3bf7e2c2579cb2c2fb157640c82eba8ddb3b07c",
+  "source_hash": "0947c56af458a3dd5148a330bd6d0dc5701adc3d27a17d6c64debc92a4ee25d1",
   "title": "مدخل إلى البنية التحتية بوصفها شيفرة باستخدام Terraform",
   "exercises": [
     {

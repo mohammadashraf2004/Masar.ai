@@ -155,8 +155,8 @@ def test_gate_runs_before_the_balance_check(client, db):
 def test_billable_endpoint_returns_403_for_unverified_user(client, db):
     _, token, user_id = _register(client)
     _fund(db, user_id)
-    # Not a literal: registration already granted STARTER_CREDITS on top of
-    # the funding above.
+    # Not a literal: registration already granted the Free plan's signup
+    # credits on top of the funding above.
     before = _balance(db, user_id)
 
     resp = client.post(

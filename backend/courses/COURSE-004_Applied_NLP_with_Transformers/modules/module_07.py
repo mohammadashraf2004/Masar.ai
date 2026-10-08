@@ -13,8 +13,8 @@ from app.models.learning import DifficultyLevel
 # ---------------------------------------------------------------------------
 
 LESSON_CODE = "M01.L07"
-MODULE_ORDER = 1
-MODULE_TITLE = "Transformer Foundations"
+MODULE_ORDER = 7
+MODULE_TITLE = "Extractive Question Answering & Retrieval Systems"
 MODULE_DESCRIPTION = (
     "Build practical question-answering systems by combining transformer readers "
     "with retrieval, long-context handling, evaluation, domain adaptation, and "

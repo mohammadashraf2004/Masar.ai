@@ -13,8 +13,8 @@ from app.models.learning import DifficultyLevel
 # ---------------------------------------------------------------------------
 
 LESSON_CODE = "M01.L02"
-MODULE_ORDER = 1
-MODULE_TITLE = "Transformer Foundations"
+MODULE_ORDER = 3
+MODULE_TITLE = "Transformer Internals for Applied NLP"
 MODULE_DESCRIPTION = (
     "Build an intuitive and practical understanding of transformer internals: "
     "self-attention, multi-head attention, feed-forward layers, normalization, "

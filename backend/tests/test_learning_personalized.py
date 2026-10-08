@@ -4,7 +4,7 @@ Personalised roadmaps: what a learner says they already know.
 Two layers, mirroring the rest of the learning tests:
 
 * the generator's rules, on hand-built catalogues (pure, no database), and
-* the API against the shipped configuration (`learn_catalog` runs the real seed).
+* the API against the shipped configuration (`legacy_catalog` runs the real seed).
 
 The rules under test, in one place:
 
@@ -191,7 +191,7 @@ def _states(path):
 
 # Known skills ---------------------------------------------------------------
 
-def test_a_learner_can_save_known_skills_and_they_persist(learn_client, learn_catalog, learn_db):
+def test_a_learner_can_save_known_skills_and_they_persist(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
     body = _profile(learn_client, who, known_skills=["llms", "rag"])
     assert {s["slug"] for s in body["known_skills"]} == {"llms", "rag"}
@@ -204,7 +204,7 @@ def test_a_learner_can_save_known_skills_and_they_persist(learn_client, learn_ca
     assert len(rows) == 2
 
 
-def test_unknown_skill_ids_are_rejected_and_nothing_is_saved(learn_client, learn_catalog, learn_db):
+def test_unknown_skill_ids_are_rejected_and_nothing_is_saved(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
     resp = learn_client.put(f"{API}/my-profile", headers=who["headers"], json={"known_skills": ["rag", "telepathy"]})
     assert resp.status_code == 422 and resp.json()["detail"]["error"] == "unknown_skill"
@@ -214,14 +214,14 @@ def test_unknown_skill_ids_are_rejected_and_nothing_is_saved(learn_client, learn
     assert resp.status_code == 422 and resp.json()["detail"]["error"] == "unknown_skill"
 
 
-def test_a_malformed_skill_identifier_is_refused(learn_client, learn_catalog):
+def test_a_malformed_skill_identifier_is_refused(learn_client, legacy_catalog):
     who = register(learn_client)
     for bad in ("../etc/passwd", "RAG", "a b", "x" * 80):
         resp = learn_client.put(f"{API}/my-skills", headers=who["headers"], json={"skills": [bad]})
         assert resp.status_code == 422, bad
 
 
-def test_skill_selections_are_scoped_to_the_learner(learn_client, learn_catalog):
+def test_skill_selections_are_scoped_to_the_learner(learn_client, legacy_catalog):
     alice, bob = register(learn_client), register(learn_client)
     _profile(learn_client, alice, known_skills=["llms", "rag"])
     _profile(learn_client, bob, known_skills=["prompt-engineering"])
@@ -232,12 +232,12 @@ def test_skill_selections_are_scoped_to_the_learner(learn_client, learn_catalog)
     assert {k["skill"]["slug"] for k in theirs["known"]} == {"prompt-engineering"}
 
 
-def test_skill_endpoints_require_a_signed_in_learner(learn_client, learn_catalog):
+def test_skill_endpoints_require_a_signed_in_learner(learn_client, legacy_catalog):
     assert learn_client.get(f"{API}/my-skills").status_code == 401
     assert learn_client.put(f"{API}/my-skills", json={"skills": []}).status_code == 401
 
 
-def test_putting_skills_replaces_the_declared_list(learn_client, learn_catalog):
+def test_putting_skills_replaces_the_declared_list(learn_client, legacy_catalog):
     who = register(learn_client)
     learn_client.put(f"{API}/my-skills", headers=who["headers"], json={"skills": ["llms", "rag"]})
     resp = learn_client.put(f"{API}/my-skills", headers=who["headers"], json={"skills": ["rag", "embeddings"]})
@@ -247,13 +247,13 @@ def test_putting_skills_replaces_the_declared_list(learn_client, learn_catalog):
     assert resp.json()["path"] is None and resp.json()["roadmap_updated"] is False
 
 
-def test_duplicate_skills_in_a_request_collapse_to_one_row(learn_client, learn_catalog, learn_db):
+def test_duplicate_skills_in_a_request_collapse_to_one_row(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
     learn_client.put(f"{API}/my-skills", headers=who["headers"], json={"skills": ["rag", "rag", "rag"]})
     assert learn_db.query(LearnerSkill).filter(LearnerSkill.user_id == who["id"]).count() == 1
 
 
-def test_evidence_from_better_sources_is_not_erased_by_editing_the_declared_list(learn_client, learn_catalog, learn_db):
+def test_evidence_from_better_sources_is_not_erased_by_editing_the_declared_list(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
     rag = learn_db.query(Skill).filter(Skill.slug == "rag").one()
     learn_db.add(LearnerSkill(user_id=who["id"], skill_id=rag.id, status="mastered", source="assessment"))
@@ -265,7 +265,7 @@ def test_evidence_from_better_sources_is_not_erased_by_editing_the_declared_list
 
 # What to ask ---------------------------------------------------------------
 
-def test_the_skills_to_ask_about_come_from_the_catalogue(learn_client, learn_catalog):
+def test_the_skills_to_ask_about_come_from_the_catalogue(learn_client, legacy_catalog):
     resp = learn_client.get(f"{API}/skills", params={"career_goal": "ai-engineer", "field": "nlp", "level": "beginner"})
     assert resp.status_code == 200
     options = {o["slug"]: o for o in resp.json()}
@@ -275,7 +275,7 @@ def test_the_skills_to_ask_about_come_from_the_catalogue(learn_client, learn_cat
     assert all(o["name"] for o in options.values())
 
 
-def test_tools_are_told_apart_from_skills(learn_client, learn_catalog):
+def test_tools_are_told_apart_from_skills(learn_client, legacy_catalog):
     options = {o["slug"]: o for o in learn_client.get(
         f"{API}/skills", params={"career_goal": "ai-engineer", "field": "nlp"}).json()}
     for tool in ("langchain", "langgraph", "fastapi"):
@@ -287,7 +287,7 @@ def test_tools_are_told_apart_from_skills(learn_client, learn_catalog):
     assert listed == sorted(listed, key=lambda k: k == "tool")      # capabilities first, tools after
 
 
-def test_knowing_a_tool_does_not_waive_the_skill_it_is_used_for(learn_client, learn_catalog):
+def test_knowing_a_tool_does_not_waive_the_skill_it_is_used_for(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, known_skills=["langchain", "qdrant", "llamaindex"])
     states_ = _states(path)
@@ -295,13 +295,13 @@ def test_knowing_a_tool_does_not_waive_the_skill_it_is_used_for(learn_client, le
     assert states_["langchain"] == STATE_REQUIRED                    # langchain also teaches `llms`, undeclared
 
 
-def test_skill_options_depend_on_the_route(learn_client, learn_catalog):
+def test_skill_options_depend_on_the_route(learn_client, legacy_catalog):
     nlp = {o["slug"] for o in learn_client.get(f"{API}/skills", params={"career_goal": "ai-engineer", "field": "nlp"}).json()}
     core = {o["slug"] for o in learn_client.get(f"{API}/skills", params={"career_goal": "ai-engineer"}).json()}
     assert "rag" in nlp and "rag" not in core                      # RAG lives in the NLP route
 
 
-def test_unknown_goal_or_field_for_skill_options_is_a_clean_error(learn_client, learn_catalog):
+def test_unknown_goal_or_field_for_skill_options_is_a_clean_error(learn_client, legacy_catalog):
     assert learn_client.get(f"{API}/skills", params={"career_goal": "chef"}).status_code == 422
     assert learn_client.get(f"{API}/skills", params={"career_goal": "ai-engineer", "field": "alchemy"}).status_code == 422
     assert learn_client.get(f"{API}/skills").status_code == 422     # a goal is required
@@ -309,7 +309,7 @@ def test_unknown_goal_or_field_for_skill_options_is_a_clean_error(learn_client, 
 
 # Path generation ---------------------------------------------------------------
 
-def test_scenario_a_known_courses_are_shown_as_already_known_and_not_required(learn_client, learn_catalog):
+def test_scenario_a_known_courses_are_shown_as_already_known_and_not_required(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, known_skills=["llms"])
     c = _by_slug(path)
@@ -322,13 +322,13 @@ def test_scenario_a_known_courses_are_shown_as_already_known_and_not_required(le
     assert "llm-integration" in {x["course"]["slug"] for s in path["stages"] for x in s["courses"]}   # not deleted
 
 
-def test_a_learner_with_no_declared_skills_gets_every_route_course_as_required(learn_client, learn_catalog):
+def test_a_learner_with_no_declared_skills_gets_every_route_course_as_required(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who)
     assert STATE_WAIVED not in set(_states(path).values())
 
 
-def test_scenario_b_the_roadmap_begins_with_what_remains(learn_client, learn_catalog):
+def test_scenario_b_the_roadmap_begins_with_what_remains(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, level="intermediate",
                   known_skills=["llms", "prompt-engineering", "embeddings", "semantic-search"])
@@ -340,7 +340,7 @@ def test_scenario_b_the_roadmap_begins_with_what_remains(learn_client, learn_cat
     assert first is not None and c[first["course"]["slug"]]["state"] == "required"
 
 
-def test_prerequisites_still_apply_to_a_declared_course(learn_client, learn_catalog):
+def test_prerequisites_still_apply_to_a_declared_course(learn_client, legacy_catalog):
     """RAG & Knowledge Systems is declared; its prerequisite (LLM Integration) is not.
     The prerequisite stays on the route as required."""
     who = register(learn_client)
@@ -350,7 +350,7 @@ def test_prerequisites_still_apply_to_a_declared_course(learn_client, learn_cata
     assert c["llm-integration"]["state"] == "required"
 
 
-def test_no_course_appears_twice(learn_client, learn_catalog):
+def test_no_course_appears_twice(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, level="intermediate", fields=("nlp", "multimodal"),
                   known_skills=["llms", "rag", "retrieval"])
@@ -360,9 +360,9 @@ def test_no_course_appears_twice(learn_client, learn_catalog):
 
 # Regeneration ---------------------------------------------------------------
 
-def test_scenario_c_editing_skills_rebuilds_the_roadmap_without_touching_progress(learn_client, learn_catalog, learn_db):
+def test_scenario_c_editing_skills_rebuilds_the_roadmap_without_touching_progress(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
-    complete_level(learn_db, who["id"], learn_catalog, 1)                # finished AI Engineering Foundations
+    complete_level(learn_db, who["id"], legacy_catalog, 1)                # finished AI Engineering Foundations
     before = _build(learn_client, who, level="intermediate", known_skills=["llms"])
     assert _by_slug(before)["ai-engineering-foundations"]["state"] == "completed"
 
@@ -382,9 +382,9 @@ def test_scenario_c_editing_skills_rebuilds_the_roadmap_without_touching_progres
 
 
 def test_removing_a_declared_skill_makes_its_course_required_again_but_never_undoes_completion(
-        learn_client, learn_catalog, learn_db):
+        learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
-    complete_level(learn_db, who["id"], learn_catalog, 2)                # llm-integration finished for real
+    complete_level(learn_db, who["id"], legacy_catalog, 2)                # llm-integration finished for real
     _build(learn_client, who, level="intermediate", known_skills=["llms", "rag", "retrieval"])
     path = learn_client.put(f"{API}/my-skills", headers=who["headers"], json={"skills": []}).json()["path"]
     c = _by_slug(path)
@@ -392,7 +392,7 @@ def test_removing_a_declared_skill_makes_its_course_required_again_but_never_und
     assert c["rag-knowledge-systems"]["state"] == "required"
 
 
-def test_the_profile_page_edit_flow_matches_the_onboarding_one(learn_client, learn_catalog):
+def test_the_profile_page_edit_flow_matches_the_onboarding_one(learn_client, legacy_catalog):
     """Saving skills through PUT /my-profile then rebuilding gives the same roadmap
     as PUT /my-skills - there is one rule, however it is reached."""
     a, b = register(learn_client), register(learn_client)
@@ -403,7 +403,7 @@ def test_the_profile_page_edit_flow_matches_the_onboarding_one(learn_client, lea
     assert _states(via_profile) == _states(via_skills)
 
 
-def test_saving_skills_before_onboarding_is_complete_does_not_invent_a_path(learn_client, learn_catalog):
+def test_saving_skills_before_onboarding_is_complete_does_not_invent_a_path(learn_client, legacy_catalog):
     who = register(learn_client)
     resp = learn_client.put(f"{API}/my-skills", headers=who["headers"], json={"skills": ["llms"]})
     assert resp.status_code == 200 and resp.json()["path"] is None
@@ -412,7 +412,7 @@ def test_saving_skills_before_onboarding_is_complete_does_not_invent_a_path(lear
 
 # Multimodal ---------------------------------------------------------------
 
-def test_scenario_d_a_beginner_can_choose_multimodal_and_declared_nlp_is_respected(learn_client, learn_catalog):
+def test_scenario_d_a_beginner_can_choose_multimodal_and_declared_nlp_is_respected(learn_client, legacy_catalog):
     who = register(learn_client)
     everything_nlp_teaches = ["llms", "prompt-engineering", "rag", "retrieval", "embeddings", "semantic-search",
                               "ai-agents", "langchain", "langgraph", "llamaindex", "qdrant", "vector-databases"]
@@ -426,7 +426,7 @@ def test_scenario_d_a_beginner_can_choose_multimodal_and_declared_nlp_is_respect
     assert _by_slug(path)["multimodal-ai"]["state"] == "required"
 
 
-def test_a_beginner_choosing_multimodal_without_declaring_anything_is_routed_not_blocked(learn_client, learn_catalog):
+def test_a_beginner_choosing_multimodal_without_declaring_anything_is_routed_not_blocked(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, level="beginner", fields=("multimodal",))
     codes = [a["code"] for a in path["advisories"]]
@@ -437,16 +437,16 @@ def test_a_beginner_choosing_multimodal_without_declaring_anything_is_routed_not
 
 # Dashboard / home ---------------------------------------------------------------
 
-def test_the_dashboard_has_an_empty_state_before_a_roadmap_exists(learn_client, learn_catalog):
+def test_the_dashboard_has_an_empty_state_before_a_roadmap_exists(learn_client, legacy_catalog):
     who = register(learn_client)
     assert learn_client.get(f"{API}/my-path", headers=who["headers"]).status_code == 404
     profile = learn_client.get(f"{API}/my-profile", headers=who["headers"]).json()
     assert profile["needs_onboarding"] is True and profile["has_active_path"] is False
 
 
-def test_the_roadmap_reports_progress_current_and_next_course(learn_client, learn_catalog, learn_db):
+def test_the_roadmap_reports_progress_current_and_next_course(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
-    complete_level(learn_db, who["id"], learn_catalog, 1)
+    complete_level(learn_db, who["id"], legacy_catalog, 1)
     path = _build(learn_client, who, level="beginner", known_skills=["llms"])
     progress = path["progress"]
     assert progress["path_completed"] == 1
@@ -467,17 +467,17 @@ def test_the_roadmap_reports_progress_current_and_next_course(learn_client, lear
     assert order[0] == current["course"]["slug"]                    # nothing started, so the first one
 
 
-def test_a_course_already_under_way_is_the_current_one(learn_client, learn_catalog, learn_db):
+def test_a_course_already_under_way_is_the_current_one(learn_client, legacy_catalog, learn_db):
     from app.models.progress import UserProgress
     who = register(learn_client)
-    topic_id, lesson_id = learn_catalog["level_lessons"][3][0]
+    topic_id, lesson_id = legacy_catalog["level_lessons"][3][0]
     learn_db.add(UserProgress(user_id=who["id"], topic_id=topic_id, lessons_completed=[lesson_id], exercises_completed=[]))
     learn_db.commit()
     path = _build(learn_client, who, level="intermediate")
     assert path["current_course"]["course"]["slug"] == "rag-knowledge-systems"
 
 
-def test_a_finished_roadmap_has_no_current_or_next_course(learn_client, learn_catalog, learn_db):
+def test_a_finished_roadmap_has_no_current_or_next_course(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
     path = _build(learn_client, who, level="beginner")
     for slug, c in _by_slug(path).items():
@@ -485,9 +485,9 @@ def test_a_finished_roadmap_has_no_current_or_next_course(learn_client, learn_ca
             continue
         source = learn_db.query(Course).filter_by(slug=slug).one()
         if source.kind == "track_level":
-            complete_level(learn_db, who["id"], learn_catalog, source.track_level.order)
+            complete_level(learn_db, who["id"], legacy_catalog, source.track_level.order)
         else:
-            complete_tool(learn_db, who["id"], learn_catalog, slug)
+            complete_tool(learn_db, who["id"], legacy_catalog, slug)
     done = learn_client.get(f"{API}/my-path", headers=who["headers"]).json()
     assert done["current_course"] is None and done["next_course"] is None
     assert done["progress"]["path_pct"] == 100.0
@@ -497,7 +497,7 @@ def test_a_finished_roadmap_has_no_current_or_next_course(learn_client, learn_ca
 
 # Observability ---------------------------------------------------------------
 
-def test_events_carry_counts_never_the_answers(learn_client, learn_catalog, caplog):
+def test_events_carry_counts_never_the_answers(learn_client, legacy_catalog, caplog):
     who = register(learn_client)
     with caplog.at_level(logging.INFO):
         _build(learn_client, who, level="intermediate", known_skills=["llms", "rag"])
@@ -514,7 +514,7 @@ def test_events_carry_counts_never_the_answers(learn_client, learn_catalog, capl
     assert generated.roadmap_generation_success is True
 
 
-def test_a_second_build_is_reported_as_an_update(learn_client, learn_catalog, caplog):
+def test_a_second_build_is_reported_as_an_update(learn_client, legacy_catalog, caplog):
     who = register(learn_client)
     _build(learn_client, who, level="intermediate")
     with caplog.at_level(logging.INFO):
@@ -524,7 +524,7 @@ def test_a_second_build_is_reported_as_an_update(learn_client, learn_catalog, ca
 
 # Migration ---------------------------------------------------------------
 
-def test_skills_have_a_kind_and_the_check_constraint_holds(learn_client, learn_catalog, learn_db):
+def test_skills_have_a_kind_and_the_check_constraint_holds(learn_client, legacy_catalog, learn_db):
     from sqlalchemy.exc import IntegrityError
     kinds = {s.slug: s.kind for s in learn_db.query(Skill).all()}
     assert kinds["langchain"] == "tool" and kinds["rag"] == "skill"
@@ -534,7 +534,7 @@ def test_skills_have_a_kind_and_the_check_constraint_holds(learn_client, learn_c
     learn_db.rollback()
 
 
-def test_a_learner_cannot_hold_the_same_skill_twice(learn_client, learn_catalog, learn_db):
+def test_a_learner_cannot_hold_the_same_skill_twice(learn_client, legacy_catalog, learn_db):
     from sqlalchemy.exc import IntegrityError
     who = register(learn_client)
     rag = learn_db.query(Skill).filter(Skill.slug == "rag").one()
@@ -546,7 +546,7 @@ def test_a_learner_cannot_hold_the_same_skill_twice(learn_client, learn_catalog,
     learn_db.rollback()
 
 
-def test_status_and_source_are_constrained(learn_client, learn_catalog, learn_db):
+def test_status_and_source_are_constrained(learn_client, legacy_catalog, learn_db):
     from sqlalchemy.exc import IntegrityError
     who = register(learn_client)
     rag = learn_db.query(Skill).filter(Skill.slug == "rag").one()

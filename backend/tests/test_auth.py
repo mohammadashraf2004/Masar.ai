@@ -13,7 +13,7 @@ def test_register_grants_starter_credits(client):
     token = reg.json()["access_token"]
     wallet = client.get("/api/v1/wallet/", headers={"Authorization": f"Bearer {token}"})
     assert wallet.status_code == 200
-    assert wallet.json()["credit_balance"] == 10
+    assert wallet.json()["credit_balance"] == 40
 
 
 def test_register_then_login(client):

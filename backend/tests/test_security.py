@@ -78,7 +78,8 @@ def test_protected_endpoints_reject_anonymous(client, method, path):
 def test_full_course_content_requires_authentication(client):
     """The catalogue is public; the curriculum body is not."""
     assert client.get("/api/v1/tracks/").status_code == 200
-    assert client.get("/api/v1/tracks/some-slug").status_code == 401
+    # Track marketing detail is public; a guest receives no lesson levels.
+    assert client.get("/api/v1/tracks/some-slug").status_code == 404
     assert client.get("/api/v1/tool-courses/some-slug").status_code == 401
 
 
@@ -600,7 +601,7 @@ def test_wallet_only_ever_returns_the_callers_own_balance(client, db):
 
     resp = client.get("/api/v1/wallet/", headers=_auth(attacker_token))
     assert resp.status_code == 200
-    assert resp.json()["credit_balance"] == 10   # only their own starter credits
+    assert resp.json()["credit_balance"] == 40   # only their own Free-plan signup credits
 
 
 def test_user_cannot_edit_or_delete_another_users_post(client):
@@ -1398,61 +1399,29 @@ def test_production_refuses_a_low_entropy_secret_key():
 
 
 # ─────────────────────────────────────────────────────────────────────────
-# 17. Launch promotion
-#
-# A giveaway is still an authorization surface: the amount, the
-# eligibility and the expiry must all be server-decided, and expiry must
-# actually remove credits rather than merely hiding them.
+# 17. Free-plan grant and historical promotion safety
 # ─────────────────────────────────────────────────────────────────────────
 
-def _promo_open(monkeypatch, credits=500, days=30):
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_UNTIL", "2099-12-31")
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_CREDITS", credits)
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_DAYS", days)
+def _grant_legacy_promo(db, user_id: int, credits=500, days=30):
+    """Seed the old wallet fields to guard existing historical balances."""
+    from app.models.wallet import UserWallet
+
+    wallet = db.query(UserWallet).filter(UserWallet.user_id == user_id).one()
+    wallet.credit_balance = credits
+    wallet.promo_credits_remaining = credits
+    wallet.promo_expires_at = datetime.now(timezone.utc) + timedelta(days=days)
+    db.commit()
 
 
-def test_promo_is_off_when_no_end_date_is_configured(monkeypatch):
-    """An unset LAUNCH_PROMO_UNTIL must not mean 'always on'."""
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_UNTIL", "")
-    assert settings.launch_promo_until is None
-    assert settings.promo_is_open() is False
-
-
-def test_malformed_promo_date_fails_closed(monkeypatch):
-    """A typo'd date must disable the promo, not enable it forever."""
-    for bad in ["not-a-date", "31-12-2099", "2099/12/31", "  "]:
-        monkeypatch.setattr(settings, "LAUNCH_PROMO_UNTIL", bad)
-        assert settings.launch_promo_until is None
-        assert settings.promo_is_open() is False
-
-
-def test_expired_promo_date_closes_the_offer(monkeypatch):
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_UNTIL", "2020-01-01")
-    assert settings.promo_is_open() is False
-
-
-def test_signup_grants_promo_credits_while_open(client, monkeypatch):
-    _promo_open(monkeypatch, credits=500)
+def test_signup_grants_exactly_40_non_expiring_free_credits(client):
     _, token, _ = _register(client)
     body = client.get("/api/v1/wallet/", headers=_auth(token)).json()
-    assert body["credit_balance"] == 500
-    assert body["promo_credits_remaining"] == 500
-    assert body["promo_expires_at"] is not None
-
-
-def test_signup_falls_back_to_starter_credits_when_closed(client, monkeypatch):
-    """Promo closed — the ordinary welcome grant still applies."""
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_UNTIL", "")
-    _, token, _ = _register(client)
-    body = client.get("/api/v1/wallet/", headers=_auth(token)).json()
-    assert body["credit_balance"] == 10
+    assert body["credit_balance"] == 40
     assert body["promo_credits_remaining"] == 0
     assert body["promo_expires_at"] is None
 
 
-def test_promo_amount_cannot_be_influenced_by_the_request(client, monkeypatch):
-    """The grant is server config, not something a signup body can ask for."""
-    _promo_open(monkeypatch, credits=500)
+def test_free_grant_cannot_be_influenced_by_the_request(client):
     resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 
         "email": _unique_email(), "full_name": "Greedy User", "password": STRONG_PASSWORD,
         "credit_balance": 999999, "promo_credits_remaining": 999999,
@@ -1460,15 +1429,12 @@ def test_promo_amount_cannot_be_influenced_by_the_request(client, monkeypatch):
     })
     assert resp.status_code == 201
     body = client.get("/api/v1/wallet/", headers=_auth(resp.json()["access_token"])).json()
-    assert body["credit_balance"] == 500
+    assert body["credit_balance"] == 40
 
 
-def test_user_cannot_extend_or_top_up_their_own_promo(client, db, monkeypatch):
-    """No request schema exposes the promo columns, so a profile update
-    naming them must be dropped rather than applied."""
+def test_user_cannot_modify_wallet_fields_through_profile(client, db):
     from app.models.wallet import UserWallet
 
-    _promo_open(monkeypatch, credits=500)
     _, token, user_id = _register(client)
     resp = client.patch("/api/v1/auth/me", headers=_auth(token), json={
         "full_name": "Legit Name", "promo_credits_remaining": 999999,
@@ -1477,16 +1443,16 @@ def test_user_cannot_extend_or_top_up_their_own_promo(client, db, monkeypatch):
     assert resp.status_code == 200
     wallet = db.query(UserWallet).filter(UserWallet.user_id == user_id).one()
     db.refresh(wallet)
-    assert wallet.credit_balance == 500
-    assert wallet.promo_credits_remaining == 500
+    assert wallet.credit_balance == 40
+    assert wallet.promo_credits_remaining == 0
 
 
-def test_unspent_promo_credits_are_removed_after_the_window(client, db, monkeypatch):
+def test_unspent_legacy_promo_credits_are_removed_after_the_window(client, db):
     from app.models.wallet import UserWallet
     from app.services.wallet.wallet_service import expire_promo_credits_if_due
 
-    _promo_open(monkeypatch, credits=500)
     _, _, user_id = _register(client)
+    _grant_legacy_promo(db, user_id)
     wallet = db.query(UserWallet).filter(UserWallet.user_id == user_id).one()
     wallet.promo_expires_at = datetime.now(timezone.utc) - timedelta(days=1)
     db.commit()
@@ -1498,13 +1464,13 @@ def test_unspent_promo_credits_are_removed_after_the_window(client, db, monkeypa
     assert wallet.promo_expires_at is None
 
 
-def test_expiry_never_takes_purchased_credits(client, db, monkeypatch):
+def test_expiry_never_takes_purchased_credits(client, db):
     """A user who bought credits must keep them when the promo lapses."""
     from app.models.wallet import UserWallet
     from app.services.wallet.wallet_service import add_credits, expire_promo_credits_if_due
 
-    _promo_open(monkeypatch, credits=500)
     _, _, user_id = _register(client)
+    _grant_legacy_promo(db, user_id)
     add_credits(user_id, 200, db, description="purchased")
 
     wallet = db.query(UserWallet).filter(UserWallet.user_id == user_id).one()
@@ -1517,12 +1483,12 @@ def test_expiry_never_takes_purchased_credits(client, db, monkeypatch):
     assert wallet.credit_balance == 200, "expiry ate credits the user paid for"
 
 
-def test_spending_draws_down_promo_credits_first(client, db, monkeypatch):
+def test_spending_draws_down_legacy_promo_credits_first(client, db):
     from app.models.wallet import UserWallet
     from app.services.wallet.wallet_service import add_credits, deduct_credits
 
-    _promo_open(monkeypatch, credits=500)
     _, _, user_id = _register(client)
+    _grant_legacy_promo(db, user_id)
     verify_user(db, user_id)   # deduct_credits refuses unverified accounts
     add_credits(user_id, 200, db, description="purchased")
 
@@ -1533,15 +1499,15 @@ def test_spending_draws_down_promo_credits_first(client, db, monkeypatch):
     assert wallet.promo_credits_remaining == 498, "spend should hit promo credits first"
 
 
-def test_expired_promo_credits_are_not_spendable(client, db, monkeypatch):
+def test_expired_promo_credits_are_not_spendable(client, db):
     """The balance must not merely display as zero — an AI action after
     expiry has to be refused."""
     from fastapi import HTTPException
     from app.models.wallet import UserWallet
     from app.services.wallet.wallet_service import deduct_credits
 
-    _promo_open(monkeypatch, credits=500)
     _, _, user_id = _register(client)
+    _grant_legacy_promo(db, user_id)
     verify_user(db, user_id)   # deduct_credits refuses unverified accounts
     wallet = db.query(UserWallet).filter(UserWallet.user_id == user_id).one()
     wallet.promo_expires_at = datetime.now(timezone.utc) - timedelta(days=1)
@@ -1552,22 +1518,19 @@ def test_expired_promo_credits_are_not_spendable(client, db, monkeypatch):
     assert exc.value.status_code == 402
 
 
-def test_promo_does_not_unlock_paid_exams(client, monkeypatch, seeded_exam):
-    """Credits and the certification fee are separate paywalls. A promo
-    that quietly granted exam access would give away the paid product."""
-    _promo_open(monkeypatch, credits=500)
+def test_free_credits_do_not_unlock_paid_exams(client, seeded_exam):
     _, token, _ = _register(client)
     resp = client.post(f"/api/v1/exams/{seeded_exam.id}/start", headers=_auth(token))
     assert resp.status_code == 402
 
 
-def test_promo_expiry_is_recorded_in_the_ledger(client, db, monkeypatch):
+def test_promo_expiry_is_recorded_in_the_ledger(client, db):
     """Balance must never change without a matching transaction row."""
     from app.models.wallet import UserWallet, WalletTransaction
     from app.services.wallet.wallet_service import expire_promo_credits_if_due
 
-    _promo_open(monkeypatch, credits=500)
     _, _, user_id = _register(client)
+    _grant_legacy_promo(db, user_id)
     wallet = db.query(UserWallet).filter(UserWallet.user_id == user_id).one()
     wallet.promo_expires_at = datetime.now(timezone.utc) - timedelta(days=1)
     db.commit()

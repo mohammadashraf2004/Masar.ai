@@ -1,0 +1,32 @@
+{
+  "course_id": "COURSE-017",
+  "source_id": "BOOK-017",
+  "level": "Beginner",
+  "course_title": "Data Analysis with SQL",
+  "status": "Manifest written with the lesson files in this folder (2026-10-07); counts and inventory describe what the loaders read",
+  "consolidated_file_modules": true,
+  "consolidated_module_ar_descriptions": true,
+  "modules": 8,
+  "lessons": 8,
+  "professional_capability": "Query, prepare, and analyze data in SQL: profiling and cleaning, time series, cohorts, text, anomalies, experiments, and production-ready analytical datasets.",
+  "prerequisites": {
+    "required": []
+  },
+  "track_roles": {
+    "Data Analyst": "Core",
+    "ML Engineer": "Not applicable",
+    "AI Developer": "Not applicable",
+    "MLOps Engineer": "Not applicable",
+    "AI Engineer": "Supporting"
+  },
+  "module_inventory": [
+    {"id": "M017-01", "title": "Analysis with SQL", "lessons": 1, "lesson_ids": ["M01.L01"], "source_chapter": 1},
+    {"id": "M017-02", "title": "Preparing Data for Analysis", "lessons": 1, "lesson_ids": ["M01.L02"], "source_chapter": 2},
+    {"id": "M017-03", "title": "Time Series Analysis", "lessons": 1, "lesson_ids": ["M01.L03"], "source_chapter": 3},
+    {"id": "M017-04", "title": "Cohort Analysis", "lessons": 1, "lesson_ids": ["M01.L04"], "source_chapter": 4},
+    {"id": "M017-05", "title": "Text Analysis", "lessons": 1, "lesson_ids": ["M01.L05"], "source_chapter": 5},
+    {"id": "M017-06", "title": "Anomaly Detection", "lessons": 1, "lesson_ids": ["M01.L06"], "source_chapter": 6},
+    {"id": "M017-07", "title": "Experiment Analysis", "lessons": 1, "lesson_ids": ["M01.L07"], "source_chapter": 7},
+    {"id": "M017-08", "title": "Building Production-Ready Analytical Datasets & Applied SQL Patterns", "lessons": 1, "lesson_ids": ["M01.L08"], "source_chapter": "8-9"}
+  ]
+}

@@ -11,7 +11,8 @@
   "difficulty": "Intermediate-Advanced → Production",
   "course_title": "Voice AI Engineering: Real-Time Voice Agents",
   "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
-  "modules": 1,
+  "consolidated_file_modules": true,
+  "modules": 13,
   "lessons": 13,
   "guided_minutes": 4440,
   "professional_capability": "Design, build, and operate real-time, multilingual voice AI agents with turn detection, barge-in, and production-grade reliability.",
@@ -37,23 +38,81 @@
   "module_inventory": [
     {
       "id": "M015-01",
-      "title": "Agent Foundations & Multimodal Intelligence",
-      "lessons": 13,
-      "lesson_ids": [
-        "M01.L01",
-        "M01.L02",
-        "M01.L03",
-        "M01.L04",
-        "M01.L05",
-        "M01.L06",
-        "M01.L07",
-        "M01.L08",
-        "M01.L09",
-        "M01.L10",
-        "M01.L11",
-        "M01.L12",
-        "M01.L13"
-      ]
+      "title": "Intelligent Agents and Multimodal AI",
+      "lessons": 1,
+      "lesson_ids": ["M01.L01"]
+    },
+    {
+      "id": "M015-02",
+      "title": "Architecting Real-Time AI Interaction",
+      "lessons": 1,
+      "lesson_ids": ["M01.L02"]
+    },
+    {
+      "id": "M015-03",
+      "title": "Advanced Live Interactions: Vision, Tools, and Deployment",
+      "lessons": 1,
+      "lesson_ids": ["M01.L03"]
+    },
+    {
+      "id": "M015-04",
+      "title": "Core Components of an Agent Framework",
+      "lessons": 1,
+      "lesson_ids": ["M01.L04"]
+    },
+    {
+      "id": "M015-05",
+      "title": "Designing and Building Agents with ADK",
+      "lessons": 1,
+      "lesson_ids": ["M01.L05"]
+    },
+    {
+      "id": "M015-06",
+      "title": "Multi-Agent Systems, A2A Interoperability, and Implementation",
+      "lessons": 1,
+      "lesson_ids": ["M01.L06"]
+    },
+    {
+      "id": "M015-07",
+      "title": "Model Context Protocol: Architecture and Implementation",
+      "lessons": 1,
+      "lesson_ids": ["M01.L07"]
+    },
+    {
+      "id": "M015-08",
+      "title": "Integrated Live Agent Systems and Long-Running Workflows",
+      "lessons": 1,
+      "lesson_ids": ["M01.L08"]
+    },
+    {
+      "id": "M015-09",
+      "title": "Live Multi-Agent UX and AgentOps Productionization",
+      "lessons": 1,
+      "lesson_ids": ["M01.L09"]
+    },
+    {
+      "id": "M015-10",
+      "title": "Evaluating Live Agents and Managing Tools at Scale",
+      "lessons": 1,
+      "lesson_ids": ["M01.L10"]
+    },
+    {
+      "id": "M015-11",
+      "title": "Sharing and Governing Agents as Services and Reusable Components",
+      "lessons": 1,
+      "lesson_ids": ["M01.L11"]
+    },
+    {
+      "id": "M015-12",
+      "title": "Security, Privacy, Responsible AI, and Identity for Agent Systems",
+      "lessons": 1,
+      "lesson_ids": ["M01.L12"]
+    },
+    {
+      "id": "M015-13",
+      "title": "Deployment, Scaling, and the AgentOps Infinity Loop",
+      "lessons": 1,
+      "lesson_ids": ["M01.L13"]
     }
   ]
 }

@@ -20,6 +20,7 @@ from typing import Optional
 
 TERMS_VERSION = "2026-09-01"
 PRIVACY_VERSION = "2026-09-01"
+REFUND_POLICY_VERSION = "2026-10-07"
 
 
 def acceptance_is_current(

@@ -61,6 +61,16 @@
       "alt_ar": "ثلاثة مستويات لتحسين الـ Inference (النموذج والعتاد والخدمة)، لكل منها تقنيات نموذجية، تجتمع في نظام Inference فعّال بزمن استجابة أقل وتكلفة أقل وإنتاجية أعلى وجودة محافظ عليها.",
       "caption": "Inference efficiency is a systems problem: the biggest gains come from combining optimizations at all three levels.",
       "caption_ar": "كفاءة الـ Inference مشكلة أنظمة: تأتي أكبر المكاسب من الجمع بين التحسينات في المستويات الثلاثة."
+    },
+    {
+      "key": "evaluation-around-failure-modes",
+      "type": "image",
+      "file": "assets/evaluation-around-failure-modes.png",
+      "lesson": "M03.L01",
+      "alt": "An AI application in the center surrounded by six failure modes, each with its evaluation methods: factual errors (hallucinations), unsafe outputs, poor retrieval in RAG systems, tool failure, latency and reliability, and user dissatisfaction.",
+      "alt_ar": "تطبيق ذكاء اصطناعي في المركز تحيط به ست حالات إخفاق، لكل منها طرق تقييمها: الأخطاء الواقعية (Hallucinations)، والمخرجات غير الآمنة، وضعف الاسترجاع في أنظمة RAG، وإخفاق الأدوات، وزمن الاستجابة والموثوقية، وعدم رضا المستخدم.",
+      "caption": "Design evaluation from the concrete ways the system can fail, and pick methods for each failure mode instead of relying on one generic score.",
+      "caption_ar": "صمّم التقييم انطلاقًا من الطرق الملموسة التي قد يفشل بها النظام، واختر طريقة لكل حالة إخفاق بدل الاعتماد على score عام واحد."
     }
   ]
 }

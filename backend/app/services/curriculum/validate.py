@@ -25,6 +25,51 @@ from typing import Iterable, List, Mapping, Sequence
 from app.services.content.lesson_blocks import empty_anchors, exercise_ids, malformed_exercise_markers
 from app.services.curriculum import images
 from app.services.curriculum.spec import CourseSpec, CurriculumError
+from app.services.code_grading import SUPPORTED_TEST_TYPES
+from app.services.code_grading.authoring import count_python_blanks
+from app.services.code_grading.custom import CUSTOM_TESTS
+
+
+_TEST_REQUIRED_FIELDS = {
+    "variable_exists": ("variable",), "variable_not_exists": ("variable",),
+    "value_equals": ("variable", "expected"), "value_approx": ("variable", "expected"),
+    "type_equals": ("variable", "expected"), "function_called": ("function",),
+    "function_not_called": ("function",), "function_argument": ("function", "argument_index", "expected"),
+    "function_call_count": ("function",), "expression_uses": ("expression",),
+    "operator_used": ("operator",), "stdout_equals": ("expected",), "stdout_contains": ("expected",),
+    "list_length": ("variable", "expected"), "dict_contains_key": ("variable", "key"),
+    "dataframe_exists": ("variable",), "dataframe_columns": ("variable", "expected"),
+    "dataframe_shape": ("variable", "expected"),
+    "dataframe_column_values": ("variable", "column", "expected"),
+    "return_value_equals": ("function", "expected"), "function_exists": ("function",),
+    "custom": ("checker",),
+    "code_changed": ("starter_fingerprint",),
+    "placeholders_removed": ("max_pass",),
+    "ast_requirements": ("requirements",),
+    "ast_contains": ("expected_ast", "path"),
+    "text_changed": ("starter_fingerprint",),
+    "regex_all": ("patterns",),
+    "regex_none": ("patterns",),
+    "regex_ordered": ("patterns",),
+    "sql_blank": ("blank", "accepted"),
+    "sql_result": ("setup_sql", "expected_rows"),
+}
+
+
+def _test_definition_problems(where: str, test: Mapping[str, object]) -> List[str]:
+    test_id = str(test.get("id") or "<missing>")
+    kind = str(test.get("type") or "")
+    out: List[str] = []
+    if kind not in SUPPORTED_TEST_TYPES:
+        return [f"{where} {test_id}: unknown test type {kind!r}"]
+    missing = [field for field in _TEST_REQUIRED_FIELDS[kind] if field not in test]
+    if missing:
+        out.append(f"{where} {test_id}: missing required fields: {', '.join(missing)}")
+    if not test.get("feedback"):
+        out.append(f"{where} {test_id}: missing feedback")
+    if kind == "custom" and str(test.get("checker") or "") not in CUSTOM_TESTS:
+        out.append(f"{where} {test_id}: unknown custom checker {test.get('checker')!r}")
+    return out
 
 
 def _dupes(values: Iterable[str]) -> List[str]:
@@ -100,6 +145,51 @@ def problems_in_course(course: CourseSpec) -> List[str]:
                     out.append(f"{where}: exercise has no stable id")
                 if (exercise.course_id, exercise.module_id, exercise.lesson_id) != (cid, module.module_id, lesson.lesson_id):
                     out.append(f"{where}: exercise {exercise.exercise_id or exercise.title!r} has invalid ownership")
+                if exercise.exercise_type == "code":
+                    exercise_where = f"{where} {exercise.exercise_id or exercise.title!r}"
+                    if not exercise.starter_code:
+                        out.append(f"{exercise_where}: code exercise has no starter_code")
+                    if not exercise.language:
+                        out.append(f"{exercise_where}: code exercise has no language")
+                    if exercise.language and exercise.language not in {"python", "sql", "bash", "dockerfile", "hcl", "ini", "sparql", "yaml"}:
+                        out.append(f"{exercise_where}: unsupported code language {exercise.language!r}")
+                    if exercise.language == "python" and exercise.starter_code:
+                        blank_count = count_python_blanks(exercise.starter_code)
+                        if not 1 <= blank_count <= 5:
+                            out.append(
+                                f"{exercise_where}: starter_code must contain 1-5 editable ___ blanks "
+                                f"(found {blank_count})"
+                            )
+                    if exercise.language == "sql" and exercise.starter_code:
+                        blank_count = exercise.starter_code.count("___")
+                        if not 1 <= blank_count <= 5:
+                            out.append(
+                                f"{exercise_where}: starter_code must contain 1-5 editable ___ blanks "
+                                f"(found {blank_count})"
+                            )
+                    if not exercise.tests:
+                        out.append(f"{exercise_where}: code exercise has no deterministic tests")
+                    elif not any(test.get("required", True) for test in exercise.tests):
+                        out.append(f"{exercise_where}: code exercise has no required deterministic tests")
+                    test_ids = [str(test.get("id") or "") for test in exercise.tests]
+                    if any(not test_id for test_id in test_ids):
+                        out.append(f"{exercise_where}: every test needs an id")
+                    if dupes := _dupes(test_ids):
+                        out.append(f"{exercise_where}: duplicate test ids: {', '.join(dupes)}")
+                    for test in exercise.tests:
+                        out += _test_definition_problems(exercise_where, test)
+                    if exercise.tests and not exercise.solution_code:
+                        out.append(f"{exercise_where}: tested code exercise has no solution_code")
+                elif exercise.exercise_type == "code_pending":
+                    exercise_where = f"{where} {exercise.exercise_id or exercise.title!r}"
+                    if not exercise.starter_code:
+                        out.append(f"{exercise_where}: pending code exercise has no starter_code")
+                    if not exercise.language:
+                        out.append(f"{exercise_where}: pending code exercise has no language")
+                    if exercise.tests or exercise.solution_code:
+                        out.append(f"{exercise_where}: partially migrated code must be completed as type 'code'")
+                elif exercise.exercise_type != "legacy":
+                    out.append(f"{where}: exercise has unknown type {exercise.exercise_type!r}")
         if module.quiz:
             if module.quiz.module_id != module.module_id:
                 out.append(f"{cid} {module.quiz.quiz_id}: quiz belongs to {module.quiz.module_id}, not {module.module_id}")
@@ -164,6 +254,59 @@ def validate_courses(courses: Sequence[CourseSpec]) -> None:
         problems += problems_in_course(course)
     if problems:
         raise CurriculumError(problems)
+
+
+def code_exercise_problems(courses: Sequence[CourseSpec]) -> List[str]:
+    """Focused report for deterministic exercise CI.
+
+    Kept independent from prose/translation validation so an unrelated
+    Arabic draft cannot hide whether official code solutions grade correctly.
+    """
+    problems: List[str] = []
+    exercises = [
+        exercise for course in courses for lesson in course.lessons for exercise in lesson.exercises
+        if exercise.exercise_type == "code"
+    ]
+    if dupes := _dupes(exercise.exercise_id for exercise in exercises):
+        problems.append(f"duplicate code exercise ids: {', '.join(dupes)}")
+    for exercise in exercises:
+        where = f"{exercise.course_id} {exercise.exercise_id or exercise.title!r}"
+        if not exercise.exercise_id:
+            problems.append(f"{where}: missing exercise id")
+        if not exercise.starter_code:
+            problems.append(f"{where}: missing starter_code")
+        if not exercise.language:
+            problems.append(f"{where}: missing language")
+        elif exercise.language not in {"python", "sql", "bash", "dockerfile", "hcl", "ini", "sparql", "yaml"}:
+            problems.append(f"{where}: unsupported language {exercise.language!r}")
+        elif exercise.language == "python" and exercise.starter_code:
+            blank_count = count_python_blanks(exercise.starter_code)
+            if not 1 <= blank_count <= 5:
+                problems.append(
+                    f"{where}: starter_code must contain 1-5 editable ___ blanks "
+                    f"(found {blank_count})"
+                )
+        if exercise.language == "sql" and exercise.starter_code:
+            blank_count = exercise.starter_code.count("___")
+            if not 1 <= blank_count <= 5:
+                problems.append(
+                    f"{where}: starter_code must contain 1-5 editable ___ blanks "
+                    f"(found {blank_count})"
+                )
+        if not exercise.tests:
+            problems.append(f"{where}: missing deterministic tests")
+        elif not any(test.get("required", True) for test in exercise.tests):
+            problems.append(f"{where}: no required deterministic tests")
+        if not exercise.solution_code:
+            problems.append(f"{where}: missing solution_code")
+        ids = [str(test.get("id") or "") for test in exercise.tests]
+        if any(not test_id for test_id in ids):
+            problems.append(f"{where}: every test needs an id")
+        if dupes := _dupes(ids):
+            problems.append(f"{where}: duplicate test ids: {', '.join(dupes)}")
+        for test in exercise.tests:
+            problems += _test_definition_problems(where, test)
+    return problems
 
 
 def validate_registry(

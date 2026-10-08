@@ -3339,6 +3339,105 @@ TOPIC = {
                 "Executable NumPy code plus the resulting arrays and a short explanation distinguishing "
                 "shape manipulation, indexing, and vectorized computation."
             ),
+            "type": "code",
+            "language": "python",
+            "starter_code": (
+                "import numpy as np\n\n"
+                "numbers = np.arange(1, 25)\n"
+                "# TODO: reshape numbers into six rows and four columns.\n"
+                "matrix = None\n\n"
+                "# TODO: select the second and fourth rows with fancy indexing.\n"
+                "selected_rows = None\n\n"
+                "# TODO: select values greater than 15.\n"
+                "values_gt_15 = None\n\n"
+                "# TODO: multiply every value by 10 without writing a loop.\n"
+                "scaled = None\n\n"
+                "# TODO: find the flat index of the maximum value.\n"
+                "max_index = None\n"
+            ),
+            "solution_code": (
+                "import numpy as np\n\n"
+                "numbers = np.arange(1, 25)\n"
+                "matrix = numbers.reshape(6, 4)\n"
+                "selected_rows = matrix[[1, 3]]\n"
+                "values_gt_15 = matrix[matrix > 15]\n"
+                "scaled = matrix * 10\n"
+                "max_index = int(np.argmax(matrix))\n"
+            ),
+            "hint": (
+                "Use reshape(6, 4), a list of zero-based row indices for fancy indexing, "
+                "a Boolean mask, vectorized multiplication, and np.argmax()."
+            ),
+            "success_message": (
+                "Correct! You reshaped, selected, filtered, scaled, and inspected the NumPy array."
+            ),
+            "tests": [
+                {
+                    "id": "matrix_shape_and_values",
+                    "type": "value_equals",
+                    "variable": "matrix",
+                    "expected": [
+                        [1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12],
+                        [13, 14, 15, 16], [17, 18, 19, 20], [21, 22, 23, 24],
+                    ],
+                    "feedback": {
+                        "en": "Reshape the integers 1 through 24 into a 6x4 array named `matrix`.",
+                        "ar": "أعد تشكيل الأعداد من 1 إلى 24 في مصفوفة 6x4 باسم `matrix`.",
+                    },
+                },
+                {
+                    "id": "selected_rows",
+                    "type": "value_equals",
+                    "variable": "selected_rows",
+                    "expected": [[5, 6, 7, 8], [13, 14, 15, 16]],
+                    "feedback": {
+                        "en": "Use fancy indexing to select the second and fourth rows.",
+                        "ar": "استخدم الفهرسة المتقدمة لاختيار الصفين الثاني والرابع.",
+                    },
+                },
+                {
+                    "id": "boolean_filter",
+                    "type": "value_equals",
+                    "variable": "values_gt_15",
+                    "expected": [16, 17, 18, 19, 20, 21, 22, 23, 24],
+                    "feedback": {
+                        "en": "Use a Boolean mask to keep only values greater than 15.",
+                        "ar": "استخدم قناعًا منطقيًا للاحتفاظ بالقيم الأكبر من 15 فقط.",
+                    },
+                },
+                {
+                    "id": "vectorized_scale",
+                    "type": "value_equals",
+                    "variable": "scaled",
+                    "expected": [
+                        [10, 20, 30, 40], [50, 60, 70, 80], [90, 100, 110, 120],
+                        [130, 140, 150, 160], [170, 180, 190, 200], [210, 220, 230, 240],
+                    ],
+                    "feedback": {
+                        "en": "Multiply the complete array by 10 with vectorized arithmetic.",
+                        "ar": "اضرب المصفوفة كاملة في 10 باستخدام العمليات المتجهة.",
+                    },
+                },
+                {
+                    "id": "argmax_value",
+                    "type": "value_equals",
+                    "variable": "max_index",
+                    "expected": 23,
+                    "feedback": {
+                        "en": "Store the flat index of the maximum value in `max_index`.",
+                        "ar": "خزّن الفهرس المسطح لأكبر قيمة في `max_index`.",
+                    },
+                },
+                {
+                    "id": "argmax_used",
+                    "type": "function_called",
+                    "function": "np.argmax",
+                    "feedback": {
+                        "en": "Use `np.argmax()` to find the maximum-value index.",
+                        "ar": "استخدم `np.argmax()` للعثور على فهرس أكبر قيمة.",
+                    },
+                },
+            ],
             "difficulty": DifficultyLevel.beginner,
             "skill_tested": [
                 "numpy-array-creation",
@@ -3374,6 +3473,166 @@ TOPIC = {
                 "A small reproducible Pandas workflow with intermediate outputs and written interpretation "
                 "of the filter, grouped summary, merge, missing-value decision, and pivot table."
             ),
+            "type": "code",
+            "language": "python",
+            "starter_code": (
+                "import pandas as pd\n\n"
+                "sales = pd.DataFrame({\n"
+                "    'Customer': ['Ada', 'Ben', 'Chen', 'Dina', 'Eli', 'Farah'],\n"
+                "    'Region': ['East', 'West', 'East', 'West', 'East', 'West'],\n"
+                "    'Amount': [120.0, 250.0, 180.0, 320.0, 210.0, 140.0],\n"
+                "    'Product': ['Phone', 'Laptop', 'Laptop', 'Phone', 'Phone', 'Laptop'],\n"
+                "    'Date': ['2026-01-03', '2026-01-08', '2026-02-10',\n"
+                "             '2026-02-14', '2026-03-02', '2026-03-09'],\n"
+                "})\n\n"
+                "# TODO: convert Date, then add month_name and day_name.\n\n"
+                "# TODO: keep sales whose Amount is greater than the overall mean.\n"
+                "above_average = None\n\n"
+                "# TODO: calculate mean Amount by Region.\n"
+                "region_mean = None\n\n"
+                "categories = pd.DataFrame({\n"
+                "    'Product': ['Phone', 'Laptop'],\n"
+                "    'Category': ['Mobile', 'Computer'],\n"
+                "})\n"
+                "# TODO: merge sales with categories on Product.\n"
+                "merged = None\n\n"
+                "messy_sales = sales.copy()\n"
+                "messy_sales.loc[4, 'Amount'] = None\n"
+                "# TODO: count missing Amount values and fill them with the median.\n"
+                "missing_amount_count = None\n"
+                "cleaned_sales = None\n\n"
+                "# TODO: total Amount by Region and Product; return a DataFrame.\n"
+                "pivot = None\n"
+            ),
+            "solution_code": (
+                "import pandas as pd\n\n"
+                "sales = pd.DataFrame({\n"
+                "    'Customer': ['Ada', 'Ben', 'Chen', 'Dina', 'Eli', 'Farah'],\n"
+                "    'Region': ['East', 'West', 'East', 'West', 'East', 'West'],\n"
+                "    'Amount': [120.0, 250.0, 180.0, 320.0, 210.0, 140.0],\n"
+                "    'Product': ['Phone', 'Laptop', 'Laptop', 'Phone', 'Phone', 'Laptop'],\n"
+                "    'Date': ['2026-01-03', '2026-01-08', '2026-02-10',\n"
+                "             '2026-02-14', '2026-03-02', '2026-03-09'],\n"
+                "})\n\n"
+                "sales['Date'] = pd.to_datetime(sales['Date'])\n"
+                "sales['month_name'] = sales['Date'].dt.month_name()\n"
+                "sales['day_name'] = sales['Date'].dt.day_name()\n"
+                "above_average = sales[sales['Amount'] > sales['Amount'].mean()]\n"
+                "region_mean = sales.groupby('Region')['Amount'].mean().to_dict()\n\n"
+                "categories = pd.DataFrame({\n"
+                "    'Product': ['Phone', 'Laptop'],\n"
+                "    'Category': ['Mobile', 'Computer'],\n"
+                "})\n"
+                "merged = sales.merge(categories, on='Product', how='left')\n\n"
+                "messy_sales = sales.copy()\n"
+                "messy_sales.loc[4, 'Amount'] = None\n"
+                "missing_amount_count = int(messy_sales['Amount'].isna().sum())\n"
+                "cleaned_sales = messy_sales.copy()\n"
+                "cleaned_sales['Amount'] = cleaned_sales['Amount'].fillna(\n"
+                "    cleaned_sales['Amount'].median()\n"
+                ")\n"
+                "pivot = (cleaned_sales.pivot_table(\n"
+                "    index='Region', columns='Product', values='Amount',\n"
+                "    aggfunc='sum', fill_value=0,\n"
+                ").reset_index())\n"
+                "pivot.columns.name = None\n"
+            ),
+            "hint": (
+                "Use pd.to_datetime(), the .dt accessor, Boolean filtering, groupby(), merge(), "
+                "fillna() with median(), and pivot_table()."
+            ),
+            "success_message": (
+                "Correct! Your Pandas workflow transforms dates, filters, groups, merges, cleans, and pivots the data."
+            ),
+            "tests": [
+                {
+                    "id": "sales_columns",
+                    "type": "dataframe_columns",
+                    "variable": "sales",
+                    "expected": [
+                        "Customer", "Region", "Amount", "Product", "Date",
+                        "month_name", "day_name",
+                    ],
+                    "feedback": {
+                        "en": "Convert `Date` and add `month_name` and `day_name` to `sales`.",
+                        "ar": "حوّل `Date` وأضف `month_name` و`day_name` إلى `sales`.",
+                    },
+                },
+                {
+                    "id": "above_average_rows",
+                    "type": "dataframe_shape",
+                    "variable": "above_average",
+                    "expected": [3, 7],
+                    "feedback": {
+                        "en": "Filter rows whose Amount is greater than the overall mean.",
+                        "ar": "رشّح الصفوف التي تكون فيها Amount أكبر من المتوسط العام.",
+                    },
+                },
+                {
+                    "id": "region_means",
+                    "type": "value_equals",
+                    "variable": "region_mean",
+                    "expected": {"East": 170.0, "West": 236.66666666666666},
+                    "feedback": {
+                        "en": "Group by `Region` and calculate the mean `Amount` for each group.",
+                        "ar": "جمّع حسب `Region` واحسب متوسط `Amount` لكل مجموعة.",
+                    },
+                },
+                {
+                    "id": "merged_category",
+                    "type": "dataframe_columns",
+                    "variable": "merged",
+                    "expected": [
+                        "Customer", "Region", "Amount", "Product", "Date",
+                        "month_name", "day_name", "Category",
+                    ],
+                    "feedback": {
+                        "en": "Merge `sales` and `categories` on the `Product` column.",
+                        "ar": "ادمج `sales` و`categories` باستخدام عمود `Product`.",
+                    },
+                },
+                {
+                    "id": "one_missing_amount",
+                    "type": "value_equals",
+                    "variable": "missing_amount_count",
+                    "expected": 1,
+                    "feedback": {
+                        "en": "Count the missing values in the `Amount` column.",
+                        "ar": "احسب القيم المفقودة في عمود `Amount`.",
+                    },
+                },
+                {
+                    "id": "cleaned_amounts",
+                    "type": "dataframe_column_values",
+                    "variable": "cleaned_sales",
+                    "column": "Amount",
+                    "expected": [120.0, 250.0, 180.0, 320.0, 180.0, 140.0],
+                    "feedback": {
+                        "en": "Fill the missing Amount with the median of the available amounts.",
+                        "ar": "املأ قيمة Amount المفقودة بوسيط القيم المتاحة.",
+                    },
+                },
+                {
+                    "id": "pivot_columns",
+                    "type": "dataframe_columns",
+                    "variable": "pivot",
+                    "expected": ["Region", "Laptop", "Phone"],
+                    "feedback": {
+                        "en": "Build a pivot table of total Amount by Region and Product, then reset its index.",
+                        "ar": "أنشئ جدولًا محوريًا لإجمالي Amount حسب Region وProduct ثم أعد ضبط الفهرس.",
+                    },
+                },
+                {
+                    "id": "pivot_shape",
+                    "type": "dataframe_shape",
+                    "variable": "pivot",
+                    "expected": [2, 3],
+                    "feedback": {
+                        "en": "The pivot should contain two regions and one column for each product.",
+                        "ar": "يجب أن يحتوي الجدول المحوري على منطقتين وعمود لكل منتج.",
+                    },
+                },
+            ],
             "difficulty": DifficultyLevel.beginner,
             "skill_tested": [
                 "dataframe",

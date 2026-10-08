@@ -25,7 +25,7 @@ def _sign(secret: str, obj: dict) -> str:
     return hmac_lib.new(secret.encode(), concatenated.encode(), hashlib.sha512).hexdigest()
 
 
-def _make_pending_topup(db, credits=100, egp=50.0):
+def _make_pending_topup(db, credits=100, egp=50.0, provider_order_id="1"):
     email = f"webhook-{uuid.uuid4().hex[:12]}@example.com"
     user = User(email=email, full_name="Webhook Test", hashed_password=get_password_hash("x"))
     db.add(user)
@@ -42,6 +42,7 @@ def _make_pending_topup(db, credits=100, egp=50.0):
         egp_amount=egp,
         payment_method=PaymentMethod.card,
         payment_ref=merchant_order_id,
+        provider_order_id=provider_order_id,
         description="test package",
         balance_after=wallet.credit_balance,
     )
@@ -58,7 +59,8 @@ def _webhook_obj(merchant_order_id: str, success: bool = True) -> dict:
         "currency": "EGP",
         "error_occured": False,
         "has_parent_transaction": False,
-        "id": 1,
+        # Unique per call: one Paymob transaction settles one row (migration 034).
+        "id": uuid.uuid4().int % 10**12,
         "integration_id": 1,
         "is_3d_secure": True,
         "is_auth": False,

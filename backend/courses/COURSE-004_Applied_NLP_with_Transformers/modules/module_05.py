@@ -13,8 +13,8 @@ from app.models.learning import DifficultyLevel
 # ---------------------------------------------------------------------------
 
 LESSON_CODE = "M01.L04"
-MODULE_ORDER = 1
-MODULE_TITLE = "Transformer Foundations"
+MODULE_ORDER = 5
+MODULE_TITLE = "Controlled Text Generation & Decoding"
 MODULE_DESCRIPTION = (
     "Understand how causal language models generate text token by token and how "
     "decoding strategies control coherence, repetition, diversity, and compute."

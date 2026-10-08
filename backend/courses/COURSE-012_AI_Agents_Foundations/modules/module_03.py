@@ -847,11 +847,8 @@ TOPIC = {
             "The server can later change its internal storage from a Python list to Redis, Postgres, "
             "or a remote API without requiring the agent to understand the implementation.\n"
             "\n"
-            "[[IMAGE_NEEDED: Internal tools versus MCP-separated tools | "
-            "Left: Agent and record_event/load_journal functions inside one process sharing direct "
-            "state. Right: Agent connects through MCP to a standalone Time Travel Tracker server "
-            "that privately owns the journal implementation | "
-            "Learner should notice that the interface remains visible while implementation details become isolated]]\n"
+            '{{image:agent-tool-patterns}}'
+            '\n'
             "\n"
             "{{exercise:M01.L03.EX02}}\n"
             "\n"

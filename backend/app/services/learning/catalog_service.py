@@ -36,7 +36,7 @@ from app.models.learning_path import (
 )
 from app.models.tool_course import CURRICULUM_CATEGORY, ToolTopic
 from app.services.learning.domain import (
-    Catalog, CourseInfo, FieldInfo, LevelInfo, RoleInfo, StageInfo, TemplateInfo,
+    Catalog, CourseInfo, CourseRoleWorkflow, FieldInfo, LevelInfo, RoleInfo, StageInfo, TemplateInfo,
     TemplateStageInfo,
 )
 
@@ -167,6 +167,16 @@ def load_catalog_bundle(db: Session) -> CatalogBundle:
             role_slugs=frozenset(role_slug[l.role_id] for l in c.role_links if l.role_id in role_slug),
             role_relations=tuple(sorted(
                 (role_slug[l.role_id], l.relation) for l in c.role_links if l.role_id in role_slug
+            )),
+            role_workflow=tuple(sorted(
+                (
+                    CourseRoleWorkflow(
+                        role_slug=role_slug[l.role_id], relation=l.relation,
+                        position=l.position, required=l.required, section=l.section,
+                    )
+                    for l in c.role_links if l.role_id in role_slug
+                ),
+                key=lambda w: w.role_slug,
             )),
             teaches=frozenset(skill_slug[l.skill_id] for l in c.skill_links
                               if l.relation == SKILL_TEACHES and l.skill_id in skill_slug),

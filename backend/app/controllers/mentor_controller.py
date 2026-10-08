@@ -1,5 +1,7 @@
 import logging
 
+from pydantic import ValidationError
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List
@@ -7,8 +9,9 @@ from datetime import datetime
 
 from app.db.session import get_db
 from app.models.user import User
-from app.models.learning import Topic
+from app.models.learning import Exercise, Lesson, Topic
 from app.models.progress import MentorSession, UserSkillScore
+from app.models.learning_path import CareerRole, LearningProfile
 from app.views.mentor import (
     MentorMessage, MentorResponse,
     MentorSessionResponse,
@@ -26,8 +29,12 @@ from app.services import (
     interview_service,
     roadmap_service,
 )
-from app.services.wallet.wallet_service import deduct_credits, refund_credits
-from app.services.billing.access_service import course_for_track_topic, require_course_access
+from app.services.wallet.wallet_service import CREDIT_COSTS as CREDIT_COST, deduct_credits, refund_credits
+from app.services.billing.access_service import course_for_track_topic, require_content_access, require_course_access
+from app.services.code_review.code_review_service import UnusableReview
+from app.services.interview.interview_service import UnusableQuestion
+from app.services.mentor import learner_state
+from app.services.mentor.observability import mentor_event
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +89,13 @@ def chat_with_mentor(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    with mentor_event("legacy_chat", current_user.id) as event:
+        response = _legacy_chat(payload, current_user, db)
+        event.set(credits_charged=CREDIT_COST["mentor_chat"], topic_id=payload.topic_id)
+        return response
+
+
+def _legacy_chat(payload: MentorMessage, current_user: User, db: Session) -> MentorResponse:
     # context_topic_id is a foreign key. Checked here, before anything is
     # charged: an id that does not exist used to fail at INSERT, after the
     # deduction and after the provider had already been paid to answer.
@@ -195,14 +209,48 @@ def review_code(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    deduct_credits(current_user.id, "code_review", db)
-    try:
-        result = code_review_service.review_code(
-            llm=get_llm(), code=payload.code, language=payload.language, context=payload.context,
-        )
-        return CodeReviewResponse(**result)
-    except Exception:
-        _fail_ai_call(current_user.id, "code_review", db)
+    with mentor_event("code_review", current_user.id) as event:
+        context = payload.context
+        code_language = payload.language
+        if payload.exercise_id is not None:
+            exercise = db.query(Exercise).filter(Exercise.id == payload.exercise_id).first()
+            if exercise is None:
+                raise HTTPException(status_code=404, detail="Exercise not found")
+            require_content_access(db, current_user.id, exercise)
+            context = _exercise_review_context(db, exercise, payload.ui_language)
+            code_language = exercise.language or code_language
+            event.set(exercise_id=exercise.id, lesson_id=exercise.lesson_id)
+        event.set(language=payload.ui_language, code_chars=len(payload.code))
+        deduct_credits(current_user.id, "code_review", db)
+        try:
+            result = code_review_service.review_code(
+                llm=get_llm(), code=payload.code, language=code_language, context=context,
+                ui_language=payload.ui_language or "en",
+            )
+            response = CodeReviewResponse(**result)
+            event.set(credits_charged=CREDIT_COST["code_review"])
+            return response
+        except Exception as exc:
+            event.fail("validation_failed" if isinstance(exc, (UnusableReview, ValidationError)) else "provider_error")
+            _fail_ai_call(current_user.id, "code_review", db)
+
+
+def _exercise_review_context(db: Session, exercise: Exercise, ui_language) -> str:
+    """What the reviewer needs to judge the code against: the lesson it belongs to, the task
+    and the starter code the learner was given - all from the course database. Never the
+    solution or the grading tests."""
+    arabic = ui_language == "ar"
+    title = exercise.title_ar if arabic and exercise.title_ar else exercise.title
+    description = exercise.description_ar if arabic and exercise.description_ar else exercise.description
+    lines = []
+    lesson = db.query(Lesson).filter(Lesson.id == exercise.lesson_id).first() if exercise.lesson_id else None
+    if lesson is not None:
+        lines.append(f"Lesson: {lesson.title_ar if arabic and lesson.title_ar else lesson.title}")
+    lines.append(f"Exercise: {title}")
+    lines.append(f"Task: {(description or '')[:1500]}")
+    if exercise.starter_code:
+        lines.append(f"Starter code the learner was given:\n{exercise.starter_code[:1500]}")
+    return "\n".join(lines)
 
 
 @router.post("/skill-gap", response_model=SkillGapResponse)
@@ -213,6 +261,11 @@ def analyze_skill_gap(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    with mentor_event("skill_gap", current_user.id) as event:
+        return _skill_gap(payload, current_user, db, event)
+
+
+def _skill_gap(payload: SkillGapRequest, current_user: User, db: Session, event) -> SkillGapResponse:
     deduct_credits(current_user.id, "skill_gap", db)
     try:
         result = skill_gap_service.analyze_skill_gap(
@@ -228,8 +281,10 @@ def analyze_skill_gap(
         response = SkillGapResponse(**result)
         current_user.overall_readiness_score = float(response.readiness_score)
         db.commit()
+        event.set(credits_charged=CREDIT_COST["skill_gap"])
         return response
     except Exception:
+        event.fail("provider_error")
         _fail_ai_call(current_user.id, "skill_gap", db)
 
 
@@ -241,24 +296,41 @@ def mock_interview(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    deduct_credits(current_user.id, "mock_interview", db)
-    try:
-        result = interview_service.generate_question(
-            llm=get_llm(), topic=payload.topic, difficulty=payload.difficulty, previous_qa=payload.previous_qa,
+    with mentor_event("mock_interview", current_user.id) as event:
+        language = payload.language or "en"
+        # What the learner has actually studied, from their own progress - the client cannot
+        # widen or narrow it. Read before the charge, so a failure here costs nothing.
+        studied = learner_state.studied_lessons(
+            learner_state.enrolled_courses(db, current_user.id, language), language,
         )
-        return MockInterviewResponse(**result)
-    except Exception:
-        _fail_ai_call(current_user.id, "mock_interview", db)
+        event.set(language=language, studied_lessons=len(studied), previous_questions=len(payload.previous_qa))
+        deduct_credits(current_user.id, "mock_interview", db)
+        try:
+            result = interview_service.generate_question(
+                llm=get_llm(), topic=payload.topic, difficulty=payload.difficulty, previous_qa=payload.previous_qa,
+                studied=studied, language=language,
+            )
+            response = MockInterviewResponse(**result)
+            event.set(credits_charged=CREDIT_COST["mock_interview"])
+            return response
+        except Exception as exc:
+            event.fail("validation_failed" if isinstance(exc, (UnusableQuestion, ValidationError)) else "provider_error")
+            _fail_ai_call(current_user.id, "mock_interview", db)
 
 
 @router.get("/roadmap")
 @limiter.limit("6/minute")
 def get_roadmap(
     request: Request,
-    track: str = Query("AI Engineer", max_length=120),
+    track: str | None = Query(None, max_length=120),
+    language: str = Query("en", pattern="^(ar|en)$"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    if not track:
+        profile = db.query(LearningProfile).filter(LearningProfile.user_id == current_user.id).first()
+        role = db.query(CareerRole).filter(CareerRole.id == profile.career_role_id).first() if profile and profile.career_role_id else None
+        track = (role.title_ar if language == "ar" and role and role.title_ar else role.title) if role else "AI Engineer"
     # Charged before the call, as every handler here does. What follows is
     # the other half of that bargain: the deduction commits immediately, so
     # if generation then fails the student has paid for nothing. Without the
@@ -294,6 +366,7 @@ def get_roadmap(
             llm=get_llm(), track=track,
             experience_level=current_user.experience_level,
             weak_skills=weak_skills,
+            language=language,
         )
     except Exception:
         # Only reached when generation itself failed. An insufficient-credits

@@ -120,11 +120,13 @@ def generate_roadmap(
     experience_level: str,
     weak_skills: List[str] = None,
     completed_topics: List[str] = None,
+    language: str = "en",
 ) -> List[dict]:
     weak_skills = weak_skills or []
     completed_topics = completed_topics or []
 
     message = (
+        ("Write every learner-facing field in Arabic while preserving English technical terms.\n" if language == "ar" else "Write every learner-facing field in English.\n") +
         f"Track: {track}\n"
         f"Experience level: {experience_level}\n"
         f"Weak areas: {', '.join(weak_skills) if weak_skills else 'none identified yet'}\n"

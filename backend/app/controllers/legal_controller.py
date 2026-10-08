@@ -31,7 +31,7 @@ class LegalSection(BaseModel):
 
 
 class LegalDocument(BaseModel):
-    kind: Literal["terms", "privacy"]
+    kind: Literal["terms", "privacy", "refund"]
     version: str
     language: Literal["en", "ar"]
     title: str

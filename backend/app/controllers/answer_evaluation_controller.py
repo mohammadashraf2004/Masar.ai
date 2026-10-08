@@ -89,10 +89,11 @@ def _run_turn(
     new_messages.append({"role": "assistant", "content": result["reply"], "timestamp": datetime.utcnow().isoformat()})
     submission.messages = new_messages
 
-    if result["is_correct"] is not None:
-        submission.is_correct = result["is_correct"]
-    if result["score"] is not None:
-        submission.score = result["score"]
+    # Every turn replaces the current verdict. Leaving these untouched when
+    # the evaluator asks a clarifying question reused an earlier 100/correct
+    # result for a later unresolved or malformed answer.
+    submission.is_correct = result["is_correct"]
+    submission.score = result["score"]
 
     if submission.is_correct:
         # The earned half of vocabulary progress: reading a lesson marks a
@@ -176,6 +177,14 @@ def answer_exercise(
     exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
     if not exercise:
         raise HTTPException(status_code=404, detail="Exercise not found")
+    # Code correctness belongs exclusively to the deterministic grader.  An
+    # unmigrated code exercise is reported as such instead of falling back to
+    # an LLM (and charging the learner for a non-authoritative verdict).
+    if exercise.exercise_type == "code" or exercise.starter_code:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "USE_DETERMINISTIC_CODE_GRADER", "grading_available": bool(exercise.grading_tests)},
+        )
     require_content_access(db, current_user.id, exercise)
 
     deduct_credits(current_user.id, CHARGE_ACTION, db)

@@ -255,12 +255,11 @@ def test_a_course_without_figures_is_unaffected(learn_client, learn_db, learn_ca
 
 
 def test_a_locked_lesson_has_neither_text_nor_figure_urls(learn_client, learn_db, figure_course):
-    from app.models.learning_path import Course
     who = register(learn_client)
-    course = learn_db.query(Course).filter(Course.slug == "course-001").one()
-    course.is_free = False
-    learn_db.commit()
-    lesson = _course_json(learn_client, who)["topics"][0]["lessons"][0]
+    # The fixture course has 4 lessons (2 modules of 2); the first two, in
+    # order, are the Free plan's preview and stay open, so the third lesson
+    # (module 2's first) is the one that is actually locked.
+    lesson = _course_json(learn_client, who)["topics"][1]["lessons"][0]
     assert lesson["is_locked"] is True and lesson["content"] == "" and not lesson["blocks"]
     assert "/assets/" not in json.dumps(lesson)
 

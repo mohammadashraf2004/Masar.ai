@@ -51,25 +51,25 @@ WRITES = [
 
 
 @pytest.mark.parametrize("kind,slug,body", WRITES)
-def test_admin_writes_reject_anonymous_callers(learn_client, learn_catalog, kind, slug, body):
+def test_admin_writes_reject_anonymous_callers(learn_client, legacy_catalog, kind, slug, body):
     assert learn_client.put(f"{ADMIN}/{kind}/{slug}", json=body).status_code == 401
 
 
 @pytest.mark.parametrize("kind,slug,body", WRITES)
-def test_admin_writes_reject_students_and_change_nothing(learn_client, learn_catalog, learn_db, kind, slug, body):
+def test_admin_writes_reject_students_and_change_nothing(learn_client, legacy_catalog, learn_db, kind, slug, body):
     student = register(learn_client)
     assert _put(learn_client, student, kind, slug, body).status_code == 403
     assert learn_db.query(Course).filter(Course.slug == slug).count() == 0
 
 
 @pytest.mark.parametrize("path", ["catalog", "health"])
-def test_admin_reads_reject_anonymous_and_students(learn_client, learn_catalog, path):
+def test_admin_reads_reject_anonymous_and_students(learn_client, legacy_catalog, path):
     assert learn_client.get(f"{ADMIN}/{path}").status_code == 401
     student = register(learn_client)
     assert learn_client.get(f"{ADMIN}/{path}", headers=student["headers"]).status_code == 403
 
 
-def test_a_role_change_is_read_from_the_database_not_a_token(learn_client, learn_catalog, learn_db):
+def test_a_role_change_is_read_from_the_database_not_a_token(learn_client, legacy_catalog, learn_db):
     """Demoting an admin takes effect immediately, not when their token expires."""
     who = register(learn_client)
     make_admin(learn_db, who["id"])
@@ -101,7 +101,7 @@ def _uncatalogued_tool_course(db, slug="ros-basics"):
     db.commit()
 
 
-def test_a_new_field_needs_no_code_change(learn_client, learn_catalog, admin_user, learn_db):
+def test_a_new_field_needs_no_code_change(learn_client, legacy_catalog, admin_user, learn_db):
     """Add "Robotics" - a field, a course for it, a stage and a template entry -
     through the admin API alone, and a learner's path grows a Robotics stage."""
     _uncatalogued_tool_course(learn_db)
@@ -143,7 +143,7 @@ def test_a_new_field_needs_no_code_change(learn_client, learn_catalog, admin_use
 
 # ─── Upserts ────────────────────────────────────────────────────────────────
 
-def test_an_upsert_is_idempotent(learn_client, learn_catalog, admin_user, learn_db):
+def test_an_upsert_is_idempotent(learn_client, legacy_catalog, admin_user, learn_db):
     body = {"name": "Quantum ML", "name_ar": "تعلّم الآلة الكمّي", "min_level": "advanced",
             "prerequisites": ["machine-learning"], "position": 9}
     first = _put(learn_client, admin_user, "fields", "quantum-ml", body).json()
@@ -153,7 +153,7 @@ def test_an_upsert_is_idempotent(learn_client, learn_catalog, admin_user, learn_
     assert first["min_level"] == "advanced" and first["prerequisites"] == ["machine-learning"]
 
 
-def test_an_upsert_replaces_the_relationship_lists(learn_client, learn_catalog, admin_user):
+def test_an_upsert_replaces_the_relationship_lists(learn_client, legacy_catalog, admin_user):
     _put(learn_client, admin_user, "career-goals", "ai-developer", {
         "title": "AI Developer", "required_fields": ["nlp"], "recommended_fields": ["multimodal"],
         "required_skills": ["llms", "rag"],
@@ -165,7 +165,7 @@ def test_an_upsert_replaces_the_relationship_lists(learn_client, learn_catalog, 
     assert out["required_skills"] == ["llms"]
 
 
-def test_levels_can_be_configured_and_ranks_cannot_collide(learn_client, learn_catalog, admin_user):
+def test_levels_can_be_configured_and_ranks_cannot_collide(learn_client, legacy_catalog, admin_user):
     ok = _put(learn_client, admin_user, "levels", "expert", {"name": "Expert", "name_ar": "خبير", "rank": 4})
     assert ok.status_code == 200 and ok.json()["rank"] == 4
     assert [l["slug"] for l in learn_client.get(f"{API}/levels").json()][-1] == "expert"
@@ -173,7 +173,7 @@ def test_levels_can_be_configured_and_ranks_cannot_collide(learn_client, learn_c
     assert clash.status_code == 422 and clash.json()["detail"]["error"] == "rank_taken"
 
 
-def test_a_course_can_be_tagged_and_retagged_without_being_duplicated(learn_client, learn_catalog, admin_user, learn_db):
+def test_a_course_can_be_tagged_and_retagged_without_being_duplicated(learn_client, legacy_catalog, admin_user, learn_db):
     body = _course_body("langchain", level="advanced", fields=["nlp", "multimodal"],
                         roles=["ai-engineer"], teaches=["llms", "langchain"], assumes=["rag"],
                         title="LangChain in Depth", title_ar="LangChain بعمق")
@@ -185,7 +185,7 @@ def test_a_course_can_be_tagged_and_retagged_without_being_duplicated(learn_clie
     assert public["title_ar"] == "LangChain بعمق" and [f["slug"] for f in public["fields"]] == ["nlp", "multimodal"]
 
 
-def test_stage_and_template_order_is_the_order_sent(learn_client, learn_catalog, admin_user):
+def test_stage_and_template_order_is_the_order_sent(learn_client, legacy_catalog, admin_user):
     stage = _put(learn_client, admin_user, "stages", "custom", {
         "title": "Custom", "courses": ["prompt-engineering", "langchain", "llm-integration"],
     }).json()
@@ -216,13 +216,13 @@ def test_stage_and_template_order_is_the_order_sent(learn_client, learn_catalog,
     ("templates", "t2", {"title": "T", "stages": [{"stage": "foundations"}, {"stage": "foundations"}]}, "duplicate_stage"),
     ("templates", "t3", {"title": "T", "career_goal": "ai-engineer", "stages": []}, "template_exists"),
 ])
-def test_invalid_configuration_is_refused_with_a_code(learn_client, learn_catalog, admin_user, kind, slug, body, error):
+def test_invalid_configuration_is_refused_with_a_code(learn_client, legacy_catalog, admin_user, kind, slug, body, error):
     resp = _put(learn_client, admin_user, kind, slug, body)
     assert resp.status_code == 422, resp.text
     assert resp.json()["detail"]["error"] == error
 
 
-def test_a_refused_write_leaves_nothing_behind(learn_client, learn_catalog, admin_user, learn_db):
+def test_a_refused_write_leaves_nothing_behind(learn_client, legacy_catalog, admin_user, learn_db):
     resp = _put(learn_client, admin_user, "career-goals", "half-made", {
         "title": "Half made", "required_fields": ["nlp"], "required_skills": ["nope"],
     })
@@ -230,7 +230,7 @@ def test_a_refused_write_leaves_nothing_behind(learn_client, learn_catalog, admi
     assert learn_db.query(CareerRole).filter(CareerRole.slug == "half-made").count() == 0
 
 
-def test_malformed_slugs_and_oversized_lists_are_bounded(learn_client, learn_catalog, admin_user):
+def test_malformed_slugs_and_oversized_lists_are_bounded(learn_client, legacy_catalog, admin_user):
     assert _put(learn_client, admin_user, "fields", "Bad Slug!", {"name": "X"}).status_code == 422
     assert _put(learn_client, admin_user, "stages", "big", {"title": "X", "courses": ["a"] * 201}).status_code == 422
     assert _put(learn_client, admin_user, "levels", "x", {"name": "X", "rank": 101}).status_code == 422
@@ -238,7 +238,7 @@ def test_malformed_slugs_and_oversized_lists_are_bounded(learn_client, learn_cat
 
 # ─── Prerequisite graphs ────────────────────────────────────────────────────
 
-def test_a_course_prerequisite_cycle_is_refused_and_rolled_back(learn_client, learn_catalog, admin_user, learn_db):
+def test_a_course_prerequisite_cycle_is_refused_and_rolled_back(learn_client, legacy_catalog, admin_user, learn_db):
     a = _course_body("langchain", prerequisites=["llamaindex"])
     b = _course_body("llamaindex", prerequisites=["langchain"])
     assert _put(learn_client, admin_user, "courses", "langchain", a).status_code == 200
@@ -249,12 +249,12 @@ def test_a_course_prerequisite_cycle_is_refused_and_rolled_back(learn_client, le
     assert learn_db.query(CoursePrerequisite).filter(CoursePrerequisite.course_id == llama.id).count() == 0
 
 
-def test_a_field_prerequisite_cycle_is_refused(learn_client, learn_catalog, admin_user):
+def test_a_field_prerequisite_cycle_is_refused(learn_client, legacy_catalog, admin_user):
     resp = _put(learn_client, admin_user, "fields", "nlp", {"name": "NLP & LLMs", "prerequisites": ["multimodal"]})
     assert resp.status_code == 422 and resp.json()["detail"]["error"] == "field_prerequisite_cycle"
 
 
-def test_the_multimodal_rule_can_be_tightened_through_the_api(learn_client, learn_catalog, admin_user):
+def test_the_multimodal_rule_can_be_tightened_through_the_api(learn_client, legacy_catalog, admin_user):
     fields = {f["slug"]: f for f in learn_client.get(f"{API}/fields").json()}
     mm = fields["multimodal"]
     assert _put(learn_client, admin_user, "fields", "multimodal", {
@@ -271,7 +271,7 @@ def test_the_multimodal_rule_can_be_tightened_through_the_api(learn_client, lear
 
 # ─── Retiring things ────────────────────────────────────────────────────────
 
-def test_deactivating_a_course_removes_it_from_new_paths_but_a_saved_path_keeps_working(learn_client, learn_catalog, admin_user):
+def test_deactivating_a_course_removes_it_from_new_paths_but_a_saved_path_keeps_working(learn_client, legacy_catalog, admin_user):
     learner = register(learn_client)
     learn_client.put(f"{API}/my-profile", headers=learner["headers"],
                      json={"level": "intermediate", "fields": ["nlp"], "career_goal": "ai-engineer"})
@@ -290,7 +290,7 @@ def test_deactivating_a_course_removes_it_from_new_paths_but_a_saved_path_keeps_
     assert "prompt-engineering" not in {c["course"]["slug"] for s in saved.json()["stages"] for c in s["courses"]}  # ...minus it
 
 
-def test_deactivating_a_career_goal_asks_the_learner_to_choose_again(learn_client, learn_catalog, admin_user):
+def test_deactivating_a_career_goal_asks_the_learner_to_choose_again(learn_client, legacy_catalog, admin_user):
     learner = register(learn_client)
     learn_client.put(f"{API}/my-profile", headers=learner["headers"],
                      json={"level": "beginner", "fields": ["data"], "career_goal": "data-analyst"})
@@ -300,7 +300,7 @@ def test_deactivating_a_career_goal_asks_the_learner_to_choose_again(learn_clien
     assert resp.status_code == 409 and resp.json()["detail"]["error"] == "learning_profile_incomplete"
 
 
-def test_the_admin_catalogue_includes_inactive_entries_the_public_one_hides(learn_client, learn_catalog, admin_user):
+def test_the_admin_catalogue_includes_inactive_entries_the_public_one_hides(learn_client, legacy_catalog, admin_user):
     f = learn_client.get(f"{API}/fields").json()[-1]
     _put(learn_client, admin_user, "fields", f["slug"], {"name": f["name"], "position": f["position"], "is_active": False})
     assert f["slug"] not in {x["slug"] for x in learn_client.get(f"{API}/fields").json()}
@@ -310,7 +310,7 @@ def test_the_admin_catalogue_includes_inactive_entries_the_public_one_hides(lear
 
 # ─── Health report ──────────────────────────────────────────────────────────
 
-def test_health_flags_configuration_problems_as_data(learn_client, learn_catalog, admin_user):
+def test_health_flags_configuration_problems_as_data(learn_client, legacy_catalog, admin_user):
     _put(learn_client, admin_user, "career-goals", "quant", {"title": "Quant"})
     _put(learn_client, admin_user, "stages", "empty-stage", {"title": "Empty"})
     issues = learn_client.get(f"{ADMIN}/health", headers=admin_user["headers"]).json()
@@ -321,7 +321,7 @@ def test_health_flags_configuration_problems_as_data(learn_client, learn_catalog
     assert not any(i["code"] == "course_prerequisite_cycle" for i in issues)
 
 
-def test_health_reports_a_prerequisite_cycle_written_around_the_api(learn_client, learn_catalog, admin_user, learn_db):
+def test_health_reports_a_prerequisite_cycle_written_around_the_api(learn_client, legacy_catalog, admin_user, learn_db):
     a = learn_db.query(Course).filter(Course.slug == "langchain").one()
     b = learn_db.query(Course).filter(Course.slug == "llamaindex").one()
     learn_db.add_all([CoursePrerequisite(course_id=a.id, prerequisite_course_id=b.id),
@@ -334,7 +334,7 @@ def test_health_reports_a_prerequisite_cycle_written_around_the_api(learn_client
 
 # ─── Audit ──────────────────────────────────────────────────────────────────
 
-def test_every_admin_write_is_audited_without_leaking_content(learn_client, learn_catalog, admin_user, caplog, logs_enabled):
+def test_every_admin_write_is_audited_without_leaking_content(learn_client, legacy_catalog, admin_user, caplog, logs_enabled):
     with caplog.at_level(logging.INFO, logger="security"):
         _put(learn_client, admin_user, "skills", "audited-skill", {"name": "Audited"})
     events = [r.getMessage() for r in caplog.records if r.name == "security"]
@@ -343,7 +343,7 @@ def test_every_admin_write_is_audited_without_leaking_content(learn_client, lear
     assert "Audited" not in line  # the target is named, the payload is not logged
 
 
-def test_a_refused_write_is_not_audited_as_done(learn_client, learn_catalog, admin_user, caplog, logs_enabled):
+def test_a_refused_write_is_not_audited_as_done(learn_client, legacy_catalog, admin_user, caplog, logs_enabled):
     with caplog.at_level(logging.INFO, logger="security"):
         _put(learn_client, admin_user, "fields", "bad", {"name": "Bad", "prerequisites": ["nope"]})
     assert not [r for r in caplog.records if "admin.action" in r.getMessage()]
@@ -351,13 +351,13 @@ def test_a_refused_write_is_not_audited_as_done(learn_client, learn_catalog, adm
 
 # ─── Seed ───────────────────────────────────────────────────────────────────
 
-def test_the_seed_is_idempotent(learn_db, learn_catalog):
+def test_the_seed_is_idempotent(learn_db, legacy_catalog):
     from seeds.seed_learning_paths import seed_learning_catalog
 
     assert all(count == 0 for count in seed_learning_catalog(learn_db).values())
 
 
-def test_the_seed_never_overwrites_what_an_admin_changed(learn_client, learn_catalog, admin_user, learn_db):
+def test_the_seed_never_overwrites_what_an_admin_changed(learn_client, legacy_catalog, admin_user, learn_db):
     from seeds.seed_learning_paths import seed_learning_catalog
 
     _put(learn_client, admin_user, "stages", "rag", {"title": "Retrieval, Renamed", "courses": ["advanced-rag"]})
@@ -366,7 +366,7 @@ def test_the_seed_never_overwrites_what_an_admin_changed(learn_client, learn_cat
     assert stage.title == "Retrieval, Renamed" and len(stage.course_links) == 1
 
 
-def test_the_seed_fills_gaps_only(learn_db, learn_catalog):
+def test_the_seed_fills_gaps_only(learn_db, legacy_catalog):
     from seeds.seed_learning_paths import seed_learning_catalog
 
     learn_db.query(PathTemplate).filter(PathTemplate.slug == "mlops-engineer-path").delete()
@@ -385,6 +385,6 @@ def test_the_seed_tolerates_content_that_has_not_been_seeded(learn_db):
     assert report["stages"] > 0 and report["templates"] == 5
 
 
-def test_the_seeded_configuration_has_no_prerequisite_cycle(learn_client, learn_catalog, admin_user):
+def test_the_seeded_configuration_has_no_prerequisite_cycle(learn_client, legacy_catalog, admin_user):
     issues = learn_client.get(f"{ADMIN}/health", headers=admin_user["headers"]).json()
     assert [i for i in issues if i["code"] == "course_prerequisite_cycle"] == []

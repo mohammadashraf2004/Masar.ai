@@ -13,13 +13,14 @@ import logging
 import resend
 
 from app.core.config import settings
+from app.core.security_log import mask_email
 
 logger = logging.getLogger(__name__)
 
 
 def _send(to: str, subject: str, html: str) -> bool:
     if not settings.RESEND_API_KEY:
-        logger.warning("RESEND_API_KEY not configured — skipping email send to %s (%s)", to, subject)
+        logger.warning("RESEND_API_KEY not configured — skipping email send to %s (%s)", mask_email(to), subject)
         return False
     resend.api_key = settings.RESEND_API_KEY
     try:
@@ -31,7 +32,7 @@ def _send(to: str, subject: str, html: str) -> bool:
         })
         return True
     except Exception:
-        logger.exception("Failed to send email to %s (%s)", to, subject)
+        logger.exception("Failed to send email to %s (%s)", mask_email(to), subject)
         return False
 
 

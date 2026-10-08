@@ -8,7 +8,8 @@
   "level": "Advanced",
   "course_title": "Enterprise RAG Engineering",
   "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
-  "modules": 1,
+  "consolidated_file_modules": true,
+  "modules": 10,
   "lessons": 10,
   "guided_minutes": 5850,
   "professional_capability": "Engineer production RAG systems for retrieval quality, grounding, governance, and resilience.",
@@ -33,20 +34,63 @@
   "module_inventory": [
     {
       "id": "M009-01",
-      "title": "RAG Foundations",
-      "lessons": 10,
-      "lesson_ids": [
-        "M01.L01",
-        "M01.L02",
-        "M01.L03",
-        "M01.L04",
-        "M01.L05",
-        "M01.L06",
-        "M01.L07",
-        "M01.L08",
-        "M01.L09",
-        "M01.L10"
-      ]
+      "title": "Introduction to Retrieval-Augmented Generation (RAG)",
+      "lessons": 1,
+      "lesson_ids": ["M01.L01"]
+    },
+    {
+      "id": "M009-02",
+      "title": "The Base RAG Stack",
+      "lessons": 1,
+      "lesson_ids": ["M01.L02"]
+    },
+    {
+      "id": "M009-03",
+      "title": "RAG at Scale",
+      "lessons": 1,
+      "lesson_ids": ["M01.L03"]
+    },
+    {
+      "id": "M009-04",
+      "title": "From RAG Proof of Concept to Production",
+      "lessons": 1,
+      "lesson_ids": ["M01.L04"]
+    },
+    {
+      "id": "M009-05",
+      "title": "RAG Platform Engineering",
+      "lessons": 1,
+      "lesson_ids": ["M01.L05"]
+    },
+    {
+      "id": "M009-06",
+      "title": "RAG Evaluation",
+      "lessons": 1,
+      "lesson_ids": ["M01.L06"]
+    },
+    {
+      "id": "M009-07",
+      "title": "From Software Agents to LLM Agents",
+      "lessons": 1,
+      "lesson_ids": ["M01.L07"]
+    },
+    {
+      "id": "M009-08",
+      "title": "Multimodal RAG",
+      "lessons": 1,
+      "lesson_ids": ["M01.L08"]
+    },
+    {
+      "id": "M009-09",
+      "title": "Knowledge-Enhanced RAG",
+      "lessons": 1,
+      "lesson_ids": ["M01.L09"]
+    },
+    {
+      "id": "M009-10",
+      "title": "The Future of RAG",
+      "lessons": 1,
+      "lesson_ids": ["M01.L10"]
     }
   ]
 }

@@ -68,8 +68,8 @@ def require_admin(current_user: User = Depends(get_current_user)) -> User:
 # Registration hands back a working access token immediately, which is the
 # right call for signup UX — but `is_verified` was then stored and never
 # read, so a throwaway address could spend the signup credit grant on real
-# inference. With LAUNCH_PROMO_CREDITS=500 and mentor_chat at 2 credits
-# that is 250 provider calls per disposable mailbox, billed to us.
+# inference. Even the Free plan's 40 credits represent real provider spend,
+# so disposable mailboxes must not be allowed to consume them.
 #
 # The gate is therefore drawn around *billable* work only, and it is
 # enforced in two places rather than pasted into every controller:

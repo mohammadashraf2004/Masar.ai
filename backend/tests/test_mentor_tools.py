@@ -167,12 +167,14 @@ def test_a_good_skill_gap_updates_the_readiness_score(api, db, monkeypatch):
     assert db.query(User).filter(User.id == user_id).one().overall_readiness_score == 55.0
 
 
-def test_unparseable_prose_still_degrades_gracefully_for_code_review(api, monkeypatch):
-    """Existing, deliberate behaviour: prose instead of JSON is not a failure,
-    it is shown as the summary. Pinned so the new checks do not remove it."""
+def test_unparseable_prose_code_review_is_a_refunded_failure(api, db, monkeypatch):
+    """Prose instead of a structured review used to be charged as a made-up review
+    ("fair", score 50, "Could not parse detailed review") - and the mentor's review
+    tab, which shows line comments and next steps, showed the learner nothing they
+    paid for. A review that cannot be structured is now a refunded failure, like
+    every other unusable provider answer."""
     _use(monkeypatch, FakeLLM("This looks fine, but add type hints."))
-    token, _ = _register(api)
+    token, user_id = _register(api)
+    before = _balance(db, user_id)
 
-    resp = _call(api, token, "code_review")
-    assert resp.status_code == 200, resp.text
-    assert "add type hints" in resp.json()["summary"]
+    _failed_cleanly(_call(api, token, "code_review"), db, user_id, before, "code_review")

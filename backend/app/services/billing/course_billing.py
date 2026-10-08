@@ -7,6 +7,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models.billing import BillingOrder, CourseEnrollment, CourseOffer, PaymentTransaction
+from app.services.payments import paymob_service
 
 logger = logging.getLogger("app.billing")
 
@@ -80,15 +81,14 @@ def process_paymob_course_webhook(db: Session, obj: dict) -> Optional[dict]:
         amount = int(amount)
     except (TypeError, ValueError):
         amount = -1
-    provider_order_id = provider_order.get("id")
-    provider_matches = (
-        order.provider_order_id is not None
-        and provider_order_id is not None
-        and str(provider_order_id) == order.provider_order_id
-    )
+    provider_matches = paymob_service.provider_order_matches(obj, order.provider_order_id)
     amount_matches = amount == order.amount
     currency_matches = currency == order.currency
-    provider_success = bool(obj.get("success")) and not incoming_pending
+    kind = paymob_service.classify_transaction(obj)
+    provider_success = bool(obj.get("success")) and not incoming_pending and kind == "payment"
+    # A paid order is final: later mismatched, declined or reversed callbacks
+    # are recorded but never move it backwards or re-grant.
+    open_order = order.status != "paid" and order.status != "refunded"
 
     error_code = None
     if not provider_matches:
@@ -122,7 +122,8 @@ def process_paymob_course_webhook(db: Session, obj: dict) -> Optional[dict]:
         ))
 
     if error_code:
-        order.status = "failed"
+        if open_order:
+            order.status = "failed"
         db.commit()
         logger.warning(
             "billing.payment.%s", error_code,
@@ -134,14 +135,30 @@ def process_paymob_course_webhook(db: Session, obj: dict) -> Optional[dict]:
         )
         return {"status": "rejected", "kind": "course_payment", "success": False}
 
+    if kind == "reversal":
+        if order.status == "paid" and bool(obj.get("success")) and not incoming_pending:
+            order.status = "refunded"
+        db.commit()
+        logger.warning(
+            "billing.payment.reversal",
+            extra={"order_id": order.id, "user_id": order.user_id, "course_id": order.course_id},
+        )
+        return {"status": "processed", "kind": "course_payment", "success": False}
+
     if not provider_success:
-        order.status = "failed" if not incoming_pending else "pending"
+        if open_order:
+            order.status = "pending" if incoming_pending or kind == "authorization" else "failed"
         db.commit()
         logger.info(
             "billing.payment.failed",
             extra={"order_id": order.id, "course_id": order.course_id},
         )
         return {"status": "processed", "kind": "course_payment", "success": False}
+
+    if not open_order:
+        db.commit()
+        logger.warning("billing.payment.extra_payment", extra={"order_id": order.id, "user_id": order.user_id})
+        return {"status": "already_processed", "kind": "course_payment", "success": order.status == "paid"}
 
     order.status = "paid"
     order.paid_at = order.paid_at or datetime.now(timezone.utc)

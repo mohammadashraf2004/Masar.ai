@@ -540,10 +540,21 @@ def test_a_null_verdict_is_recovered_from_the_status_line(marker, expected):
     ("✅ Correct", False),
     ("❌ Incorrect", True),
 ])
-def test_an_explicit_verdict_always_wins_over_the_marker(marker, stated):
-    """Derivation fills a gap; it never overrules the model."""
+def test_the_visible_status_marker_wins_over_a_contradictory_boolean(marker, stated):
+    """The status shown to the learner and the stored verdict cannot disagree."""
     result = _evaluate(FakeLLM(_json_reply(reply=f"{marker}\n\n1. Result\n…", is_correct=stated)))
-    assert result["is_correct"] is stated
+    expected = marker.startswith("✅")
+    assert result["is_correct"] is expected
+
+
+def test_an_incorrect_verdict_can_never_receive_a_full_mark():
+    result = _evaluate(FakeLLM(_json_reply(
+        reply="❌ Incorrect\n\n1. Result\nThe answer is wrong.",
+        is_correct=True,
+        score=100,
+    )))
+    assert result["is_correct"] is False
+    assert result["score"] < 100
 
 
 def test_a_marker_appearing_later_in_prose_is_not_a_verdict():

@@ -52,7 +52,10 @@ def upsert(
     when = min(when, now)
     existing = get_record(db, user_id, tour_id)
     if existing is not None:
-        if existing.at is not None and when < existing.at:
+        # A stored `at` in the future (a row written before client clocks were
+        # clamped) is untrusted, so it never makes a real write look stale.
+        stored = existing.at.replace(tzinfo=timezone.utc) if existing.at and existing.at.tzinfo is None else existing.at
+        if stored is not None and stored <= now and when < stored:
             return existing
         existing.status = status
         existing.version = version

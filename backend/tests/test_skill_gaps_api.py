@@ -1,6 +1,6 @@
 """
 GET /learning/my-skill-gaps and the `why` block on roadmap courses, against the
-shipped configuration (`learn_catalog` runs the real seed).
+shipped configuration (`legacy_catalog` runs the real seed).
 
 The pure rules are pinned in test_skill_gaps.py; this file checks that the API
 serves them faithfully, respects the existing semantics (strict "Already know",
@@ -35,11 +35,11 @@ def all_courses(path):
 
 # ─── Contract ───────────────────────────────────────────────────────────────
 
-def test_the_endpoint_requires_sign_in(learn_client, learn_catalog):
+def test_the_endpoint_requires_sign_in(learn_client, legacy_catalog):
     assert learn_client.get(URL).status_code == 401
 
 
-def test_a_learner_with_no_roadmap_gets_an_empty_state_not_an_error(learn_client, learn_catalog):
+def test_a_learner_with_no_roadmap_gets_an_empty_state_not_an_error(learn_client, legacy_catalog):
     who = register(learn_client)
     body = gaps(learn_client, who)
     assert body["available"] is False
@@ -49,7 +49,7 @@ def test_a_learner_with_no_roadmap_gets_an_empty_state_not_an_error(learn_client
     assert gaps(learn_client, who)["available"] is False
 
 
-def test_the_response_has_the_documented_shape(learn_client, learn_catalog):
+def test_the_response_has_the_documented_shape(learn_client, legacy_catalog):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     body = gaps(learn_client, who)
@@ -65,7 +65,7 @@ def test_the_response_has_the_documented_shape(learn_client, learn_catalog):
     assert {"key", "kind", "field", "total", "known_count", "skills"} <= set(group)
 
 
-def test_the_summary_agrees_with_the_lists_and_the_groups(learn_client, learn_catalog):
+def test_the_summary_agrees_with_the_lists_and_the_groups(learn_client, legacy_catalog):
     who = register(learn_client)
     _build(learn_client, who, level="beginner", known_skills=["llms", "rag"])
     body = gaps(learn_client, who)
@@ -79,7 +79,7 @@ def test_the_summary_agrees_with_the_lists_and_the_groups(learn_client, learn_ca
     assert sorted(listed) == sorted(slugs(body["missing"]) + slugs(body["partial"]))   # groups hold what is still to do
 
 
-def test_one_learners_gaps_never_depend_on_anothers_skills(learn_client, learn_catalog):
+def test_one_learners_gaps_never_depend_on_anothers_skills(learn_client, legacy_catalog):
     a, b = register(learn_client), register(learn_client)
     _build(learn_client, a, level="beginner")
     _build(learn_client, b, level="beginner", known_skills=["llms"])
@@ -89,7 +89,7 @@ def test_one_learners_gaps_never_depend_on_anothers_skills(learn_client, learn_c
 
 # ─── Skills ─────────────────────────────────────────────────────────────────
 
-def test_with_nothing_declared_the_relevant_skills_are_all_missing(learn_client, learn_catalog):
+def test_with_nothing_declared_the_relevant_skills_are_all_missing(learn_client, legacy_catalog):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     body = gaps(learn_client, who)
@@ -97,7 +97,7 @@ def test_with_nothing_declared_the_relevant_skills_are_all_missing(learn_client,
     assert {"llms", "rag", "embeddings"} <= set(slugs(body["missing"]))
 
 
-def test_a_declared_skill_moves_from_missing_to_known(learn_client, learn_catalog):
+def test_a_declared_skill_moves_from_missing_to_known(learn_client, legacy_catalog):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     assert "embeddings" in slugs(gaps(learn_client, who)["missing"])
@@ -107,7 +107,7 @@ def test_a_declared_skill_moves_from_missing_to_known(learn_client, learn_catalo
     assert "rag" in slugs(body["missing"])                          # nothing else was inferred from it
 
 
-def test_declaring_a_skill_does_not_claim_the_skills_of_its_prerequisite_course(learn_client, learn_catalog):
+def test_declaring_a_skill_does_not_claim_the_skills_of_its_prerequisite_course(learn_client, legacy_catalog):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     _put_skills(learn_client, who, ["rag", "retrieval"])            # rag-knowledge-systems is now "Already know"
@@ -118,7 +118,7 @@ def test_declaring_a_skill_does_not_claim_the_skills_of_its_prerequisite_course(
     assert "llms" in slugs(body["missing"])                         # its prerequisite's skill is still to gain
 
 
-def test_a_tool_never_stands_in_for_the_skill_and_is_told_apart(learn_client, learn_catalog):
+def test_a_tool_never_stands_in_for_the_skill_and_is_told_apart(learn_client, legacy_catalog):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     _put_skills(learn_client, who, ["langchain"])
@@ -132,7 +132,7 @@ def test_a_tool_never_stands_in_for_the_skill_and_is_told_apart(learn_client, le
     assert all(s["kind"] == "skill" for g in body["groups"] if g["kind"] != "tools" for s in g["skills"])
 
 
-def test_gaps_are_grouped_under_real_fields_and_the_field_is_named(learn_client, learn_catalog):
+def test_gaps_are_grouped_under_real_fields_and_the_field_is_named(learn_client, legacy_catalog):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     body = gaps(learn_client, who)
@@ -143,14 +143,14 @@ def test_gaps_are_grouped_under_real_fields_and_the_field_is_named(learn_client,
     assert rag["group"]["slug"] == "nlp" and rag["stage"]["slug"] and rag["course_count"] >= 1
 
 
-def test_a_skill_the_goal_requires_is_flagged(learn_client, learn_catalog):
+def test_a_skill_the_goal_requires_is_flagged(learn_client, legacy_catalog):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     required = {s["slug"] for s in gaps(learn_client, who)["missing"] if s["is_goal_required"]}
     assert {"evaluation", "production-deployment"} <= required      # AI Engineer's own required skills
 
 
-def test_no_skill_is_invented_every_gap_is_a_catalogue_skill(learn_client, learn_catalog, learn_db):
+def test_no_skill_is_invented_every_gap_is_a_catalogue_skill(learn_client, legacy_catalog, learn_db):
     from app.models.learning_path import Skill
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
@@ -162,7 +162,7 @@ def test_no_skill_is_invented_every_gap_is_a_catalogue_skill(learn_client, learn
 
 # ─── Level, field, career ───────────────────────────────────────────────────
 
-def test_a_beginner_and_an_advanced_learner_get_different_gaps(learn_client, learn_catalog):
+def test_a_beginner_and_an_advanced_learner_get_different_gaps(learn_client, legacy_catalog):
     a, b = register(learn_client), register(learn_client)
     _build(learn_client, a, level="beginner")
     _build(learn_client, b, level="advanced")
@@ -171,7 +171,7 @@ def test_a_beginner_and_an_advanced_learner_get_different_gaps(learn_client, lea
     assert advanced["summary"]["required"] < beginner["summary"]["required"]
 
 
-def test_the_learners_field_decides_which_skills_are_relevant(learn_client, learn_catalog):
+def test_the_learners_field_decides_which_skills_are_relevant(learn_client, legacy_catalog):
     a, b = register(learn_client), register(learn_client)
     _build(learn_client, a, level="intermediate", fields=("nlp",))
     _build(learn_client, b, level="intermediate", fields=("multimodal",))
@@ -180,7 +180,7 @@ def test_the_learners_field_decides_which_skills_are_relevant(learn_client, lear
     assert "multimodal" in slugs(mm["missing"]) and "vision-language-models" in slugs(mm["missing"])
 
 
-def test_the_career_goal_decides_what_is_required(learn_client, learn_catalog):
+def test_the_career_goal_decides_what_is_required(learn_client, legacy_catalog):
     a, b = register(learn_client), register(learn_client)
     _build(learn_client, a, level="beginner", goal="ai-engineer")
     _build(learn_client, b, level="beginner", goal="data-analyst", fields=("data",))
@@ -192,7 +192,7 @@ def test_the_career_goal_decides_what_is_required(learn_client, learn_catalog):
     assert all(s["stage"] is None for s in uncovered)
 
 
-def test_multimodal_is_never_blocked_and_its_prerequisite_route_shows_up_as_gaps(learn_client, learn_catalog):
+def test_multimodal_is_never_blocked_and_its_prerequisite_route_shows_up_as_gaps(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, level="advanced", fields=("multimodal",))
     assert _by_slug(path)["multimodal-ai"]["state"] == "required"
@@ -209,9 +209,9 @@ def test_multimodal_is_never_blocked_and_its_prerequisite_route_shows_up_as_gaps
 
 # ─── Completed courses ──────────────────────────────────────────────────────
 
-def test_finishing_a_course_declares_nothing_and_completion_is_independent(learn_client, learn_catalog, learn_db):
+def test_finishing_a_course_declares_nothing_and_completion_is_independent(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
-    complete_level(learn_db, who["id"], learn_catalog, 1)           # AI Engineering Foundations
+    complete_level(learn_db, who["id"], legacy_catalog, 1)           # AI Engineering Foundations
     path = _build(learn_client, who, level="beginner")
     assert _by_slug(path)["ai-engineering-foundations"]["state"] == "completed"
     body = gaps(learn_client, who)
@@ -225,10 +225,10 @@ def test_finishing_a_course_declares_nothing_and_completion_is_independent(learn
     assert "llms" not in slugs(gaps(learn_client, who)["known"])
 
 
-def test_a_course_under_way_makes_its_skills_partially_covered(learn_client, learn_catalog, learn_db):
+def test_a_course_under_way_makes_its_skills_partially_covered(learn_client, legacy_catalog, learn_db):
     from app.models.progress import UserProgress
     who = register(learn_client)
-    topic_id, lesson_id = learn_catalog["level_lessons"][3][0]      # one of two lessons of RAG & Knowledge Systems
+    topic_id, lesson_id = legacy_catalog["level_lessons"][3][0]      # one of two lessons of RAG & Knowledge Systems
     learn_db.add(UserProgress(user_id=who["id"], topic_id=topic_id, lessons_completed=[lesson_id], exercises_completed=[]))
     learn_db.commit()
     _build(learn_client, who, level="beginner")
@@ -240,7 +240,7 @@ def test_a_course_under_way_makes_its_skills_partially_covered(learn_client, lea
     assert "rag" in slugs(body["known"]) and "rag" not in slugs(body["partial"])      # declared beats under way
 
 
-def test_regenerating_the_roadmap_is_unchanged_and_the_gaps_follow_it(learn_client, learn_catalog, learn_db):
+def test_regenerating_the_roadmap_is_unchanged_and_the_gaps_follow_it(learn_client, legacy_catalog, learn_db):
     from app.models.learning_path import LearningPath
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
@@ -255,7 +255,7 @@ def test_regenerating_the_roadmap_is_unchanged_and_the_gaps_follow_it(learn_clie
 
 # ─── Why this course? ───────────────────────────────────────────────────────
 
-def test_every_roadmap_course_carries_a_why_that_partitions_its_skills(learn_client, learn_catalog):
+def test_every_roadmap_course_carries_a_why_that_partitions_its_skills(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, level="beginner", known_skills=["llms", "embeddings"])
     courses = all_courses(path)
@@ -272,7 +272,7 @@ def test_every_roadmap_course_carries_a_why_that_partitions_its_skills(learn_cli
         assert sorted(known) == sorted(slugs(c["known_skills"])) or c["state"] not in ("required", "waived")
 
 
-def test_the_why_reports_partial_coverage_with_the_existing_strict_semantics(learn_client, learn_catalog):
+def test_the_why_reports_partial_coverage_with_the_existing_strict_semantics(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, level="beginner", known_skills=["llms"])
     foundations = _by_slug(path)["ai-engineering-foundations"]                # teaches llms and system-design
@@ -285,7 +285,7 @@ def test_the_why_reports_partial_coverage_with_the_existing_strict_semantics(lea
     assert llm["state"] == "waived" and llm["why"]["to_gain_count"] == 0 and "skill_gap" not in llm["why"]["reasons"]
 
 
-def test_the_why_names_the_route_fields_stage_and_prerequisites(learn_client, learn_catalog):
+def test_the_why_names_the_route_fields_stage_and_prerequisites(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, level="beginner")
     rag = _by_slug(path)["rag-knowledge-systems"]["why"]
@@ -298,7 +298,7 @@ def test_the_why_names_the_route_fields_stage_and_prerequisites(learn_client, le
     assert "career_requirement" in ev["reasons"] and "evaluation" in slugs(ev["goal_skills"])
 
 
-def test_the_current_and_next_course_carry_the_same_why(learn_client, learn_catalog):
+def test_the_current_and_next_course_carry_the_same_why(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, level="beginner")
     by_slug = _by_slug(path)
@@ -308,15 +308,15 @@ def test_the_current_and_next_course_carry_the_same_why(learn_client, learn_cata
     assert _reload(learn_client, who)["current_course"]["why"] == path["current_course"]["why"]   # survives a reload
 
 
-def test_a_finished_course_is_not_explained_as_something_to_gain(learn_client, learn_catalog, learn_db):
+def test_a_finished_course_is_not_explained_as_something_to_gain(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
-    complete_level(learn_db, who["id"], learn_catalog, 1)
+    complete_level(learn_db, who["id"], legacy_catalog, 1)
     path = _build(learn_client, who, level="beginner")
     why = _by_slug(path)["ai-engineering-foundations"]["why"]
     assert "skill_gap" not in why["reasons"]
 
 
-def test_the_reasons_are_codes_never_sentences(learn_client, learn_catalog):
+def test_the_reasons_are_codes_never_sentences(learn_client, legacy_catalog):
     who = register(learn_client)
     path = _build(learn_client, who, level="beginner")
     for c in all_courses(path):
@@ -337,7 +337,7 @@ def _count_queries(fn):
     return len(seen)
 
 
-def test_gaps_cost_no_more_queries_than_the_roadmap_itself_and_do_not_grow_per_course(learn_client, learn_catalog):
+def test_gaps_cost_no_more_queries_than_the_roadmap_itself_and_do_not_grow_per_course(learn_client, legacy_catalog):
     small, big = register(learn_client), register(learn_client)
     _build(learn_client, small, level="advanced")                   # fewer courses on the roadmap
     _build(learn_client, big, level="beginner", fields=("nlp", "multimodal"))

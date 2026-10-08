@@ -74,22 +74,6 @@ def _migrate_db():
 
 
 @pytest.fixture(autouse=True)
-def _promo_disabled_by_default(monkeypatch):
-    """The launch promotion is OFF unless a test explicitly turns it on.
-
-    pydantic-settings reads backend/.env, and the test container mounts
-    the repo — so without this, enabling the promo locally silently
-    changes the starting credit balance for every registration test and
-    four unrelated tests start failing. Preconditions belong in the test,
-    not in whatever the developer happens to have configured.
-    """
-    from app.core.config import settings
-
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_UNTIL", "")
-    yield
-
-
-@pytest.fixture(autouse=True)
 def _reset_rate_limiter():
     """slowapi's Limiter keeps in-memory counters for the life of the
     process — without a reset, hitting /auth/login or /auth/register

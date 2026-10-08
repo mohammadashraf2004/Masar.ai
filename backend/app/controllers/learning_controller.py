@@ -44,9 +44,10 @@ from app.core.limiter import limiter
 from app.core.security import get_current_user, get_optional_user
 from app.db.session import get_db
 from app.models.user import User
+from app.models.tool_course import CURRICULUM_CATEGORY
 from app.models.billing import CourseEnrollment
 from app.models.learning_path import Course
-from app.services.billing.access_service import course_access
+from app.services.billing.access_service import course_access, free_lesson_ids
 from app.services.learning import learning_service as svc
 from app.services.learning import course_views as CV
 from app.services.learning import presenters as P
@@ -54,10 +55,11 @@ from app.services.learning.catalog_service import CatalogBundle, load_catalog_bu
 from app.services.learning.path_generator import PathGenerationError
 from app.services.learning.progress_service import overview
 from app.services.learning.progress_service import course_completion, pct
+from app.services.learning.track_workflow import build_workflow
 from app.views.learning_path import (
     CareerGoalOut, CourseCard, CourseDetail, CourseSlug, CourseSummary, FieldOut, GenerateRequest, LevelOut,
     MySkillsOut, PathOut, PathSummaryOut, PathUpdate, ProfileOut, ProfileUpdate, ProgressOut,
-    SkillGapsOut, SkillOptionOut, SkillsSavedOut, SkillsUpdate, Slug,
+    SkillGapsOut, SkillOptionOut, SkillsSavedOut, SkillsUpdate, Slug, TrackWorkflowOut,
 )
 
 router = APIRouter(prefix="/learning", tags=["Learning Paths"])
@@ -134,6 +136,7 @@ def list_courses(
     skill: List[Slug] = Query(default=[], max_length=12),
     q: Optional[str] = Query(None, min_length=2, max_length=120),
     available_only: bool = False,
+    curriculum_only: bool = False,
     enrolled: Optional[bool] = None,
     user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db),
@@ -154,6 +157,8 @@ def list_courses(
     Courses whose content is not published yet are listed (flagged
     `is_available: false`) unless `available_only`. A signed-in learner also gets
     their own `enrollment` and `readiness` on every card; the catalogue itself is public.
+    `curriculum_only` limits the result to the canonical COURSE-001... curriculum,
+    excluding both legacy track levels and framework courses.
     Cards carry no lesson text."""
     bundle = load_catalog_bundle(db)
     surfaces = T.expand_query_surfaces(q) if q else []
@@ -164,6 +169,10 @@ def list_courses(
     result: List[CourseCard] = []
     for course_id, info in bundle.catalog.courses.items():
         course = bundle.courses[course_id]
+        if curriculum_only and (
+            course.tool_course is None or course.tool_course.category != CURRICULUM_CATEGORY
+        ):
+            continue
         if available_only and not info.is_available:
             continue
         if levels and course.level.slug not in levels:
@@ -215,6 +224,7 @@ def get_course_access(
         "has_access": access.has_access,
         "reason": access.reason,
         "enrollment_id": access.enrollment_id,
+        "free_lesson_count": len(free_lesson_ids(db, course)),
     }
 
 
@@ -265,6 +275,26 @@ def get_my_courses(
             "module_count": summary.module_count,
         })
     return result
+
+
+@router.get("/tracks/{goal}/workflow", response_model=TrackWorkflowOut)
+def get_track_workflow(
+    goal: Slug,
+    user: Optional[User] = Depends(get_optional_user),
+    db: Session = Depends(get_db),
+):
+    """One of the five fixed career tracks (`data-analyst`, `ml-engineer`,
+    `ai-developer`, `mlops-engineer`, `ai-engineer`), as an ordered workflow
+    over the canonical courses — order, role, required-ness and (for AI
+    Engineer) section come from the catalogue's own `course_roles`, never
+    reconstructed here or on the client. Public; a signed-in learner also gets
+    their real completion state on every course, so the same shared course
+    reads as completed in every track that includes it."""
+    bundle = load_catalog_bundle(db)
+    workflow = build_workflow(db, bundle, goal, user_id=user.id if user else None)
+    if workflow is None:
+        raise HTTPException(status_code=404, detail="Career track not found")
+    return P.track_workflow_out(bundle, workflow)
 
 
 @router.get("/paths", response_model=List[PathSummaryOut])

@@ -1061,6 +1061,87 @@ TOPIC = {
                 "6. an explanation of why this is better for a remote pipeline than a generic `print('failed')`."
             ),
             "expected_output": "A short Python logging design plus operational reasoning.",
+            "type": "code",
+            "language": "python",
+            "starter_code": (
+                "import logging\n\n"
+                "logger = logging.getLogger(\"csv_processor\")\n\n"
+                "def process_csv(path):\n"
+                "    # TODO: log the path at DEBUG, successful completion at INFO,\n"
+                "    # and preserve the traceback with logger.exception on failure.\n"
+                "    pass\n"
+            ),
+            "solution_code": (
+                "import logging\n\n"
+                "logging.basicConfig(\n"
+                "    level=logging.INFO,\n"
+                "    format=\"%(asctime)s %(levelname)s %(name)s %(message)s\",\n"
+                ")\n"
+                "logger = logging.getLogger(\"csv_processor\")\n\n"
+                "def process_csv(path):\n"
+                "    logger.debug(\"Processing CSV file: %s\", path)\n"
+                "    try:\n"
+                "        rows = load_csv(path)\n"
+                "        logger.info(\"Processed %s rows from %s\", len(rows), path)\n"
+                "        return rows\n"
+                "    except Exception:\n"
+                "        logger.exception(\"Failed to process CSV file: %s\", path)\n"
+                "        raise\n"
+            ),
+            "hint": "Use a named logger and put logger.exception() inside the except block.",
+            "success_message": "Correct! The logger records context, normal completion, and the original failure traceback.",
+            "tests": [
+                {
+                    "id": "process_function",
+                    "type": "function_exists",
+                    "function": "process_csv",
+                    "static": True,
+                    "feedback": {
+                        "en": "Define a function named `process_csv`.",
+                        "ar": "عرّف دالة باسم `process_csv`.",
+                    },
+                },
+                {
+                    "id": "debug_log",
+                    "type": "function_called",
+                    "function": "logger.debug",
+                    "static": True,
+                    "feedback": {
+                        "en": "Log the file being processed with `logger.debug()`.",
+                        "ar": "سجّل الملف الجاري معالجته باستخدام `logger.debug()`.",
+                    },
+                },
+                {
+                    "id": "info_log",
+                    "type": "function_called",
+                    "function": "logger.info",
+                    "static": True,
+                    "feedback": {
+                        "en": "Use `logger.info()` for normal completion.",
+                        "ar": "استخدم `logger.info()` عند اكتمال المعالجة بنجاح.",
+                    },
+                },
+                {
+                    "id": "exception_log",
+                    "type": "function_called",
+                    "function": "logger.exception",
+                    "static": True,
+                    "feedback": {
+                        "en": "Use `logger.exception()` so the traceback is retained.",
+                        "ar": "استخدم `logger.exception()` للاحتفاظ بتتبّع الخطأ.",
+                    },
+                },
+                {
+                    "id": "no_print",
+                    "type": "function_not_called",
+                    "function": "print",
+                    "static": True,
+                    "feedback": {
+                        "en": "Replace generic `print()` calls with the named logger.",
+                        "ar": "استبدل استدعاءات `print()` العامة بالـ logger المسمّى.",
+                    },
+                },
+            ],
             "difficulty": DifficultyLevel.intermediate,
             "skill_tested": [
                 "python-logging",

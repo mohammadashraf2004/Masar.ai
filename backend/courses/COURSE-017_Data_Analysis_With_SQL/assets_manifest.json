@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "course_id": "COURSE-017",
+  "assets": [
+    {
+      "key": "database-organization-objects",
+      "type": "image",
+      "file": "assets/sfda_0101.png",
+      "lesson": "M01.L01",
+      "alt": "Nested boxes: a database contains schema_one and schema_two; schema_one holds table_one (with field_one, field_two and index_one), table_two, view_one and function_one.",
+      "alt_ar": "مربعات متداخلة: قاعدة بيانات (Database) تحتوي على schema_one وschema_two؛ ويضم schema_one الجدول table_one (بالحقلين field_one وfield_two والفهرس index_one) والجدول table_two وview_one وfunction_one.",
+      "caption": "A database is organized into schemas, which hold tables, views and functions; a table holds fields and can carry indexes.",
+      "caption_ar": "تُنظَّم قاعدة البيانات في Schemas تضم الجداول وViews والدوال (Functions)؛ ويضم الجدول حقولًا (Fields) ويمكن أن تكون له فهارس (Indexes).",
+      "source_reference": "Figure 1-1; source file sfda_0101.png"
+    },
+    {
+      "key": "data-analysis-process-steps",
+      "type": "image",
+      "file": "assets/sfda_0102.png",
+      "lesson": "M01.L01",
+      "alt": "Four boxes in a row: source systems, data warehouse, queries and analysis (highlighted), and presentation (visualization, report, dashboard, paper).",
+      "alt_ar": "أربعة مربعات متتالية: الأنظمة المصدر (Source systems)، ثم Data warehouse، ثم الاستعلامات والتحليل (مميَّزة بلون مختلف)، ثم العرض (Visualization أو تقرير أو Dashboard أو ورقة بحثية).",
+      "caption": "SQL work sits in the middle of the flow: data moves from source systems into a warehouse, is queried and analyzed, and is then presented.",
+      "caption_ar": "يقع عمل SQL في منتصف المسار: تنتقل البيانات من الأنظمة المصدر إلى Data warehouse، ثم يُستعلَم عنها وتُحلَّل، ثم تُعرض نتائجها.",
+      "source_reference": "Figure 1-2; source file sfda_0102.png"
+    },
+    {
+      "key": "query-analysis-stages",
+      "type": "image",
+      "file": "assets/sfda_0103.png",
+      "lesson": "M01.L01",
+      "alt": "Five arrows inside a box labeled queries and analysis: explore, profile, clean, shape, analyze.",
+      "alt_ar": "خمسة أسهم داخل مربع بعنوان الاستعلامات والتحليل: Explore ثم Profile ثم Clean ثم Shape ثم Analyze.",
+      "caption": "The queries-and-analysis stage breaks into explore, profile, clean, shape and analyze; in practice later steps often send you back to earlier ones.",
+      "caption_ar": "تنقسم مرحلة الاستعلامات والتحليل إلى Explore وProfile وClean وShape وAnalyze؛ وفي الواقع كثيرًا ما تعيدك الخطوات اللاحقة إلى خطوات سابقة.",
+      "source_reference": "Figure 1-3; source file sfda_0103.png"
+    },
+    {
+      "key": "fruit-frequency-plot",
+      "type": "image",
+      "file": "assets/sfda_0201.png",
+      "lesson": "M01.L02",
+      "alt": "Bar chart of fruit quantity: apples 23, bananas 45, oranges 15.",
+      "alt_ar": "مخطط أعمدة لكمية الفاكهة: التفاح 23، والموز 45، والبرتقال 15.",
+      "caption": "A frequency plot shows how often each value of a field occurs.",
+      "caption_ar": "يوضح Frequency plot عدد مرات ظهور كل قيمة من قيم الحقل.",
+      "source_reference": "Figure 2-1; source file sfda_0201.png"
+    },
+    {
+      "key": "customers-by-age-histogram",
+      "type": "image",
+      "file": "assets/sfda_0202.png",
+      "lesson": "M01.L02",
+      "alt": "Histogram of customers by age from 25 to 35; counts range from about 195 to about 290, with the highest bar at age 27.",
+      "alt_ar": "Histogram لعدد العملاء حسب العمر من 25 إلى 35؛ تتراوح الأعداد بين نحو 195 ونحو 290، وأعلى عمود عند عمر 27.",
+      "caption": "A histogram of a numeric field shows its range, where values concentrate and which values are unusually common.",
+      "caption_ar": "يُظهر Histogram لحقل رقمي مدى القيم، وأين تتركز، وأي القيم شائعة على نحو غير معتاد.",
+      "source_reference": "Figure 2-2; source file sfda_0202.png"
+    },
+    {
+      "key": "date-dimension-table",
+      "type": "image",
+      "file": "assets/sfda_0203.png",
+      "lesson": "M01.L02",
+      "alt": "Rows of a date dimension starting at 2000-01-01, one row per date, with columns such as day_of_month, day_of_year, day_of_week, day_name, week, month_number, month_name, quarter_number, quarter_name, year and decade.",
+      "alt_ar": "صفوف من جدول Date dimension تبدأ من 2000-01-01، بصف واحد لكل تاريخ، وأعمدة مثل day_of_month وday_of_year وday_of_week وday_name وweek وmonth_number وmonth_name وquarter_number وquarter_name وyear وdecade.",
+      "caption": "A date dimension holds one row per calendar date and precomputed attributes for grouping and filtering.",
+      "caption_ar": "يضم Date dimension صفًا واحدًا لكل تاريخ في التقويم، مع سمات محسوبة مسبقًا للتجميع والتصفية.",
+      "source_reference": "Figure 2-3; source file sfda_0203.png"
+    },
+    {
+      "key": "country-population-wide-table",
+      "type": "image",
+      "file": "assets/sfda_0204.png",
+      "lesson": "M01.L02",
+      "alt": "Wide table with one row each for Canada, Mexico and the United States and one population column per year: year_1980, year_1990, year_2000 and year_2010.",
+      "alt_ar": "جدول عريض (Wide table) فيه صف لكل من كندا والمكسيك والولايات المتحدة، وعمود للسكان لكل سنة: year_1980 وyear_1990 وyear_2000 وyear_2010.",
+      "caption": "In a wide layout each year is its own column: easy to read, but year cannot be filtered or grouped like an ordinary field.",
+      "caption_ar": "في التخطيط العريض تكون كل سنة عمودًا مستقلًا: الجدول سهل القراءة، لكن لا يمكن تصفية السنة أو التجميع بها كحقل عادي.",
+      "source_reference": "Figure 2-4; source file sfda_0204.png"
+    },
+    {
+      "key": "legislator-retention-corrected",
+      "type": "image",
+      "file": "assets/sfda_0404.png",
+      "lesson": "M01.L04",
+      "alt": "Line chart of percent retained by period: it starts at 100%, falls in steps to about 65% by period 2 and about 47% by period 4, and approaches 0% after about period 40.",
+      "alt_ar": "مخطط خطي لنسبة الاحتفاظ (% Retained) حسب الفترة: يبدأ من 100% ثم ينخفض على درجات إلى نحو 65% عند الفترة 2 ونحو 47% عند الفترة 4، ويقترب من 0% بعد الفترة 40 تقريبًا.",
+      "caption": "Retention after counting every year a legislator was actually in office, not only the years a term started.",
+      "caption_ar": "الاحتفاظ بعد احتساب كل سنة قضاها المشرّع فعليًا في منصبه، لا سنوات بدء الفترات فقط.",
+      "source_reference": "Figure 4-4; source file sfda_0404.png"
+    },
+    {
+      "key": "cohort-composition-by-century",
+      "type": "image",
+      "file": "assets/sfda_0413.png",
+      "lesson": "M01.L04",
+      "alt": "Stacked area chart, Share of Legislators by First Century in Office, from 1789 to about 2019: the 18th-, 19th-, 20th- and 21st-century cohorts each grow to most of the total and then shrink as the next cohort replaces them.",
+      "alt_ar": "مخطط مساحي مكدَّس بعنوان حصة المشرّعين حسب القرن الأول في المنصب، من 1789 حتى نحو 2019: تتسع كل Cohort من قرون 18 و19 و20 و21 حتى تشكل معظم المجموع، ثم تتقلص حين تحل محلها الـ Cohort التالية.",
+      "caption": "Cohort mix over calendar time: newer cohorts gradually replace older ones in the population.",
+      "caption_ar": "تركيب الـ Cohorts عبر الزمن التقويمي: تحل الـ Cohorts الأحدث تدريجيًا محل الأقدم داخل المجموعة.",
+      "source_reference": "Figure 4-13; source file sfda_0413.png"
+    },
+    {
+      "key": "normal-distribution-z-scores",
+      "type": "image",
+      "file": "assets/sfda_0602.png",
+      "lesson": "M01.L06",
+      "alt": "Normal bell curve with the mean at the center; dashed lines at -2, -1, +1 and +2 standard deviations, labeled with the matching z-scores -2.0, -1.0, 0, +1.0 and +2.0.",
+      "alt_ar": "منحنى توزيع طبيعي على شكل جرس والمتوسط (Mean) في المنتصف؛ وخطوط متقطعة عند -2 و-1 و+1 و+2 انحراف معياري، مع قيم z-score المقابلة: -2.0 و-1.0 و0 و+1.0 و+2.0.",
+      "caption": "A z-score is the distance from the mean measured in standard deviations.",
+      "caption_ar": "الـ z-score هو المسافة عن المتوسط مقيسة بعدد الانحرافات المعيارية.",
+      "source_reference": "Figure 6-2; source file sfda_0602.png"
+    },
+    {
+      "key": "box-plot-anatomy",
+      "type": "image",
+      "file": "assets/sfda_0608.png",
+      "lesson": "M01.L06",
+      "alt": "Labeled box plot: the box spans the 25th to 75th percentile with lines for the median and the average; whiskers extend 1.5 times the interquartile range; points beyond them are outliers, up to the minimum and maximum values.",
+      "alt_ar": "Box plot موضَّح بالتسميات: يمتد الصندوق من المئين 25 إلى المئين 75 مع خطين للوسيط (Median) والمتوسط (Average)؛ ويمتد كل Whisker مسافة 1.5 من المدى الربيعي (Interquartile range)؛ والنقاط التي بعده قيم متطرفة (Outliers) حتى القيمتين الدنيا والعليا.",
+      "caption": "Interquartile range = 75th minus 25th percentile; points beyond 1.5 times the IQR from the box are the standard way to flag outliers.",
+      "caption_ar": "المدى الربيعي (IQR) = المئين 75 ناقص المئين 25؛ والنقاط الواقعة أبعد من 1.5 ضعف الـ IQR عن الصندوق هي الطريقة المعتادة لتحديد القيم المتطرفة.",
+      "source_reference": "Figure 6-8; source file sfda_0608.png"
+    },
+    {
+      "key": "earthquakes-by-status-monthly",
+      "type": "image",
+      "file": "assets/sfda_0611.png",
+      "lesson": "M01.L06",
+      "alt": "Line chart, Monthly Earthquake Count by Status, 2010 to 2018: the reviewed series mostly stays between about 7,000 and 14,000, while the automatic series stays low except for two spikes near 17,000 in late 2016 and late 2017.",
+      "alt_ar": "مخطط خطي بعنوان العدد الشهري للزلازل حسب الحالة، من 2010 إلى 2018: تبقى سلسلة reviewed غالبًا بين نحو 7,000 ونحو 14,000، بينما تبقى سلسلة automatic منخفضة إلا في قفزتين تقتربان من 17,000 أواخر 2016 وأواخر 2017.",
+      "caption": "Splitting the count by status shows that the 2016 and 2017 spikes come from automatically recorded events, while the 2010 spike is in reviewed events.",
+      "caption_ar": "يُظهر تقسيم العدد حسب الحالة أن قفزتي 2016 و2017 تأتيان من الأحداث المسجلة آليًا (automatic)، بينما تقع قفزة 2010 في الأحداث التي رُوجعت (reviewed).",
+      "source_reference": "Figure 6-11; source file sfda_0611.png"
+    }
+  ]
+}

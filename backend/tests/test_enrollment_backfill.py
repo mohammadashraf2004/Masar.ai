@@ -46,6 +46,13 @@ def test_learners_already_working_in_a_course_are_enrolled_and_nothing_else_is_t
     lesson_of_tool = learn_db.query(Lesson).filter(Lesson.tool_topic_id.isnot(None)).first()
     topic_id, lesson_id = learn_catalog["level_lessons"][1][0]
 
+    # 018's backfill ran, at deploy time, while every course still defaulted
+    # to `is_free=true` (021 changed that default afterwards) - so exercising
+    # its own SQL here needs that same starting condition made explicit.
+    langchain.is_free = True
+    level_one.is_free = True
+    learn_db.commit()
+
     enrolled_only, worked_tool, worked_track, track_only, nothing = (_user(learn_db, i) for i in range(5))
     now = datetime(2026, 9, 1, tzinfo=timezone.utc)
     learn_db.add(ToolEnrollment(user_id=enrolled_only.id, tool_course_id=langchain.tool_course_id, enrolled_at=now))

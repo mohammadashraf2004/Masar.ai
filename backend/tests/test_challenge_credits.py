@@ -67,10 +67,13 @@ def _txs(db, user_id: int, kind: TransactionType):
     )
 
 
-def _promo_open(monkeypatch, credits=500, days=30):
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_UNTIL", "2099-12-31")
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_CREDITS", credits)
-    monkeypatch.setattr(settings, "LAUNCH_PROMO_DAYS", days)
+def _grant_legacy_promo(db, user_id: int, credits=500, days=30):
+    """Seed a historical promo wallet without reviving signup promotions."""
+    wallet = db.query(UserWallet).filter(UserWallet.user_id == user_id).one()
+    wallet.credit_balance = credits
+    wallet.promo_credits_remaining = credits
+    wallet.promo_expires_at = datetime.now(timezone.utc) + timedelta(days=days)
+    db.commit()
 
 
 def _lapse_promo(db, user_id: int):
@@ -131,8 +134,8 @@ def test_enrolling_draws_down_promo_credits(client, db, monkeypatch, challenge):
     """The bug: enrolling moved credit_balance but left
     promo_credits_remaining untouched, so the wallet claimed the user still
     held promo credits they had already spent."""
-    _promo_open(monkeypatch, credits=500)
     token, user_id = _register(client)
+    _grant_legacy_promo(db, user_id, credits=500)
 
     assert _enroll(client, token, challenge).status_code == 200
 
@@ -144,8 +147,8 @@ def test_enrolling_draws_down_promo_credits(client, db, monkeypatch, challenge):
 
 
 def test_hint_draws_down_promo_credits(client, db, monkeypatch, challenge, stub_hint):
-    _promo_open(monkeypatch, credits=500)
     token, user_id = _register(client)
+    _grant_legacy_promo(db, user_id, credits=500)
     assert _enroll(client, token, challenge).status_code == 200
 
     assert _hint(client, token, challenge).status_code == 200
@@ -159,8 +162,8 @@ def test_hint_draws_down_promo_credits(client, db, monkeypatch, challenge, stub_
 def test_challenge_spends_are_recorded_in_the_ledger(client, db, monkeypatch, challenge, stub_hint):
     """Balance must never move without a matching transaction row, and the
     rows keep the action labels the wallet history renders."""
-    _promo_open(monkeypatch, credits=500)
     token, user_id = _register(client)
+    _grant_legacy_promo(db, user_id, credits=500)
     _enroll(client, token, challenge)
     _hint(client, token, challenge)
 
@@ -179,8 +182,8 @@ def test_challenge_spends_are_recorded_in_the_ledger(client, db, monkeypatch, ch
 def test_expired_promo_credits_cannot_pay_for_enrolment(client, db, monkeypatch, challenge):
     """Before the fix this route never ran the expiry check, so a lapsed
     500-credit promo balance still bought challenges."""
-    _promo_open(monkeypatch, credits=500)
     token, user_id = _register(client)
+    _grant_legacy_promo(db, user_id, credits=500)
     _lapse_promo(db, user_id)
 
     resp = _enroll(client, token, challenge)
@@ -194,8 +197,8 @@ def test_expired_promo_credits_cannot_pay_for_enrolment(client, db, monkeypatch,
 
 
 def test_expired_promo_credits_cannot_pay_for_a_hint(client, db, monkeypatch, challenge, stub_hint):
-    _promo_open(monkeypatch, credits=500)
     token, user_id = _register(client)
+    _grant_legacy_promo(db, user_id, credits=500)
     assert _enroll(client, token, challenge).status_code == 200
 
     _lapse_promo(db, user_id)
@@ -210,8 +213,8 @@ def test_a_refused_enrolment_creates_no_attempt(client, db, monkeypatch, challen
     three tries, and no ledger entry."""
     from app.models.challenge import ChallengeAttempt
 
-    _promo_open(monkeypatch, credits=500)
     token, user_id = _register(client)
+    _grant_legacy_promo(db, user_id, credits=500)
     _lapse_promo(db, user_id)
 
     assert _enroll(client, token, challenge).status_code == 402
@@ -240,8 +243,8 @@ def test_expiry_after_a_challenge_spend_keeps_purchased_credits(
     """
     from app.services.wallet.wallet_service import expire_promo_credits_if_due
 
-    _promo_open(monkeypatch, credits=100)
     token, user_id = _register(client)
+    _grant_legacy_promo(db, user_id, credits=100)
     add_credits(user_id, 100, db, description="purchased")
     assert _wallet(db, user_id).credit_balance == 200
 

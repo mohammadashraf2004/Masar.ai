@@ -44,23 +44,6 @@ class Settings(BaseSettings):
     LOGIN_MAX_FAILURES: int = 8
     LOGIN_LOCKOUT_MINUTES: int = 15
 
-    # ─── Launch promotion ─────────────────────────────────────────────────
-    # A larger signup grant while the platform is finding its first users.
-    # Credits only — the certification exam fee is a separate, EGP-only
-    # paywall (exam_controller._require_paid_exam) and is NOT affected.
-    #
-    # LAUNCH_PROMO_UNTIL bounds the OFFER: accounts created after it get
-    # the ordinary STARTER_CREDITS. Empty disables the promo entirely, so
-    # a missing/typo'd value fails closed rather than granting forever.
-    # Format: YYYY-MM-DD (interpreted as end-of-day UTC).
-    LAUNCH_PROMO_UNTIL: str = ""
-    # Credits granted to accounts created during the window.
-    LAUNCH_PROMO_CREDITS: int = 500
-    # How long a user keeps them. Unspent promo credits are removed this
-    # many days after that user signed up, so the giveaway does not become
-    # an open-ended liability. 0 disables expiry.
-    LAUNCH_PROMO_DAYS: int = 30
-
     # ─── Database ─────────────────────────────────────────────────────────
     DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/ai_career_platform"
 
@@ -122,6 +105,16 @@ class Settings(BaseSettings):
     # offline scripts that build a provider themselves keep their own.
     GENERATION_TIMEOUT_SECONDS: float = 25.0
     GENERATION_MAX_RETRIES: int = 0
+    # Mentor replies that fail validation fall back to a safe answer and are
+    # refunded - this many times per account per 24 h. Beyond it the send is
+    # charged: each one already cost up to three provider calls.
+    MENTOR_VALIDATION_REFUNDS_PER_DAY: int = 3
+    # AI-reviewed project submissions (/tracks/projects/{id}/submit) per account
+    # in any rolling 24 hours, on top of that route's per-IP limit.
+    PROJECT_REVIEW_LIMIT_PER_DAY: int = 10
+    # Largest request body the API accepts (the largest legitimate one is a
+    # 200k-character Project Lab file). Caddy enforces the same at the edge.
+    MAX_REQUEST_BODY_BYTES: int = 4 * 1024 * 1024
 
     # ─── API keys ─────────────────────────────────────────────────────────
     ANTHROPIC_API_KEY: Optional[str] = None
@@ -157,6 +150,41 @@ class Settings(BaseSettings):
     # into a "weeks" estimate for display. An assumption, not a promise — it is
     # a setting so the estimate can follow what learners actually do.
     LEARNING_HOURS_PER_WEEK: int = 6
+
+    # ─── Project Lab execution ────────────────────────────────────────────
+    # Where learner Python/SQL from the Project Lab runs. Never in this
+    # process: see app/services/project_lab/execution.py.
+    #   runner   — the isolated project-runner service (docker-compose.yml),
+    #              reached over a Unix socket; it has no network at all. The
+    #              only backend that is a security boundary.
+    #   local    — a restricted subprocess of the API (development and
+    #              tests only; NOT a sandbox — refused in production below).
+    #   disabled — Run / Check Step report "unavailable".
+    # Blank means "local" in development and "disabled" in production, so a
+    # production deploy never silently falls back to the unsafe adapter.
+    PROJECT_LAB_EXECUTION_BACKEND: str = ""
+    PROJECT_LAB_RUNNER_SOCKET: str = ""
+    PROJECT_LAB_RUNNER_TOKEN: str = ""
+    # true: refuse to send jobs to a runner that does not report gVisor
+    # (checked against the runner's /healthz). Set it when the runner is
+    # deployed with runtime: runsc, so a misconfigured host fails loudly.
+    PROJECT_LAB_REQUIRE_GVISOR: bool = False
+    # One execution at a time per learner. A lease older than this is treated
+    # as abandoned (a crashed worker), so a learner is never locked out.
+    PROJECT_LAB_EXECUTION_LEASE_SECONDS: int = 180
+    # Total size of a learner's editable files.
+    PROJECT_LAB_MAX_WORKSPACE_BYTES: int = 1_000_000
+    # Client-side ceiling for one runner request, including time queued behind
+    # other jobs (the runner executes one job at a time per replica).
+    PROJECT_LAB_RUNNER_TIMEOUT_SECONDS: float = 45.0
+    # Limits applied by the local adapter. The runner service has its own.
+    PROJECT_LAB_LOCAL_TIMEOUT_SECONDS: float = 15.0
+    PROJECT_LAB_LOCAL_MEMORY_MB: int = 1024
+    # Fair share of the shared runner per account (Project Lab and Python code
+    # exercises together): runner seconds allowed per rolling window. The
+    # default caps any one account at a fifth of one replica's time.
+    RUNNER_USER_SECONDS: int = 120
+    RUNNER_USER_WINDOW_SECONDS: int = 600
 
     # ─── CORS ─────────────────────────────────────────────────────────────
     FRONTEND_URL: str = "http://localhost:3000"
@@ -216,28 +244,6 @@ class Settings(BaseSettings):
         return problems
 
     @property
-    def launch_promo_until(self):
-        """Parsed LAUNCH_PROMO_UNTIL, or None when the promo is off.
-        A malformed value returns None — the promo simply does not apply,
-        rather than being treated as 'always on'."""
-        from datetime import datetime, time, timezone
-
-        raw = self.LAUNCH_PROMO_UNTIL.strip()
-        if not raw:
-            return None
-        try:
-            day = datetime.strptime(raw, "%Y-%m-%d").date()
-        except ValueError:
-            return None
-        return datetime.combine(day, time.max, tzinfo=timezone.utc)
-
-    def promo_is_open(self) -> bool:
-        from datetime import datetime, timezone
-
-        until = self.launch_promo_until
-        return until is not None and datetime.now(timezone.utc) <= until
-
-    @property
     def trusted_proxy_networks(self) -> list:
         """Parsed TRUSTED_PROXY_IPS. Malformed entries are dropped rather
         than silently widening the trust boundary."""
@@ -282,6 +288,29 @@ class Settings(BaseSettings):
         """
         return {s.strip().casefold() for s in self.AVAILABLE_TRACK_SLUGS.split(",") if s.strip()}
 
+    @property
+    def project_lab_backend(self) -> str:
+        """The effective Project Lab execution backend (see the settings above)."""
+        chosen = self.PROJECT_LAB_EXECUTION_BACKEND.strip().lower()
+        if chosen:
+            return chosen
+        return "disabled" if self.is_production else "local"
+
+    def project_lab_problems(self) -> list[str]:
+        problems: list[str] = []
+        backend = self.project_lab_backend
+        if backend not in {"runner", "local", "disabled"}:
+            problems.append("PROJECT_LAB_EXECUTION_BACKEND must be one of: runner, local, disabled")
+        if backend == "runner" and not self.PROJECT_LAB_RUNNER_SOCKET.strip().startswith("/"):
+            problems.append("PROJECT_LAB_RUNNER_SOCKET must be an absolute socket path when PROJECT_LAB_EXECUTION_BACKEND=runner")
+        token = self.PROJECT_LAB_RUNNER_TOKEN.strip()
+        if backend == "runner" and (len(token) < 24 or "change-me" in token):
+            problems.append(
+                "PROJECT_LAB_RUNNER_TOKEN must be a random value of 24+ characters (not the compose "
+                "default) when PROJECT_LAB_EXECUTION_BACKEND=runner"
+            )
+        return problems
+
 
 settings = Settings()
 
@@ -292,6 +321,10 @@ if settings.is_production:
         _problems.append("SECRET_KEY must be set to a random value of at least 32 characters")
     if len(set(settings.SECRET_KEY)) < 8:
         _problems.append("SECRET_KEY has too little variation to be a real random value")
+    if settings.ALGORITHM not in {"HS256", "HS384", "HS512"}:
+        # Tokens are signed and verified with the shared SECRET_KEY only; any
+        # other value ("none", an asymmetric alg) is a misconfiguration.
+        _problems.append("ALGORITHM must be HS256, HS384 or HS512")
     if "localhost" in settings.DATABASE_URL or "password@" in settings.DATABASE_URL:
         _problems.append("DATABASE_URL still points at the local dev database/credentials")
     if not settings.FRONTEND_URL.startswith("https://"):
@@ -336,6 +369,15 @@ if settings.is_production:
     # with no key (or a blank model id) boots cleanly, passes /health, and
     # then fails every AI request with the first sign being user reports.
     _problems.extend(settings.llm_config_problems())
+    _problems.extend(settings.project_lab_problems())
+    if settings.project_lab_backend == "local":
+        # The local adapter runs learner code as the API's own user, with the
+        # API's filesystem and network. It exists for development and tests;
+        # in production it would hand every learner the API container.
+        _problems.append(
+            "PROJECT_LAB_EXECUTION_BACKEND=local is not a sandbox and is refused in "
+            "production; use runner (or disabled)"
+        )
     if settings.TRUSTED_PROXY_COUNT < 0:
         _problems.append("TRUSTED_PROXY_COUNT cannot be negative")
     if settings.TRUSTED_PROXY_COUNT > 0 and not settings.trusted_proxy_networks:

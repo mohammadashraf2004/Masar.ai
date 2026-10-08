@@ -129,7 +129,9 @@
       "type": "image",
       "file": "B21848_7_1.png",
       "alt": "GitHub Actions workflow running Terraform init, plan, and apply against an S3 remote-state bucket while a DynamoDB table acquires and releases state locks.",
+      "alt_ar": "Workflow في GitHub Actions يشغّل Terraform init ثم plan ثم apply مع تخزين الحالة البعيدة في S3 واستخدام جدول DynamoDB لحجز قفل الحالة وتحريره.",
       "caption": "Remote state in S3 and locking in DynamoDB keep automated Terraform runs consistent and serialized.",
+      "caption_ar": "تحافظ الحالة البعيدة في S3 وآلية القفل في DynamoDB على اتساق عمليات Terraform المؤتمتة وتنفيذها تسلسليًا.",
       "source_reference": "Figure 7-1; source file B21848_7_1.png"
     }
   ],

@@ -10,7 +10,8 @@
   "difficulty": "Intermediate → Advanced",
   "course_title": "AI Agents with MCP",
   "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
-  "modules": 5,
+  "consolidated_file_modules": true,
+  "modules": 8,
   "lessons": 8,
   "guided_minutes": 1410,
   "professional_capability": "Build agentic applications with the Model Context Protocol: MCP clients and servers, tools, prompts and resources, transports, security, and the MCP ecosystem.",
@@ -34,46 +35,51 @@
   "module_inventory": [
     {
       "id": "M007-01",
-      "title": "Agentic AI & MCP Foundations",
+      "title": "From LLMs to Agents and the Model Context Protocol",
       "lessons": 1,
-      "lesson_ids": [
-        "M01.L01"
-      ]
+      "lesson_ids": ["M01.L01"]
     },
     {
       "id": "M007-02",
-      "title": "Building MCP Clients",
-      "lessons": 2,
-      "lesson_ids": [
-        "M02.L01",
-        "M02.L02"
-      ]
+      "title": "Building Agentic Applications with MCP Clients",
+      "lessons": 1,
+      "lesson_ids": ["M02.L01"]
     },
     {
       "id": "M007-03",
-      "title": "Building MCP Servers",
-      "lessons": 3,
-      "lesson_ids": [
-        "M03.L01",
-        "M03.L02",
-        "M03.L03"
-      ]
+      "title": "Advanced MCP Clients and Production Best Practices",
+      "lessons": 1,
+      "lesson_ids": ["M02.L02"]
     },
     {
       "id": "M007-04",
-      "title": "MCP Transport Layer",
+      "title": "Building MCP Servers: Tools, Prompts, and Resources",
       "lessons": 1,
-      "lesson_ids": [
-        "M04.L01"
-      ]
+      "lesson_ids": ["M03.L01"]
     },
     {
       "id": "M007-05",
-      "title": "MCP Ecosystem and Extensions",
+      "title": "Advanced MCP Servers: Utilities and Client Capabilities",
       "lessons": 1,
-      "lesson_ids": [
-        "M05.L01"
-      ]
+      "lesson_ids": ["M03.L02"]
+    },
+    {
+      "id": "M007-06",
+      "title": "Testing, Securing, and Sharing Your MCP Server",
+      "lessons": 1,
+      "lesson_ids": ["M03.L03"]
+    },
+    {
+      "id": "M007-07",
+      "title": "Connecting Clients and Servers: MCP Transports",
+      "lessons": 1,
+      "lesson_ids": ["M04.L01"]
+    },
+    {
+      "id": "M007-08",
+      "title": "MCP Ecosystem, Extensions, and Contributing to the Protocol",
+      "lessons": 1,
+      "lesson_ids": ["M05.L01"]
     }
   ]
 }

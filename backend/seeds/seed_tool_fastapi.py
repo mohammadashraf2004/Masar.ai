@@ -19,8 +19,7 @@ import app.models.community, app.models.wallet, app.models.auth_token  # noqa: F
 import app.models.challenge, app.models.exam                         # noqa: F401
 from app.models.learning import Lesson, Exercise, Quiz, Project, DifficultyLevel
 from app.models.tool_course import ToolCourse, ToolTopic
-
-require_migrated_schema()
+from app.services.code_grading.authoring import complete_seed_exercises
 
 TOOL_SLUG = "fastapi-serving"  # must already exist — created by seed_tool_courses.py
 
@@ -4409,6 +4408,8 @@ And that is a very useful architecture for an AI Engineer.""",
 # ---------------------------------------------------------------------------
 # Seed logic — do not modify below this line
 # ---------------------------------------------------------------------------
+complete_seed_exercises(TOPICS)
+
 TOPIC_FIELDS = ("title", "slug", "description", "order", "difficulty",
                  "estimated_hours", "skill_tags", "prerequisite_ids")
 
@@ -4438,12 +4439,17 @@ def seed(db):
         else:
             print("    - Lesson exists, skipping")
 
-        if db.query(Exercise).filter(Exercise.tool_topic_id == topic.id).count() == 0:
-            for ex in t["exercises"]:
+        for ex in t["exercises"]:
+            existing = db.query(Exercise).filter(
+                Exercise.tool_topic_id == topic.id,
+                Exercise.title == ex["title"],
+            ).first()
+            if existing:
+                for key, value in ex.items():
+                    setattr(existing, key, value)
+            else:
                 db.add(Exercise(tool_topic_id=topic.id, **ex))
-            print(f"    + {len(t['exercises'])} exercise(s) added")
-        else:
-            print("    - Exercises exist, skipping")
+        print(f"    ~ {len(t['exercises'])} exercise(s) synchronized")
 
         if not db.query(Quiz).filter(Quiz.tool_topic_id == topic.id).first():
             db.add(Quiz(tool_topic_id=topic.id, **t["quiz"]))
@@ -4462,6 +4468,7 @@ def seed(db):
 
 
 if __name__ == "__main__":
+    require_migrated_schema()
     db = SessionLocal()
     try:
         seed(db)

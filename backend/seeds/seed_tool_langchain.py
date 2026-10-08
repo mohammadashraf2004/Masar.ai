@@ -18,8 +18,7 @@ import app.models.community, app.models.wallet, app.models.auth_token  # noqa: F
 import app.models.challenge, app.models.exam                         # noqa: F401
 from app.models.learning import Lesson, Exercise, Quiz, Project, DifficultyLevel
 from app.models.tool_course import ToolCourse, ToolTopic
-
-require_migrated_schema()
+from app.services.code_grading.authoring import complete_seed_exercises
 
 TOOL_SLUG = "langchain"  # must already exist — created by seed_tool_courses.py
 
@@ -138,14 +137,11 @@ Once these make sense, LangChain becomes much easier.
                     "5. What is a tool in an AI application?"
                 ),
                 "difficulty":    DifficultyLevel.beginner,
-                "starter_code":  (
-                    "# Answer each question in a short sentence or two.\n\n"
-                    "Q1. Is LangChain an LLM?\nA1. \n\n"
-                    "Q2. What is LangChain mainly used for?\nA2. \n\n"
-                    "Q3. What is the difference between an LLM and LangChain?\nA3. \n\n"
-                    "Q4. In a RAG application, what does a retriever do?\nA4. \n\n"
-                    "Q5. What is a tool in an AI application?\nA5. \n"
-                ),
+                # This is a written reflection, not executable Python.  Keep
+                # it on the normal answer card instead of presenting invalid
+                # prose inside the code editor.
+                "exercise_type": "legacy",
+                "starter_code":  None,
                 "solution_code": (
                     "Q1. Is LangChain an LLM?\n"
                     "A1. No. LangChain is not a model — it's a framework that connects "
@@ -3506,10 +3502,10 @@ search the document. It simply loads the document into LangChain.
                 "starter_code": """# TODO: Which loader class would you use for my_book.pdf?
 # Your answer: ___________
 
-# TODO: Import it and load the document
-from langchain_community.document_loaders import ...
+# The class is imported for you. Complete the loader construction below.
+from langchain_community.document_loaders import PyPDFLoader
 
-loader = ...
+loader = None
 documents = loader.load()
 
 print(documents[0].page_content)
@@ -8820,6 +8816,8 @@ print(result)
 # ---------------------------------------------------------------------------
 # Seed logic — do not modify below this line
 # ---------------------------------------------------------------------------
+complete_seed_exercises(TOPICS)
+
 TOPIC_FIELDS = ("title", "slug", "description", "order", "difficulty",
                  "estimated_hours", "skill_tags", "prerequisite_ids")
 
@@ -8849,12 +8847,17 @@ def seed(db):
         else:
             print("    - Lesson exists, skipping")
 
-        if db.query(Exercise).filter(Exercise.tool_topic_id == topic.id).count() == 0:
-            for ex in t["exercises"]:
+        for ex in t["exercises"]:
+            existing = db.query(Exercise).filter(
+                Exercise.tool_topic_id == topic.id,
+                Exercise.title == ex["title"],
+            ).first()
+            if existing:
+                for key, value in ex.items():
+                    setattr(existing, key, value)
+            else:
                 db.add(Exercise(tool_topic_id=topic.id, **ex))
-            print(f"    + {len(t['exercises'])} exercise(s) added")
-        else:
-            print("    - Exercises exist, skipping")
+        print(f"    ~ {len(t['exercises'])} exercise(s) synchronized")
 
         if not db.query(Quiz).filter(Quiz.tool_topic_id == topic.id).first():
             db.add(Quiz(tool_topic_id=topic.id, **t["quiz"]))
@@ -8875,6 +8878,7 @@ def seed(db):
 
 
 if __name__ == "__main__":
+    require_migrated_schema()
     db = SessionLocal()
     try:
         seed(db)

@@ -8,7 +8,8 @@
   "level": "Intermediate → Advanced",
   "course_title": "AI Service Engineering with FastAPI",
   "status": "Manifest reconciled with the lesson files in this folder (2026-10-02); counts and inventory describe what the loaders read",
-  "modules": 1,
+  "consolidated_file_modules": true,
+  "modules": 12,
   "lessons": 12,
   "guided_minutes": 2730,
   "professional_capability": "Design, secure, test, optimize, and deploy backend services for AI applications.",
@@ -33,22 +34,75 @@
   "module_inventory": [
     {
       "id": "M010-01",
-      "title": "Generative AI Service Foundations",
-      "lessons": 12,
-      "lesson_ids": [
-        "M01.L01",
-        "M01.L02",
-        "M01.L03",
-        "M01.L04",
-        "M01.L05",
-        "M01.L06",
-        "M01.L07",
-        "M01.L08",
-        "M01.L09",
-        "M01.L10",
-        "M01.L11",
-        "M01.L12"
-      ]
+      "title": "Introduction to Generative AI Services",
+      "lessons": 1,
+      "lesson_ids": ["M01.L01"]
+    },
+    {
+      "id": "M010-02",
+      "title": "Getting Started with FastAPI",
+      "lessons": 1,
+      "lesson_ids": ["M01.L02"]
+    },
+    {
+      "id": "M010-03",
+      "title": "AI Integration and Model Serving",
+      "lessons": 1,
+      "lesson_ids": ["M01.L03"]
+    },
+    {
+      "id": "M010-04",
+      "title": "Implementing Type-Safe AI Services",
+      "lessons": 1,
+      "lesson_ids": ["M01.L04"]
+    },
+    {
+      "id": "M010-05",
+      "title": "Achieving Concurrency in AI Workloads",
+      "lessons": 1,
+      "lesson_ids": ["M01.L05"]
+    },
+    {
+      "id": "M010-06",
+      "title": "Real-Time Communication with Generative Models",
+      "lessons": 1,
+      "lesson_ids": ["M01.L06"]
+    },
+    {
+      "id": "M010-07",
+      "title": "Integrating Databases into AI Services",
+      "lessons": 1,
+      "lesson_ids": ["M01.L07"]
+    },
+    {
+      "id": "M010-08",
+      "title": "Authentication and Authorization for GenAI Services",
+      "lessons": 1,
+      "lesson_ids": ["M01.L08"]
+    },
+    {
+      "id": "M010-09",
+      "title": "Securing AI Services Against Misuse and Abuse",
+      "lessons": 1,
+      "lesson_ids": ["M01.L09"]
+    },
+    {
+      "id": "M010-10",
+      "title": "Optimizing AI Services",
+      "lessons": 1,
+      "lesson_ids": ["M01.L10"]
+    },
+    {
+      "id": "M010-11",
+      "title": "Testing AI Services",
+      "lessons": 1,
+      "lesson_ids": ["M01.L11"]
+    },
+    {
+      "id": "M010-12",
+      "title": "Deployment of AI Services",
+      "lessons": 1,
+      "lesson_ids": ["M01.L12"]
     }
   ]
 }

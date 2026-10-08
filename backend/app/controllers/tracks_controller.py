@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy import text
 from sqlalchemy.orm import Session, joinedload
 from typing import List
 
@@ -18,19 +19,22 @@ from app.views.learning import (
     TopicResponse,
 )
 from app.core.authz import require_verified_user
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_optional_user
 from app.services.content.track_availability import require_track_available
+from app.core.config import settings
 from app.core.limiter import limiter
 from app.services import get_llm, code_review_service
 from app.services.mentor.mentor_service import get_project_hint
 from app.services.wallet.wallet_service import deduct_credits, refund_credits
+from app.services.billing.redaction import redact_topic
 from app.services.billing.access_service import (
-    course_access, course_for_track_topic, require_content_access,
+    course_access, course_for_track_topic, free_lesson_ids, free_preview_content_ids, require_content_access,
     require_course_access, require_lesson_access,
 )
 from app.models.learning_path import Course
 from app.services.learning import enrollment as course_enrollment
-from datetime import datetime
+from app.services.learning import track_catalog
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -55,32 +59,11 @@ def _redact_locked_track(track: CareerTrack, user_id: int, db: Session):
         course = courses.get(level["id"])
         if not course or course_access(db, user_id, course).has_access:
             continue
+        free_ids = free_lesson_ids(db, course)
+        free_exercise_ids, free_quiz_ids = free_preview_content_ids(db, course)
         for topic in level["topics"]:
-            for lesson in topic["lessons"]:
-                if not lesson.get("is_preview"):
-                    lesson["content"] = ""
-                    lesson["content_ar"] = None
-                    lesson["is_locked"] = True
-                    lesson["course_slug"] = course.slug
-            for exercise in topic["exercises"]:
-                exercise["description"] = ""
-                exercise["description_ar"] = None
-                exercise["starter_code"] = None
-                exercise["is_locked"] = True
-                exercise["course_slug"] = course.slug
-            for project in topic["projects"]:
-                project["description"] = ""
-                project["description_ar"] = None
-                project["objectives"] = []
-                project["rubric"] = {}
-                project["starter_repo_url"] = None
-                project["is_locked"] = True
-                project["course_slug"] = course.slug
-            for quiz in topic["quizzes"]:
-                quiz["questions"] = []
-                quiz["questions_ar"] = None
-                quiz["is_locked"] = True
-                quiz["course_slug"] = course.slug
+            redact_topic(topic, course.slug, free_lesson_ids=free_ids,
+                         free_exercise_ids=free_exercise_ids, free_quiz_ids=free_quiz_ids)
     return data
 
 
@@ -103,19 +86,25 @@ def _validate_progress_targets(db: Session, payload: ProgressUpdate, *, topic_id
             raise HTTPException(status_code=400, detail="That lesson does not belong to this topic")
 
     if payload.exercise_id is not None:
-        belongs = db.query(Exercise.id).filter(
+        exercise = db.query(Exercise).filter(
             Exercise.id == payload.exercise_id,
             Exercise.topic_id == topic_id,
         ).first()
-        if not belongs:
+        if not exercise:
             raise HTTPException(status_code=400, detail="That exercise does not belong to this topic")
+        if exercise.exercise_type == "code" or exercise.starter_code:
+            raise HTTPException(status_code=409, detail={"code": "SUBMIT_CODE_TO_COMPLETE"})
 
 
 # ─── Career Tracks ──────────────────────────────────────────────────────
 
 @router.get("/", response_model=List[CareerTrackSummary])
-def list_tracks(db: Session = Depends(get_db)):
-    return db.query(CareerTrack).filter(CareerTrack.is_active == True).all()
+def list_tracks(
+    current_user: User | None = Depends(get_optional_user),
+    db: Session = Depends(get_db),
+):
+    tracks = db.query(CareerTrack).filter(CareerTrack.is_active == True).all()
+    return track_catalog.catalogue(db, tracks, current_user)
 
 
 # ─── Enrollment — MUST come before /{slug} to avoid route collision ─────
@@ -184,14 +173,15 @@ def my_enrollments(
 @router.get("/{slug}", response_model=CareerTrackResponse)
 def get_track(
     slug: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User | None = Depends(get_optional_user),
     db: Session = Depends(get_db),
 ):
-    """Authenticated: this returns the track's entire body of lesson
-    content, not a marketing summary. GET /tracks/ stays public for the
-    catalogue; the full curriculum is for signed-in users. (The frontend
-    already gates every track page behind useAuth, so this closes a hole
-    rather than changing behaviour.)"""
+    """Public catalogue detail; lesson bodies remain authenticated.
+
+    A guest receives the timeline/roles/projects projection and no legacy
+    levels. Signed-in learners retain the older curriculum response, redacted
+    according to course access, alongside the new projection.
+    """
     track = (
         db.query(CareerTrack)
         .options(
@@ -213,7 +203,15 @@ def get_track(
     )
     if not track:
         raise HTTPException(status_code=404, detail="Track not found")
-    return _redact_locked_track(track, current_user.id, db)
+    result = track_catalog.detail(db, track, current_user)
+    if current_user is None:
+        result["levels"] = []
+    else:
+        legacy = _redact_locked_track(track, current_user.id, db)
+        # Preserve the authenticated curriculum contract while adding the compact
+        # catalogue/detail projection used by the new screen.
+        result["levels"] = legacy["levels"]
+    return result
 
 
 # ─── Topic Detail ────────────────────────────────────────────────────────
@@ -260,21 +258,9 @@ def get_topic(
         # Reuse the track serializer so preview lessons remain readable while
         # every other body is redacted consistently.
         data = TopicResponse.model_validate(topic).model_dump()
-        for lesson in data["lessons"]:
-            if not lesson.get("is_preview"):
-                lesson["content"] = ""
-                lesson["content_ar"] = None
-                lesson["is_locked"] = True
-                lesson["course_slug"] = course.slug
-        for exercise in data["exercises"]:
-            exercise.update(description="", description_ar=None, starter_code=None)
-            exercise.update(is_locked=True, course_slug=course.slug)
-        for project in data["projects"]:
-            project.update(description="", description_ar=None, objectives=[], rubric={}, starter_repo_url=None)
-            project.update(is_locked=True, course_slug=course.slug)
-        for quiz in data["quizzes"]:
-            quiz.update(questions=[], questions_ar=None)
-            quiz.update(is_locked=True, course_slug=course.slug)
+        free_exercise_ids, free_quiz_ids = free_preview_content_ids(db, course)
+        redact_topic(data, course.slug, free_lesson_ids=free_lesson_ids(db, course),
+                     free_exercise_ids=free_exercise_ids, free_quiz_ids=free_quiz_ids)
         return data
     return topic
 
@@ -463,15 +449,11 @@ def my_quiz_attempts(
 # deduct_credits() the way /mentor/* does remains the durable fix, but it
 # changes what the feature costs a student and is a pricing decision.
 #
-# TODO(security, needs product decision): the rate limit below is keyed on
-# the client address, not the account — see limiter.client_key, and the
-# test that pins that behaviour deliberately
-# (test_rate_limit_defaults.py::test_authenticated_endpoint_is_limited_by_client_not_account).
-# One verified account across rotating source addresses therefore reaches
-# the provider without a per-account ceiling, at up to 20k characters of
-# prompt per call. Closing that needs either metering (a price change) or
-# an account-level submission cap; both are product calls, so neither is
-# done here.
+# The rate limit below is keyed on the client address (limiter.client_key).
+# On top of it, an account may have at most PROJECT_REVIEW_LIMIT_PER_DAY
+# AI-reviewed submissions in any rolling 24 hours (release decision
+# 2026-10-07), so rotating source addresses no longer buys unlimited reviews.
+# See _reserve_review_slot.
 @limiter.limit("10/hour")
 def submit_project(
     request: Request,
@@ -491,6 +473,12 @@ def submit_project(
     context = f"Project: {project.title}. {project.description}"
     if payload.description:
         context += f"\nStudent's notes on their approach: {payload.description}"
+    user_id = current_user.id
+
+    # Reserve this account's review slot before calling the provider: the row
+    # is the count, so a request refused here or failing above never counts,
+    # and concurrent requests cannot all see a free slot.
+    submission = _reserve_review_slot(db, user_id, project_id, payload)
 
     ai_review = None
     # A provider outage must not cost the student their submission. The
@@ -507,21 +495,52 @@ def submit_project(
     except Exception:
         logger.exception(
             "project review failed; saving submission without one",
-            extra={"project_id": project_id, "user_id": current_user.id},
+            extra={"project_id": project_id, "user_id": user_id},
         )
 
+    if ai_review:
+        submission.ai_review = ai_review
+        submission.score = ai_review.get("score")
+        submission.reviewed_at = datetime.utcnow()
+        db.commit()
+    db.refresh(submission)
+    return submission
+
+
+PROJECT_REVIEW_WINDOW = timedelta(hours=24)
+_PROJECT_REVIEW_LOCK = 7201  # pg_advisory_xact_lock namespace for these reservations
+
+
+def _reserve_review_slot(db: Session, user_id: int, project_id: int, payload: "ProjectSubmit") -> ProjectSubmission:
+    """Insert the submission this AI review will fill in, or refuse with 429 when the account
+    already has PROJECT_REVIEW_LIMIT_PER_DAY submissions in the rolling 24 hours. The
+    per-account advisory lock makes count-and-insert atomic across workers."""
+    db.execute(text("SELECT pg_advisory_xact_lock(:ns, :uid)"), {"ns": _PROJECT_REVIEW_LOCK, "uid": user_id})
+    since = datetime.now(timezone.utc) - PROJECT_REVIEW_WINDOW
+    recent = (
+        db.query(ProjectSubmission.submitted_at)
+        .filter(ProjectSubmission.user_id == user_id, ProjectSubmission.submitted_at >= since)
+        .order_by(ProjectSubmission.submitted_at.asc())
+        .all()
+    )
+    limit = settings.PROJECT_REVIEW_LIMIT_PER_DAY
+    if len(recent) >= limit:
+        db.rollback()
+        # The slot frees when the oldest submission that keeps the count at the limit ages out.
+        oldest = recent[len(recent) - limit][0]
+        if oldest.tzinfo is None:
+            oldest = oldest.replace(tzinfo=timezone.utc)
+        retry_after = max(1, int((oldest + PROJECT_REVIEW_WINDOW - datetime.now(timezone.utc)).total_seconds()) + 1)
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail={"code": "PROJECT_REVIEW_LIMIT", "limit": limit, "window_hours": 24, "retry_after": retry_after},
+            headers={"Retry-After": str(retry_after)},
+        )
     submission = ProjectSubmission(
-        user_id=current_user.id,
-        project_id=project_id,
-        code=payload.code,
-        description=payload.description,
-        ai_review=ai_review,
-        score=ai_review.get("score") if ai_review else None,
-        reviewed_at=datetime.utcnow() if ai_review else None,
+        user_id=user_id, project_id=project_id, code=payload.code, description=payload.description,
     )
     db.add(submission)
-    db.commit()
-    db.refresh(submission)
+    db.commit()  # releases the lock; the row now counts for every other request
     return submission
 
 

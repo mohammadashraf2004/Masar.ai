@@ -4,15 +4,15 @@ backend/app/services/wallet/wallet_service.py
 Central service for all credit operations.
 Import deduct_credits() in any controller that calls an LLM.
 """
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.authz import email_verification_error
-from app.core.config import settings
 from app.core.metrics import record_credit_denial, record_credits_spent
-from app.models.user import User
+from app.models.user import User, UserRole
+from app.models.billing import BillingOrder, CourseEnrollment
 from app.models.wallet import UserWallet, WalletTransaction, TransactionType, TransactionStatus, PaymentMethod
 
 
@@ -34,7 +34,65 @@ CREDIT_COSTS = {
     # (`credit_cost`) and varies per challenge, so it is passed to
     # deduct_credits() as an explicit `cost` instead.
     "challenge_hint":    1,
+    # Mentor v2 (POST /mentor/message): the same price as a chat message. Rule-based replies —
+    # a quiz question taken from the course, a proactive prompt — are never charged at all.
+    "mentor_message":    2,
 }
+
+FREE_PLAN_CREDITS = 40
+FREE_PLAN_MIGRATION_MARKER = "free_plan_40_migration_v1"
+
+
+def migrate_free_wallets_to_40(db: Session) -> int:
+    """Idempotent one-time normalizer used by migration verification/tools.
+    Same rule as migration 021: raise eligible free wallets to at least 40,
+    never reduce one.
+
+    Paid credit buyers and users with purchased/admin-granted course access
+    are deliberately excluded. History is appended; no old row is rewritten.
+    """
+    migrated = 0
+    users = db.query(User).filter(User.role == UserRole.student).all()
+    for user in users:
+        wallet = get_or_create_wallet(user.id, db)
+        already_done = db.query(WalletTransaction.id).filter(
+            WalletTransaction.wallet_id == wallet.id,
+            WalletTransaction.action_type == FREE_PLAN_MIGRATION_MARKER,
+        ).first()
+        bought_credits = db.query(WalletTransaction.id).filter(
+            WalletTransaction.wallet_id == wallet.id,
+            WalletTransaction.transaction_type == TransactionType.topup,
+            WalletTransaction.status == TransactionStatus.confirmed,
+        ).first()
+        paid_course = db.query(CourseEnrollment.id).filter(
+            CourseEnrollment.user_id == user.id,
+            CourseEnrollment.source.in_(("purchase", "admin_grant")),
+        ).first()
+        paid_order = db.query(BillingOrder.id).filter(
+            BillingOrder.user_id == user.id, BillingOrder.status == "paid",
+        ).first()
+        if already_done or bought_credits or paid_course or paid_order:
+            continue
+
+        wallet = db.query(UserWallet).filter(UserWallet.id == wallet.id).with_for_update().one()
+        # A floor, never a reset: a balance at or above 40 is left alone.
+        if (wallet.credit_balance or 0) >= FREE_PLAN_CREDITS:
+            continue
+        delta = FREE_PLAN_CREDITS - (wallet.credit_balance or 0)
+        wallet.credit_balance = FREE_PLAN_CREDITS
+        wallet.promo_credits_remaining = 0
+        wallet.promo_expires_at = None
+        db.add(WalletTransaction(
+            wallet_id=wallet.id, transaction_type=TransactionType.bonus,
+            status=TransactionStatus.confirmed, credits=delta,
+            payment_method=PaymentMethod.admin,
+            description="Free plan balance raised to 40 credits",
+            action_type=FREE_PLAN_MIGRATION_MARKER,
+            balance_after=FREE_PLAN_CREDITS,
+        ))
+        db.commit()
+        migrated += 1
+    return migrated
 
 
 def get_or_create_wallet(user_id: int, db: Session) -> UserWallet:
@@ -45,34 +103,6 @@ def get_or_create_wallet(user_id: int, db: Session) -> UserWallet:
         db.commit()
         db.refresh(wallet)
     return wallet
-
-
-def grant_launch_promo(user_id: int, db: Session) -> int:
-    """Grant the launch-promo credit bundle to a brand-new account.
-
-    Returns the number of credits granted (0 when the promo is closed, so
-    the caller falls back to the ordinary starter grant).
-
-    Called exactly once, from registration. Both the eligibility check and
-    the expiry date come from the server clock and server config — there
-    is no request field that influences either.
-    """
-    if not settings.promo_is_open() or settings.LAUNCH_PROMO_CREDITS <= 0:
-        return 0
-
-    credits = settings.LAUNCH_PROMO_CREDITS
-    wallet = add_credits(
-        user_id, credits, db,
-        payment_method="admin",
-        description=f"Launch promo — {credits} free credits",
-        transaction_type="bonus",
-    )
-
-    wallet.promo_credits_remaining = credits
-    if settings.LAUNCH_PROMO_DAYS > 0:
-        wallet.promo_expires_at = datetime.now(timezone.utc) + timedelta(days=settings.LAUNCH_PROMO_DAYS)
-    db.commit()
-    return credits
 
 
 def expire_promo_credits_if_due(wallet: UserWallet, db: Session, commit: bool = True) -> int:
@@ -369,8 +399,11 @@ def add_credits(
     wallet = get_or_create_wallet(user_id, db)
 
     if status == "confirmed":
-        wallet.credit_balance     += credits
-        wallet.lifetime_purchased += credits
+        wallet.credit_balance += credits
+        # Welcome/admin bonuses are not purchases. Keeping this counter
+        # purchase-only lets migrations identify paying users accurately.
+        if transaction_type == "topup":
+            wallet.lifetime_purchased += credits
 
     tx = WalletTransaction(
         wallet_id        = wallet.id,

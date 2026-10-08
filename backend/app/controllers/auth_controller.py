@@ -20,11 +20,10 @@ from app.core.security import (
 )
 from app.db.session import get_db
 from app.models.auth_token import EmailToken, EmailTokenPurpose
-from app.models.update_ack import UserUpdateAcknowledgement
 from app.models.user import User
 from app.services import tour_service, update_service
 from app.services.email.resend_service import send_password_reset_email, send_verification_email
-from app.services.wallet.wallet_service import add_credits, grant_launch_promo
+from app.services.wallet.wallet_service import add_credits
 from app.views.auth import (
     ForgotPasswordRequest, LegalAcceptance, MessageResponse, ResetPasswordRequest, TokenResponse,
     TourRecordResponse, TourRecordWrite, UserCreate, UserLogin, UserResponse, UserUpdate, VerifyEmailRequest,
@@ -34,16 +33,16 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 VERIFY_TOKEN_TTL = timedelta(hours=24)
 RESET_TOKEN_TTL = timedelta(hours=1)
-# Free credits granted on signup — enough for a handful of AI actions
-# (5 mentor chats, or 2-3 exercise/quiz chats) before hitting the paywall.
-STARTER_CREDITS = 10
+# The Free plan's one authoritative signup grant. Keep this beside the only
+# call site so onboarding cannot accidentally stack several grants.
+FREE_PLAN_CREDITS = 40
 
 
 def _require_legal_acceptance(accept_terms: bool, accept_privacy: bool) -> None:
     if accept_terms is True and accept_privacy is True:
         return
     raise HTTPException(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         detail={
             "error": "legal_acceptance_required",
             "message": "You must accept the Terms of Service and the Privacy Policy to continue.",
@@ -150,10 +149,6 @@ def register(request: Request, payload: UserCreate, db: Session = Depends(get_db
         experience_level=payload.experience_level,
         terms_version=legal.TERMS_VERSION, terms_accepted_at=accepted_at,
         privacy_version=legal.PRIVACY_VERSION, privacy_accepted_at=accepted_at,
-        # An account created now has nothing to be told "is new": it starts with
-        # the skill-gap announcement seen, and meets the feature in its first
-        # roadmap instead. Written with the account, in the same transaction.
-        update_acknowledgements=[UserUpdateAcknowledgement(release_id=releases.WHATS_NEW)],
     )
     db.add(user)
     try:
@@ -170,17 +165,11 @@ def register(request: Request, payload: UserCreate, db: Session = Depends(get_db
         )
     db.refresh(user)
 
-    # During the launch window new accounts get the larger promo bundle
-    # instead of the standard welcome credits. Eligibility is decided by
-    # the server clock and server config only — nothing in the request
-    # influences it, and a closed/misconfigured promo falls back to the
-    # ordinary grant rather than failing open.
-    granted = grant_launch_promo(user.id, db)
-    if not granted:
-        add_credits(
-            user.id, STARTER_CREDITS, db,
-            payment_method="admin", description="Welcome credits", transaction_type="bonus",
-        )
+    add_credits(
+        user.id, FREE_PLAN_CREDITS, db,
+        payment_method="admin", description="Free plan — 40 welcome credits",
+        transaction_type="bonus",
+    )
 
     raw = _issue_email_token(db, user, EmailTokenPurpose.verify_email, VERIFY_TOKEN_TTL)
     send_verification_email(user.email, user.full_name, raw)  # best-effort — see resend_service
@@ -300,7 +289,7 @@ def list_my_tours(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Every walkthrough record the signed-in account has, in one call; the
+    """Every walkthrough record the signed-in account has, in one call — the
     client fetches this once on load rather than once per tour."""
     return tour_service.list_records(db, current_user.id)
 
@@ -334,6 +323,7 @@ def put_my_tour(
     if tour_id not in tour_service.KNOWN_TOUR_IDS:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown tour")
     return tour_service.upsert(db, current_user.id, tour_id, payload.status, payload.version, payload.at)
+
 
 @router.patch("/me", response_model=UserResponse)
 def update_me(

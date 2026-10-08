@@ -87,7 +87,9 @@
       "type": "image",
       "file": "assets/CH02_F08_Lanham4.png",
       "alt": "Planning agent exposing internal tools and equivalent external tools through local MCP-stdio and remote MCP-SSE servers, with JSON tool descriptions sent to the LLM.",
+      "alt_ar": "وكيل تخطيط يتيح أدوات داخلية وأدوات خارجية مكافئة عبر خادم MCP-stdio محلي وخادم MCP-SSE بعيد، مع إرسال أوصاف الأدوات بصيغة JSON إلى LLM.",
       "caption": "The same tool contract can be implemented in-process, on a local MCP server, or on a remote MCP server.",
+      "caption_ar": "يمكن تنفيذ عقد الأداة نفسه داخل Process، أو على خادم MCP محلي، أو على خادم MCP بعيد.",
       "source_reference": "Figure 2.8; source file CH02_F08_Lanham4.png"
     },
     {

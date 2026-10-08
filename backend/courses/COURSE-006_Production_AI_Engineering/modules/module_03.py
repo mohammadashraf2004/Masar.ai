@@ -152,12 +152,8 @@ TOPIC = {
             "Systematic evaluation creates a repeatable way to compare changes and "
             "understand whether the system is actually improving.\n"
             "\n"
-            "[[IMAGE_NEEDED: Evaluation around failure modes | A diagram showing "
-            "an AI application in the center, surrounded by possible failure "
-            "areas such as factual errors, unsafe outputs, poor retrieval, tool "
-            "failure, latency, and user dissatisfaction, with evaluation methods "
-            "mapped to those risks | Learner should notice that evaluation should "
-            "be designed from concrete failure modes rather than generic scores]]\n"
+            '{{image:evaluation-around-failure-modes}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

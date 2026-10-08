@@ -39,21 +39,26 @@ catalogue always matches the folder. Retirement is deliberately narrow:
     that a surviving row still depends on, is KEPT and reported as stale instead;
   * it runs in the caller's transaction, so a failure leaves the catalogue as it was.
 
-Nothing about a learner is ever written.
+Learner progress is written in exactly one case: when a lesson or exercise that already
+existed moves to a different module (a course regrouping its lessons, e.g. the
+`consolidated_file_modules` restructure), each learner's completion of it moves from their
+progress row for the old module to their row for the new one (`_carry_progress`). Without
+that the learner would see finished lessons as unfinished, because completion is counted
+against the item's current module. Nothing is dropped and nothing else is written.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional
 
-from sqlalchemy import null
+from sqlalchemy import func, null
 from sqlalchemy.orm import Session
 
 from app.db.session import Base
 
 from app.models.course_asset import CourseAsset
 from app.models.learning import DifficultyLevel, Exercise, Lesson, Project, Quiz, Topic
-from app.models.progress import UserProgress
+from app.models.progress import ProgressStatus, UserProgress
 from app.models.learning_path import COURSE_KIND_TOOL, Course
 from app.models.tool_course import CURRICULUM_CATEGORY, ToolCourse, ToolTopic
 from app.services.content.quiz_balance import rebalance_quiz
@@ -103,11 +108,14 @@ class CourseReport:
     # Rows no longer in the folder that this import deleted, by kind.
     retired: Dict[str, int] = field(default_factory=dict)
     notes: List[str] = field(default_factory=list)
+    # Completed lesson/exercise ids moved to a learner's row for the item's new module.
+    progress_carried: int = 0
 
     @property
     def changed(self) -> bool:
         tallies = (self.modules, self.lessons, self.exercises, self.quizzes, self.projects, self.assets)
-        return any(t.created or t.updated for t in tallies) or any(self.retired.values())
+        return (any(t.created or t.updated for t in tallies) or any(self.retired.values())
+                or bool(self.progress_carried))
 
 
 def _assign(row: Any, values: Mapping[str, Any]) -> bool:
@@ -178,6 +186,7 @@ def ensure_tool_course(db: Session, definition: Mapping[str, Any], spec: Optiona
     }
     if spec is not None:
         values["title_ar"] = spec.title_ar
+        values["description_ar"] = spec.description_ar
         values["estimated_hours"] = _hours(spec.estimated_minutes)
     if row is None:
         row = ToolCourse(slug=slug, related_track_ids=[], technical_terms=[], industry_skills=[], **values)
@@ -227,7 +236,10 @@ def ensure_course_record(db: Session, definition: Mapping[str, Any], spec: Optio
     return admin.upsert_course(
         db, slug, source={"kind": COURSE_KIND_TOOL, "slug": slug},
         level=str(definition["level"]), title=str(definition["title"]),
-        description=str(definition["capability"]), fields=list(definition["fields"]),
+        title_ar=spec.title_ar if spec else None,
+        description=str(definition["capability"]),
+        description_ar=spec.description_ar if spec else None,
+        fields=list(definition["fields"]),
         roles=[{"slug": g, "relation": r} for g, r in definition["roles"].items()],
         teaches=list(definition["skills"]), learning_objectives=objective,
     )
@@ -242,6 +254,10 @@ def _exercise_values(spec: ExerciseSpec, topic_id: int, lesson_id: int) -> Dict[
         **_title_fields(spec.title, spec.title_ar),
         **_text_fields(spec.description, "description", "description_ar", required=True, given_ar=spec.description_ar),
         "starter_code": spec.starter_code, "solution_code": spec.solution_code,
+        "exercise_type": spec.exercise_type, "language": spec.language,
+        "pre_exercise_code": spec.pre_exercise_code, "grading_tests": spec.tests or None,
+        "hint": spec.hint, "hint_ar": spec.hint_ar,
+        "success_message": spec.success_message, "success_message_ar": spec.success_message_ar,
         "difficulty": _difficulty(spec.difficulty), "skill_tested": spec.skill_tested,
     }
 
@@ -355,6 +371,55 @@ def _completed_ids(db: Session, topic_ids: List[int]) -> Dict[str, set]:
     return done
 
 
+def _carry_progress(db: Session, moved_lessons: Dict[int, Any], moved_exercises: Dict[int, Any]) -> int:
+    """Move each learner's completion of a moved lesson/exercise from their progress row for
+    the item's old module to their row for its new module (created if they have none).
+    Idempotent: a re-import finds nothing left to move. Returns how many ids moved."""
+    if not moved_lessons and not moved_exercises:
+        return 0
+    old_topics = {old for old, _ in list(moved_lessons.values()) + list(moved_exercises.values())}
+    carried = 0
+    rows = db.query(UserProgress).filter(UserProgress.tool_topic_id.in_(old_topics)).order_by(UserProgress.id).all()
+    for row in rows:
+        for field, moved in (("lessons_completed", moved_lessons), ("exercises_completed", moved_exercises)):
+            ids = list(getattr(row, field) or [])
+            leaving = [i for i in ids if i in moved and moved[i][0] == row.tool_topic_id]
+            for item_id in leaving:
+                new_topic = moved[item_id][1]
+                target = (db.query(UserProgress)
+                          .filter(UserProgress.user_id == row.user_id, UserProgress.tool_topic_id == new_topic)
+                          .order_by(UserProgress.id).first())
+                if target is None:
+                    target = UserProgress(user_id=row.user_id, tool_topic_id=new_topic,
+                                          status=ProgressStatus.in_progress, started_at=row.started_at,
+                                          lessons_completed=[], exercises_completed=[])
+                    db.add(target)
+                    db.flush()
+                values = list(getattr(target, field) or [])
+                if item_id not in values:
+                    setattr(target, field, values + [item_id])
+                carried += 1
+            if leaving:
+                setattr(row, field, [i for i in ids if i not in leaving])
+        db.flush()
+    _settle_progress_status(db, {new for _, new in list(moved_lessons.values()) + list(moved_exercises.values())})
+    return carried
+
+
+def _settle_progress_status(db: Session, topic_ids: set) -> None:
+    """A carried row whose module is now fully done reads as completed, like a row the
+    tool-course controller completes (every lesson and exercise of the module)."""
+    for topic_id in topic_ids:
+        lesson_ids = {i for (i,) in db.query(Lesson.id).filter(Lesson.tool_topic_id == topic_id).all()}
+        exercise_ids = {i for (i,) in db.query(Exercise.id).filter(Exercise.tool_topic_id == topic_id).all()}
+        for row in db.query(UserProgress).filter(UserProgress.tool_topic_id == topic_id).all():
+            done = lesson_ids <= set(row.lessons_completed or []) and exercise_ids <= set(row.exercises_completed or [])
+            if done and (lesson_ids or exercise_ids) and row.status != ProgressStatus.completed:
+                row.status = ProgressStatus.completed
+                row.completed_at = row.completed_at or func.now()
+    db.flush()
+
+
 def _retire_stale(db: Session, report: CourseReport, stale: Dict[str, Dict[str, Any]],
                   course_topic_ids: List[int]) -> None:
     """Delete this course's stale rows, children before parents, keeping any that is
@@ -420,6 +485,9 @@ def import_content(db: Session, spec: CourseSpec, tool_course: ToolCourse, *, re
 
     lessons = keyed(Lesson, Lesson.tool_topic_id)
     exercises = keyed(Exercise, Exercise.tool_topic_id)
+    # Where each existing item lived before this import, to carry progress if it moves.
+    lesson_home = {row.id: row.tool_topic_id for row in lessons.values()}
+    exercise_home = {row.id: row.tool_topic_id for row in exercises.values()}
     quizzes = keyed(Quiz, Quiz.tool_topic_id)
     projects = keyed(Project, Project.tool_topic_id)
     produced: set = set()
@@ -485,6 +553,12 @@ def import_content(db: Session, spec: CourseSpec, tool_course: ToolCourse, *, re
             _upsert(db, Project, projects, pkey, _project_values(spec.capstone, topic.id), report.projects)
         db.flush()
 
+    moved_lessons = {r.id: (lesson_home[r.id], r.tool_topic_id) for r in lessons.values()
+                     if r.id in lesson_home and r.tool_topic_id != lesson_home[r.id]}
+    moved_exercises = {r.id: (exercise_home[r.id], r.tool_topic_id) for r in exercises.values()
+                       if r.id in exercise_home and r.tool_topic_id != exercise_home[r.id]}
+    report.progress_carried = _carry_progress(db, moved_lessons, moved_exercises)
+
     stale = {
         kind: {k: row for k, row in store.items() if k not in produced}
         for kind, store in (("topics", topics), ("lessons", lessons), ("exercises", exercises),
@@ -496,6 +570,9 @@ def import_content(db: Session, spec: CourseSpec, tool_course: ToolCourse, *, re
         for rows in stale.values():
             report.stale += sorted(rows)
 
+    if report.progress_carried:
+        report.notes.append(f"{report.progress_carried} completed lesson/exercise ids carried to the "
+                            "learners' progress for the module the item moved to")
     if not spec.has_lesson_bodies:
         report.notes.append(f"{len(spec.modules)} modules imported, {spec.outline_lesson_count} outline lessons not "
                             "imported: the folder has no lesson text, so the course stays non-startable")

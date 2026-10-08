@@ -13,8 +13,8 @@ from app.models.learning import DifficultyLevel
 # ---------------------------------------------------------------------------
 
 LESSON_CODE = "M01.L10"
-MODULE_ORDER = 1
-MODULE_TITLE = "Transformer Foundations"
+MODULE_ORDER = 10
+MODULE_TITLE = "Training Custom Transformers from Scratch"
 MODULE_DESCRIPTION = (
     "Build a transformer language model from scratch by constructing a large corpus, "
     "training a domain-specific tokenizer, initializing a causal language model with "

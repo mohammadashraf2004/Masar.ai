@@ -179,12 +179,30 @@ def norm_exercise(raw: Dict[str, Any], where: str, default_difficulty: str) -> E
         _section("Hints", bullets(raw.get("hints") or [])),
         _section("Self-check", f"```python\n{validation}\n```" if validation else ""),
     ])
+    starter_code = as_text(raw.get("starter_code")) or None
+    raw_type = as_text(raw.get("type") or raw.get("exercise_type")).lower()
+    # A starter scaffold is strong evidence that the legacy item is a code
+    # exercise. It becomes deterministic-but-unavailable until tests are
+    # authored; it is never silently sent to the AI evaluator.
+    exercise_type = raw_type or ("code" if starter_code else "legacy")
+    tests = raw.get("tests") or []
+    if not isinstance(tests, list):
+        raise CurriculumError([f"{where}: exercise tests must be a list"])
+    hint = raw.get("hint")
+    if hint is None and isinstance(raw.get("hints"), list) and raw["hints"]:
+        hint = raw["hints"][0]
     return ExerciseSpec(
         title=title, description=description,
         difficulty=norm_difficulty(raw.get("difficulty"), default_difficulty),
         skill_tested=norm_tags(raw.get("skill_tested") or []),
-        starter_code=as_text(raw.get("starter_code")) or None,
+        starter_code=starter_code,
         solution_code=as_text(raw.get("solution_code")) or None,
+        exercise_type=exercise_type,
+        language=as_text(raw.get("language")) or ("python" if exercise_type == "code" else None),
+        pre_exercise_code=as_text(raw.get("pre_exercise_code")) or None,
+        tests=[dict(test) for test in tests if isinstance(test, dict)],
+        hint=as_text(hint) or None,
+        success_message=as_text(raw.get("success_message")) or None,
         exercise_id=as_text(raw.get("id") or raw.get("exercise_id")),
         course_id=as_text(raw.get("course_id")),
         module_id=as_text(raw.get("module_id")),

@@ -31,17 +31,32 @@ DEFINITIONS = {d["course_id"]: d for d in cfg.COURSE_DIRECTORY_COURSES}
 
 @pytest.fixture(scope="module")
 def specs():
-    return load_and_validate(only=[f"COURSE-{n:03d}" for n in range(1, 17)])
+    return load_and_validate(only=[f"COURSE-{n:03d}" for n in range(1, 19)])
 
 
-def test_all_sixteen_course_folders_load_and_validate(specs):
-    assert [s.course_id for s in specs] == [f"COURSE-{n:03d}" for n in range(1, 17)]
-    assert sum(len(s.modules) for s in specs) == 121
+def test_all_eighteen_course_folders_load_and_validate(specs):
+    assert [s.course_id for s in specs] == [f"COURSE-{n:03d}" for n in range(1, 19)]
+    # 194 for COURSE-001..016 (converted chapter courses show each file as a
+    # module) + 8 each for COURSE-017 and COURSE-018.
+    assert sum(len(s.modules) for s in specs) == 210
     # Every course whose folder holds lesson text imports every lesson it declares.
     for spec in specs:
         if spec.has_lesson_bodies:
             assert spec.declared_lessons in (None, len(spec.lessons)), spec.course_id
             assert spec.declared_modules in (None, len(spec.modules)), spec.course_id
+
+
+def test_courses_17_and_18_keep_arabic_course_and_module_descriptions(specs):
+    selected = {
+        course.course_id: course
+        for course in specs
+        if course.course_id in {"COURSE-017", "COURSE-018"}
+    }
+    assert set(selected) == {"COURSE-017", "COURSE-018"}
+    for course in selected.values():
+        assert course.title_ar
+        assert course.description_ar
+        assert all(module.title_ar and module.description_ar for module in course.modules)
 
 
 def test_ids_are_unique_and_every_lesson_belongs_to_the_module_it_sits_in(specs):
@@ -543,3 +558,64 @@ def test_curriculum_courses_are_absent_from_the_tools_listing(learn_client, lear
     listing = learn_client.get("/api/v1/tool-courses/").json()
     assert "course-001" not in {c["slug"] for c in listing}
     assert "langchain" in {c["slug"] for c in listing}
+
+
+def _regrouped(spec: CourseSpec) -> CourseSpec:
+    """The same lessons, one module each - the shape of the `consolidated_file_modules`
+    restructure. Lesson ids (and so database ids) are unchanged; only the grouping moves."""
+    from app.services.curriculum.spec import ModuleSpec
+
+    lessons = [lesson for module in spec.modules for lesson in module.lessons]
+    first = spec.modules[0]
+    spec.modules = []
+    for index, lesson in enumerate(lessons, start=1):
+        module = first if index == 1 else ModuleSpec(
+            module_id=f"{first.module_id}-{index:02d}", order=index, title=lesson.title)
+        module.lessons = [lesson]
+        lesson.module_id, lesson.order = module.module_id, 1
+        spec.modules.append(module)
+    return spec
+
+
+def test_regrouping_lessons_into_new_modules_carries_learner_progress(learn_db, learn_catalog):
+    """Release decision 2026-10-07: the module restructure must not silently erase progress.
+    Completion is counted against an item's CURRENT module, so a lesson that moves takes each
+    learner's completion of it along to their progress row for the new module."""
+    from app.models.user import User
+    from app.services.learning.progress_service import course_completion
+    from tests.curriculum_fixtures import finish_topics
+
+    spec = make_spec("COURSE-001", modules=1, lessons=4)
+    importer.import_course(learn_db, spec, DEFINITIONS["COURSE-001"])
+    learn_db.commit()
+    course = learn_db.query(Course).filter(Course.slug == "course-001").one()
+    done_all = User(email="carry-all@example.com", hashed_password="x", full_name="All")
+    done_one = User(email="carry-one@example.com", hashed_password="x", full_name="One")
+    learn_db.add_all([done_all, done_one])
+    learn_db.flush()
+    finish_topics(learn_db, done_all.id, course)
+    third = learn_db.query(Lesson).filter(Lesson.source_key == "COURSE-001/L001-0103").one()
+    learn_db.add(UserProgress(user_id=done_one.id, tool_topic_id=third.tool_topic_id, lessons_completed=[third.id]))
+    learn_db.commit()
+    before = course_completion(learn_db, done_all.id, [course])[course.id]
+    one_before = course_completion(learn_db, done_one.id, [course])[course.id]
+    assert before == 1.0 and one_before > 0
+
+    report = importer.import_course(learn_db, _regrouped(make_spec("COURSE-001", modules=1, lessons=4)),
+                                    DEFINITIONS["COURSE-001"])
+    learn_db.commit()
+
+    assert report.modules.created == 3                     # three lessons moved to new modules
+    # done_all: lessons 2-4 moved (3) with their 2 exercises each (6); done_one: lesson 3 (1).
+    assert report.progress_carried == 3 + 6 + 1
+    assert course_completion(learn_db, done_all.id, [course])[course.id] == before
+    assert course_completion(learn_db, done_one.id, [course])[course.id] == one_before
+    third = learn_db.query(Lesson).filter(Lesson.source_key == "COURSE-001/L001-0103").one()
+    moved_row = learn_db.query(UserProgress).filter(UserProgress.user_id == done_one.id,
+                                                    UserProgress.tool_topic_id == third.tool_topic_id).one()
+    assert moved_row.lessons_completed == [third.id]
+
+    again = importer.import_course(learn_db, _regrouped(make_spec("COURSE-001", modules=1, lessons=4)),
+                                   DEFINITIONS["COURSE-001"])
+    learn_db.commit()
+    assert again.progress_carried == 0 and not again.changed

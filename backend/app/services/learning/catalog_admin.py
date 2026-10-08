@@ -27,7 +27,7 @@ from sqlalchemy.orm import Session
 
 from app.models.learning import CareerTrack, TrackLevel
 from app.models.learning_path import (
-    COURSE_KIND_TOOL, COURSE_KIND_TRACK_LEVEL, COURSE_ROLE_CORE, COURSE_ROLE_RELATIONS,
+    COURSE_KIND_TOOL, COURSE_KIND_TRACK_LEVEL, COURSE_ROLE_CORE, COURSE_ROLE_RELATIONS, TRACK_SECTIONS,
     ROLE_FIELD_RECOMMENDED, ROLE_FIELD_REQUIRED,
     SKILL_ASSUMES, SKILL_KINDS, SKILL_TEACHES,
     PREREQ_RECOMMENDED, PREREQ_REQUIRED,
@@ -234,20 +234,28 @@ def resolve_source(db: Session, source: Dict[str, object]):
     raise LearningValidationError("unknown_source", "source.kind must be 'tool_course' or 'track_level'.")
 
 
-def course_role_pairs(roles: Iterable[Any]) -> Dict[str, str]:
-    """The career goals a course serves, each with its relation, in order.
+def course_role_pairs(roles: Iterable[Any]) -> Dict[str, Dict[str, Any]]:
+    """The career goals a course serves, each with its relation and workflow
+    metadata, in order.
 
     An entry is a bare slug - which means `core`, what a tag has always meant, so
-    every existing caller keeps working - or `{"slug": ..., "relation": ...}`.
-    Naming one goal twice with two different relations is a mistake to report,
-    not something to merge silently.
+    every existing caller keeps working - or a mapping with `slug`, `relation`,
+    and optionally `position` (this course's ordinal slot in that goal's
+    workflow; default 0), `required` (gates that goal's required-completion
+    percentage; default True) and `section` (AI Engineer-style grouping;
+    default None). Naming one goal twice with two different relations is a
+    mistake to report, not something to merge silently.
     """
-    pairs: Dict[str, str] = {}
+    pairs: Dict[str, Dict[str, Any]] = {}
     for entry in roles:
+        position, required, section = 0, True, None
         if isinstance(entry, str):
             slug, relation = entry, COURSE_ROLE_CORE
         elif isinstance(entry, Mapping):
             slug, relation = entry.get("slug"), entry.get("relation") or COURSE_ROLE_CORE
+            position = int(entry.get("position") or 0)
+            required = bool(entry.get("required", True))
+            section = entry.get("section")
         elif isinstance(entry, (tuple, list)) and len(entry) == 2:
             slug, relation = entry
         else:
@@ -259,10 +267,15 @@ def course_role_pairs(roles: Iterable[Any]) -> Dict[str, str]:
             raise LearningValidationError(
                 "invalid_course_role_relation",
                 f"Course role '{relation}' for '{slug}' must be one of: {', '.join(COURSE_ROLE_RELATIONS)}.")
-        if pairs.get(slug, relation) != relation:
+        if section is not None and section not in TRACK_SECTIONS:
+            raise LearningValidationError(
+                "invalid_course_role_section",
+                f"Course role section '{section}' for '{slug}' must be one of: {', '.join(TRACK_SECTIONS)}.")
+        existing = pairs.get(slug)
+        if existing is not None and existing["relation"] != relation:
             raise LearningValidationError(
                 "conflicting_course_role", f"Career goal '{slug}' is listed with two different relations.")
-        pairs[slug] = relation
+        pairs[slug] = {"relation": relation, "position": position, "required": required, "section": section}
     return pairs
 
 
@@ -285,8 +298,13 @@ def set_course_relations(db: Session, course: Course, *, fields: Optional[Sequen
     if roles is not None:
         pairs = course_role_pairs(roles)
         rows = _by_slug(db, CareerRole, pairs, "career_goal")
-        _replace(db, course.role_links,
-                 [CourseRole(role_id=rows[s].id, relation=relation) for s, relation in pairs.items()])
+        _replace(db, course.role_links, [
+            CourseRole(
+                role_id=rows[s].id, relation=meta["relation"],
+                position=meta["position"], required=meta["required"], section=meta["section"],
+            )
+            for s, meta in pairs.items()
+        ])
     if teaches is not None or assumes is not None:
         t, a = list(teaches or []), list(assumes or [])
         rows = _by_slug(db, Skill, [*t, *a], "skill")

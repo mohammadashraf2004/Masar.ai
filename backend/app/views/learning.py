@@ -121,6 +121,11 @@ class ExerciseResponse(BaseModel):
     title_ar: Optional[str] = None
     description_ar: Optional[str] = None
     starter_code: Optional[str]
+    exercise_type: str = "legacy"
+    language: Optional[str] = None
+    hint: Optional[str] = None
+    hint_ar: Optional[str] = None
+    grading_available: bool = False
     difficulty: DifficultyLevel
     skill_tested: List[str]
     is_locked: bool = False
@@ -232,6 +237,20 @@ class TrackLevelResponse(BaseModel):
         from_attributes = True
 
 
+class TrackCatalogueStage(BaseModel):
+    number: int
+    title: str
+    hours: int
+    courses: List[str] = []
+    status: Literal["completed", "current", "start", "locked"]
+
+
+class TrackExamState(BaseModel):
+    status: Literal["passed", "available", "locked"]
+    score: Optional[float] = None
+    unlock_after_stage: int
+
+
 class CareerTrackResponse(BaseModel):
     id: int
     slug: str
@@ -242,6 +261,21 @@ class CareerTrackResponse(BaseModel):
     icon: Optional[str]
     estimated_weeks: int
     levels: List[TrackLevelResponse] = []
+    # Catalogue-screen fields. Kept beside `levels` so the public card/detail
+    # experience and the legacy curriculum reader share one server-owned track.
+    title_en: Optional[str] = None
+    stack: List[str] = []
+    level: Optional[str] = None
+    stage_count: int = 0
+    course_count: int = 0
+    hours: int = 0
+    progress: float = 0
+    status: Literal["done", "current", "open"] = "open"
+    cta_href: Optional[str] = None
+    stages: List[TrackCatalogueStage] = []
+    projects: List[str] = []
+    roles: List[str] = []
+    exam: Optional[TrackExamState] = None
 
     class Config:
         from_attributes = True
@@ -256,6 +290,15 @@ class CareerTrackSummary(BaseModel):
     description_ar: Optional[str] = None
     icon: Optional[str]
     estimated_weeks: int
+    title_en: Optional[str] = None
+    stack: List[str] = []
+    level: Optional[str] = None
+    stage_count: int = 0
+    course_count: int = 0
+    hours: int = 0
+    progress: float = 0
+    status: Literal["done", "current", "open"] = "open"
+    cta_href: Optional[str] = None
 
     class Config:
         from_attributes = True

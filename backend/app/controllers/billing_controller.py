@@ -12,18 +12,375 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.authz import require_admin
 from app.core.limiter import limiter
-from app.core.security import get_current_user
+from app.core.legal import REFUND_POLICY_VERSION
+from app.core.security import get_current_user, get_optional_user
 from app.db.session import get_db
-from app.models.billing import BillingOrder, CourseEnrollment, CourseOffer
+from app.models.billing import (
+    BillingOrder, BillingPlan, CourseEnrollment, CourseOffer,
+    SubscriptionOrder, UserSubscription,
+)
 from app.models.learning_path import Course
 from app.models.user import User
+from app.models.wallet import CreditPackage
 from app.services.billing.access_service import active_enrollment
 from app.services.billing.course_billing import current_offer
+from app.services.billing.refunds import (
+    RefundError, refund_eligibility, request_refund, transition_refund,
+)
 from app.services.learning.catalog_service import load_catalog_bundle
 from app.services.payments import paymob_service
+from app.services.billing.subscriptions import (
+    cancel_at_period_end, current_plan_code, current_subscription, plan_amount,
+    release_stale_checkouts, start_free_trial, subscription_is_entitled,
+)
 
 logger = logging.getLogger("app.billing")
 router = APIRouter()
+
+
+def _refund_policy() -> dict:
+    return {
+        "version": REFUND_POLICY_VERSION,
+        "trial_days": 7,
+        "request_window_days": 7,
+        "review_required": True,
+        "original_payment_method_when_supported": True,
+        "provider_processing_time_applies": True,
+        "cancellation_is_not_refund": True,
+        "subscription_credits_granted": 0,
+    }
+
+
+def _subscription_out(subscription: UserSubscription | None) -> dict | None:
+    if subscription is None:
+        return None
+    return {
+        "id": subscription.id,
+        "plan": subscription.plan.code,
+        "status": subscription.status,
+        "billing_period": subscription.billing_period,
+        "payment_provider": subscription.payment_provider,
+        "current_period_start": subscription.current_period_start,
+        "current_period_end": subscription.current_period_end,
+        "cancel_at_period_end": subscription.cancel_at_period_end,
+        "has_pro_access": subscription_is_entitled(subscription),
+    }
+
+
+def _subscription_order_out(order: SubscriptionOrder, *, admin: bool = False, timeline: bool = False) -> dict:
+    eligible, reason = refund_eligibility(order)
+    result = {
+        "reference_number": order.reference_number,
+        "plan": order.plan.code,
+        "billing_period": order.billing_period,
+        "amount": order.amount,
+        "currency": order.currency,
+        "status": order.status,
+        "created_at": order.created_at,
+        "paid_at": order.paid_at,
+        "refund_eligible": eligible,
+        "refund_ineligibility_reason": reason,
+        "refund": {
+            "status": order.refund_status,
+            "requested_at": order.refund_requested_at,
+            "processed_at": order.refund_processed_at,
+            "amount": order.refund_amount,
+            "reason": order.refund_reason,
+            "provider_reference": order.refund_provider_reference,
+        },
+        "refund_policy": _refund_policy(),
+    }
+    if admin:
+        result.update({
+            "id": order.id,
+            "user_id": order.user_id,
+            "customer": {"email": order.user.email, "name": order.user.full_name},
+            "provider": order.provider,
+            "provider_order_id": order.provider_order_id,
+            "provider_transaction_id": order.provider_transaction_id,
+            "merchant_order_id": order.merchant_order_id,
+            "refund_admin_note": order.refund_admin_note,
+        })
+    if timeline:
+        payment_events = [
+            {
+                "type": "payment",
+                "status": "pending" if event.pending else ("succeeded" if event.success else "failed"),
+                "provider_event_id": event.provider_event_id,
+                "amount": event.amount,
+                "currency": event.currency,
+                "response_code": event.response_code,
+                "created_at": event.created_at,
+            }
+            for event in order.events
+        ]
+        refund_events = [
+            {
+                "type": "refund",
+                "from_status": event.from_status,
+                "status": event.to_status,
+                "provider_reference": event.provider_reference,
+                "note": event.note if admin else None,
+                "created_at": event.created_at,
+            }
+            for event in order.refund_events
+        ]
+        result["timeline"] = sorted(
+            [*payment_events, *refund_events], key=lambda event: event["created_at"]
+        )
+    return result
+
+
+def _raise_refund_error(exc: RefundError) -> None:
+    raise _error(exc.status_code, exc.code, exc.message)
+
+
+@router.get("/billing/catalog")
+def billing_catalog(
+    user: Optional[User] = Depends(get_optional_user),
+    db: Session = Depends(get_db),
+):
+    """The only public price list. Amounts returned here are major EGP units."""
+    plans = db.query(BillingPlan).filter(BillingPlan.is_active.is_(True)).order_by(BillingPlan.id).all()
+    packages = db.query(CreditPackage).filter(CreditPackage.is_active.is_(True)).order_by(CreditPackage.id).all()
+    trial_eligible = bool(user) and not db.query(UserSubscription.id).filter(
+        UserSubscription.user_id == user.id,
+    ).first()
+    return {
+        "currency": "EGP",
+        "vat_rate": 0.14,
+        "prices_include_vat": True,
+        "current_plan": current_plan_code(db, user.id if user else None),
+        "trial_eligible": trial_eligible,
+        "plans": [
+            {
+                "id": p.code,
+                "monthly": p.monthly_price_minor / 100,
+                "yearly": p.yearly_price_minor / 100,
+                "signup_credits": p.signup_credits,
+                "features": p.features,
+                "popular": p.code == "pro",
+            }
+            for p in plans
+        ],
+        "packs": [
+            {"id": str(p.id), "credits": p.credits, "bonus": p.bonus_credits or 0, "price": p.egp_price}
+            for p in packages
+        ],
+        "offer": None,
+        "refund_policy": _refund_policy(),
+    }
+
+
+class SubscriptionCheckoutIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    plan: Literal["pro"]
+    billing_period: Literal["monthly", "yearly"]
+    method: Literal["card", "wallet"] = "card"
+    phone_number: Optional[str] = Field(None, min_length=6, max_length=20, pattern=r"^\+?[0-9]{6,19}$")
+
+    @model_validator(mode="after")
+    def wallet_phone(self):
+        if self.method == "wallet" and not self.phone_number:
+            raise ValueError("phone_number is required for method=wallet")
+        return self
+
+
+class SubscriptionTrialIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    plan: Literal["pro"]
+    billing_period: Literal["monthly", "yearly"]
+
+
+@router.post("/billing/subscriptions/trial", status_code=status.HTTP_201_CREATED)
+def subscription_trial(
+    payload: SubscriptionTrialIn,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    plan = db.query(BillingPlan).filter(
+        BillingPlan.code == payload.plan, BillingPlan.is_active.is_(True),
+    ).first()
+    if plan is None:
+        raise _error(404, "PLAN_NOT_FOUND", "Plan not found.")
+    try:
+        subscription = start_free_trial(db, current_user.id, plan, payload.billing_period)
+    except (ValueError, IntegrityError):
+        db.rollback()
+        raise _error(409, "TRIAL_ALREADY_USED", "The free trial has already been used on this account.")
+    return _subscription_out(subscription)
+
+
+@router.post("/billing/subscriptions/checkout")
+@limiter.limit("10/minute")
+def subscription_checkout(
+    request: Request,
+    payload: SubscriptionCheckoutIn,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    plan = db.query(BillingPlan).filter(
+        BillingPlan.code == payload.plan, BillingPlan.is_active.is_(True),
+    ).first()
+    if plan is None:
+        raise _error(404, "PLAN_NOT_FOUND", "Plan not found.")
+    existing = current_subscription(db, current_user.id)
+    if existing and existing.status == "trialing" and subscription_is_entitled(existing):
+        raise _error(409, "TRIAL_ACTIVE", "The first charge is available after the free trial ends.")
+    release_stale_checkouts(db, SubscriptionOrder, current_user.id)
+    pending = db.query(SubscriptionOrder).filter(
+        SubscriptionOrder.user_id == current_user.id,
+        SubscriptionOrder.status == "pending",
+    ).first()
+    if pending:
+        raise _error(409, "SUBSCRIPTION_CHECKOUT_PENDING", "A subscription checkout is already pending.", order_id=pending.id)
+
+    amount = plan_amount(plan, payload.billing_period)
+    merchant_order_id = f"subscription-{current_user.id}-{uuid.uuid4().hex}"
+    order = SubscriptionOrder(
+        user_id=current_user.id, plan_id=plan.id, billing_period=payload.billing_period,
+        amount=amount, currency=plan.currency, provider="paymob",
+        merchant_order_id=merchant_order_id, status="pending",
+    )
+    db.add(order)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        pending = db.query(SubscriptionOrder).filter(
+            SubscriptionOrder.user_id == current_user.id,
+            SubscriptionOrder.status == "pending",
+        ).first()
+        if pending:
+            raise _error(409, "SUBSCRIPTION_CHECKOUT_PENDING", "A subscription checkout is already pending.", order_id=pending.id)
+        raise
+    db.refresh(order)
+
+    try:
+        provider = paymob_service.init_payment_minor(
+            amount_minor=order.amount, currency=order.currency,
+            merchant_order_id=order.merchant_order_id, method=payload.method,
+            full_name=current_user.full_name, email=current_user.email,
+            phone_number=payload.phone_number or "01000000000",
+        )
+    except paymob_service.PaymobConfigError as exc:
+        order.status = "failed"
+        db.commit()
+        raise HTTPException(status_code=503, detail=str(exc))
+    except httpx.HTTPError:
+        order.status = "failed"
+        db.commit()
+        raise HTTPException(status_code=502, detail="Could not reach Paymob. Please try again.")
+    except Exception:
+        db.rollback()
+        order.status = "failed"
+        db.commit()
+        logger.exception("billing.subscription.provider_error", extra={"order_id": order.id})
+        raise HTTPException(status_code=502, detail="The payment provider returned an unexpected response.")
+
+    order.provider_order_id = str(provider["paymob_order_id"])
+    db.commit()
+    return {
+        "order_id": order.id, "reference_number": order.reference_number,
+        "payment_url": provider["checkout_url"],
+        "amount": order.amount, "currency": order.currency,
+    }
+
+
+@router.get("/billing/subscription")
+def my_subscription(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    latest_order = (
+        db.query(SubscriptionOrder).options(joinedload(SubscriptionOrder.plan))
+        .filter(SubscriptionOrder.user_id == current_user.id)
+        .order_by(SubscriptionOrder.created_at.desc()).first()
+    )
+    return {
+        "plan": current_plan_code(db, current_user.id),
+        "subscription": _subscription_out(current_subscription(db, current_user.id)),
+        "latest_order": _subscription_order_out(latest_order) if latest_order else None,
+        "refund_policy": _refund_policy(),
+    }
+
+
+@router.get("/billing/subscription-orders")
+def my_subscription_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    orders = (
+        db.query(SubscriptionOrder).options(joinedload(SubscriptionOrder.plan))
+        .filter(SubscriptionOrder.user_id == current_user.id)
+        .order_by(SubscriptionOrder.created_at.desc()).all()
+    )
+    return [_subscription_order_out(order) for order in orders]
+
+
+@router.get("/billing/subscription-orders/by-reference/{reference_number}")
+def my_subscription_order_by_reference(
+    reference_number: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    order = db.query(SubscriptionOrder).options(
+        joinedload(SubscriptionOrder.plan), joinedload(SubscriptionOrder.refund_events),
+    ).filter(
+        SubscriptionOrder.reference_number == reference_number.upper(),
+        SubscriptionOrder.user_id == current_user.id,
+    ).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return _subscription_order_out(order, timeline=True)
+
+
+@router.get("/billing/subscription-orders/{order_id}")
+def my_subscription_order(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    order = db.query(SubscriptionOrder).filter(
+        SubscriptionOrder.id == order_id, SubscriptionOrder.user_id == current_user.id,
+    ).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return _subscription_order_out(order, timeline=True)
+
+
+class RefundRequestIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    reason: str = Field(..., min_length=5, max_length=2000)
+    amount: Optional[int] = Field(None, gt=0)
+    confirmed: bool
+    idempotency_key: str = Field(..., min_length=16, max_length=64)  # stored with an actor prefix in a String(100)
+
+
+@router.post("/billing/subscription-orders/{reference_number}/refund", status_code=status.HTTP_201_CREATED)
+def create_refund_request(
+    reference_number: str,
+    payload: RefundRequestIn,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    order = db.query(SubscriptionOrder).filter(
+        SubscriptionOrder.reference_number == reference_number.upper(),
+        SubscriptionOrder.user_id == current_user.id,
+    ).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    try:
+        order = request_refund(
+            db, order_id=order.id, user_id=current_user.id,
+            amount=payload.amount or order.amount, reason=payload.reason,
+            confirmed=payload.confirmed,
+            # Client keys share a table with server keys ("provider-refund:...");
+            # namespacing them means a learner can never pre-claim one.
+            idempotency_key=f"user-{current_user.id}:{payload.idempotency_key}",
+        )
+    except RefundError as exc:
+        _raise_refund_error(exc)
+    return _subscription_order_out(order, timeline=True)
+
+
+@router.post("/billing/subscription/cancel")
+def cancel_subscription(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        subscription = cancel_at_period_end(db, current_user.id)
+    except LookupError:
+        raise HTTPException(status_code=404, detail="No active subscription")
+    return _subscription_out(subscription)
 
 
 def _error(status_code: int, code: str, message: str, **extra) -> HTTPException:
@@ -104,6 +461,7 @@ def checkout(
     if active_enrollment(db, current_user.id, course.id, entitled_only=True):
         raise _error(409, "COURSE_ALREADY_OWNED", "You already own this course.", course_id=course.slug)
 
+    release_stale_checkouts(db, BillingOrder, current_user.id, course_id=course.id)
     pending_order = db.query(BillingOrder.id).filter(
         BillingOrder.user_id == current_user.id,
         BillingOrder.course_id == course.id,
@@ -174,6 +532,14 @@ def checkout(
         order.status = "failed"
         db.commit()
         raise HTTPException(status_code=502, detail="Could not reach Paymob. Please try again.")
+    except Exception:
+        # Anything else (an unexpected provider response) must not leave a
+        # pending order behind to block the next attempt.
+        db.rollback()
+        order.status = "failed"
+        db.commit()
+        logger.exception("billing.checkout.provider_error", extra={"order_id": order.id})
+        raise HTTPException(status_code=502, detail="The payment provider returned an unexpected response.")
 
     order.provider_order_id = str(provider["paymob_order_id"])
     db.commit()
@@ -350,6 +716,108 @@ def admin_order(order_id: int, current_user: User = Depends(require_admin), db: 
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return _order_out(order)
+
+
+@router.get("/admin/subscriptions")
+def admin_subscriptions(
+    subscription_status: Optional[str] = Query(None, alias="status"),
+    billing_period: Optional[Literal["monthly", "yearly"]] = None,
+    limit: int = Query(100, ge=1, le=500),
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    query = db.query(UserSubscription).options(
+        joinedload(UserSubscription.plan), joinedload(UserSubscription.user),
+    ).order_by(UserSubscription.current_period_end.desc())
+    if subscription_status:
+        query = query.filter(UserSubscription.status == subscription_status)
+    if billing_period:
+        query = query.filter(UserSubscription.billing_period == billing_period)
+    return [
+        {
+            **_subscription_out(subscription),
+            "user_id": subscription.user_id,
+            "email": subscription.user.email,
+        }
+        for subscription in query.limit(limit).all()
+    ]
+
+
+@router.get("/admin/subscription-orders")
+def admin_subscription_orders(
+    reference_number: Optional[str] = None,
+    provider_transaction_id: Optional[str] = None,
+    customer: Optional[str] = None,
+    order_id: Optional[int] = Query(None, gt=0),
+    refund_status: Optional[str] = None,
+    limit: int = Query(100, ge=1, le=500),
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    query = db.query(SubscriptionOrder).options(
+        joinedload(SubscriptionOrder.plan), joinedload(SubscriptionOrder.user),
+    ).order_by(SubscriptionOrder.created_at.desc())
+    if reference_number:
+        query = query.filter(SubscriptionOrder.reference_number == reference_number.upper())
+    if provider_transaction_id:
+        query = query.filter(SubscriptionOrder.provider_transaction_id == provider_transaction_id)
+    if customer:
+        query = query.join(User, User.id == SubscriptionOrder.user_id).filter(
+            (User.email.ilike(f"%{customer}%")) | (User.full_name.ilike(f"%{customer}%"))
+        )
+    if order_id:
+        query = query.filter(SubscriptionOrder.id == order_id)
+    if refund_status:
+        query = query.filter(SubscriptionOrder.refund_status == refund_status)
+    return [_subscription_order_out(order, admin=True) for order in query.limit(limit).all()]
+
+
+@router.get("/admin/subscription-orders/{reference_number}")
+def admin_subscription_order(
+    reference_number: str,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    order = db.query(SubscriptionOrder).options(
+        joinedload(SubscriptionOrder.plan), joinedload(SubscriptionOrder.user),
+        joinedload(SubscriptionOrder.events), joinedload(SubscriptionOrder.refund_events),
+    ).filter(SubscriptionOrder.reference_number == reference_number.upper()).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return _subscription_order_out(order, admin=True, timeline=True)
+
+
+class AdminRefundTransitionIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: Literal["under_review", "approved", "rejected", "processing", "refunded", "failed"]
+    idempotency_key: str = Field(..., min_length=16, max_length=64)  # stored with an actor prefix in a String(100)
+    amount: Optional[int] = Field(None, gt=0)
+    provider_reference: Optional[str] = Field(None, max_length=100)
+    note: Optional[str] = Field(None, max_length=4000)
+
+
+@router.post("/admin/subscription-orders/{reference_number}/refund-transition")
+def admin_refund_transition(
+    reference_number: str,
+    payload: AdminRefundTransitionIn,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    order = db.query(SubscriptionOrder).filter(
+        SubscriptionOrder.reference_number == reference_number.upper(),
+    ).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    try:
+        order = transition_refund(
+            db, order_id=order.id, to_status=payload.status,
+            actor_user_id=current_user.id, idempotency_key=f"admin-{current_user.id}:{payload.idempotency_key}",
+            note=payload.note, provider_reference=payload.provider_reference,
+            refund_amount=payload.amount,
+        )
+    except RefundError as exc:
+        _raise_refund_error(exc)
+    return _subscription_order_out(order, admin=True, timeline=True)
 
 
 class AdminEnrollmentIn(BaseModel):

@@ -193,6 +193,46 @@ def sync_roles(db: Session) -> List[Change]:
     return changes
 
 
+def sync_track_workflow(db: Session) -> List[Change]:
+    """Bring each of the five career tracks' explicit workflow order, required
+    flag and section (`seeds/curriculum.py:TRACK_WORKFLOWS`) onto
+    `course_roles.position/required/section`. Runs after `sync_roles`, whose
+    plain core/supporting/optional relation this refines rather than
+    replaces - a course not listed in `TRACK_WORKFLOWS` is untouched."""
+    changes: List[Change] = []
+    for slug in sorted(cfg.TRACK_WORKFLOW_COURSES):
+        course = db.query(Course).filter(Course.slug == slug).first()
+        if course is None:
+            changes.append(Change("skipped", slug, "not catalogued - workflow not set"))
+            continue
+        current = {
+            link.role.slug: (link.relation, link.position, link.required, link.section)
+            for link in course.role_links
+        }
+        desired_entries = cfg.workflow_roles_for(slug)
+        desired = {
+            e["slug"]: (e["relation"], e["position"], e["required"], e["section"]) for e in desired_entries
+        }
+        # Roles this course has for goals *outside* its workflow entries (rare
+        # for these 16 - none today) are preserved: `set_course_relations`
+        # replaces the whole list, so they are folded back in unchanged.
+        preserved = {g: v for g, v in current.items() if g not in desired}
+        merged = {**preserved, **desired}
+        if current == merged:
+            continue
+        roles = [
+            {"slug": g, "relation": relation, "position": position, "required": required, "section": section}
+            for g, (relation, position, required, section) in merged.items()
+        ]
+        admin.set_course_relations(db, course, roles=roles)
+        changes.append(Change(
+            "workflow", slug,
+            "; ".join(f"{g}: pos {v[1]}, {'required' if v[2] else 'optional'}" + (f", {v[3]}" if v[3] else "")
+                      for g, v in sorted(desired.items())),
+        ))
+    return changes
+
+
 def sync_course_prerequisites(db: Session, only: Optional[Set[str]] = None) -> List[Change]:
     """Required prerequisites come from the registry (the audited hard
     dependencies the path generator orders by); recommended ones are the other
@@ -305,6 +345,7 @@ def sync_curriculum(db: Session, *, dry_run: bool = False, commit: bool = True) 
             *ensure_curriculum_courses(db),
             *sync_curriculum_course_metadata(db),
             *sync_roles(db),
+            *sync_track_workflow(db),
             *sync_course_prerequisites(db),
             *sync_stages(db),
             *sync_templates(db),

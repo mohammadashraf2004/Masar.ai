@@ -14,7 +14,9 @@ TRACKS = [
     {
         "slug": "data-analyst",
         "title": "Data Analyst",
-        "description": "Master data wrangling, visualisation, and statistical analysis. Build dashboards and derive business insights from raw data.",
+        "title_ar": "محلل بيانات",
+        "description": "SQL, data cleaning, statistical analysis, and decision-ready dashboards.",
+        "description_ar": "SQL، تنظيف البيانات، التحليل الإحصائي، ولوحات المؤشرات التي تُقنع أصحاب القرار.",
         "icon": "📊",
         "estimated_weeks": 12,
         "levels": [
@@ -28,7 +30,9 @@ TRACKS = [
     {
         "slug": "ml-engineer",
         "title": "ML Engineer",
-        "description": "Build and train machine learning models. From supervised learning basics to deep neural networks with PyTorch.",
+        "title_ar": "مهندس تعلّم آلي",
+        "description": "From feature engineering to training, evaluating, and serving models.",
+        "description_ar": "من هندسة الخصائص إلى تدريب النماذج وتقييمها ونشرها كخدمة.",
         "icon": "🧠",
         "estimated_weeks": 16,
         "levels": [
@@ -42,7 +46,9 @@ TRACKS = [
     {
         "slug": "ai-developer",
         "title": "AI Developer",
-        "description": "Build production AI applications using LLMs, RAG systems, and modern AI APIs. From prompt engineering to full deployment.",
+        "title_ar": "مطوّر ذكاء اصطناعي",
+        "description": "Integrate LLMs into real products with APIs, prompts, tools, and chat interfaces.",
+        "description_ar": "دمج LLMs في منتجات حقيقية: APIs، الـ prompts، الأدوات، وواجهات المحادثة.",
         "icon": "⚡",
         "estimated_weeks": 14,
         "levels": [
@@ -56,7 +62,9 @@ TRACKS = [
     {
         "slug": "mlops-engineer",
         "title": "MLOps Engineer",
-        "description": "Deploy, monitor, and maintain ML systems at scale. CI/CD for models, cloud infrastructure, and production reliability.",
+        "title_ar": "مهندس MLOps",
+        "description": "Model CI/CD, monitoring, version management, and reliable operation at scale.",
+        "description_ar": "خطوط CI/CD للنماذج، المراقبة، إدارة الإصدارات، والتشغيل على نطاق واسع.",
         "icon": "🔧",
         "estimated_weeks": 10,
         "levels": [
@@ -70,7 +78,9 @@ TRACKS = [
     {
         "slug": "ai-engineer",
         "title": "AI Engineer",
-        "description": "Design and ship complete AI systems end to end, in the specialization you choose: NLP, Computer Vision, Speech or Multimodal.",
+        "title_ar": "مهندس ذكاء اصطناعي",
+        "description": "RAG, stateful agents, evaluation, and deployment — the broadest route into AI Engineering.",
+        "description_ar": "RAG، وكلاء بحالة مستمرة، التقييم، والنشر — المسار الأشمل لوظيفة AI Engineer.",
         "icon": "🤖",
         "estimated_weeks": 24,
         "levels": [
@@ -90,13 +100,21 @@ def seed_all_tracks(db) -> None:
     for track_data in TRACKS:
         existing = db.query(CareerTrack).filter(CareerTrack.slug == track_data["slug"]).first()
         if existing:
-            print(f"  ⚠  Track '{track_data['slug']}' already exists — skipping")
+            existing.title = track_data["title"]
+            existing.title_ar = track_data["title_ar"]
+            existing.description = track_data["description"]
+            existing.description_ar = track_data["description_ar"]
+            existing.icon = track_data["icon"]
+            existing.estimated_weeks = track_data["estimated_weeks"]
+            print(f"  ✓ Track '{track_data['slug']}' metadata updated")
             continue
 
         track = CareerTrack(
             slug=track_data["slug"],
             title=track_data["title"],
+            title_ar=track_data["title_ar"],
             description=track_data["description"],
+            description_ar=track_data["description_ar"],
             icon=track_data["icon"],
             estimated_weeks=track_data["estimated_weeks"],
         )

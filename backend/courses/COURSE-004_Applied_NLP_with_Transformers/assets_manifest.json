@@ -91,6 +91,26 @@
       "alt_ar": "مساران: Fine-tuning لنموذج مدرَّب مسبقًا على مجموعة بيانات صغيرة من المجال، أو التدريب من الصفر على مدونة ضخمة مع Tokenizer مخصص وأوزان تُهيَّأ عشوائيًا، يليهما جدول مقارنة وإرشاد لوقت اختيار كل منهما.",
       "caption": "Fine-tune when a suitable pretrained model and a modest dataset exist; train from scratch only with a very large, distinct corpus and ample compute.",
       "caption_ar": "استخدم Fine-tuning عند وجود نموذج مدرَّب مناسب وبيانات متوسطة، ولا تدرّب من الصفر إلا مع مدونة ضخمة ومميزة وحوسبة كافية."
+    },
+    {
+      "key": "iob2-named-entity-labeling",
+      "type": "image",
+      "file": "assets/iob2-named-entity-labeling.png",
+      "lesson": "M01.L03",
+      "alt": "A sentence split into tokens (Barack Obama visited Microsoft in Seattle last week .) with an IOB2 label under each: B-PER and I-PER for the person, B-ORG for the organization, B-LOC for the location and O elsewhere, plus a legend of the tag meanings and entity types.",
+      "alt_ar": "جملة مقسمة إلى tokens (Barack Obama visited Microsoft in Seattle last week) وتحت كل token وسم IOB2: ‏B-PER وI-PER للشخص، وB-ORG للمنظمة، وB-LOC للمكان، وO لما عدا ذلك، مع مفتاح يشرح معاني الوسوم وأنواع الكيانات.",
+      "caption": "In IOB2, B marks the first token of an entity, I continues it and O means the token is outside any entity.",
+      "caption_ar": "في IOB2 يدل الوسم B على أول token في الكيان، ويكمل I الكيان نفسه، ويعني O أن الـ token خارج أي كيان."
+    },
+    {
+      "key": "transformer-text-classification-pipeline",
+      "type": "image",
+      "file": "assets/transformer-text-classification-pipeline.png",
+      "lesson": "M02.L01",
+      "alt": "Six steps from a raw tweet to a prediction: raw text, dataset processing (collect and label, clean, split), a tokenizer that turns text into input IDs, a DistilBERT classifier, class probabilities for positive, negative and neutral, and a prediction on a new text.",
+      "alt_ar": "ست خطوات من تغريدة خام إلى تنبؤ: النص الخام، ومعالجة مجموعة البيانات (جمع ووسم وتنظيف وتقسيم)، وTokenizer يحوّل النص إلى Input IDs، ثم مصنّف DistilBERT، واحتمالات الفئات Positive وNegative وNeutral، وأخيرًا التنبؤ على نص جديد.",
+      "caption": "Text classification is a pipeline: the tweet is cleaned, tokenized into IDs, scored by the model, and the highest class score becomes the prediction.",
+      "caption_ar": "تصنيف النصوص مسار متتابع: تُنظَّف التغريدة وتُحوَّل إلى IDs ثم يعطيها النموذج scores، وتصبح الفئة الأعلى هي التنبؤ."
     }
   ]
 }

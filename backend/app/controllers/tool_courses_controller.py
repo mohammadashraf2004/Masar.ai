@@ -31,8 +31,9 @@ from app.core.security import get_current_user
 from app.models.learning_path import Course
 from app.services.learning import enrollment as course_enrollment
 from app.services.learning.lesson_content import attach_lesson_blocks
+from app.services.billing.redaction import redact_topic
 from app.services.billing.access_service import (
-    course_access, course_for_tool_topic, require_content_access,
+    course_access, course_for_tool_topic, free_lesson_ids, free_preview_content_ids, require_content_access,
     require_course_access, require_lesson_access,
 )
 
@@ -49,20 +50,11 @@ def _redact_locked_tool_course(course: ToolCourse, user_id: int, db: Session):
     ).first()
     if not catalog_course or course_access(db, user_id, catalog_course).has_access:
         return data
+    free_ids = free_lesson_ids(db, catalog_course)
+    free_exercise_ids, free_quiz_ids = free_preview_content_ids(db, catalog_course)
     for topic in data["topics"]:
-        for lesson in topic["lessons"]:
-            if not lesson.get("is_preview"):
-                lesson.update(content="", content_ar=None, is_locked=True)
-                lesson["course_slug"] = catalog_course.slug
-        for exercise in topic["exercises"]:
-            exercise.update(description="", description_ar=None, starter_code=None)
-            exercise.update(is_locked=True, course_slug=catalog_course.slug)
-        for project in topic["projects"]:
-            project.update(description="", description_ar=None, objectives=[], rubric={}, starter_repo_url=None)
-            project.update(is_locked=True, course_slug=catalog_course.slug)
-        for quiz in topic["quizzes"]:
-            quiz.update(questions=[], questions_ar=None)
-            quiz.update(is_locked=True, course_slug=catalog_course.slug)
+        redact_topic(topic, catalog_course.slug, free_lesson_ids=free_ids,
+                     free_exercise_ids=free_exercise_ids, free_quiz_ids=free_quiz_ids)
     return data
 
 
@@ -80,11 +72,14 @@ def _validate_progress_targets(db: Session, payload: ToolProgressUpdate, *, topi
             raise HTTPException(status_code=400, detail="That lesson does not belong to this topic")
 
     if payload.exercise_id is not None:
-        if not db.query(Exercise.id).filter(
+        exercise = db.query(Exercise).filter(
             Exercise.id == payload.exercise_id,
             Exercise.tool_topic_id == topic_id,
-        ).first():
+        ).first()
+        if not exercise:
             raise HTTPException(status_code=400, detail="That exercise does not belong to this topic")
+        if exercise.exercise_type == "code" or exercise.starter_code:
+            raise HTTPException(status_code=409, detail={"code": "SUBMIT_CODE_TO_COMPLETE"})
 
 
 # ─── Browse ──────────────────────────────────────────────────────────────
@@ -236,19 +231,9 @@ def get_tool_topic(
     course = course_for_tool_topic(db, topic.id)
     data = ToolTopicResponse.model_validate(topic).model_dump()
     if course and not course_access(db, current_user.id, course).has_access:
-        for lesson in data["lessons"]:
-            if not lesson.get("is_preview"):
-                lesson.update(content="", content_ar=None, is_locked=True)
-                lesson["course_slug"] = course.slug
-        for exercise in data["exercises"]:
-            exercise.update(description="", description_ar=None, starter_code=None)
-            exercise.update(is_locked=True, course_slug=course.slug)
-        for project in data["projects"]:
-            project.update(description="", description_ar=None, objectives=[], rubric={}, starter_repo_url=None)
-            project.update(is_locked=True, course_slug=course.slug)
-        for quiz in data["quizzes"]:
-            quiz.update(questions=[], questions_ar=None)
-            quiz.update(is_locked=True, course_slug=course.slug)
+        free_exercise_ids, free_quiz_ids = free_preview_content_ids(db, course)
+        redact_topic(data, course.slug, free_lesson_ids=free_lesson_ids(db, course),
+                     free_exercise_ids=free_exercise_ids, free_quiz_ids=free_quiz_ids)
     tool_slug = db.query(ToolCourse.slug).filter(ToolCourse.id == topic.tool_course_id).scalar()
     attach_lesson_blocks(db, topic.tool_course_id, tool_slug, data["lessons"])
     return data

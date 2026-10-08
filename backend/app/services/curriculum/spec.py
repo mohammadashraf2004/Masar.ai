@@ -108,12 +108,20 @@ class ExerciseSpec:
     skill_tested: List[str] = field(default_factory=list)
     starter_code: Optional[str] = None
     solution_code: Optional[str] = None
+    exercise_type: str = "legacy"
+    language: Optional[str] = None
+    pre_exercise_code: Optional[str] = None
+    tests: List[Dict[str, Any]] = field(default_factory=list)
+    hint: Optional[str] = None
+    success_message: Optional[str] = None
     exercise_id: str = ""
     course_id: str = ""
     module_id: str = ""
     lesson_id: str = ""
     title_ar: Optional[str] = None
     description_ar: Optional[str] = None
+    hint_ar: Optional[str] = None
+    success_message_ar: Optional[str] = None
 
 
 @dataclass
@@ -214,6 +222,9 @@ class CourseSpec:
     modules: List[ModuleSpec] = field(default_factory=list)
     # A bilingual manifest title ('English | العربية') is split into both halves.
     title_ar: Optional[str] = None
+    # Optional course-level Arabic summary from ar/_course.json. The registry's
+    # English capability remains the canonical English description.
+    description_ar: Optional[str] = None
     capstone: Optional[ProjectSpec] = None
     # Counts the course's own manifest declares. Checked against what was
     # actually loaded, so a folder with a missing lesson file cannot pass.

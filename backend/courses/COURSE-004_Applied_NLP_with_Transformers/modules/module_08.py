@@ -13,8 +13,8 @@ from app.models.learning import DifficultyLevel
 # ---------------------------------------------------------------------------
 
 LESSON_CODE = "M01.L06"
-MODULE_ORDER = 1
-MODULE_TITLE = "Transformer Foundations"
+MODULE_ORDER = 8
+MODULE_TITLE = "Efficient Transformer Inference & Model Compression"
 MODULE_DESCRIPTION = (
     "Learn how to make transformer models practical for production by measuring "
     "quality, latency, and memory, then applying distillation, quantization, ONNX "

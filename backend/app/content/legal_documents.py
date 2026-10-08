@@ -62,8 +62,9 @@ TERMS: Dict[str, Document] = {
             {"heading": "5. Credits, payments and exams", "body": [
                 "Some features use credits, and certification exams may carry a fee. Prices and the way credits are "
                 "spent are shown before you pay. Payments are handled by a payment provider; we do not store your card "
-                "details. Fees and credits already spent on a service that has been delivered are not refundable "
-                "unless the law says otherwise or we decide to refund an error on our side.",
+                "details. Subscription refund requests are handled under the published Refund Policy. Fees and credits "
+                "already spent on other delivered services are not refundable unless the law says otherwise or we "
+                "decide to refund an error on our side.",
             ]},
             {"heading": "6. Acceptable use", "body": [
                 "Do not attack, overload or probe the service; do not share your account; do not copy or resell course "
@@ -111,8 +112,9 @@ TERMS: Dict[str, Document] = {
             ]},
             {"heading": "٥. الرصيد والمدفوعات والاختبارات", "body": [
                 "تستهلك بعض الميزات رصيداً، وقد تكون لاختبارات الشهادات رسوم. تُعرض الأسعار وطريقة استهلاك الرصيد قبل "
-                "الدفع. تتولى الدفعَ جهةُ دفع مستقلة ولا نخزّن بيانات بطاقتك. الرسوم والرصيد الذي أُنفق على خدمة "
-                "قُدِّمت فعلاً غير قابلَين للاسترداد إلا إذا أوجب القانون ذلك أو قررنا رد مبلغ بسبب خطأ من جانبنا.",
+                "الدفع. تتولى الدفعَ جهةُ دفع مستقلة ولا نخزّن بيانات بطاقتك. تخضع طلبات استرداد الاشتراكات لسياسة "
+                "الاسترداد المنشورة. أما الرسوم والرصيد المنفقان على خدمات أخرى قُدِّمت فعلاً فلا يُستردان إلا إذا "
+                "أوجب القانون ذلك أو قررنا رد مبلغ بسبب خطأ من جانبنا.",
             ]},
             {"heading": "٦. الاستخدام المقبول", "body": [
                 "لا تهاجم الخدمة أو تثقلها أو تفحصها، ولا تشارك حسابك، ولا تنسخ محتوى الدورات أو تبِعه، ولا تغشّ في "
@@ -225,13 +227,89 @@ PRIVACY: Dict[str, Document] = {
     },
 }
 
-DOCUMENTS = {"terms": TERMS, "privacy": PRIVACY}
+REFUND_POLICY: Dict[str, Document] = {
+    "en": {
+        "title": "Refund Policy",
+        "intro": "This policy explains when and how you may request a refund for a paid Masar subscription.",
+        "sections": [
+            {"heading": "1. Seven-day free trial", "body": [
+                "A new Masar subscription includes a seven-day free trial before the first subscription charge. "
+                "The price and billing cycle are shown before you start.",
+            ]},
+            {"heading": "2. Request window and review", "body": [
+                "After a successful paid subscription charge, you may submit a refund request within seven days of "
+                "the payment date. Submitting a request does not guarantee approval; Masar reviews eligibility, the "
+                "reason, and use of paid platform resources before deciding.",
+                "Requests may be rejected where a substantial part of the paid service or AI resources has already "
+                "been consumed, subject to applicable law. Duplicate or incorrect charges are eligible for correction "
+                "or refund after verification.",
+            ]},
+            {"heading": "3. How approved refunds are returned", "body": [
+                "When the active payment provider supports it, an approved refund is returned through the original "
+                "payment method. Provider and bank processing times may apply after Masar initiates or confirms it. "
+                "Your order and its Masar reference number remain in the audit history.",
+            ]},
+            {"heading": "4. Cancellation is different", "body": [
+                "Cancelling a subscription prevents future renewals. It does not automatically refund a payment that "
+                "has already completed. A refund must be requested separately from the relevant payment details.",
+            ]},
+            {"heading": "5. Access and credits after a refund", "body": [
+                "A completed subscription refund ends the Pro access purchased by that payment. Paid Pro subscriptions "
+                "currently grant access but do not add wallet or AI credits, so no wallet credits are removed. Credits "
+                "bought separately are governed by their own payment record.",
+            ]},
+            {"heading": "6. Contacting support", "body": [
+                "Use the Masar Reference Number shown in payment history, receipts, and refund details when contacting "
+                "support. It is separate from the payment provider's transaction identifier.",
+            ]},
+        ],
+    },
+    "ar": {
+        "title": "سياسة الاسترداد",
+        "intro": "توضح هذه السياسة متى وكيف يمكنك طلب استرداد قيمة اشتراك مدفوع في مسار.",
+        "sections": [
+            {"heading": "١. التجربة المجانية لمدة سبعة أيام", "body": [
+                "يتضمن الاشتراك الجديد في مسار تجربة مجانية لمدة سبعة أيام قبل أول خصم للاشتراك، ويظهر السعر "
+                "ودورة الفوترة قبل البدء.",
+            ]},
+            {"heading": "٢. مهلة الطلب والمراجعة", "body": [
+                "بعد نجاح خصم اشتراك مدفوع، يمكنك تقديم طلب استرداد خلال سبعة أيام من تاريخ الدفع. لا تعني مجرد "
+                "تقديم الطلب الموافقة عليه؛ تراجع مسار الأهلية والسبب ومدى استخدام موارد المنصة المدفوعة قبل القرار.",
+                "قد يُرفض الطلب عند استهلاك جزء جوهري من الخدمة المدفوعة أو موارد الذكاء الاصطناعي، مع مراعاة القانون "
+                "المطبق. وتكون الدفعات المكررة أو المبالغ المخصومة بالخطأ مؤهلة للتصحيح أو الاسترداد بعد التحقق.",
+            ]},
+            {"heading": "٣. طريقة إعادة المبلغ المعتمد", "body": [
+                "عندما يدعم مزوّد الدفع المستخدم ذلك، يُعاد المبلغ المعتمد عبر طريقة الدفع الأصلية. وقد تستغرق "
+                "معالجة مزوّد الدفع أو البنك وقتاً بعد بدء الاسترداد أو تأكيده. يبقى الطلب ورقمه المرجعي في سجل التدقيق.",
+            ]},
+            {"heading": "٤. الإلغاء مختلف عن الاسترداد", "body": [
+                "يمنع إلغاء الاشتراك التجديدات المستقبلية، لكنه لا يسترد تلقائياً دفعة مكتملة. يجب طلب الاسترداد "
+                "بشكل منفصل من تفاصيل عملية الدفع المعنية.",
+            ]},
+            {"heading": "٥. الوصول والرصيد بعد الاسترداد", "body": [
+                "يُنهي اكتمال استرداد الاشتراك وصول Pro الذي اشترته الدفعة. اشتراك Pro المدفوع يمنح الوصول حالياً "
+                "ولا يضيف رصيد محفظة أو رصيد ذكاء اصطناعي، لذلك لا يُسحب رصيد من المحفظة. ويخضع الرصيد المشترى "
+                "بشكل منفصل لسجل دفعه الخاص.",
+            ]},
+            {"heading": "٦. التواصل مع الدعم", "body": [
+                "استخدم الرقم المرجعي لمسار الظاهر في سجل الدفع والإيصالات وتفاصيل الاسترداد عند التواصل مع الدعم. "
+                "وهو منفصل عن معرّف معاملة مزوّد الدفع.",
+            ]},
+        ],
+    },
+}
+
+DOCUMENTS = {"terms": TERMS, "privacy": PRIVACY, "refund": REFUND_POLICY}
 
 
 def versions() -> Dict[str, str]:
     """Read from `app.core.legal` on every call, so there is one number and it
     is never a stale copy."""
-    return {"terms": legal.TERMS_VERSION, "privacy": legal.PRIVACY_VERSION}
+    return {
+        "terms": legal.TERMS_VERSION,
+        "privacy": legal.PRIVACY_VERSION,
+        "refund": legal.REFUND_POLICY_VERSION,
+    }
 
 
 def get_document(kind: str, lang: str = "en") -> Optional[Document]:

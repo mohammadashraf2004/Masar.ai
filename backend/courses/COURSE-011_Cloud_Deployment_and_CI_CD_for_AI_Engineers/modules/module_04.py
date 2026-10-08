@@ -857,7 +857,7 @@ terraform.tfstate
 
 file exists and maps the Terraform resource to the real S3 bucket.
 
-[[IMAGE_NEEDED: Terraform init-plan-apply workflow | A flow diagram showing HCL files → `terraform init` downloads providers → `terraform plan` previews create/modify/destroy actions → human review → `terraform apply` → AWS resource and updated state | Learner should notice that plan is the safety preview before apply changes real infrastructure]]
+{{image:terraform-state-flow}}
 
 ---
 

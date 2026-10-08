@@ -13,8 +13,8 @@ from app.models.learning import DifficultyLevel
 # ---------------------------------------------------------------------------
 
 LESSON_CODE = "M01.L03"
-MODULE_ORDER = 1
-MODULE_TITLE = "Transformer Foundations"
+MODULE_ORDER = 4
+MODULE_TITLE = "Multilingual NLP & Token Classification"
 MODULE_DESCRIPTION = (
     "Move from transformer architecture to practical multilingual NLP by building, "
     "fine-tuning, evaluating, and debugging a multilingual named entity recognizer."
@@ -153,11 +153,8 @@ TOPIC = {
             "\n"
             "So a two-word person such as `Jeff Dean` becomes `B-PER`, `I-PER`.\n"
             "\n"
-            "[[IMAGE_NEEDED: IOB2 named entity labeling | "
-            "A short sentence with tokens shown in boxes and colored labels underneath for "
-            "B-PER, I-PER, B-ORG, B-LOC, and O | "
-            "Learner should notice that B marks the start of an entity span, I continues it, "
-            "and O means the token is not part of an entity]]\n"
+            '{{image:iob2-named-entity-labeling}}'
+            '\n'
             "\n"
             "---\n"
             "\n"

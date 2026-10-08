@@ -73,7 +73,7 @@ learner has one, sharpens the order; it never controls access.
 * Challenge-to-skip (test out of a module). The pieces it needs exist (server-side
   grading, per-module status) but no rule yet says what passing a module test means
   for completion or certification, and exams and payments must stay intact.
-* No course is outline-only any more: all sixteen `COURSE-0xx` folders carry lesson
+* No course is outline-only any more: all eighteen `COURSE-0xx` folders carry lesson
   text (COURSE-006 included). The importer still supports an outline-only layout and
   would import such a course as a non-startable shell.
 * Nothing hard-blocks on a prerequisite. A manifest's `required` list makes a

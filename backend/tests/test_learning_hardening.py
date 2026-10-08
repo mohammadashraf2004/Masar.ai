@@ -1,6 +1,6 @@
 """
 Hardening pass over the personalised roadmap: the rules restated as end-to-end
-scenarios against the shipped configuration (`learn_catalog` runs the real seed).
+scenarios against the shipped configuration (`legacy_catalog` runs the real seed).
 
 Where an expectation depends on what a course teaches, it is computed from the
 catalogue rows by the plain rule below - not read back from the generator - so
@@ -88,7 +88,7 @@ def _live_paths(db, user_id):
 
 # ─── Scenarios A-F ──────────────────────────────────────────────────────────
 
-def test_roadmap_scenarios_a_to_f_in_one_learners_life(learn_client, learn_catalog, learn_db):
+def test_roadmap_scenarios_a_to_f_in_one_learners_life(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
     everything = set(_teaches(learn_db)["rag-knowledge-systems"]) | {"llms"}
 
@@ -119,8 +119,8 @@ def test_roadmap_scenarios_a_to_f_in_one_learners_life(learn_client, learn_catal
     assert _states(path)["rag-knowledge-systems"] == "waived" and _states(path)["llm-integration"] == "waived"
 
     # D - finish courses, then declare more: what was finished stays finished.
-    complete_level(learn_db, who["id"], learn_catalog, 1)
-    complete_level(learn_db, who["id"], learn_catalog, 3)                  # rag-knowledge-systems, for real
+    complete_level(learn_db, who["id"], legacy_catalog, 1)
+    complete_level(learn_db, who["id"], legacy_catalog, 3)                  # rag-knowledge-systems, for real
     path = _put_skills(learn_client, who, sorted(everything | {"embeddings", "semantic-search"}))
     states = _states(path)
     assert states["ai-engineering-foundations"] == "completed"
@@ -149,7 +149,7 @@ def test_roadmap_scenarios_a_to_f_in_one_learners_life(learn_client, learn_catal
     assert learn_client.get(f"{API}/my-profile", headers=who["headers"]).json()["has_active_path"] is True
 
 
-def test_the_current_and_next_course_are_recalculated_when_skills_change(learn_client, learn_catalog):
+def test_the_current_and_next_course_are_recalculated_when_skills_change(learn_client, legacy_catalog):
     who = register(learn_client)
     first = _build(learn_client, who, level="beginner")
     order = [c["course"]["slug"] for s in first["stages"] for c in s["courses"] if c["state"] == "required"]
@@ -166,7 +166,7 @@ def test_the_current_and_next_course_are_recalculated_when_skills_change(learn_c
     assert after["next_course"]["course"]["slug"] == still_required[1]
 
 
-def test_every_rebuild_keeps_exactly_one_active_roadmap(learn_client, learn_catalog, learn_db):
+def test_every_rebuild_keeps_exactly_one_active_roadmap(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     for skills in (["llms"], ["llms", "rag"], ["llms"], [], ["rag"]):
@@ -178,7 +178,7 @@ def test_every_rebuild_keeps_exactly_one_active_roadmap(learn_client, learn_cata
 # ─── Multimodal ─────────────────────────────────────────────────────────────
 
 def test_multimodal_keeps_its_route_and_prerequisite_metadata_through_regeneration_and_reload(
-        learn_client, learn_catalog):
+        learn_client, legacy_catalog):
     who = register(learn_client)
     built = _build(learn_client, who, level="beginner", fields=("multimodal",))
     codes = {a["code"] for a in built["advisories"]}
@@ -196,7 +196,7 @@ def test_multimodal_keeps_its_route_and_prerequisite_metadata_through_regenerati
     assert _shape(_reload(learn_client, who)) == _shape(again)
 
 
-def test_the_client_never_supplies_completion_it_only_reads_it(learn_client, learn_catalog):
+def test_the_client_never_supplies_completion_it_only_reads_it(learn_client, legacy_catalog):
     """The roadmap has no writable field for completion, current/next course or
     progress counts - the server derives every one from lessons."""
     who = register(learn_client)
@@ -213,7 +213,7 @@ def test_the_client_never_supplies_completion_it_only_reads_it(learn_client, lea
 
 # ─── Skill vs tool ──────────────────────────────────────────────────────────
 
-def test_course_technologies_are_tools_and_capabilities_are_skills(learn_catalog, learn_db):
+def test_course_technologies_are_tools_and_capabilities_are_skills(legacy_catalog, learn_db):
     kinds = {s.slug: s.kind for s in learn_db.query(Skill).all()}
     assert {slug for slug, kind in kinds.items() if kind == "tool"} == {
         "langchain", "langgraph", "llamaindex", "qdrant", "fastapi", "python", "numpy",
@@ -224,7 +224,7 @@ def test_course_technologies_are_tools_and_capabilities_are_skills(learn_catalog
 
 
 def test_a_tool_is_never_taken_for_the_capability_and_the_capability_never_for_the_tool(
-        learn_client, learn_catalog, learn_db):
+        learn_client, legacy_catalog, learn_db):
     """LangChain must not satisfy RAG, and RAG must not satisfy LangChain. A
     course that teaches both a capability and a tool needs both declared."""
     teaches = _teaches(learn_db)
@@ -245,7 +245,7 @@ def test_a_tool_is_never_taken_for_the_capability_and_the_capability_never_for_t
     assert _states(path)["langchain"] == "waived"
 
 
-def test_the_kind_travels_with_a_skill_through_every_learner_facing_response(learn_client, learn_catalog):
+def test_the_kind_travels_with_a_skill_through_every_learner_facing_response(learn_client, legacy_catalog):
     who = register(learn_client)
     profile = _profile(learn_client, who, known_skills=["rag", "langchain"])
     assert {s["slug"]: s["kind"] for s in profile["known_skills"]} == {"rag": "skill", "langchain": "tool"}
@@ -256,7 +256,7 @@ def test_the_kind_travels_with_a_skill_through_every_learner_facing_response(lea
         "rag": "skill", "langchain": "tool"}
 
 
-def test_the_declared_list_has_no_field_through_which_a_kind_could_be_chosen(learn_client, learn_catalog, learn_db):
+def test_the_declared_list_has_no_field_through_which_a_kind_could_be_chosen(learn_client, legacy_catalog, learn_db):
     who = register(learn_client)
     resp = learn_client.put(f"{API}/my-skills", headers=who["headers"],
                             json={"skills": ["rag"], "kind": "tool", "kinds": {"rag": "tool"}})
@@ -274,7 +274,7 @@ def test_the_declared_list_has_no_field_through_which_a_kind_could_be_chosen(lea
     {"skills": ["rag", {"slug": "rag"}]},
     {"skills": ["x"] * 101},               # over the bound
 ])
-def test_a_malformed_skill_list_is_a_422_and_changes_nothing(learn_client, learn_catalog, learn_db, body):
+def test_a_malformed_skill_list_is_a_422_and_changes_nothing(learn_client, legacy_catalog, learn_db, body):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     _put_skills(learn_client, who, ["rag", "llms"])
@@ -283,7 +283,7 @@ def test_a_malformed_skill_list_is_a_422_and_changes_nothing(learn_client, learn
     assert {k["skill"]["slug"] for k in mine["known"]} == {"rag", "llms"}
 
 
-def test_saving_the_same_skills_twice_gives_the_same_roadmap(learn_client, learn_catalog):
+def test_saving_the_same_skills_twice_gives_the_same_roadmap(learn_client, legacy_catalog):
     who = register(learn_client)
     _build(learn_client, who, level="beginner")
     first = _put_skills(learn_client, who, ["llms", "rag"])
@@ -292,7 +292,7 @@ def test_saving_the_same_skills_twice_gives_the_same_roadmap(learn_client, learn
     assert shape(first) == shape(second)
 
 
-def test_one_learners_skills_never_change_anothers_roadmap(learn_client, learn_catalog):
+def test_one_learners_skills_never_change_anothers_roadmap(learn_client, legacy_catalog):
     a, b = register(learn_client), register(learn_client)
     _build(learn_client, a, level="beginner")
     before = _shape(_reload(learn_client, a))
@@ -301,7 +301,7 @@ def test_one_learners_skills_never_change_anothers_roadmap(learn_client, learn_c
     assert _shape(_reload(learn_client, a)) == before
 
 
-def test_the_catalogue_skill_list_is_public_and_the_learner_lists_are_not(learn_client, learn_catalog):
+def test_the_catalogue_skill_list_is_public_and_the_learner_lists_are_not(learn_client, legacy_catalog):
     assert learn_client.get(f"{API}/skills", params={"career_goal": "ai-engineer"}).status_code == 200
     for method, url in (("get", "my-skills"), ("put", "my-skills"), ("get", "my-path"), ("put", "my-path"),
                         ("get", "my-progress"), ("get", "my-profile")):

@@ -65,7 +65,9 @@ from app.models.learning_path import (
 from app.models.tool_course import ToolCourse, ToolTopic
 from app.services.learning import catalog_admin as admin
 from seeds.curriculum import COURSE_DIRECTORY_COURSES, STAGES, TEMPLATES, roles_for
-from seeds.sync_curriculum import ensure_curriculum_courses, ensure_shell_courses, sync_course_prerequisites
+from seeds.sync_curriculum import (
+    ensure_curriculum_courses, ensure_shell_courses, sync_course_prerequisites, sync_track_workflow,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -366,6 +368,11 @@ def seed_learning_catalog(db: Session) -> Dict[str, int]:
         sync_course_prerequisites(
             db, only={change.subject for change in directory_course_changes if change.kind == "course+"},
         )
+
+        # The five fixed career tracks' explicit order/required/section - see
+        # seeds/curriculum.py:TRACK_WORKFLOWS. Idempotent, safe to run again by
+        # `sync_curriculum.py` on an already-seeded database.
+        sync_track_workflow(db)
 
         known_courses = {c.slug for c in db.query(Course).all()}
         for slug, title, title_ar, phase, kind, courses in STAGES:

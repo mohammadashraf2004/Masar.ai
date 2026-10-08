@@ -14,7 +14,7 @@ from app.models.learning import DifficultyLevel
 
 LESSON_CODE = "M02.L01"
 MODULE_ORDER = 2
-MODULE_TITLE = "Text Classification"
+MODULE_TITLE = "End-to-End Transformer Text Classification"
 MODULE_DESCRIPTION = (
     "Build an end-to-end mental model for transformer text classification: "
     "inspect an emotion dataset, tokenize text for DistilBERT, compare feature "
@@ -122,7 +122,7 @@ The chapter also introduces three important parts of the Hugging Face ecosystem:
 2. **Tokenizers** — convert raw text into the numerical representation expected by the model.
 3. **Transformers** — load pretrained models and fine-tune or use them for inference.
 
-[[IMAGE_NEEDED: Transformer text-classification pipeline | A simple flow from raw tweet to Dataset processing, tokenizer, DistilBERT, classification output, and prediction on new text | Learner should notice that text must pass through data preparation and tokenization before the transformer can classify it]]
+{{image:transformer-text-classification-pipeline}}
 
 ### The project
 

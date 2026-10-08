@@ -1201,6 +1201,89 @@ TOPIC = {
             "expected_output": (
                 "Three check functions/pseudocode blocks plus concise warning behavior."
             ),
+            "type": "code",
+            "language": "python",
+            "starter_code": (
+                "def zero_count_columns(rows: list[dict[str, str]]) -> list[str]:\n"
+                "    # TODO: return columns whose values are empty in every row.\n"
+                "    pass\n\n"
+                "def count_unnamed_columns(fieldnames: list[str]) -> int:\n"
+                "    # TODO: count field names containing 'Unnamed'.\n"
+                "    pass\n\n"
+                "def first_carriage_return(rows: list[dict[str, str]]):\n"
+                "    # TODO: return {'column': name, 'preview': truncated_value}\n"
+                "    # for the first string containing a carriage return, else None.\n"
+                "    pass\n"
+            ),
+            "solution_code": (
+                "def zero_count_columns(rows: list[dict[str, str]]) -> list[str]:\n"
+                "    if not rows:\n"
+                "        return []\n"
+                "    return [\n"
+                "        column\n"
+                "        for column in rows[0]\n"
+                "        if all(row.get(column, '') == '' for row in rows)\n"
+                "    ]\n\n"
+                "def count_unnamed_columns(fieldnames: list[str]) -> int:\n"
+                "    return sum('Unnamed' in name for name in fieldnames)\n\n"
+                "def first_carriage_return(rows: list[dict[str, str]]):\n"
+                "    for row in rows:\n"
+                "        for column, value in row.items():\n"
+                "            if isinstance(value, str) and '\\r' in value:\n"
+                "                return {'column': column, 'preview': value[:40]}\n"
+                "    return None\n"
+            ),
+            "hint": "Use all() for empty columns, sum() for Unnamed fields, and nested loops for the first carriage return.",
+            "success_message": "Correct! All three CSV data-quality checks return the expected result.",
+            "tests": [
+                {
+                    "id": "zero_count_columns",
+                    "type": "return_value_equals",
+                    "function": "zero_count_columns",
+                    "args": [[
+                        {"name": "Ada", "empty": ""},
+                        {"name": "Lin", "empty": ""},
+                    ]],
+                    "expected": ["empty"],
+                    "feedback": {
+                        "en": "Return only columns that are empty in every row.",
+                        "ar": "أعد فقط الأعمدة الفارغة في جميع الصفوف.",
+                    },
+                },
+                {
+                    "id": "unnamed_columns",
+                    "type": "return_value_equals",
+                    "function": "count_unnamed_columns",
+                    "args": [["name", "Unnamed: 0", "age"]],
+                    "expected": 1,
+                    "feedback": {
+                        "en": "Count field names containing `Unnamed`.",
+                        "ar": "احسب أسماء الحقول التي تحتوي على `Unnamed`.",
+                    },
+                },
+                {
+                    "id": "carriage_return",
+                    "type": "return_value_equals",
+                    "function": "first_carriage_return",
+                    "args": [[{"notes": "ok", "bio": "line 1\rline 2"}]],
+                    "expected": {"column": "bio", "preview": "line 1\rline 2"},
+                    "feedback": {
+                        "en": "Return the first field containing `\\r` with a short preview.",
+                        "ar": "أعد أول حقل يحتوي على `\\r` مع معاينة قصيرة.",
+                    },
+                },
+                {
+                    "id": "no_carriage_return",
+                    "type": "return_value_equals",
+                    "function": "first_carriage_return",
+                    "args": [[{"notes": "clean"}]],
+                    "expected": None,
+                    "feedback": {
+                        "en": "Return None when no carriage return is present.",
+                        "ar": "أعد None عند عدم وجود carriage return.",
+                    },
+                },
+            ],
             "difficulty": DifficultyLevel.intermediate,
             "skill_tested": [
                 "dataset-linting",

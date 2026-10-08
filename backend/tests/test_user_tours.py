@@ -196,3 +196,27 @@ def test_there_is_no_way_to_write_for_someone_else(learn_client, learn_db):
     # The route takes no user id, and a body naming one is ignored: it is always the caller.
     learn_client.put(TOUR.format("onboarding"), headers=a["headers"], json={"status": "completed", "version": 1, "user_id": b["id"]})
     assert learn_db.query(UserTour).filter(UserTour.user_id == b["id"]).count() == 0
+
+
+def test_a_future_at_stored_before_clamping_cannot_freeze_the_record(learn_client, learn_db):
+    """A row written by an older build (no clamp) may already hold a far-future `at`; a real
+    write with a current timestamp must still win."""
+    from app.models.user_tour import TourRecordStatus
+
+    user = register(learn_client)
+    learn_db.add(UserTour(user_id=user["id"], tour_id="language", status=TourRecordStatus.completed, version=1,
+                          at=datetime.now(timezone.utc) + timedelta(days=3650)))
+    learn_db.commit()
+    resp = _put(learn_client, user, "language", status="skipped", version=2,
+                at=datetime.now(timezone.utc).isoformat())
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "skipped" and resp.json()["version"] == 2
+
+
+def test_an_at_with_an_offset_is_compared_as_the_same_instant(learn_client):
+    user = register(learn_client)
+    now = datetime.now(timezone.utc)
+    earlier_in_cairo = (now - timedelta(minutes=5)).astimezone(timezone(timedelta(hours=3))).isoformat()
+    _put(learn_client, user, "onboarding", status="in_progress", version=1, at=now.isoformat())
+    stale = _put(learn_client, user, "onboarding", status="completed", version=1, at=earlier_in_cairo)
+    assert stale.status_code == 200 and stale.json()["status"] == "in_progress"

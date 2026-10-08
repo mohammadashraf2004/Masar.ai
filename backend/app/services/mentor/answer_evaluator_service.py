@@ -26,6 +26,7 @@ genuine attempts and are still off. The reference answer also remains
 marked grading-only in _build_context_block.
 """
 import json
+import math
 from typing import List, Optional
 
 from app.services.language.language_policy import build_policy
@@ -337,15 +338,29 @@ def evaluate_answer(
         return fallback
 
     reply = data.get("reply", raw)
-    is_correct = data.get("is_correct")
-    if is_correct is None:
-        # Fall back to the status line the reply opens with. An explicit
-        # true/false from the model always wins; this only fills a gap.
-        is_correct = _verdict_from_status(reply)
+    stated_verdict = data.get("is_correct")
+    if not isinstance(stated_verdict, bool):
+        stated_verdict = None
+    # The learner-visible status is authoritative when present. Trusting a
+    # contradictory JSON boolean let a reply headed "❌ Incorrect" award a
+    # full mark and completion when the provider returned is_correct=true.
+    status_verdict = _verdict_from_status(reply)
+    is_correct = status_verdict if status_verdict is not None else stated_verdict
+
+    raw_score = data.get("score")
+    score = None
+    if is_correct is not None and isinstance(raw_score, (int, float)) and not isinstance(raw_score, bool):
+        numeric_score = float(raw_score)
+        if math.isfinite(numeric_score):
+            score = max(0.0, min(100.0, numeric_score))
+            # A non-passing verdict can carry partial credit, but never a
+            # perfect score. Completion is still controlled by is_correct.
+            if is_correct is False and score == 100.0:
+                score = 99.0
 
     return {
         "reply": reply,
         "is_correct": is_correct,
-        "score": data.get("score"),
+        "score": score,
         "suggested_actions": data.get("suggested_actions", _FALLBACK_ACTIONS),
     }

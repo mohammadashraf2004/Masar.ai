@@ -1,0 +1,10 @@
+# Libraries available to learner code in the Project Lab runner.
+# Pinned exactly: what a learner's analysis computes must not drift between
+# deploys. This file is NOT part of the API image (backend/requirements.txt);
+# requirements-dev.txt includes it so the test suite can run the development
+# execution adapter.
+pandas==3.0.6
+numpy==2.4.6
+scikit-learn==1.7.2
+matplotlib==3.11.2
+duckdb==1.5.6

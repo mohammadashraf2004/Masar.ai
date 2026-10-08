@@ -222,14 +222,97 @@ def learn_client(learn_db, logs_enabled):
         app.dependency_overrides.pop(get_db, None)
 
 
+# The roadmap templates as they were before the canonical-only reconciliation
+# (2026-10-02): the legacy track-level and tool courses mixed in with the
+# COURSE-0xx courses. Production no longer builds roadmaps this way; the
+# generator-behaviour tests (waiving by declared skills, prerequisites, states,
+# progress) keep exercising it through `legacy_catalog` because their fixtures
+# are the legacy courses, which have published lessons. Tests that assert what
+# production roadmaps contain use `learn_catalog`.
+_LEGACY_AI_ENGINEER_STAGES = [
+    ("foundations", None), ("machine-learning", None), ("deep-learning", None),
+    ("nlp-llm", "nlp"), ("rag", "nlp"), ("agents", "nlp"), ("llm-production", "nlp"),
+    ("computer-vision", "computer-vision"), ("advanced-cv", "computer-vision"),
+    ("vision-language", "computer-vision"),
+    ("audio-processing", "speech"), ("speech-recognition", "speech"), ("text-to-speech", "speech"),
+    ("voice-ai", "speech"), ("realtime-voice-agents", "speech"),
+    ("multimodal", "multimodal"),
+    ("production", None), ("capstone-ai-engineer", None),
+]
+_LEGACY_TEMPLATES = {
+    "data-analyst": [("data-foundations", "data"), ("data-analysis", "data"), ("data-tooling", "data"),
+                     ("capstone-data-analyst", None)],
+    "ml-engineer": [
+        ("machine-learning", None), ("feature-engineering", None), ("deep-learning", None),
+        ("model-evaluation", None), ("nlp-transformers", "nlp"),
+        ("computer-vision", "computer-vision"), ("advanced-cv", "computer-vision"),
+        ("audio-processing", "speech"), ("speech-recognition", "speech"),
+        ("mlops-tooling", None), ("production", None), ("llm-applications", "nlp"),
+        ("capstone-ml-engineer", None)],
+    "ai-developer": [
+        ("foundations", None), ("nlp-llm", "nlp"), ("rag", "nlp"), ("agents", "nlp"),
+        ("llm-production", "nlp"), ("multimodal", "multimodal"), ("production", None),
+        ("capstone-ai-developer", None)],
+    "mlops-engineer": [("machine-learning", None), ("mlops-tooling", None), ("production", None),
+                       ("capstone-mlops-engineer", None)],
+    "ai-engineer": _LEGACY_AI_ENGINEER_STAGES,
+}
+_LEGACY_COURSE_STAGES = {
+    "data-analyst": {"data-foundations": [("course-013", "data")]},
+    "ml-engineer": {"machine-learning": [("course-001", None), ("course-013", "data")],
+                    "deep-learning": [("course-002", None), ("course-003", None)],
+                    "nlp-transformers": [("course-004", "nlp")],
+                    "computer-vision": [("course-014", "computer-vision")]},
+    "ai-developer": {"foundations": [("course-001", None), ("course-002", None), ("course-003", None)],
+                     "nlp-llm": [("course-004", "nlp"), ("course-005", "nlp")],
+                     "llm-production": [("course-006", "nlp"), ("course-007", "nlp"), ("course-009", "nlp"),
+                                        ("course-010", "nlp"), ("course-011", "nlp"), ("course-012", "nlp")],
+                     "multimodal": [("course-008", "multimodal")]},
+    "mlops-engineer": {"machine-learning": [("course-001", None), ("course-002", None)],
+                       "production": [("course-006", None), ("course-010", None), ("course-011", None)]},
+    "ai-engineer": {"machine-learning": [("course-001", None), ("course-013", "data")],
+                    "deep-learning": [("course-002", None), ("course-003", None)],
+                    "nlp-llm": [("course-004", "nlp"), ("course-005", "nlp")],
+                    "llm-production": [("course-006", "nlp"), ("course-007", "nlp"), ("course-009", "nlp"),
+                                       ("course-010", "nlp"), ("course-011", "nlp"), ("course-012", "nlp")],
+                    "computer-vision": [("course-014", "computer-vision")],
+                    "multimodal": [("course-008", "multimodal")],
+                    "voice-ai": [("course-015", "speech")]},
+}
+
+
+def legacy_mixed_template_stages(goal):
+    stages = []
+    for stage in _LEGACY_TEMPLATES[goal]:
+        stages.append(stage)
+        stages.extend(_LEGACY_COURSE_STAGES[goal].get(stage[0], []))
+    return stages
+
+
 @pytest.fixture()
 def learn_catalog(learn_db):
-    """Content sources + the real seed. Returns the content handles."""
+    """Content sources + the real seed (production templates: canonical courses only).
+    Returns the content handles."""
     from seeds.seed_learning_paths import seed_learning_catalog
 
     content = create_content_sources(learn_db)
     seed_learning_catalog(learn_db)
     return content
+
+
+@pytest.fixture()
+def legacy_catalog(learn_db, learn_catalog):
+    """`learn_catalog` with the pre-reconciliation templates (legacy courses mixed
+    into the roadmaps) re-applied, for tests whose subject is the path generator's
+    behaviour over courses that have published lessons. Same return value."""
+    from app.services.learning import catalog_admin as admin
+    from seeds import curriculum as cfg
+
+    for slug, goal, title, title_ar, _stages in cfg.TEMPLATES:
+        entries = [{"stage": s, "field": f} for s, f in legacy_mixed_template_stages(goal)]
+        admin.upsert_template(learn_db, slug, title=title, title_ar=title_ar, career_goal=goal, stages=entries)
+    learn_db.commit()
+    return learn_catalog
 
 
 def register(client, *, verified: bool = False) -> Dict[str, object]:

@@ -251,7 +251,9 @@
       "type": "image",
       "file": "assets/kv-cache-prefill-decode.png",
       "alt": "During prefill, attention computes and caches key and value matrices; at a later decode step, one new query reuses the cached past keys and values instead of recomputing them.",
-      "caption": "KV-cache reuse from prefill to autoregressive decode."
+      "alt_ar": "أثناء مرحلة Prefill تحسب آلية Attention مصفوفتَي Key وValue وتخزنهما مؤقتًا؛ وفي خطوة Decode لاحقة يعيد Query جديد استخدام قيم K/V السابقة المخزنة بدلًا من حسابها من جديد.",
+      "caption": "KV-cache reuse from prefill to autoregressive decode.",
+      "caption_ar": "إعادة استخدام KV Cache من مرحلة Prefill إلى مرحلة Autoregressive Decode."
     },
     {
       "key": "late-conditioning-architecture",

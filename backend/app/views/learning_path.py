@@ -483,3 +483,48 @@ class PathUpdate(BaseModel):
     regenerate: Optional[bool] = None
     status: Optional[Literal["active", "paused", "archived"]] = None
     waived_course_ids: Optional[List[int]] = Field(None, max_length=MAX_WAIVED)
+
+
+# ─── Career track workflow ──────────────────────────────────────────────────
+# The five fixed career tracks (Data Analyst, ML Engineer, AI Developer,
+# MLOps Engineer, AI Engineer), each rendered as an ordered workflow over the
+# same canonical courses every other endpoint here serves. Order, role and
+# section are the server's (`course_roles.position/required/section`); the
+# client draws the workflow, it never reconstructs the order.
+
+TrackSection = Literal[
+    "foundations", "language-generative-ai", "application-production",
+    "advanced-ai-systems", "specializations",
+]
+WorkflowStatus = Literal["completed", "in_progress", "next", "locked", "available"]
+
+
+class TrackWorkflowCourseOut(BaseModel):
+    course_id: int
+    slug: str
+    title: str
+    title_ar: Optional[str] = None
+    order: int
+    role: TrackRole
+    required: bool
+    section: Optional[TrackSection] = None
+    status: WorkflowStatus
+    progress_percent: float = 0.0
+    is_available: bool
+    estimated_hours: float = 0.0
+    module_count: int = 0
+    lesson_count: int = 0
+    prerequisites: List[CourseRef] = Field(default_factory=list)
+
+
+class TrackWorkflowOut(BaseModel):
+    career_goal: RoleRef
+    courses: List[TrackWorkflowCourseOut]
+    required_total: int
+    required_completed: int
+    # Completed required courses / all required courses. Optional courses and
+    # partial lesson progress never enter this number.
+    progress_percent: float
+    current: Optional[CourseRef] = None
+    next: Optional[CourseRef] = None
+    has_sections: bool = False

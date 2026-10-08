@@ -28,11 +28,12 @@ from app.services.learning.progress_service import overview, pct, resolve_state,
 from app.services.learning.skill_gaps import (
     GROUP_FIELD, STATUS_KNOWN, STATUS_MISSING, STATUS_PARTIAL, SkillGap, calculate_skill_gaps, explain_courses,
 )
+from app.services.learning.track_workflow import Workflow
 from app.views.learning_path import (
     AdvisoryOut, CareerGoalOut, CourseDetail, CourseRef, CourseSummary, CourseWhyOut, FieldOut, FieldRef,
     LearnerSkillOut, LevelOut, LevelRef, MySkillsOut, PathCourseOut, PathOut, PathStageOut,
     PathSummaryOut, ProfileOut, ProgressOut, RoadmapStep, RoleRef, SkillGapGroupOut, SkillGapItemOut,
-    SkillGapsOut, SkillGapSummaryOut, SkillOptionOut, SkillOut, StageRef,
+    SkillGapsOut, SkillGapSummaryOut, SkillOptionOut, SkillOut, StageRef, TrackWorkflowCourseOut, TrackWorkflowOut,
 )
 
 
@@ -542,4 +543,41 @@ def profile_out(
         needs_onboarding=not completed,
         source=profile.source,
         has_active_path=has_active_path,
+    )
+
+
+# ─── Career track workflow ──────────────────────────────────────────────────
+
+def _course_ref(bundle: CatalogBundle, course_id: int) -> Optional[CourseRef]:
+    c = bundle.courses.get(course_id)
+    if c is None:
+        return None
+    title, title_ar, _d, _da = _source_text(c)
+    return CourseRef(id=c.id, slug=c.slug, title=c.title or title or c.slug, title_ar=c.title_ar or title_ar)
+
+
+def track_workflow_out(bundle: CatalogBundle, workflow: Workflow) -> TrackWorkflowOut:
+    role = bundle.roles[workflow.role_slug]
+    courses: List[TrackWorkflowCourseOut] = []
+    for wc in workflow.courses:
+        c = bundle.courses[wc.info.id]
+        title, title_ar, _d, _da = _source_text(c)
+        prerequisites = [
+            ref for ref in (_course_ref(bundle, pid) for pid in sorted(wc.info.prerequisite_ids)) if ref is not None
+        ]
+        courses.append(TrackWorkflowCourseOut(
+            course_id=c.id, slug=c.slug, title=c.title or title or c.slug, title_ar=c.title_ar or title_ar,
+            order=wc.order, role=wc.role, required=wc.required, section=wc.section,
+            status=wc.status, progress_percent=pct(wc.progress_fraction),
+            is_available=wc.info.is_available, estimated_hours=wc.info.estimated_hours,
+            module_count=wc.info.module_count, lesson_count=wc.info.lesson_count,
+            prerequisites=prerequisites,
+        ))
+    return TrackWorkflowOut(
+        career_goal=role_ref(role), courses=courses,
+        required_total=workflow.required_total, required_completed=workflow.required_completed,
+        progress_percent=workflow.progress_percent,
+        current=_course_ref(bundle, workflow.current.id) if workflow.current else None,
+        next=_course_ref(bundle, workflow.next.id) if workflow.next else None,
+        has_sections=workflow.has_sections,
     )

@@ -13,8 +13,8 @@ from app.models.learning import DifficultyLevel
 # ---------------------------------------------------------------------------
 
 LESSON_CODE = "M01.L05"
-MODULE_ORDER = 1
-MODULE_TITLE = "Transformer Foundations"
+MODULE_ORDER = 6
+MODULE_TITLE = "Sequence-to-Sequence NLP & Summarization"
 MODULE_DESCRIPTION = (
     "Learn how transformer models summarize long text, how summarization quality "
     "is evaluated, and how an encoder-decoder model can be fine-tuned for dialogue summaries."

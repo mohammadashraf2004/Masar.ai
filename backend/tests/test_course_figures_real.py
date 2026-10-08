@@ -17,7 +17,10 @@ def courses():
 
 
 def test_the_course_structure_is_unchanged_by_inline_figures(courses):
-    assert (len(courses), sum(len(c.modules) for c in courses), sum(len(c.lessons) for c in courses)) == (15, 105, 181)
+    # 181 lessons in 15 courses, unchanged by figures. Modules went 105 -> 178 when the
+    # converted chapter courses (manifest `consolidated_file_modules`, COURSE-004's own
+    # restructure) began presenting each chapter file as its own module; lesson ids are stable.
+    assert (len(courses), sum(len(c.modules) for c in courses), sum(len(c.lessons) for c in courses)) == (15, 178, 181)
 
 
 def test_every_placed_figure_resolves_and_every_manifest_is_sound(courses):

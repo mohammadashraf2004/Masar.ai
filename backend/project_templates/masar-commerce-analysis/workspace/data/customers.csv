@@ -1,0 +1,1501 @@
+customer_id,city,country,region,segment,signup_date
+C0001,Giza,Egypt,Egypt,consumer,2024-04-05
+C0002,Giza,  Egypt,Egypt,consumer,2024-10-19
+C0003,Cairo,Egypt,Egypt,consumer,2024-05-11
+C0004,Tunis,Tunisia,North Africa,consumer,2024-11-29
+C0005,Kuwait City,Kuwait,Gulf,consumer,2024-07-18
+C0006,Jeddah,Saudi Arabia,Gulf,business,2024-09-17
+C0007,Sharjah,United Arab Emirates,Gulf,consumer,2024-02-04
+C0008,Giza,Egypt,Egypt,consumer,2024-07-08
+C0009,Riyadh,Saudi Arabia,Gulf,consumer,2025-07-04
+C0010,Cairo,Egypt,Egypt,consumer,2025-02-19
+C0011,Giza,  Egypt,Egypt,consumer,2025-09-28
+C0012,Kuwait City,Kuwait,Gulf,consumer,2025-02-21
+C0013,Amman,Jordan,Levant,consumer,2025-05-30
+C0014,,Morocco,North Africa,consumer,2024-08-09
+C0015,Sharjah,United Arab Emirates,Gulf,consumer,2025-09-21
+C0016,Marrakesh,  Morocco,North Africa,consumer,2024-11-15
+C0017,Beirut,Lebanon,Levant,consumer,2024-11-02
+C0018,Irbid,Jordan,Levant,consumer,2024-03-21
+C0019,Giza,Egypt,Egypt,consumer,2025-05-13
+C0020,Alexandria,Egypt,Egypt,consumer,2024-11-05
+C0021,Beirut,Lebanon,Levant,business,2024-11-01
+C0022,Casablanca,Morocco,North Africa,consumer,2025-10-01
+C0023,Doha,Qatar,Gulf,consumer,2025-06-24
+C0024,Irbid,Jordan,Levant,consumer,2025-09-05
+C0025,Beirut,Lebanon,Levant,consumer,2025-04-14
+C0026,Doha,Qatar,Gulf,consumer,2024-01-11
+C0027,Kuwait City,Kuwait,Gulf,consumer,2024-01-06
+C0028,Abu Dhabi,United Arab Emirates,Gulf,business,2025-06-15
+C0029,Amman,Jordan,Levant,consumer,2025-08-23
+C0030,Amman,Jordan,Levant,consumer,2025-07-27
+C0031,Alexandria,Egypt,Egypt,consumer,2025-06-19
+C0032,Cairo,Egypt,Egypt,consumer,2025-03-13
+C0033,Rabat,Morocco,North Africa,consumer,2024-01-29
+C0034,Jeddah,Saudi Arabia,Gulf,consumer,2024-10-21
+C0035,Amman,  Jordan,Levant,consumer,2025-09-28
+C0036,Mansoura,Egypt,Egypt,consumer,2024-01-12
+C0037,Jeddah,Saudi Arabia,Gulf,consumer,2024-02-06
+C0038,Dubai,United Arab Emirates,Gulf,consumer,2024-12-08
+C0039,Mansoura,EGYPT,Egypt,business,2024-08-21
+C0040,Giza,Egypt,Egypt,consumer,2025-07-08
+C0041,Cairo,Egypt,Egypt,consumer,2025-09-11
+C0042,Abu Dhabi,United Arab Emirates,Gulf,business,2024-04-14
+C0043,Dammam,Saudi Arabia,Gulf,consumer,2025-09-05
+C0044,Amman,Jordan,Levant,consumer,2024-11-25
+C0045,Giza,Egypt,Egypt,business,2024-11-07
+C0046,Dubai,United Arab Emirates,Gulf,consumer,2024-07-20
+C0047,Dammam,Saudi Arabia,Gulf,consumer,2025-08-02
+C0048,Riyadh,Saudi Arabia,Gulf,consumer,2024-06-28
+C0049,Giza,Egypt,Egypt,consumer,2024-03-07
+C0050,Irbid,Jordan,Levant,consumer,2025-06-27
+C0051,Sharjah,United Arab Emirates,Gulf,consumer,2025-01-17
+C0052,Kuwait City,Kuwait,Gulf,business,2024-02-12
+C0053,Jeddah,Saudi Arabia,Gulf,consumer,2025-08-25
+C0054,Dubai,United Arab Emirates,Gulf,consumer,2025-01-27
+C0055,Amman,Jordan,Levant,consumer,2025-05-27
+C0056,Beirut,Lebanon,Levant,business,2024-11-24
+C0057,Giza,Egypt,Egypt,consumer,2024-12-16
+C0058,Alexandria,Egypt,Egypt,consumer,2024-03-10
+C0059,,Jordan,Levant,consumer,2024-11-23
+C0060,Alexandria,Egypt,Egypt,consumer,2024-04-21
+C0061,Giza,Egypt,Egypt,consumer,2024-05-08
+C0062,Tunis,Tunisia,North Africa,consumer,2025-03-22
+C0063,Alexandria,Egypt,Egypt,consumer,2024-05-24
+C0064,Riyadh,  Saudi Arabia,Gulf,consumer,2025-06-26
+C0065,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-05-28
+C0066,Doha,Qatar,Gulf,consumer,2025-01-07
+C0067,Alexandria,Egypt,Egypt,business,2024-09-15
+C0068,Giza,  Egypt,Egypt,consumer,2024-04-08
+C0069,Jeddah,Saudi Arabia,Gulf,consumer,2024-12-06
+C0070,Kuwait City,Kuwait,Gulf,business,2025-02-24
+C0071,Sfax,Tunisia,North Africa,consumer,2025-04-23
+C0072,Alexandria,Egypt,Egypt,business,2024-01-24
+C0073,Rabat,MOROCCO,North Africa,business,2024-08-20
+C0074,Casablanca,Morocco,North Africa,consumer,2024-07-21
+C0075,Amman,Jordan,Levant,consumer,2024-05-27
+C0076,,Egypt,Egypt,business,2024-04-13
+C0077,Mansoura,Egypt,Egypt,consumer,2025-04-14
+C0078,Irbid,Jordan,Levant,consumer,2024-05-03
+C0079,Sharjah,United Arab Emirates,Gulf,business,2025-04-16
+C0080,Cairo,Egypt,Egypt,consumer,2024-03-15
+C0081,Amman,Jordan,Levant,consumer,2024-03-11
+C0082,Beirut,Lebanon,Levant,business,2025-07-25
+C0083,Jeddah,Saudi Arabia,Gulf,business,2025-08-02
+C0084,Doha,Qatar,Gulf,consumer,2025-07-14
+C0085,Riyadh,Saudi Arabia,Gulf,consumer,2025-04-04
+C0086,Dubai,United Arab Emirates,Gulf,consumer,2024-02-03
+C0087,Alexandria,Egypt,Egypt,consumer,2024-03-11
+C0088,Alexandria,Egypt,Egypt,consumer,2025-06-15
+C0089,Cairo,Egypt,Egypt,consumer,2025-05-23
+C0090,Giza,Egypt,Egypt,consumer,2024-03-31
+C0091,Mansoura,Egypt,Egypt,consumer,2024-06-22
+C0092,Kuwait City,Kuwait,Gulf,business,2025-06-18
+C0093,Mansoura,Egypt,Egypt,business,2025-03-22
+C0094,Alexandria,Egypt,Egypt,consumer,2024-01-31
+C0095,Alexandria,Egypt,Egypt,consumer,2025-05-16
+C0096,Mansoura,Egypt,Egypt,consumer,2024-09-16
+C0097,Sharjah,United Arab Emirates,Gulf,consumer,2024-03-06
+C0098,Alexandria,Egypt,Egypt,consumer,2025-03-15
+C0099,Alexandria,Egypt,Egypt,consumer,2024-10-15
+C0100,Irbid,Jordan,Levant,business,2024-08-17
+C0101,Marrakesh,Morocco,North Africa,consumer,2025-07-10
+C0102,Giza,Egypt,Egypt,consumer,2025-06-10
+C0103,Doha,Qatar,Gulf,consumer,2024-02-19
+C0104,Kuwait City,Kuwait,Gulf,business,2025-05-27
+C0105,Irbid,Jordan,Levant,consumer,2024-11-13
+C0106,Cairo,Egypt,Egypt,consumer,2024-05-05
+C0107,Mansoura,Egypt,Egypt,business,2024-07-26
+C0108,Mansoura,Egypt,Egypt,consumer,2024-05-18
+C0109,Sharjah,United Arab Emirates,Gulf,consumer,2024-11-06
+C0110,Sfax,Tunisia,North Africa,consumer,2024-10-15
+C0111,Casablanca,Morocco,North Africa,business,2024-07-18
+C0112,Jeddah,Saudi Arabia,Gulf,consumer,2025-02-07
+C0113,Casablanca,Morocco,North Africa,business,2025-02-08
+C0114,Doha,Qatar,Gulf,consumer,2025-01-24
+C0115,Riyadh,Saudi Arabia,Gulf,consumer,2024-10-01
+C0116,Mansoura,Egypt,Egypt,consumer,2025-09-11
+C0117,Alexandria, egypt,Egypt,business,2024-07-23
+C0118,Alexandria,Egypt,Egypt,business,2025-06-21
+C0119,Marrakesh,Morocco,North Africa,consumer,2024-03-09
+C0120,Cairo,Egypt,Egypt,consumer,2024-10-07
+C0121,Dammam,Saudi Arabia,Gulf,consumer,2024-02-29
+C0122,,United Arab Emirates,Gulf,business,2025-07-25
+C0123,Alexandria,Egypt,Egypt,consumer,2024-10-07
+C0124,Rabat,Morocco,North Africa,business,2025-01-07
+C0125,Amman,Jordan,Levant,business,2024-12-31
+C0126,Riyadh,Saudi Arabia,Gulf,consumer,2024-07-28
+C0127,,Egypt,Egypt,consumer,2024-03-26
+C0128,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-05-07
+C0129,Mansoura,Egypt,Egypt,consumer,2024-01-31
+C0130,Rabat,Morocco,North Africa,consumer,2024-12-12
+C0131,Rabat,Morocco,North Africa,business,2024-12-31
+C0132,Mansoura,Egypt,Egypt,consumer,2025-07-05
+C0133,Dammam,Saudi Arabia,Gulf,consumer,2025-04-01
+C0134,Dammam,Saudi Arabia,Gulf,consumer,2024-09-01
+C0135,Dammam,Saudi Arabia,Gulf,consumer,2024-08-27
+C0136,Cairo,Egypt,Egypt,business,2024-04-05
+C0137,,Saudi Arabia,Gulf,consumer,2025-04-11
+C0138,Cairo,Egypt,Egypt,consumer,2025-09-17
+C0139,Riyadh,Saudi Arabia,Gulf,consumer,2025-08-28
+C0140,Doha,Qatar,Gulf,consumer,2025-07-02
+C0141,Mansoura,Egypt,Egypt,consumer,2025-07-12
+C0142,Giza,Egypt,Egypt,consumer,2025-08-28
+C0143,Alexandria,Egypt,Egypt,consumer,2024-07-26
+C0144,Giza,Egypt,Egypt,consumer,2024-04-04
+C0145,Dammam,Saudi Arabia,Gulf,consumer,2025-01-31
+C0146,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-04-15
+C0147,Dammam,Saudi Arabia,Gulf,consumer,2025-06-21
+C0148,Mansoura,Egypt,Egypt,consumer,2024-07-30
+C0149,Riyadh,Saudi Arabia,Gulf,consumer,2025-04-18
+C0150,Irbid,  Jordan,Levant,consumer,2025-03-04
+C0151,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-04-03
+C0152,Amman,Jordan,Levant,consumer,2025-01-26
+C0153,Amman,Jordan,Levant,consumer,2024-06-13
+C0154,Sharjah,United Arab Emirates,Gulf,consumer,2024-02-07
+C0155,Beirut,Lebanon,Levant,consumer,2025-05-29
+C0156,Cairo,Egypt,Egypt,consumer,2025-03-01
+C0157,Dubai,United Arab Emirates,Gulf,consumer,2025-01-07
+C0158,Giza,Egypt,Egypt,consumer,2025-04-04
+C0159,Kuwait City,Kuwait,Gulf,consumer,2024-05-18
+C0160,Mansoura,Egypt,Egypt,consumer,2025-09-15
+C0161,,United Arab Emirates,Gulf,business,2024-09-05
+C0162,Cairo,Egypt,Egypt,consumer,2024-05-08
+C0163,Alexandria,Egypt,Egypt,consumer,2024-07-11
+C0164,,Morocco,North Africa,consumer,2025-01-01
+C0165,Dammam,Saudi Arabia,Gulf,consumer,2024-08-24
+C0166,,Egypt,Egypt,consumer,2024-09-06
+C0167,Sharjah,United Arab Emirates,Gulf,business,2024-02-16
+C0168,Amman,Jordan,Levant,consumer,2024-06-09
+C0169,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-08-10
+C0170,Cairo,Egypt,Egypt,consumer,2024-11-20
+C0171,Cairo,Egypt,Egypt,consumer,2024-10-25
+C0172,Rabat,Morocco,North Africa,consumer,2025-01-26
+C0173,Alexandria,Egypt,Egypt,business,2024-04-11
+C0174,Amman,Jordan,Levant,consumer,2024-04-21
+C0175,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-01-21
+C0176,Amman,Jordan,Levant,consumer,2024-07-17
+C0177,Riyadh,Saudi Arabia,Gulf,consumer,2025-07-06
+C0178,Dubai,United Arab Emirates,Gulf,consumer,2024-04-30
+C0179,Mansoura,Egypt,Egypt,consumer,2024-06-07
+C0180,,Kuwait,Gulf,consumer,2024-08-29
+C0181,Alexandria,Egypt,Egypt,consumer,2024-07-29
+C0182,Dubai,United Arab Emirates,Gulf,consumer,2024-06-15
+C0183,Rabat,Morocco,North Africa,consumer,2025-08-13
+C0184,Alexandria,Egypt,Egypt,consumer,2025-05-29
+C0185,Mansoura,Egypt,Egypt,business,2025-06-11
+C0186,Giza,Egypt,Egypt,consumer,2025-09-26
+C0187,,United Arab Emirates,Gulf,consumer,2025-01-17
+C0188,Sharjah,United Arab Emirates,Gulf,business,2025-06-03
+C0189,Alexandria,Egypt,Egypt,consumer,2025-04-12
+C0190,Sfax,Tunisia,North Africa,consumer,2025-03-27
+C0191,Sfax,Tunisia,North Africa,consumer,2024-07-23
+C0192,Giza,Egypt,Egypt,consumer,2024-09-15
+C0193,Cairo,Egypt,Egypt,consumer,2024-08-15
+C0194,Amman,Jordan,Levant,consumer,2025-05-28
+C0195,Marrakesh,Morocco,North Africa,business,2024-11-19
+C0196,Alexandria,Egypt,Egypt,consumer,2024-12-31
+C0197,Giza,Egypt,Egypt,consumer,2024-02-07
+C0198,Marrakesh,Morocco,North Africa,consumer,2024-02-20
+C0199,Giza,Egypt,Egypt,business,2024-03-04
+C0200,,Egypt,Egypt,business,2024-12-16
+C0201,Marrakesh,Morocco,North Africa,consumer,2025-01-13
+C0202,Cairo,Egypt,Egypt,consumer,2024-07-06
+C0203,Riyadh,Saudi Arabia,Gulf,consumer,2024-02-16
+C0204,Dammam,Saudi Arabia,Gulf,consumer,2025-03-31
+C0205,Cairo,Egypt,Egypt,consumer,2024-12-10
+C0206,Casablanca,Morocco,North Africa,consumer,2024-11-28
+C0207,Irbid,Jordan,Levant,consumer,2024-05-26
+C0208,,Saudi Arabia,Gulf,consumer,2024-09-30
+C0209,Kuwait City,Kuwait,Gulf,business,2024-05-27
+C0210,Giza,Egypt,Egypt,consumer,2024-11-19
+C0211,Riyadh,Saudi Arabia,Gulf,consumer,2024-07-16
+C0212,Beirut,Lebanon,Levant,consumer,2025-02-09
+C0213,Cairo,Egypt,Egypt,business,2024-08-08
+C0214,Cairo,Egypt,Egypt,consumer,2024-12-21
+C0215,Cairo,Egypt,Egypt,consumer,2025-09-16
+C0216,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-06-11
+C0217,Marrakesh,Morocco,North Africa,consumer,2025-03-15
+C0218,Jeddah,Saudi Arabia,Gulf,consumer,2025-02-15
+C0219,Alexandria,Egypt,Egypt,business,2024-03-25
+C0220,Jeddah,Saudi Arabia,Gulf,consumer,2024-01-08
+C0221,Dubai,United Arab Emirates,Gulf,consumer,2024-11-23
+C0222,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-06-09
+C0223,Cairo,Egypt,Egypt,consumer,2024-03-23
+C0224,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-08-04
+C0225,,united arab emirates ,Gulf,consumer,2025-08-06
+C0226,Giza,Egypt,Egypt,consumer,2025-10-01
+C0227,Amman,Jordan,Levant,business,2024-03-06
+C0228,Irbid,Jordan,Levant,consumer,2024-09-10
+C0229,Casablanca,Morocco,North Africa,consumer,2025-03-25
+C0230,Alexandria,Egypt,Egypt,consumer,2025-08-14
+C0231,Sharjah,United Arab Emirates,Gulf,consumer,2025-02-17
+C0232,Alexandria,Egypt,Egypt,consumer,2025-07-03
+C0233,Alexandria,egypt ,Egypt,consumer,2024-05-22
+C0234,Dubai,United Arab Emirates,Gulf,consumer,2024-10-18
+C0235,Doha,Qatar,Gulf,consumer,2025-04-21
+C0236,Alexandria,Egypt,Egypt,business,2024-11-20
+C0237,Riyadh,Saudi Arabia,Gulf,consumer,2024-04-26
+C0238,Mansoura,Egypt,Egypt,business,2024-10-16
+C0239,Giza,Egypt,Egypt,consumer,2024-05-24
+C0240,Alexandria,Egypt,Egypt,consumer,2024-05-27
+C0241,Jeddah,saudi arabia ,Gulf,consumer,2025-03-12
+C0242,Beirut,Lebanon,Levant,consumer,2025-08-16
+C0243,Jeddah,  Saudi Arabia,Gulf,consumer,2025-05-28
+C0244,Alexandria,Egypt,Egypt,consumer,2024-06-22
+C0245,Amman,Jordan,Levant,consumer,2024-03-02
+C0246,Giza,Egypt,Egypt,consumer,2024-01-28
+C0247,Riyadh,Saudi Arabia,Gulf,consumer,2024-05-11
+C0248,Kuwait City,Kuwait,Gulf,consumer,2024-11-06
+C0249,Amman,Jordan,Levant,consumer,2025-01-01
+C0250,Amman,Jordan,Levant,consumer,2025-07-19
+C0251,Giza,Egypt,Egypt,consumer,2025-03-01
+C0252,Doha,Qatar,Gulf,consumer,2024-09-05
+C0253,,  Egypt,Egypt,consumer,2024-07-14
+C0254,Dubai,United Arab Emirates,Gulf,consumer,2024-11-03
+C0255,Riyadh,Saudi Arabia,Gulf,consumer,2025-09-30
+C0256,Dubai,United Arab Emirates,Gulf,consumer,2024-08-30
+C0257,Alexandria,Egypt,Egypt,consumer,2024-03-17
+C0258,Mansoura,Egypt,Egypt,business,2024-12-04
+C0259,Cairo, egypt,Egypt,consumer,2024-05-22
+C0260,Giza,Egypt,Egypt,business,2025-05-26
+C0261,Giza,Egypt,Egypt,consumer,2025-09-22
+C0262,,Saudi Arabia,Gulf,consumer,2025-06-02
+C0263,Jeddah,Saudi Arabia,Gulf,consumer,2024-07-03
+C0264,Giza,Egypt,Egypt,consumer,2024-05-05
+C0265,Cairo,Egypt,Egypt,consumer,2024-02-04
+C0266,Beirut,Lebanon,Levant,consumer,2025-02-11
+C0267,Mansoura,Egypt,Egypt,consumer,2024-09-03
+C0268,Cairo,Egypt,Egypt,consumer,2025-05-14
+C0269,Riyadh,Saudi Arabia,Gulf,consumer,2024-04-23
+C0270,Dubai,United Arab Emirates,Gulf,consumer,2025-06-05
+C0271,Cairo,Egypt,Egypt,consumer,2025-07-19
+C0272,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-01-13
+C0273,Kuwait City,Kuwait,Gulf,business,2024-06-08
+C0274,Cairo,Egypt,Egypt,consumer,2024-06-09
+C0275,Dubai,United Arab Emirates,Gulf,consumer,2024-09-12
+C0276,Cairo,Egypt,Egypt,consumer,2024-04-21
+C0277,Alexandria,Egypt,Egypt,consumer,2025-08-25
+C0278,Irbid,Jordan,Levant,consumer,2024-01-28
+C0279,Mansoura,Egypt,Egypt,business,2024-08-18
+C0280,Cairo,Egypt,Egypt,consumer,2025-02-28
+C0281,Doha,Qatar,Gulf,consumer,2024-04-23
+C0282,Alexandria,Egypt,Egypt,business,2025-03-01
+C0283,Sharjah,United Arab Emirates,Gulf,consumer,2024-02-13
+C0284,Cairo,Egypt,Egypt,business,2025-06-26
+C0285,Riyadh,Saudi Arabia,Gulf,consumer,2025-03-24
+C0286,Irbid,Jordan,Levant,consumer,2024-09-05
+C0287,Alexandria,Egypt,Egypt,business,2024-04-28
+C0288,Giza,Egypt,Egypt,consumer,2025-06-01
+C0289,Cairo,Egypt,Egypt,business,2024-10-31
+C0290,Alexandria,Egypt,Egypt,consumer,2025-09-19
+C0291,Mansoura,Egypt,Egypt,consumer,2025-05-01
+C0292,Mansoura,Egypt,Egypt,consumer,2024-12-19
+C0293,Mansoura,Egypt,Egypt,consumer,2025-03-18
+C0294,Alexandria,Egypt,Egypt,business,2024-02-28
+C0295,Giza,Egypt,Egypt,consumer,2024-12-29
+C0296,Mansoura,Egypt,Egypt,consumer,2025-02-08
+C0297,Cairo,Egypt,Egypt,consumer,2024-03-05
+C0298,Sharjah,United Arab Emirates,Gulf,business,2024-10-30
+C0299,Alexandria,Egypt,Egypt,business,2025-05-21
+C0300,Alexandria,Egypt,Egypt,consumer,2024-11-08
+C0301,Giza,Egypt,Egypt,consumer,2025-04-07
+C0302,Kuwait City,Kuwait,Gulf,consumer,2025-07-16
+C0303,Mansoura,Egypt,Egypt,consumer,2024-06-22
+C0304,Doha,Qatar,Gulf,consumer,2025-08-03
+C0305,Mansoura,Egypt,Egypt,consumer,2024-10-19
+C0306,Giza,Egypt,Egypt,consumer,2024-12-29
+C0307,Alexandria,Egypt,Egypt,business,2024-01-30
+C0308,Mansoura,Egypt,Egypt,consumer,2024-01-09
+C0309,Alexandria,Egypt,Egypt,consumer,2025-01-16
+C0310,Kuwait City,Kuwait,Gulf,business,2024-10-08
+C0311,Riyadh,Saudi Arabia,Gulf,business,2024-05-26
+C0312,Alexandria,Egypt,Egypt,consumer,2024-11-11
+C0313,Amman,Jordan,Levant,business,2024-01-14
+C0314,Marrakesh,Morocco,North Africa,consumer,2024-03-20
+C0315,Alexandria,Egypt,Egypt,business,2024-12-05
+C0316,,United Arab Emirates,Gulf,consumer,2024-04-09
+C0317,Alexandria,Egypt,Egypt,consumer,2025-08-09
+C0318,Dammam,Saudi Arabia,Gulf,consumer,2024-11-18
+C0319,Giza,Egypt,Egypt,consumer,2024-07-07
+C0320,Sharjah,United Arab Emirates,Gulf,consumer,2025-02-20
+C0321,Mansoura,Egypt,Egypt,consumer,2024-08-04
+C0322,Irbid,Jordan,Levant,consumer,2024-05-14
+C0323,Irbid,Jordan,Levant,consumer,2025-05-27
+C0324,Doha,Qatar,Gulf,consumer,2024-11-29
+C0325,Cairo,Egypt,Egypt,consumer,2024-03-03
+C0326,Doha,Qatar,Gulf,consumer,2024-06-23
+C0327,Dammam,Saudi Arabia,Gulf,consumer,2025-08-18
+C0328,Kuwait City,Kuwait,Gulf,consumer,2024-11-26
+C0329,Beirut,Lebanon,Levant,consumer,2024-08-16
+C0330,Dammam,Saudi Arabia,Gulf,consumer,2024-04-20
+C0331,Doha,Qatar,Gulf,consumer,2025-06-02
+C0332,Alexandria,Egypt,Egypt,consumer,2025-04-30
+C0333,Riyadh,Saudi Arabia,Gulf,consumer,2025-07-10
+C0334,Cairo,Egypt,Egypt,consumer,2025-04-08
+C0335,Cairo,Egypt,Egypt,consumer,2024-04-15
+C0336,Mansoura,Egypt,Egypt,consumer,2025-08-14
+C0337,Sharjah,United Arab Emirates,Gulf,consumer,2025-08-26
+C0338,Cairo,Egypt,Egypt,consumer,2024-11-14
+C0339,Irbid,Jordan,Levant,business,2025-01-04
+C0340,Tunis,Tunisia,North Africa,business,2025-01-08
+C0341,Alexandria,Egypt,Egypt,consumer,2024-08-09
+C0342,Dammam,Saudi Arabia,Gulf,consumer,2025-07-22
+C0343,Tunis,tunisia ,North Africa,consumer,2024-02-19
+C0344,Mansoura,Egypt,Egypt,consumer,2025-04-05
+C0345,,Morocco,North Africa,consumer,2024-07-21
+C0346,Dammam,Saudi Arabia,Gulf,consumer,2024-10-02
+C0347,Beirut,Lebanon,Levant,business,2024-09-01
+C0348,Sfax,Tunisia,North Africa,consumer,2025-03-13
+C0349,Cairo,Egypt,Egypt,consumer,2024-06-16
+C0350,Dammam,Saudi Arabia,Gulf,consumer,2025-08-14
+C0351,Alexandria,Egypt,Egypt,consumer,2024-12-28
+C0352,Sharjah,United Arab Emirates,Gulf,consumer,2024-10-01
+C0353,Alexandria,Egypt,Egypt,business,2025-04-27
+C0354,Kuwait City,Kuwait,Gulf,consumer,2025-05-17
+C0355,Mansoura,Egypt,Egypt,consumer,2024-08-27
+C0356,Irbid,Jordan,Levant,consumer,2025-05-17
+C0357,Riyadh,Saudi Arabia,Gulf,consumer,2025-06-20
+C0358,Mansoura,Egypt,Egypt,consumer,2024-01-30
+C0359,Casablanca,MOROCCO,North Africa,business,2024-04-09
+C0360,Giza,Egypt,Egypt,consumer,2025-04-29
+C0361,Cairo,Egypt,Egypt,consumer,2025-05-01
+C0362,Mansoura,Egypt,Egypt,consumer,2024-07-11
+C0363,Amman,Jordan,Levant,consumer,2025-08-31
+C0364,Beirut,Lebanon,Levant,consumer,2025-04-10
+C0365,Mansoura,Egypt,Egypt,consumer,2025-06-02
+C0366,Sfax,Tunisia,North Africa,consumer,2024-03-07
+C0367,Dammam,Saudi Arabia,Gulf,consumer,2024-07-08
+C0368,Irbid,Jordan,Levant,consumer,2025-02-05
+C0369,Dammam,Saudi Arabia,Gulf,consumer,2024-12-14
+C0370,Casablanca,Morocco,North Africa,consumer,2024-07-25
+C0371,Cairo,Egypt,Egypt,consumer,2024-08-04
+C0372,Sharjah,United Arab Emirates,Gulf,business,2024-12-03
+C0373,Kuwait City,Kuwait,Gulf,consumer,2025-07-16
+C0374,Kuwait City,Kuwait,Gulf,consumer,2024-09-03
+C0375,Giza,Egypt,Egypt,business,2024-08-15
+C0376,Mansoura,Egypt,Egypt,business,2025-04-30
+C0377,Alexandria,Egypt,Egypt,consumer,2024-07-17
+C0378,Riyadh,Saudi Arabia,Gulf,consumer,2025-06-15
+C0379,Riyadh,Saudi Arabia,Gulf,consumer,2025-07-27
+C0380,Irbid,Jordan,Levant,consumer,2025-08-05
+C0381,Doha,Qatar,Gulf,consumer,2024-01-12
+C0382,Cairo,Egypt,Egypt,consumer,2024-11-02
+C0383,Dubai,  United Arab Emirates,Gulf,consumer,2025-08-29
+C0384,,Qatar,Gulf,business,2024-01-23
+C0385,Mansoura,Egypt,Egypt,consumer,2025-02-24
+C0386,,Egypt,Egypt,consumer,2024-05-03
+C0387,Cairo,Egypt,Egypt,consumer,2024-07-18
+C0388,,Qatar,Gulf,consumer,2025-01-16
+C0389,Irbid,Jordan,Levant,consumer,2024-11-03
+C0390,Cairo,Egypt,Egypt,consumer,2024-11-23
+C0391,Dammam,saudi arabia ,Gulf,consumer,2025-06-04
+C0392,Dubai,United Arab Emirates,Gulf,consumer,2025-01-12
+C0393,Abu Dhabi,united arab emirates ,Gulf,consumer,2025-06-22
+C0394,Mansoura,Egypt,Egypt,consumer,2024-05-16
+C0395,Riyadh,Saudi Arabia,Gulf,consumer,2024-06-28
+C0396,Alexandria, egypt,Egypt,consumer,2025-09-04
+C0397,Jeddah,Saudi Arabia,Gulf,business,2024-01-15
+C0398,Abu Dhabi,United Arab Emirates,Gulf,business,2025-07-14
+C0399,Cairo,Egypt,Egypt,business,2024-09-12
+C0400,Cairo,Egypt,Egypt,consumer,2025-03-02
+C0401,Alexandria,Egypt,Egypt,consumer,2024-06-27
+C0402,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-03-01
+C0403,Riyadh,Saudi Arabia,Gulf,consumer,2025-03-13
+C0404,Riyadh,Saudi Arabia,Gulf,consumer,2025-06-03
+C0405,Dubai,United Arab Emirates,Gulf,consumer,2024-10-30
+C0406,Kuwait City,Kuwait,Gulf,consumer,2024-07-29
+C0407,Alexandria,Egypt,Egypt,business,2025-07-07
+C0408,Sharjah,United Arab Emirates,Gulf,consumer,2024-03-25
+C0409,Casablanca,Morocco,North Africa,consumer,2024-06-30
+C0410,Jeddah,Saudi Arabia,Gulf,consumer,2025-09-15
+C0411,Doha,Qatar,Gulf,business,2024-03-26
+C0412,Rabat,Morocco,North Africa,consumer,2025-09-15
+C0413,Mansoura,Egypt,Egypt,consumer,2025-03-13
+C0414,Sharjah,United Arab Emirates,Gulf,consumer,2024-07-09
+C0415,Alexandria,Egypt,Egypt,consumer,2025-04-27
+C0416,Alexandria,Egypt,Egypt,consumer,2024-09-21
+C0417,Cairo,Egypt,Egypt,consumer,2024-06-30
+C0418,Cairo,Egypt,Egypt,consumer,2025-01-29
+C0419,Jeddah,  Saudi Arabia,Gulf,consumer,2024-06-08
+C0420,Marrakesh,Morocco,North Africa,consumer,2025-01-09
+C0421,Alexandria,Egypt,Egypt,consumer,2024-03-04
+C0422,Mansoura,Egypt,Egypt,business,2025-04-25
+C0423,Giza,Egypt,Egypt,business,2025-02-24
+C0424,Kuwait City,Kuwait,Gulf,consumer,2024-07-14
+C0425,Jeddah,Saudi Arabia,Gulf,business,2024-09-09
+C0426,Cairo,Egypt,Egypt,consumer,2025-06-05
+C0427,Alexandria,Egypt,Egypt,consumer,2025-05-02
+C0428,Riyadh,Saudi Arabia,Gulf,consumer,2025-08-18
+C0429,Giza,Egypt,Egypt,consumer,2025-08-29
+C0430,Cairo,Egypt,Egypt,consumer,2024-06-12
+C0431,Giza,Egypt,Egypt,consumer,2024-05-10
+C0432,Cairo,Egypt,Egypt,consumer,2024-09-22
+C0433,Giza,Egypt,Egypt,consumer,2025-04-26
+C0434,Cairo,Egypt,Egypt,consumer,2025-06-18
+C0435,Riyadh,Saudi Arabia,Gulf,consumer,2025-03-04
+C0436,Amman,Jordan,Levant,consumer,2024-11-06
+C0437,Mansoura,Egypt,Egypt,consumer,2025-05-30
+C0438,Mansoura,Egypt,Egypt,consumer,2024-05-14
+C0439,Mansoura,Egypt,Egypt,consumer,2024-09-15
+C0440,Doha,Qatar,Gulf,consumer,2025-09-17
+C0441,Rabat,Morocco,North Africa,business,2024-05-16
+C0442,Casablanca,Morocco,North Africa,consumer,2024-01-30
+C0443,Cairo,Egypt,Egypt,consumer,2025-09-08
+C0444,Cairo,Egypt,Egypt,consumer,2025-08-12
+C0445,Mansoura,Egypt,Egypt,consumer,2025-06-07
+C0446,Kuwait City,Kuwait,Gulf,consumer,2024-11-07
+C0447,Cairo,Egypt,Egypt,consumer,2025-05-26
+C0448,Amman,Jordan,Levant,consumer,2025-04-23
+C0449,Rabat,Morocco,North Africa,consumer,2024-07-27
+C0450,,Egypt,Egypt,consumer,2024-02-09
+C0451,Cairo,Egypt,Egypt,consumer,2025-01-29
+C0452,Doha, qatar,Gulf,consumer,2024-02-28
+C0453,,Egypt,Egypt,consumer,2024-06-30
+C0454,Giza,Egypt,Egypt,consumer,2025-09-20
+C0455,Doha,Qatar,Gulf,consumer,2024-12-11
+C0456,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-07-18
+C0457,Jeddah,Saudi Arabia,Gulf,consumer,2025-02-15
+C0458,Alexandria,Egypt,Egypt,consumer,2024-10-05
+C0459,Marrakesh,Morocco,North Africa,consumer,2025-01-31
+C0460,Jeddah,Saudi Arabia,Gulf,business,2024-09-23
+C0461,Riyadh,Saudi Arabia,Gulf,consumer,2025-05-30
+C0462,Cairo,Egypt,Egypt,consumer,2024-10-11
+C0463,Giza,Egypt,Egypt,consumer,2024-04-06
+C0464,Doha,Qatar,Gulf,consumer,2024-10-25
+C0465,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-02-16
+C0466,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-05-20
+C0467,Irbid,Jordan,Levant,consumer,2025-06-19
+C0468,Marrakesh,MOROCCO,North Africa,consumer,2024-09-18
+C0469,Irbid,JORDAN,Levant,consumer,2025-01-09
+C0470,Cairo,Egypt,Egypt,consumer,2025-02-26
+C0471,Giza,Egypt,Egypt,consumer,2025-07-29
+C0472,Jeddah,Saudi Arabia,Gulf,consumer,2025-09-26
+C0473,Kuwait City,Kuwait,Gulf,consumer,2024-07-28
+C0474,Giza,Egypt,Egypt,consumer,2024-03-05
+C0475,Mansoura,Egypt,Egypt,consumer,2024-02-24
+C0476,Abu Dhabi,UNITED ARAB EMIRATES,Gulf,consumer,2025-07-03
+C0477,Alexandria,Egypt,Egypt,business,2024-02-06
+C0478,Giza,Egypt,Egypt,consumer,2025-08-21
+C0479,Casablanca,Morocco,North Africa,consumer,2024-07-17
+C0480,Irbid,Jordan,Levant,consumer,2024-01-17
+C0481,Cairo,Egypt,Egypt,consumer,2025-10-01
+C0482,Kuwait City,Kuwait,Gulf,consumer,2025-09-07
+C0483,Dammam,Saudi Arabia,Gulf,consumer,2024-10-27
+C0484,Alexandria,Egypt,Egypt,business,2024-05-14
+C0485,Sharjah,United Arab Emirates,Gulf,consumer,2024-05-20
+C0486,Alexandria,Egypt,Egypt,business,2024-12-24
+C0487,Kuwait City,Kuwait,Gulf,business,2024-04-10
+C0488,Alexandria,Egypt,Egypt,consumer,2024-06-05
+C0489,Alexandria,Egypt,Egypt,consumer,2025-03-29
+C0490,Doha,Qatar,Gulf,consumer,2024-01-03
+C0491,Mansoura,Egypt,Egypt,consumer,2025-05-12
+C0492,Dubai,United Arab Emirates,Gulf,consumer,2025-04-21
+C0493,Mansoura,Egypt,Egypt,consumer,2025-09-11
+C0494,,Saudi Arabia,Gulf,consumer,2024-06-08
+C0495,Jeddah,Saudi Arabia,Gulf,consumer,2025-09-04
+C0496,Riyadh,Saudi Arabia,Gulf,consumer,2024-05-02
+C0497,Jeddah,Saudi Arabia,Gulf,business,2025-01-03
+C0498,Alexandria,Egypt,Egypt,consumer,2024-02-12
+C0499,Amman,Jordan,Levant,consumer,2024-02-04
+C0500,Dammam,Saudi Arabia,Gulf,business,2025-01-07
+C0501,Giza,Egypt,Egypt,consumer,2024-06-18
+C0502,Amman,Jordan,Levant,consumer,2025-03-04
+C0503,Dammam,Saudi Arabia,Gulf,consumer,2024-12-18
+C0504,Marrakesh,Morocco,North Africa,consumer,2024-06-17
+C0505,Irbid,Jordan,Levant,business,2024-05-20
+C0506,Rabat,Morocco,North Africa,consumer,2025-03-17
+C0507,Beirut,Lebanon,Levant,consumer,2024-01-07
+C0508,Sharjah,United Arab Emirates,Gulf,consumer,2024-10-02
+C0509,Alexandria,Egypt,Egypt,consumer,2024-03-20
+C0510,Kuwait City,Kuwait,Gulf,consumer,2024-07-30
+C0511,Mansoura,Egypt,Egypt,consumer,2024-10-05
+C0512,Giza,Egypt,Egypt,consumer,2024-05-01
+C0513,Cairo,Egypt,Egypt,consumer,2024-01-29
+C0514,Mansoura,Egypt,Egypt,consumer,2025-09-06
+C0515,Dubai,United Arab Emirates,Gulf,business,2025-09-19
+C0516,Cairo,EGYPT,Egypt,consumer,2024-04-06
+C0517,Alexandria,Egypt,Egypt,consumer,2025-07-01
+C0518,Irbid,Jordan,Levant,consumer,2024-06-27
+C0519,Riyadh,  Saudi Arabia,Gulf,consumer,2025-09-04
+C0520,Jeddah,Saudi Arabia,Gulf,consumer,2024-06-28
+C0521,Rabat,Morocco,North Africa,consumer,2025-06-28
+C0522,Rabat,Morocco,North Africa,consumer,2024-03-09
+C0523,Alexandria,egypt ,Egypt,consumer,2024-02-12
+C0524,Jeddah,Saudi Arabia,Gulf,consumer,2024-09-23
+C0525,,Saudi Arabia,Gulf,consumer,2024-08-08
+C0526,Marrakesh,Morocco,North Africa,consumer,2024-09-13
+C0527,Marrakesh,Morocco,North Africa,consumer,2024-10-26
+C0528,Alexandria,Egypt,Egypt,consumer,2025-09-20
+C0529,Jeddah,Saudi Arabia,Gulf,consumer,2024-01-31
+C0530,Tunis,Tunisia,North Africa,consumer,2025-06-05
+C0531,Casablanca,Morocco,North Africa,consumer,2024-04-06
+C0532,Giza, egypt,Egypt,consumer,2024-10-09
+C0533,Irbid, jordan,Levant,business,2024-07-03
+C0534,Alexandria,Egypt,Egypt,consumer,2024-08-28
+C0535,Dubai,United Arab Emirates,Gulf,consumer,2025-04-23
+C0536,Alexandria,Egypt,Egypt,consumer,2024-03-13
+C0537,Giza,Egypt,Egypt,business,2024-06-15
+C0538,Cairo,Egypt,Egypt,consumer,2024-07-24
+C0539,Sfax, tunisia,North Africa,consumer,2024-07-23
+C0540,Giza,Egypt,Egypt,consumer,2025-02-17
+C0541,Alexandria,Egypt,Egypt,consumer,2024-02-25
+C0542,Amman,Jordan,Levant,consumer,2024-05-01
+C0543,Mansoura,Egypt,Egypt,business,2025-06-01
+C0544,Alexandria,Egypt,Egypt,consumer,2025-08-11
+C0545,Alexandria,Egypt,Egypt,consumer,2025-03-29
+C0546,Cairo,Egypt,Egypt,business,2024-04-24
+C0547,Alexandria,Egypt,Egypt,consumer,2024-08-19
+C0548,Sharjah,United Arab Emirates,Gulf,consumer,2025-03-24
+C0549,Mansoura,Egypt,Egypt,business,2024-12-14
+C0550,Riyadh,Saudi Arabia,Gulf,consumer,2024-10-30
+C0551,Doha,Qatar,Gulf,business,2024-05-05
+C0552,Cairo,EGYPT,Egypt,business,2024-01-12
+C0553,Giza,Egypt,Egypt,consumer,2024-09-16
+C0554,Sharjah,united arab emirates ,Gulf,consumer,2024-04-22
+C0555,Abu Dhabi,United Arab Emirates,Gulf,business,2025-01-17
+C0556,Marrakesh,Morocco,North Africa,consumer,2025-09-19
+C0557,Cairo,Egypt,Egypt,consumer,2025-02-25
+C0558,Alexandria,Egypt,Egypt,consumer,2025-03-12
+C0559,Giza,Egypt,Egypt,consumer,2025-06-25
+C0560,Riyadh,Saudi Arabia,Gulf,consumer,2024-12-05
+C0561,Alexandria,Egypt,Egypt,consumer,2024-07-22
+C0562,Irbid,Jordan,Levant,consumer,2024-06-25
+C0563,Mansoura,Egypt,Egypt,consumer,2025-06-01
+C0564,Kuwait City,Kuwait,Gulf,consumer,2025-08-16
+C0565,Sharjah,United Arab Emirates,Gulf,consumer,2025-08-23
+C0566,Alexandria,Egypt,Egypt,consumer,2025-03-24
+C0567,Cairo,Egypt,Egypt,consumer,2024-05-07
+C0568,Jeddah,Saudi Arabia,Gulf,consumer,2025-03-12
+C0569,Cairo,Egypt,Egypt,consumer,2024-01-21
+C0570,Sharjah,United Arab Emirates,Gulf,consumer,2024-11-15
+C0571,Dammam,Saudi Arabia,Gulf,consumer,2024-11-13
+C0572,Giza,Egypt,Egypt,consumer,2024-04-09
+C0573,Cairo,Egypt,Egypt,business,2024-10-02
+C0574,Irbid,Jordan,Levant,consumer,2025-02-24
+C0575,Kuwait City,Kuwait,Gulf,consumer,2024-03-12
+C0576,Dubai,United Arab Emirates,Gulf,consumer,2024-05-05
+C0577,Sfax,Tunisia,North Africa,consumer,2024-07-24
+C0578,Doha,Qatar,Gulf,business,2024-08-31
+C0579,Cairo,Egypt,Egypt,consumer,2025-04-18
+C0580,Giza,Egypt,Egypt,consumer,2025-09-11
+C0581,Dubai,United Arab Emirates,Gulf,business,2024-04-21
+C0582,Rabat,Morocco,North Africa,consumer,2024-07-27
+C0583,Irbid,Jordan,Levant,consumer,2024-10-19
+C0584,Dammam,Saudi Arabia,Gulf,consumer,2024-04-17
+C0585,Dubai,United Arab Emirates,Gulf,business,2024-03-10
+C0586,Casablanca,Morocco,North Africa,business,2025-09-11
+C0587,Giza,Egypt,Egypt,consumer,2025-08-20
+C0588,Riyadh,Saudi Arabia,Gulf,consumer,2024-03-24
+C0589,Irbid,Jordan,Levant,consumer,2024-04-29
+C0590,Doha,Qatar,Gulf,consumer,2024-08-02
+C0591,Mansoura,Egypt,Egypt,consumer,2024-05-28
+C0592,Dubai,United Arab Emirates,Gulf,consumer,2024-03-14
+C0593,Sharjah,United Arab Emirates,Gulf,consumer,2024-10-30
+C0594,Giza,Egypt,Egypt,consumer,2025-05-22
+C0595,Beirut,Lebanon,Levant,business,2024-06-24
+C0596,Cairo,Egypt,Egypt,consumer,2025-03-19
+C0597,Amman,Jordan,Levant,consumer,2025-07-09
+C0598,Dammam,Saudi Arabia,Gulf,consumer,2024-05-27
+C0599,Casablanca,Morocco,North Africa,consumer,2025-05-03
+C0600,Jeddah,Saudi Arabia,Gulf,business,2024-01-24
+C0601,,Saudi Arabia,Gulf,consumer,2024-03-22
+C0602,Sharjah,United Arab Emirates,Gulf,consumer,2025-04-07
+C0603,Alexandria,Egypt,Egypt,business,2024-07-03
+C0604,Cairo,Egypt,Egypt,consumer,2024-02-19
+C0605,Doha,Qatar,Gulf,business,2025-05-23
+C0606,Mansoura,Egypt,Egypt,consumer,2025-04-11
+C0607,Alexandria,Egypt,Egypt,consumer,2025-04-18
+C0608,Abu Dhabi,United Arab Emirates,Gulf,business,2024-12-31
+C0609,Dubai,United Arab Emirates,Gulf,consumer,2024-06-21
+C0610,Alexandria,Egypt,Egypt,consumer,2025-09-13
+C0611,Tunis,Tunisia,North Africa,consumer,2025-04-13
+C0612,Cairo, egypt,Egypt,consumer,2024-04-23
+C0613,Dammam,Saudi Arabia,Gulf,business,2025-06-29
+C0614,Sharjah,United Arab Emirates,Gulf,consumer,2024-05-09
+C0615,Doha,Qatar,Gulf,consumer,2025-09-16
+C0616,Mansoura,Egypt,Egypt,consumer,2025-07-17
+C0617,Riyadh,Saudi Arabia,Gulf,consumer,2024-05-04
+C0618,Casablanca,Morocco,North Africa,consumer,2024-06-01
+C0619,Jeddah,Saudi Arabia,Gulf,consumer,2025-06-20
+C0620,Jeddah,Saudi Arabia,Gulf,consumer,2025-06-24
+C0621,Mansoura,Egypt,Egypt,consumer,2024-05-31
+C0622,Alexandria,Egypt,Egypt,consumer,2024-07-10
+C0623,Cairo,Egypt,Egypt,business,2024-04-22
+C0624,Tunis,Tunisia,North Africa,consumer,2024-09-05
+C0625,Cairo,Egypt,Egypt,consumer,2024-10-17
+C0626,Beirut,Lebanon,Levant,consumer,2025-03-16
+C0627,Cairo,Egypt,Egypt,consumer,2025-07-28
+C0628,,Egypt,Egypt,consumer,2024-06-27
+C0629,Doha,Qatar,Gulf,consumer,2024-05-25
+C0630,Irbid,Jordan,Levant,consumer,2024-05-01
+C0631,Cairo,Egypt,Egypt,consumer,2024-12-03
+C0632,Riyadh,Saudi Arabia,Gulf,business,2024-06-03
+C0633,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-01-13
+C0634,Riyadh, saudi arabia,Gulf,consumer,2024-05-04
+C0635,Alexandria,Egypt,Egypt,consumer,2024-10-11
+C0636,Alexandria,  Egypt,Egypt,consumer,2024-05-19
+C0637,Cairo,Egypt,Egypt,consumer,2025-06-03
+C0638,Cairo,Egypt,Egypt,consumer,2024-07-07
+C0639,Giza,Egypt,Egypt,consumer,2024-08-12
+C0640,Giza,Egypt,Egypt,consumer,2025-08-14
+C0641,Sharjah,United Arab Emirates,Gulf,business,2025-08-18
+C0642,Cairo,Egypt,Egypt,consumer,2025-07-04
+C0643,Tunis,Tunisia,North Africa,business,2024-03-13
+C0644,Marrakesh, morocco,North Africa,consumer,2024-02-15
+C0645,Dammam,Saudi Arabia,Gulf,business,2025-08-10
+C0646,Giza,Egypt,Egypt,business,2024-12-23
+C0647,Alexandria,Egypt,Egypt,consumer,2025-08-08
+C0648,Jeddah,Saudi Arabia,Gulf,consumer,2024-03-15
+C0649,Alexandria,Egypt,Egypt,consumer,2024-02-10
+C0650,Giza,Egypt,Egypt,consumer,2024-02-15
+C0651,Dammam,Saudi Arabia,Gulf,consumer,2025-08-15
+C0652,Tunis,Tunisia,North Africa,consumer,2025-08-01
+C0653,Cairo,Egypt,Egypt,consumer,2024-12-12
+C0654,Beirut,Lebanon,Levant,business,2024-05-04
+C0655,Giza,Egypt,Egypt,consumer,2025-03-23
+C0656,Cairo,Egypt,Egypt,consumer,2024-09-02
+C0657,Sharjah,United Arab Emirates,Gulf,business,2024-05-05
+C0658,Jeddah,Saudi Arabia,Gulf,consumer,2024-10-24
+C0659,Riyadh,Saudi Arabia,Gulf,consumer,2024-03-01
+C0660,Mansoura,Egypt,Egypt,consumer,2024-06-16
+C0661,Dammam,Saudi Arabia,Gulf,consumer,2025-01-20
+C0662,Giza,Egypt,Egypt,consumer,2024-02-10
+C0663,Riyadh,Saudi Arabia,Gulf,consumer,2024-03-09
+C0664,Mansoura,Egypt,Egypt,consumer,2024-08-13
+C0665,Jeddah,Saudi Arabia,Gulf,consumer,2024-02-03
+C0666,Sharjah,United Arab Emirates,Gulf,consumer,2024-12-11
+C0667,Beirut,Lebanon,Levant,consumer,2024-10-07
+C0668,Beirut,Lebanon,Levant,consumer,2025-05-20
+C0669,Giza,EGYPT,Egypt,consumer,2024-12-27
+C0670,Cairo,Egypt,Egypt,consumer,2024-06-09
+C0671,Alexandria,Egypt,Egypt,business,2025-09-20
+C0672,Riyadh,Saudi Arabia,Gulf,consumer,2025-09-23
+C0673,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-10-24
+C0674,Mansoura,Egypt,Egypt,consumer,2025-09-11
+C0675,Cairo,Egypt,Egypt,consumer,2025-03-23
+C0676,Dammam,Saudi Arabia,Gulf,consumer,2025-06-30
+C0677,Mansoura,Egypt,Egypt,business,2024-06-30
+C0678,Tunis,Tunisia,North Africa,consumer,2025-09-22
+C0679,Abu Dhabi, united arab emirates,Gulf,business,2025-03-30
+C0680,Giza,Egypt,Egypt,consumer,2025-04-16
+C0681,Irbid,Jordan,Levant,consumer,2024-01-21
+C0682,Mansoura,Egypt,Egypt,business,2025-03-19
+C0683,Riyadh,Saudi Arabia,Gulf,consumer,2025-07-13
+C0684,Mansoura,Egypt,Egypt,consumer,2025-05-06
+C0685,Jeddah,Saudi Arabia,Gulf,consumer,2024-12-22
+C0686,Kuwait City,Kuwait,Gulf,consumer,2025-06-14
+C0687,Jeddah,Saudi Arabia,Gulf,consumer,2025-04-25
+C0688,Cairo,Egypt,Egypt,business,2024-12-10
+C0689,Mansoura,Egypt,Egypt,consumer,2024-12-11
+C0690,Jeddah,Saudi Arabia,Gulf,consumer,2025-02-24
+C0691,Giza,Egypt,Egypt,consumer,2024-04-09
+C0692,Cairo,Egypt,Egypt,consumer,2024-01-12
+C0693,Alexandria,Egypt,Egypt,business,2025-04-28
+C0694,,Egypt,Egypt,business,2024-08-15
+C0695,Giza,Egypt,Egypt,consumer,2024-08-28
+C0696,Kuwait City,Kuwait,Gulf,consumer,2025-03-12
+C0697,Alexandria,Egypt,Egypt,consumer,2024-06-28
+C0698,Cairo,Egypt,Egypt,consumer,2024-06-03
+C0699,Beirut,Lebanon,Levant,consumer,2025-06-21
+C0700,Giza,Egypt,Egypt,consumer,2024-04-21
+C0701,Giza,Egypt,Egypt,consumer,2025-05-28
+C0702,Giza,Egypt,Egypt,business,2025-02-21
+C0703,Alexandria,Egypt,Egypt,consumer,2024-07-23
+C0704,Tunis,Tunisia,North Africa,consumer,2024-02-27
+C0705,Amman,Jordan,Levant,consumer,2024-02-24
+C0706,Amman,Jordan,Levant,consumer,2024-07-25
+C0707,Alexandria,Egypt,Egypt,consumer,2024-04-14
+C0708,Beirut,Lebanon,Levant,consumer,2024-03-20
+C0709,,Saudi Arabia,Gulf,consumer,2025-07-16
+C0710,Doha,Qatar,Gulf,consumer,2025-06-27
+C0711,Cairo,Egypt,Egypt,consumer,2025-04-22
+C0712,Dammam,Saudi Arabia,Gulf,consumer,2025-01-15
+C0713,Irbid,Jordan,Levant,consumer,2025-04-30
+C0714,Doha,Qatar,Gulf,consumer,2025-03-26
+C0715,Alexandria,Egypt,Egypt,business,2025-07-14
+C0716,Jeddah,Saudi Arabia,Gulf,consumer,2025-06-04
+C0717,Beirut,Lebanon,Levant,consumer,2024-07-15
+C0718,Beirut,Lebanon,Levant,consumer,2024-08-11
+C0719,Mansoura, egypt,Egypt,business,2024-08-17
+C0720,Dubai,United Arab Emirates,Gulf,consumer,2025-09-01
+C0721,Kuwait City,Kuwait,Gulf,consumer,2025-08-31
+C0722,Giza,Egypt,Egypt,consumer,2025-05-12
+C0723,Alexandria,Egypt,Egypt,consumer,2024-04-23
+C0724,Giza,Egypt,Egypt,consumer,2024-11-23
+C0725,Mansoura,Egypt,Egypt,consumer,2024-02-06
+C0726,Jeddah,Saudi Arabia,Gulf,business,2024-01-08
+C0727,Cairo,Egypt,Egypt,consumer,2024-08-16
+C0728,Irbid,Jordan,Levant,consumer,2024-12-16
+C0729,Alexandria,EGYPT,Egypt,consumer,2025-08-10
+C0730,Cairo,Egypt,Egypt,business,2024-10-11
+C0731,Cairo,Egypt,Egypt,consumer,2024-11-23
+C0732,Jeddah,Saudi Arabia,Gulf,consumer,2025-06-25
+C0733,Irbid,Jordan,Levant,consumer,2024-06-23
+C0734,Riyadh,Saudi Arabia,Gulf,consumer,2024-12-23
+C0735,Sharjah,United Arab Emirates,Gulf,consumer,2024-11-19
+C0736,Alexandria,Egypt,Egypt,consumer,2025-07-31
+C0737,Giza,Egypt,Egypt,consumer,2024-05-18
+C0738,Mansoura,Egypt,Egypt,business,2024-09-20
+C0739,Riyadh,Saudi Arabia,Gulf,consumer,2025-03-27
+C0740,Alexandria,Egypt,Egypt,consumer,2024-09-07
+C0741,Casablanca,Morocco,North Africa,consumer,2024-09-15
+C0742,Irbid,  Jordan,Levant,consumer,2024-06-01
+C0743,Irbid,Jordan,Levant,consumer,2025-06-30
+C0744,Jeddah,Saudi Arabia,Gulf,consumer,2025-04-25
+C0745,Sharjah,United Arab Emirates,Gulf,business,2024-06-22
+C0746,Jeddah,Saudi Arabia,Gulf,consumer,2024-03-21
+C0747,Amman,Jordan,Levant,consumer,2025-08-15
+C0748,Cairo,Egypt,Egypt,business,2025-07-14
+C0749,Amman,Jordan,Levant,consumer,2025-07-31
+C0750,Dammam,Saudi Arabia,Gulf,consumer,2024-07-22
+C0751,Giza,Egypt,Egypt,consumer,2024-02-18
+C0752,Mansoura,Egypt,Egypt,consumer,2024-06-19
+C0753,Irbid,Jordan,Levant,consumer,2024-10-03
+C0754,Sharjah,United Arab Emirates,Gulf,consumer,2024-02-03
+C0755,Tunis,Tunisia,North Africa,consumer,2025-07-01
+C0756,Cairo,Egypt,Egypt,consumer,2025-05-18
+C0757,Kuwait City,Kuwait,Gulf,consumer,2024-08-18
+C0758,Casablanca,Morocco,North Africa,business,2024-02-02
+C0759,Mansoura,Egypt,Egypt,consumer,2025-02-01
+C0760,Dammam,Saudi Arabia,Gulf,consumer,2025-03-29
+C0761,Giza,Egypt,Egypt,consumer,2025-07-07
+C0762,Mansoura,Egypt,Egypt,consumer,2024-08-07
+C0763,Mansoura,Egypt,Egypt,consumer,2024-09-25
+C0764,Irbid,Jordan,Levant,consumer,2025-08-07
+C0765,Giza,EGYPT,Egypt,consumer,2025-01-25
+C0766,Casablanca,Morocco,North Africa,consumer,2024-08-03
+C0767,Cairo,Egypt,Egypt,consumer,2024-05-15
+C0768,Mansoura,Egypt,Egypt,business,2024-07-11
+C0769,Cairo,Egypt,Egypt,consumer,2024-08-22
+C0770,Rabat,Morocco,North Africa,consumer,2025-08-20
+C0771,Amman,Jordan,Levant,consumer,2025-03-24
+C0772,Cairo,Egypt,Egypt,consumer,2024-02-12
+C0773,Doha,Qatar,Gulf,consumer,2024-08-04
+C0774,Riyadh,Saudi Arabia,Gulf,consumer,2024-07-28
+C0775,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-01-02
+C0776,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-08-31
+C0777,Alexandria,Egypt,Egypt,business,2025-01-19
+C0778,Alexandria,Egypt,Egypt,business,2025-06-13
+C0779,Doha,Qatar,Gulf,consumer,2024-05-18
+C0780,Sfax,Tunisia,North Africa,consumer,2024-05-30
+C0781,Dubai,United Arab Emirates,Gulf,consumer,2025-08-15
+C0782,Giza,Egypt,Egypt,consumer,2024-10-20
+C0783,Riyadh,Saudi Arabia,Gulf,consumer,2025-09-25
+C0784,Jeddah,Saudi Arabia,Gulf,consumer,2025-01-05
+C0785,Jeddah,Saudi Arabia,Gulf,business,2025-03-12
+C0786,Amman,Jordan,Levant,consumer,2024-02-15
+C0787,Mansoura,Egypt,Egypt,consumer,2024-11-10
+C0788,Alexandria,Egypt,Egypt,consumer,2024-09-28
+C0789,Cairo,Egypt,Egypt,consumer,2025-04-04
+C0790,Giza,Egypt,Egypt,consumer,2025-02-22
+C0791,Alexandria,Egypt,Egypt,consumer,2024-04-26
+C0792,Dammam,Saudi Arabia,Gulf,consumer,2024-11-03
+C0793,Irbid,Jordan,Levant,consumer,2024-09-27
+C0794,,Jordan,Levant,consumer,2024-03-06
+C0795,Mansoura,Egypt,Egypt,consumer,2025-07-20
+C0796,Irbid,Jordan,Levant,business,2025-03-15
+C0797,Casablanca,Morocco,North Africa,consumer,2024-12-26
+C0798,Doha,Qatar,Gulf,consumer,2024-03-14
+C0799,Kuwait City,Kuwait,Gulf,consumer,2025-01-10
+C0800,Cairo,Egypt,Egypt,consumer,2024-07-21
+C0801,Rabat,Morocco,North Africa,consumer,2024-09-28
+C0802,,United Arab Emirates,Gulf,consumer,2025-04-20
+C0803,Irbid,Jordan,Levant,consumer,2024-05-22
+C0804,Sfax,Tunisia,North Africa,consumer,2024-05-22
+C0805,Cairo,Egypt,Egypt,business,2024-06-22
+C0806,Mansoura,Egypt,Egypt,consumer,2024-10-16
+C0807,Giza,Egypt,Egypt,business,2024-07-17
+C0808,Cairo,Egypt,Egypt,consumer,2024-04-12
+C0809,Dammam,Saudi Arabia,Gulf,business,2025-08-25
+C0810,Dubai,United Arab Emirates,Gulf,consumer,2024-12-16
+C0811,Doha,Qatar,Gulf,consumer,2025-06-21
+C0812,Riyadh,Saudi Arabia,Gulf,consumer,2025-06-23
+C0813,Sharjah,United Arab Emirates,Gulf,consumer,2024-09-09
+C0814,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-05-13
+C0815,Mansoura,Egypt,Egypt,business,2025-01-27
+C0816,Amman,Jordan,Levant,business,2025-06-29
+C0817,Marrakesh,Morocco,North Africa,consumer,2024-12-10
+C0818,Kuwait City,Kuwait,Gulf,consumer,2024-01-12
+C0819,Doha,Qatar,Gulf,consumer,2025-07-07
+C0820,Mansoura,Egypt,Egypt,consumer,2024-10-13
+C0821,Alexandria,Egypt,Egypt,consumer,2025-01-19
+C0822,Alexandria,Egypt,Egypt,consumer,2024-04-26
+C0823,Mansoura,Egypt,Egypt,consumer,2024-12-29
+C0824,Giza,Egypt,Egypt,consumer,2025-09-28
+C0825,Tunis,Tunisia,North Africa,consumer,2025-05-28
+C0826,Giza,Egypt,Egypt,consumer,2024-11-22
+C0827,Tunis,Tunisia,North Africa,consumer,2024-03-14
+C0828,Giza,Egypt,Egypt,consumer,2024-06-17
+C0829,Giza,Egypt,Egypt,consumer,2025-04-23
+C0830,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-08-27
+C0831,Riyadh,Saudi Arabia,Gulf,consumer,2024-04-10
+C0832,Dammam,Saudi Arabia,Gulf,consumer,2024-02-23
+C0833,Rabat,Morocco,North Africa,consumer,2024-05-21
+C0834,,United Arab Emirates,Gulf,consumer,2024-03-24
+C0835,Alexandria,Egypt,Egypt,business,2025-06-19
+C0836,Giza,Egypt,Egypt,consumer,2024-01-27
+C0837,Alexandria,Egypt,Egypt,consumer,2024-11-30
+C0838,Beirut,  Lebanon,Levant,consumer,2025-06-01
+C0839,Giza,Egypt,Egypt,consumer,2024-12-09
+C0840,Giza,Egypt,Egypt,consumer,2024-12-14
+C0841,Riyadh,Saudi Arabia,Gulf,business,2024-08-10
+C0842,Rabat,Morocco,North Africa,consumer,2024-05-20
+C0843,Mansoura,Egypt,Egypt,consumer,2025-07-16
+C0844,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-02-05
+C0845,Casablanca,Morocco,North Africa,consumer,2025-06-27
+C0846,Cairo,Egypt,Egypt,business,2025-07-23
+C0847,Cairo,Egypt,Egypt,consumer,2024-12-24
+C0848,Mansoura,Egypt,Egypt,consumer,2025-02-09
+C0849,,Morocco,North Africa,business,2024-10-20
+C0850,Alexandria,Egypt,Egypt,consumer,2024-07-25
+C0851,Dammam,Saudi Arabia,Gulf,business,2025-04-08
+C0852,Cairo,Egypt,Egypt,consumer,2025-05-23
+C0853,Doha,Qatar,Gulf,business,2024-11-12
+C0854,Kuwait City,Kuwait,Gulf,consumer,2024-06-21
+C0855,Kuwait City,Kuwait,Gulf,consumer,2025-04-05
+C0856,Dubai,United Arab Emirates,Gulf,consumer,2024-08-27
+C0857,Cairo,Egypt,Egypt,consumer,2024-03-29
+C0858,Alexandria,Egypt,Egypt,consumer,2024-08-07
+C0859,Cairo,Egypt,Egypt,business,2025-06-13
+C0860,Cairo,Egypt,Egypt,consumer,2024-10-18
+C0861,Kuwait City,Kuwait,Gulf,consumer,2025-09-10
+C0862,Mansoura,Egypt,Egypt,consumer,2024-03-13
+C0863,Riyadh,Saudi Arabia,Gulf,consumer,2024-12-07
+C0864,Cairo,Egypt,Egypt,business,2025-07-08
+C0865,Sharjah,United Arab Emirates,Gulf,consumer,2025-07-18
+C0866,Mansoura,Egypt,Egypt,consumer,2025-07-02
+C0867,Cairo,Egypt,Egypt,consumer,2024-03-28
+C0868,Jeddah,Saudi Arabia,Gulf,consumer,2024-05-20
+C0869,Giza,Egypt,Egypt,consumer,2025-05-10
+C0870,Amman,Jordan,Levant,consumer,2025-03-30
+C0871,Irbid,Jordan,Levant,consumer,2025-02-26
+C0872,Sharjah,United Arab Emirates,Gulf,consumer,2025-06-03
+C0873,Dubai,United Arab Emirates,Gulf,consumer,2025-07-02
+C0874,Doha,Qatar,Gulf,consumer,2025-08-17
+C0875,Cairo,Egypt,Egypt,consumer,2024-07-16
+C0876,Riyadh,Saudi Arabia,Gulf,consumer,2024-01-16
+C0877,Sharjah,United Arab Emirates,Gulf,consumer,2025-04-10
+C0878,Mansoura,Egypt,Egypt,consumer,2025-01-06
+C0879,Casablanca,Morocco,North Africa,consumer,2025-02-10
+C0880,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-06-15
+C0881,Sharjah,United Arab Emirates,Gulf,consumer,2025-03-14
+C0882,,United Arab Emirates,Gulf,consumer,2024-04-19
+C0883,Beirut,Lebanon,Levant,consumer,2024-03-06
+C0884,Giza,Egypt,Egypt,consumer,2024-05-29
+C0885,Alexandria,Egypt,Egypt,business,2024-10-14
+C0886,Jeddah,Saudi Arabia,Gulf,consumer,2025-07-05
+C0887,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-09-16
+C0888,,jordan ,Levant,consumer,2025-09-17
+C0889,Giza,Egypt,Egypt,business,2024-12-18
+C0890,Jeddah,Saudi Arabia,Gulf,consumer,2025-05-05
+C0891,,Egypt,Egypt,consumer,2024-09-06
+C0892,Doha,Qatar,Gulf,consumer,2025-03-31
+C0893,Mansoura,Egypt,Egypt,consumer,2024-04-03
+C0894,Giza,Egypt,Egypt,consumer,2025-08-12
+C0895,Dubai,United Arab Emirates,Gulf,consumer,2024-09-04
+C0896,Sharjah,United Arab Emirates,Gulf,consumer,2024-02-11
+C0897,Amman,JORDAN,Levant,consumer,2024-02-21
+C0898,Riyadh,Saudi Arabia,Gulf,consumer,2025-02-07
+C0899,Marrakesh,Morocco,North Africa,consumer,2024-12-11
+C0900,Mansoura,Egypt,Egypt,business,2025-05-21
+C0901,Dammam,Saudi Arabia,Gulf,consumer,2024-03-04
+C0902,Sharjah,  United Arab Emirates,Gulf,consumer,2025-03-12
+C0903,Mansoura,Egypt,Egypt,consumer,2025-04-29
+C0904,Mansoura,Egypt,Egypt,consumer,2025-07-15
+C0905,Sharjah,United Arab Emirates,Gulf,business,2024-06-18
+C0906,Sharjah,United Arab Emirates,Gulf,consumer,2025-03-13
+C0907,Mansoura,Egypt,Egypt,business,2024-02-19
+C0908,Mansoura,Egypt,Egypt,consumer,2025-01-07
+C0909,Riyadh,Saudi Arabia,Gulf,consumer,2025-06-21
+C0910,Kuwait City, kuwait,Gulf,consumer,2024-08-16
+C0911,,Egypt,Egypt,consumer,2024-11-17
+C0912,Mansoura,Egypt,Egypt,consumer,2025-08-13
+C0913,Jeddah,Saudi Arabia,Gulf,business,2024-02-17
+C0914,Dammam,Saudi Arabia,Gulf,consumer,2025-03-10
+C0915,Dammam,Saudi Arabia,Gulf,consumer,2025-02-05
+C0916,Jeddah,Saudi Arabia,Gulf,consumer,2024-07-04
+C0917,Kuwait City,Kuwait,Gulf,consumer,2025-07-23
+C0918,Beirut,Lebanon,Levant,consumer,2025-01-09
+C0919,Jeddah,Saudi Arabia,Gulf,business,2024-02-21
+C0920,Mansoura,Egypt,Egypt,consumer,2024-07-08
+C0921,Cairo,Egypt,Egypt,consumer,2025-04-20
+C0922,Cairo,Egypt,Egypt,consumer,2024-12-29
+C0923,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-03-23
+C0924,Alexandria,Egypt,Egypt,business,2025-03-02
+C0925,Mansoura,Egypt,Egypt,consumer,2025-07-05
+C0926,Cairo,Egypt,Egypt,business,2024-03-10
+C0927,Alexandria,Egypt,Egypt,consumer,2024-01-19
+C0928,Mansoura,Egypt,Egypt,consumer,2024-04-27
+C0929,Jeddah,Saudi Arabia,Gulf,consumer,2025-08-11
+C0930,Cairo,Egypt,Egypt,consumer,2024-06-25
+C0931,Dubai,  United Arab Emirates,Gulf,consumer,2025-06-01
+C0932,Kuwait City,Kuwait,Gulf,consumer,2024-10-25
+C0933,Cairo,Egypt,Egypt,consumer,2025-04-30
+C0934,Cairo,Egypt,Egypt,consumer,2024-09-28
+C0935,Sfax,Tunisia,North Africa,consumer,2025-06-01
+C0936,Riyadh,Saudi Arabia,Gulf,consumer,2024-07-03
+C0937,Rabat,Morocco,North Africa,consumer,2024-10-13
+C0938,Dammam,Saudi Arabia,Gulf,consumer,2025-02-02
+C0939,Kuwait City,Kuwait,Gulf,consumer,2025-02-09
+C0940,Doha,Qatar,Gulf,consumer,2024-01-04
+C0941,Jeddah,Saudi Arabia,Gulf,business,2025-04-19
+C0942,Dammam,Saudi Arabia,Gulf,consumer,2024-10-09
+C0943,Mansoura,Egypt,Egypt,business,2025-07-25
+C0944,Sharjah,United Arab Emirates,Gulf,consumer,2025-07-09
+C0945,Casablanca,Morocco,North Africa,consumer,2025-07-26
+C0946,Mansoura,Egypt,Egypt,consumer,2024-08-28
+C0947,Cairo,Egypt,Egypt,business,2025-06-12
+C0948,Giza,Egypt,Egypt,consumer,2024-03-01
+C0949,Sharjah,United Arab Emirates,Gulf,consumer,2024-05-15
+C0950,Giza,Egypt,Egypt,consumer,2024-09-30
+C0951,Alexandria,Egypt,Egypt,consumer,2024-11-22
+C0952,Dubai,United Arab Emirates,Gulf,business,2025-05-29
+C0953,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-02-17
+C0954,Jeddah,SAUDI ARABIA,Gulf,consumer,2024-03-08
+C0955,Doha,Qatar,Gulf,business,2025-09-11
+C0956,,EGYPT,Egypt,consumer,2025-09-14
+C0957,,Egypt,Egypt,consumer,2025-05-22
+C0958,Sharjah,United Arab Emirates,Gulf,consumer,2025-09-20
+C0959,Cairo,Egypt,Egypt,consumer,2024-11-06
+C0960,Mansoura,Egypt,Egypt,business,2024-09-17
+C0961,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-10-31
+C0962,Cairo,Egypt,Egypt,consumer,2024-08-14
+C0963,Dubai,United Arab Emirates,Gulf,consumer,2024-03-05
+C0964,Giza,Egypt,Egypt,consumer,2025-06-25
+C0965,Giza,EGYPT,Egypt,consumer,2024-04-29
+C0966,Abu Dhabi,United Arab Emirates,Gulf,business,2024-08-13
+C0967,Doha,Qatar,Gulf,consumer,2024-02-20
+C0968,Dubai,United Arab Emirates,Gulf,consumer,2025-09-09
+C0969,Marrakesh,Morocco,North Africa,business,2024-12-30
+C0970,Giza,Egypt,Egypt,consumer,2025-06-06
+C0971,Kuwait City,Kuwait,Gulf,consumer,2024-08-18
+C0972,Dammam,Saudi Arabia,Gulf,business,2025-03-19
+C0973,Amman,Jordan,Levant,consumer,2025-05-13
+C0974,Mansoura,Egypt,Egypt,consumer,2025-02-20
+C0975,Riyadh, saudi arabia,Gulf,business,2025-01-07
+C0976,Sharjah,United Arab Emirates,Gulf,business,2025-03-15
+C0977,Amman,Jordan,Levant,consumer,2025-02-04
+C0978,Jeddah,Saudi Arabia,Gulf,consumer,2024-05-09
+C0979,Jeddah,Saudi Arabia,Gulf,consumer,2024-10-12
+C0980,Rabat,Morocco,North Africa,consumer,2024-09-30
+C0981,Alexandria,Egypt,Egypt,business,2024-08-29
+C0982,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-10-29
+C0983,Mansoura,Egypt,Egypt,consumer,2024-05-01
+C0984,Dammam,Saudi Arabia,Gulf,consumer,2024-10-18
+C0985,Rabat,Morocco,North Africa,consumer,2025-05-17
+C0986,Dammam,Saudi Arabia,Gulf,consumer,2025-08-24
+C0987,Doha,Qatar,Gulf,business,2024-04-14
+C0988,Jeddah,Saudi Arabia,Gulf,consumer,2025-01-11
+C0989,Mansoura,Egypt,Egypt,consumer,2025-04-09
+C0990,Riyadh,Saudi Arabia,Gulf,consumer,2025-03-02
+C0991,Dubai,United Arab Emirates,Gulf,consumer,2024-07-23
+C0992,Sharjah,United Arab Emirates,Gulf,consumer,2025-05-29
+C0993,Jeddah,Saudi Arabia,Gulf,consumer,2025-04-10
+C0994,Alexandria,Egypt,Egypt,consumer,2024-09-24
+C0995,Dammam,Saudi Arabia,Gulf,consumer,2025-07-05
+C0996,Alexandria,Egypt,Egypt,consumer,2025-08-26
+C0997,Cairo,Egypt,Egypt,consumer,2025-01-23
+C0998,Kuwait City,Kuwait,Gulf,consumer,2024-12-04
+C0999,Doha,Qatar,Gulf,business,2025-03-12
+C1000,Cairo,Egypt,Egypt,consumer,2024-08-10
+C1001,Beirut,Lebanon,Levant,consumer,2025-06-22
+C1002,Irbid,Jordan,Levant,business,2025-07-17
+C1003,Mansoura,Egypt,Egypt,consumer,2024-12-28
+C1004,Irbid,Jordan,Levant,consumer,2025-04-17
+C1005,Alexandria,Egypt,Egypt,business,2025-07-15
+C1006,Cairo,Egypt,Egypt,consumer,2025-09-30
+C1007,Giza,Egypt,Egypt,consumer,2025-08-01
+C1008,Beirut,Lebanon,Levant,business,2025-06-24
+C1009,Irbid,Jordan,Levant,consumer,2024-07-30
+C1010,Cairo,EGYPT,Egypt,consumer,2025-04-22
+C1011,Alexandria,Egypt,Egypt,consumer,2024-08-26
+C1012,Amman,Jordan,Levant,consumer,2025-03-31
+C1013,Dammam,Saudi Arabia,Gulf,consumer,2024-02-26
+C1014,,Saudi Arabia,Gulf,consumer,2024-02-09
+C1015,Giza,Egypt,Egypt,consumer,2024-10-22
+C1016,Giza,Egypt,Egypt,business,2025-04-12
+C1017,Kuwait City,Kuwait,Gulf,consumer,2024-01-25
+C1018,Amman,Jordan,Levant,consumer,2025-08-08
+C1019,Irbid,Jordan,Levant,consumer,2024-01-10
+C1020,Casablanca, morocco,North Africa,consumer,2024-01-12
+C1021,Kuwait City,Kuwait,Gulf,consumer,2024-01-08
+C1022,Giza,Egypt,Egypt,consumer,2024-04-11
+C1023,Jeddah,Saudi Arabia,Gulf,consumer,2024-12-19
+C1024,Alexandria,Egypt,Egypt,business,2025-01-22
+C1025,Giza,Egypt,Egypt,consumer,2024-09-20
+C1026,Alexandria,Egypt,Egypt,consumer,2025-02-28
+C1027,Mansoura,Egypt,Egypt,business,2024-01-16
+C1028,Dammam,Saudi Arabia,Gulf,consumer,2024-10-21
+C1029,Cairo,Egypt,Egypt,consumer,2025-05-02
+C1030,Mansoura,Egypt,Egypt,business,2024-03-03
+C1031,Alexandria,Egypt,Egypt,consumer,2024-07-24
+C1032,Jeddah,Saudi Arabia,Gulf,consumer,2024-05-27
+C1033,Jeddah,Saudi Arabia,Gulf,consumer,2024-04-15
+C1034,Dubai,United Arab Emirates,Gulf,consumer,2024-11-08
+C1035,Cairo,Egypt,Egypt,consumer,2024-10-10
+C1036,Irbid,Jordan,Levant,consumer,2025-06-02
+C1037,Giza,Egypt,Egypt,consumer,2024-10-30
+C1038,,Morocco,North Africa,consumer,2025-08-29
+C1039,Sharjah,United Arab Emirates,Gulf,consumer,2024-06-04
+C1040,Alexandria,Egypt,Egypt,business,2024-06-10
+C1041,Mansoura,Egypt,Egypt,consumer,2024-06-05
+C1042,Dammam,Saudi Arabia,Gulf,consumer,2025-09-20
+C1043,Jeddah,Saudi Arabia,Gulf,consumer,2025-05-03
+C1044,Cairo,Egypt,Egypt,consumer,2025-02-11
+C1045,Alexandria,Egypt,Egypt,consumer,2024-01-04
+C1046,Kuwait City,Kuwait,Gulf,business,2024-04-27
+C1047,Alexandria,Egypt,Egypt,consumer,2025-04-26
+C1048,Alexandria,Egypt,Egypt,consumer,2024-05-22
+C1049,Sharjah,United Arab Emirates,Gulf,consumer,2025-08-23
+C1050,Cairo,Egypt,Egypt,consumer,2025-03-22
+C1051,Giza,Egypt,Egypt,consumer,2024-06-09
+C1052,Marrakesh,Morocco,North Africa,consumer,2025-04-01
+C1053,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-02-22
+C1054,Giza,Egypt,Egypt,business,2025-07-01
+C1055,Riyadh,Saudi Arabia,Gulf,consumer,2024-12-11
+C1056,Dammam,Saudi Arabia,Gulf,consumer,2024-12-14
+C1057,Alexandria,Egypt,Egypt,consumer,2024-10-11
+C1058,Giza, egypt,Egypt,consumer,2024-03-30
+C1059,Mansoura,egypt ,Egypt,consumer,2024-04-25
+C1060,Alexandria,Egypt,Egypt,consumer,2024-05-17
+C1061,Giza,Egypt,Egypt,consumer,2024-12-04
+C1062,Beirut,Lebanon,Levant,consumer,2025-03-15
+C1063,Giza,egypt ,Egypt,consumer,2024-03-31
+C1064,Alexandria,Egypt,Egypt,business,2025-05-25
+C1065,Amman,Jordan,Levant,consumer,2024-07-29
+C1066,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-10-14
+C1067,Cairo,Egypt,Egypt,business,2024-04-15
+C1068,Dammam,Saudi Arabia,Gulf,business,2025-02-22
+C1069,Marrakesh,Morocco,North Africa,business,2025-05-29
+C1070,Sharjah,United Arab Emirates,Gulf,consumer,2025-09-03
+C1071,Jeddah,Saudi Arabia,Gulf,consumer,2025-03-01
+C1072,Casablanca,Morocco,North Africa,consumer,2025-02-09
+C1073,Giza,Egypt,Egypt,consumer,2024-10-02
+C1074,Jeddah,Saudi Arabia,Gulf,consumer,2024-06-19
+C1075,Doha,Qatar,Gulf,consumer,2025-04-23
+C1076,Giza,Egypt,Egypt,consumer,2024-11-03
+C1077,Cairo,Egypt,Egypt,consumer,2024-07-12
+C1078,Casablanca,Morocco,North Africa,consumer,2024-11-26
+C1079,Giza,  Egypt,Egypt,consumer,2025-09-26
+C1080,Sfax,Tunisia,North Africa,consumer,2025-07-03
+C1081,Alexandria,Egypt,Egypt,business,2025-07-07
+C1082,Giza,Egypt,Egypt,consumer,2025-06-26
+C1083,Cairo,Egypt,Egypt,consumer,2025-05-18
+C1084,Alexandria,  Egypt,Egypt,consumer,2024-10-15
+C1085,Cairo,EGYPT,Egypt,consumer,2025-08-17
+C1086,,Egypt,Egypt,consumer,2024-02-12
+C1087,Dubai,United Arab Emirates,Gulf,consumer,2024-04-15
+C1088,Cairo,Egypt,Egypt,consumer,2024-04-11
+C1089,Giza,Egypt,Egypt,consumer,2024-03-19
+C1090,Irbid,Jordan,Levant,consumer,2025-09-24
+C1091,Cairo,Egypt,Egypt,business,2024-04-11
+C1092,Mansoura,Egypt,Egypt,consumer,2024-03-04
+C1093,Casablanca,Morocco,North Africa,consumer,2024-06-18
+C1094,Amman,Jordan,Levant,consumer,2024-09-26
+C1095,Dubai,United Arab Emirates,Gulf,consumer,2024-03-24
+C1096,Mansoura,Egypt,Egypt,consumer,2024-04-27
+C1097,Jeddah,Saudi Arabia,Gulf,consumer,2025-03-25
+C1098,Doha,Qatar,Gulf,consumer,2025-04-10
+C1099,Dubai,United Arab Emirates,Gulf,consumer,2024-12-16
+C1100,Dammam,Saudi Arabia,Gulf,consumer,2024-08-09
+C1101,Cairo,Egypt,Egypt,consumer,2024-12-14
+C1102,Alexandria,Egypt,Egypt,business,2024-07-25
+C1103,Dammam,Saudi Arabia,Gulf,consumer,2024-09-28
+C1104,Dammam,Saudi Arabia,Gulf,consumer,2024-03-11
+C1105,Tunis,Tunisia,North Africa,consumer,2025-07-15
+C1106,Kuwait City,Kuwait,Gulf,consumer,2024-02-11
+C1107,Mansoura,Egypt,Egypt,consumer,2025-09-11
+C1108,Mansoura,Egypt,Egypt,consumer,2024-09-27
+C1109,Marrakesh,Morocco,North Africa,consumer,2024-09-21
+C1110,Giza,Egypt,Egypt,consumer,2024-10-15
+C1111,Giza,Egypt,Egypt,consumer,2025-03-11
+C1112,,Qatar,Gulf,consumer,2024-05-31
+C1113,Giza,Egypt,Egypt,consumer,2024-04-08
+C1114,Sharjah,United Arab Emirates,Gulf,business,2024-11-26
+C1115,Giza,Egypt,Egypt,business,2024-12-04
+C1116,,Egypt,Egypt,consumer,2025-01-10
+C1117,Amman,Jordan,Levant,consumer,2024-08-02
+C1118,Jeddah,Saudi Arabia,Gulf,consumer,2024-11-03
+C1119,Doha,Qatar,Gulf,consumer,2024-06-17
+C1120,Giza,Egypt,Egypt,consumer,2024-08-07
+C1121,Marrakesh,Morocco,North Africa,consumer,2024-04-02
+C1122,Kuwait City,Kuwait,Gulf,business,2025-10-01
+C1123,Dammam,Saudi Arabia,Gulf,consumer,2024-09-04
+C1124,Giza,Egypt,Egypt,consumer,2025-07-14
+C1125,Jeddah,Saudi Arabia,Gulf,consumer,2024-06-09
+C1126,Riyadh,Saudi Arabia,Gulf,consumer,2025-07-13
+C1127,Marrakesh,Morocco,North Africa,business,2025-08-16
+C1128,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-07-05
+C1129,,United Arab Emirates,Gulf,consumer,2025-09-18
+C1130,Sharjah,United Arab Emirates,Gulf,consumer,2025-05-23
+C1131,Riyadh,Saudi Arabia,Gulf,consumer,2024-04-29
+C1132,Giza,Egypt,Egypt,consumer,2025-01-11
+C1133,Cairo,Egypt,Egypt,consumer,2024-02-12
+C1134,Giza,Egypt,Egypt,consumer,2024-06-07
+C1135,Dammam,Saudi Arabia,Gulf,consumer,2024-03-23
+C1136,Giza,Egypt,Egypt,consumer,2024-08-08
+C1137,Mansoura,Egypt,Egypt,consumer,2024-01-26
+C1138,Cairo,Egypt,Egypt,consumer,2024-04-05
+C1139,Riyadh,Saudi Arabia,Gulf,consumer,2024-12-08
+C1140,Mansoura,Egypt,Egypt,business,2024-11-06
+C1141,Kuwait City,Kuwait,Gulf,business,2024-07-05
+C1142,Alexandria,Egypt,Egypt,consumer,2025-08-12
+C1143,Riyadh,Saudi Arabia,Gulf,consumer,2024-06-02
+C1144,Mansoura,Egypt,Egypt,consumer,2024-06-13
+C1145,Cairo,Egypt,Egypt,consumer,2024-04-22
+C1146,Sharjah,United Arab Emirates,Gulf,business,2024-11-12
+C1147,Amman,Jordan,Levant,consumer,2024-07-07
+C1148,Dammam,Saudi Arabia,Gulf,business,2024-09-10
+C1149,Giza,Egypt,Egypt,consumer,2024-11-26
+C1150,Cairo,Egypt,Egypt,consumer,2024-01-20
+C1151,Cairo,EGYPT,Egypt,business,2025-08-24
+C1152,Giza,Egypt,Egypt,consumer,2024-09-03
+C1153,,Jordan,Levant,consumer,2024-01-16
+C1154,Irbid,Jordan,Levant,consumer,2025-07-05
+C1155,Cairo,Egypt,Egypt,consumer,2024-05-15
+C1156,Beirut,Lebanon,Levant,consumer,2025-01-29
+C1157,Amman,Jordan,Levant,business,2024-02-16
+C1158,Alexandria,Egypt,Egypt,consumer,2025-08-01
+C1159,Rabat,Morocco,North Africa,consumer,2025-02-16
+C1160,Sfax,Tunisia,North Africa,business,2025-06-27
+C1161,Alexandria,Egypt,Egypt,consumer,2025-02-09
+C1162,Alexandria,Egypt,Egypt,consumer,2025-08-16
+C1163,Irbid,Jordan,Levant,consumer,2024-10-16
+C1164,Cairo,Egypt,Egypt,consumer,2025-01-27
+C1165,Giza,Egypt,Egypt,consumer,2024-11-01
+C1166,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-06-12
+C1167,Alexandria,Egypt,Egypt,consumer,2024-12-13
+C1168,Sfax,Tunisia,North Africa,consumer,2024-08-07
+C1169,Beirut,Lebanon,Levant,consumer,2025-03-05
+C1170,Jeddah,Saudi Arabia,Gulf,consumer,2025-03-29
+C1171,Jeddah,Saudi Arabia,Gulf,consumer,2024-06-05
+C1172,Alexandria,Egypt,Egypt,consumer,2024-02-01
+C1173,Riyadh,Saudi Arabia,Gulf,consumer,2025-09-05
+C1174,Alexandria,Egypt,Egypt,consumer,2024-02-28
+C1175,Kuwait City,Kuwait,Gulf,consumer,2024-04-26
+C1176,Mansoura,Egypt,Egypt,consumer,2024-04-04
+C1177,Giza,Egypt,Egypt,business,2025-02-08
+C1178,Sharjah,United Arab Emirates,Gulf,consumer,2024-05-04
+C1179,Tunis,Tunisia,North Africa,consumer,2024-12-14
+C1180,Giza,Egypt,Egypt,consumer,2024-03-14
+C1181,Beirut,Lebanon,Levant,consumer,2024-04-10
+C1182,Cairo,Egypt,Egypt,consumer,2024-01-19
+C1183,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-02-01
+C1184,Cairo,Egypt,Egypt,consumer,2025-03-19
+C1185,Alexandria,Egypt,Egypt,consumer,2024-06-06
+C1186,,Egypt,Egypt,consumer,2024-05-11
+C1187,Giza,Egypt,Egypt,consumer,2025-02-04
+C1188,Dammam,Saudi Arabia,Gulf,business,2025-04-19
+C1189,Dubai,United Arab Emirates,Gulf,business,2025-08-08
+C1190,Alexandria,Egypt,Egypt,consumer,2024-02-08
+C1191,Cairo,EGYPT,Egypt,consumer,2025-03-11
+C1192,Doha,Qatar,Gulf,business,2024-03-21
+C1193,Alexandria,Egypt,Egypt,consumer,2024-11-23
+C1194,Giza,Egypt,Egypt,business,2024-04-28
+C1195,Giza,Egypt,Egypt,consumer,2024-09-11
+C1196,Cairo,Egypt,Egypt,consumer,2024-10-14
+C1197,Jeddah,Saudi Arabia,Gulf,consumer,2024-01-29
+C1198,Giza,Egypt,Egypt,consumer,2024-11-08
+C1199,Dammam,Saudi Arabia,Gulf,consumer,2025-04-19
+C1200,Doha,Qatar,Gulf,consumer,2024-03-12
+C1201,Alexandria,Egypt,Egypt,consumer,2025-01-09
+C1202,Amman,JORDAN,Levant,consumer,2024-02-06
+C1203,Mansoura,Egypt,Egypt,consumer,2024-06-09
+C1204,Mansoura,Egypt,Egypt,consumer,2025-08-19
+C1205,Jeddah,Saudi Arabia,Gulf,consumer,2024-10-30
+C1206,Sfax,Tunisia,North Africa,consumer,2024-11-11
+C1207,Riyadh,Saudi Arabia,Gulf,business,2025-02-11
+C1208,Tunis,Tunisia,North Africa,consumer,2024-08-03
+C1209,Cairo,Egypt,Egypt,business,2024-10-20
+C1210,Marrakesh,Morocco,North Africa,consumer,2025-06-25
+C1211,,Tunisia,North Africa,consumer,2024-09-16
+C1212,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-01-01
+C1213,Mansoura,Egypt,Egypt,consumer,2024-08-08
+C1214,Irbid,Jordan,Levant,consumer,2025-07-16
+C1215,Giza,Egypt,Egypt,consumer,2025-06-08
+C1216,Alexandria,Egypt,Egypt,consumer,2024-08-29
+C1217,Giza,Egypt,Egypt,consumer,2024-05-04
+C1218,Cairo,Egypt,Egypt,consumer,2025-02-28
+C1219,Riyadh,Saudi Arabia,Gulf,consumer,2025-03-22
+C1220,Marrakesh,Morocco,North Africa,consumer,2024-03-01
+C1221,Dammam,Saudi Arabia,Gulf,consumer,2024-10-03
+C1222,Doha,Qatar,Gulf,consumer,2024-10-11
+C1223,Giza,Egypt,Egypt,consumer,2024-08-09
+C1224,Giza,Egypt,Egypt,consumer,2025-09-09
+C1225,Mansoura,Egypt,Egypt,consumer,2025-06-01
+C1226,,Egypt,Egypt,consumer,2025-04-25
+C1227,Mansoura,Egypt,Egypt,consumer,2024-12-14
+C1228,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-12-23
+C1229,Dammam,Saudi Arabia,Gulf,consumer,2025-01-19
+C1230,Giza,Egypt,Egypt,consumer,2024-09-04
+C1231,Riyadh,Saudi Arabia,Gulf,consumer,2024-02-08
+C1232,Cairo,  Egypt,Egypt,consumer,2024-03-04
+C1233,Riyadh,Saudi Arabia,Gulf,consumer,2024-04-11
+C1234,Sfax,Tunisia,North Africa,consumer,2024-02-18
+C1235,Dammam,Saudi Arabia,Gulf,consumer,2024-01-18
+C1236,Cairo,Egypt,Egypt,business,2024-07-18
+C1237,Jeddah,Saudi Arabia,Gulf,consumer,2025-01-04
+C1238,Mansoura,Egypt,Egypt,consumer,2025-03-21
+C1239,Giza,Egypt,Egypt,consumer,2025-01-22
+C1240,Riyadh,Saudi Arabia,Gulf,business,2024-04-10
+C1241,Beirut,Lebanon,Levant,consumer,2024-05-18
+C1242,Cairo,Egypt,Egypt,consumer,2024-11-25
+C1243,Irbid,Jordan,Levant,consumer,2024-06-18
+C1244,Cairo,Egypt,Egypt,consumer,2025-09-25
+C1245,Doha,Qatar,Gulf,consumer,2024-09-13
+C1246,Mansoura,Egypt,Egypt,consumer,2025-05-17
+C1247,Dammam,Saudi Arabia,Gulf,consumer,2025-03-16
+C1248,Jeddah,Saudi Arabia,Gulf,consumer,2024-11-15
+C1249,Mansoura,Egypt,Egypt,consumer,2025-06-28
+C1250,Irbid,Jordan,Levant,consumer,2024-02-17
+C1251,Amman,Jordan,Levant,consumer,2024-08-11
+C1252,Alexandria,Egypt,Egypt,business,2024-01-23
+C1253,Marrakesh,Morocco,North Africa,consumer,2024-10-09
+C1254,Cairo,Egypt,Egypt,consumer,2025-08-28
+C1255,Cairo,Egypt,Egypt,consumer,2024-12-22
+C1256,Doha,Qatar,Gulf,consumer,2025-04-03
+C1257,Dammam,Saudi Arabia,Gulf,consumer,2024-06-06
+C1258,Kuwait City,Kuwait,Gulf,consumer,2024-10-30
+C1259,Cairo,Egypt,Egypt,consumer,2025-07-06
+C1260,Cairo,Egypt,Egypt,consumer,2024-11-18
+C1261,Alexandria,Egypt,Egypt,consumer,2024-06-27
+C1262,Riyadh,Saudi Arabia,Gulf,business,2024-07-12
+C1263,Doha,Qatar,Gulf,consumer,2024-12-25
+C1264,Alexandria,Egypt,Egypt,consumer,2025-04-05
+C1265,Giza,Egypt,Egypt,consumer,2024-12-25
+C1266,Dammam,Saudi Arabia,Gulf,consumer,2024-07-19
+C1267,Dubai, united arab emirates,Gulf,consumer,2024-04-28
+C1268,Riyadh,Saudi Arabia,Gulf,consumer,2025-01-22
+C1269,Sharjah,United Arab Emirates,Gulf,consumer,2024-07-28
+C1270,Kuwait City,Kuwait,Gulf,consumer,2024-08-07
+C1271,Giza,Egypt,Egypt,consumer,2025-08-29
+C1272,Alexandria,Egypt,Egypt,consumer,2024-05-05
+C1273,Giza,Egypt,Egypt,consumer,2024-02-23
+C1274,Alexandria,Egypt,Egypt,consumer,2025-05-06
+C1275,Irbid,Jordan,Levant,consumer,2024-11-19
+C1276,Dubai,United Arab Emirates,Gulf,consumer,2024-09-14
+C1277,Tunis,tunisia ,North Africa,consumer,2024-08-19
+C1278,Sharjah,United Arab Emirates,Gulf,business,2024-01-01
+C1279,Alexandria,Egypt,Egypt,consumer,2025-09-16
+C1280,Jeddah,Saudi Arabia,Gulf,consumer,2024-08-07
+C1281,Mansoura,Egypt,Egypt,business,2024-04-15
+C1282,Rabat,Morocco,North Africa,consumer,2024-10-20
+C1283,Tunis,Tunisia,North Africa,consumer,2024-10-01
+C1284,Giza,Egypt,Egypt,consumer,2024-08-14
+C1285,,Lebanon,Levant,business,2025-01-04
+C1286,Mansoura,Egypt,Egypt,consumer,2025-01-23
+C1287,,  Egypt,Egypt,consumer,2024-03-09
+C1288,,Jordan,Levant,consumer,2024-09-06
+C1289,Giza,Egypt,Egypt,consumer,2024-10-17
+C1290,Kuwait City,Kuwait,Gulf,consumer,2024-02-02
+C1291,Dubai,UNITED ARAB EMIRATES,Gulf,consumer,2025-02-26
+C1292,Sfax,Tunisia,North Africa,consumer,2024-02-27
+C1293,Kuwait City,Kuwait,Gulf,consumer,2025-06-09
+C1294,Sharjah,United Arab Emirates,Gulf,consumer,2024-05-04
+C1295,Alexandria,Egypt,Egypt,consumer,2025-09-22
+C1296,Cairo,Egypt,Egypt,business,2024-03-24
+C1297,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-06-13
+C1298,Mansoura,Egypt,Egypt,business,2024-01-01
+C1299,Alexandria,Egypt,Egypt,consumer,2024-03-24
+C1300,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-04-27
+C1301,Giza,Egypt,Egypt,consumer,2025-02-25
+C1302,Kuwait City,Kuwait,Gulf,consumer,2024-11-02
+C1303,Sharjah,United Arab Emirates,Gulf,consumer,2024-10-16
+C1304,Sfax,Tunisia,North Africa,consumer,2024-01-13
+C1305,Amman,Jordan,Levant,business,2025-04-26
+C1306,Marrakesh,Morocco,North Africa,consumer,2024-02-07
+C1307,Sharjah,United Arab Emirates,Gulf,business,2024-01-28
+C1308,Riyadh,SAUDI ARABIA,Gulf,consumer,2025-05-21
+C1309,Dammam,Saudi Arabia,Gulf,consumer,2024-01-29
+C1310,Irbid,Jordan,Levant,business,2025-09-09
+C1311,Mansoura,Egypt,Egypt,consumer,2024-01-02
+C1312,Dammam,Saudi Arabia,Gulf,business,2025-07-17
+C1313,Abu Dhabi,United Arab Emirates,Gulf,business,2024-04-27
+C1314,Riyadh,Saudi Arabia,Gulf,consumer,2025-06-15
+C1315,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-04-03
+C1316,Amman,Jordan,Levant,consumer,2025-03-18
+C1317,Mansoura,Egypt,Egypt,consumer,2024-11-27
+C1318,Dammam,Saudi Arabia,Gulf,consumer,2025-06-03
+C1319,Jeddah,Saudi Arabia,Gulf,business,2025-01-15
+C1320,Abu Dhabi,United Arab Emirates,Gulf,consumer,2025-06-28
+C1321,Alexandria,Egypt,Egypt,consumer,2025-03-24
+C1322,Rabat,Morocco,North Africa,consumer,2024-10-21
+C1323,Mansoura,Egypt,Egypt,consumer,2025-08-11
+C1324,Sharjah,United Arab Emirates,Gulf,consumer,2025-09-04
+C1325,Dubai,United Arab Emirates,Gulf,consumer,2024-01-19
+C1326,Jeddah,Saudi Arabia,Gulf,consumer,2024-07-01
+C1327,Beirut,Lebanon,Levant,consumer,2024-07-12
+C1328,Doha,Qatar,Gulf,consumer,2024-06-22
+C1329,Riyadh,Saudi Arabia,Gulf,consumer,2024-08-30
+C1330,Kuwait City,Kuwait,Gulf,consumer,2024-03-05
+C1331,Alexandria,Egypt,Egypt,business,2024-07-02
+C1332,Sharjah,United Arab Emirates,Gulf,consumer,2025-01-05
+C1333,Dubai,United Arab Emirates,Gulf,consumer,2024-01-20
+C1334,Giza,Egypt,Egypt,consumer,2025-09-15
+C1335,Giza,Egypt,Egypt,consumer,2024-08-31
+C1336,Alexandria,Egypt,Egypt,consumer,2025-07-04
+C1337,Jeddah,SAUDI ARABIA,Gulf,consumer,2024-12-17
+C1338,Dammam,Saudi Arabia,Gulf,consumer,2024-10-12
+C1339,Giza,Egypt,Egypt,business,2024-03-05
+C1340,Cairo,Egypt,Egypt,consumer,2024-04-26
+C1341,,Lebanon,Levant,consumer,2025-02-01
+C1342,Mansoura,Egypt,Egypt,consumer,2024-12-31
+C1343,Jeddah,Saudi Arabia,Gulf,consumer,2024-04-17
+C1344,Amman,Jordan,Levant,consumer,2024-07-16
+C1345,Alexandria,Egypt,Egypt,consumer,2024-03-22
+C1346,Marrakesh,Morocco,North Africa,consumer,2024-12-27
+C1347,Giza,Egypt,Egypt,consumer,2025-02-05
+C1348,Cairo,Egypt,Egypt,consumer,2025-06-21
+C1349,Giza,Egypt,Egypt,consumer,2024-06-15
+C1350,Alexandria,Egypt,Egypt,consumer,2024-07-25
+C1351,Beirut,Lebanon,Levant,consumer,2024-01-17
+C1352,Doha,Qatar,Gulf,consumer,2025-08-22
+C1353,Riyadh,Saudi Arabia,Gulf,consumer,2025-06-25
+C1354,Giza,Egypt,Egypt,consumer,2024-01-13
+C1355,Cairo,Egypt,Egypt,consumer,2025-02-03
+C1356,Alexandria,Egypt,Egypt,consumer,2025-09-28
+C1357,Cairo,Egypt,Egypt,consumer,2025-09-07
+C1358,Riyadh,Saudi Arabia,Gulf,consumer,2025-06-08
+C1359,Jeddah,Saudi Arabia,Gulf,consumer,2025-06-11
+C1360,Riyadh,Saudi Arabia,Gulf,consumer,2024-08-28
+C1361,Jeddah,Saudi Arabia,Gulf,consumer,2024-09-25
+C1362,Sharjah,United Arab Emirates,Gulf,consumer,2025-04-02
+C1363,Jeddah,Saudi Arabia,Gulf,consumer,2025-08-22
+C1364,Alexandria,Egypt,Egypt,consumer,2024-12-24
+C1365,Cairo,Egypt,Egypt,consumer,2025-05-05
+C1366,Giza,Egypt,Egypt,consumer,2024-02-14
+C1367,Jeddah,Saudi Arabia,Gulf,consumer,2024-03-12
+C1368,Dammam,Saudi Arabia,Gulf,consumer,2025-07-09
+C1369,Alexandria,Egypt,Egypt,business,2024-03-26
+C1370,Doha,Qatar,Gulf,business,2025-08-13
+C1371,Casablanca,MOROCCO,North Africa,consumer,2025-04-19
+C1372,,Jordan,Levant,consumer,2024-11-12
+C1373,Jeddah,Saudi Arabia,Gulf,consumer,2024-05-23
+C1374,Beirut,Lebanon,Levant,consumer,2025-04-23
+C1375,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-04-12
+C1376,Mansoura,Egypt,Egypt,consumer,2025-05-24
+C1377,Jeddah,saudi arabia ,Gulf,consumer,2025-06-08
+C1378,Doha,Qatar,Gulf,consumer,2024-11-27
+C1379,Kuwait City,Kuwait,Gulf,consumer,2025-08-11
+C1380,Giza,Egypt,Egypt,consumer,2025-08-25
+C1381,Dammam,Saudi Arabia,Gulf,consumer,2024-12-17
+C1382,Amman,Jordan,Levant,consumer,2024-02-02
+C1383,Mansoura,Egypt,Egypt,consumer,2025-03-27
+C1384,Doha,Qatar,Gulf,consumer,2024-10-02
+C1385,,United Arab Emirates,Gulf,consumer,2025-03-15
+C1386,Jeddah,Saudi Arabia,Gulf,consumer,2025-02-03
+C1387,Alexandria,Egypt,Egypt,consumer,2025-07-17
+C1388,Irbid,Jordan,Levant,consumer,2025-06-25
+C1389,Giza,Egypt,Egypt,business,2024-11-17
+C1390,,Saudi Arabia,Gulf,consumer,2024-10-01
+C1391,Riyadh,Saudi Arabia,Gulf,consumer,2024-05-18
+C1392,Dammam,Saudi Arabia,Gulf,consumer,2025-04-29
+C1393,Sharjah,United Arab Emirates,Gulf,consumer,2024-11-26
+C1394,Doha,Qatar,Gulf,consumer,2025-05-31
+C1395,Cairo,Egypt,Egypt,consumer,2025-05-25
+C1396,Jeddah,Saudi Arabia,Gulf,consumer,2024-05-22
+C1397,Dammam,Saudi Arabia,Gulf,consumer,2024-05-14
+C1398,Sharjah,United Arab Emirates,Gulf,consumer,2024-08-14
+C1399,Dammam,Saudi Arabia,Gulf,consumer,2025-07-10
+C1400,Mansoura,Egypt,Egypt,business,2024-01-02
+C1401,Cairo,Egypt,Egypt,consumer,2025-05-12
+C1402,Jeddah,Saudi Arabia,Gulf,business,2024-07-31
+C1403,Kuwait City,  Kuwait,Gulf,consumer,2024-12-19
+C1404,Riyadh,Saudi Arabia,Gulf,consumer,2024-05-23
+C1405,Alexandria,Egypt,Egypt,business,2024-09-02
+C1406,Jeddah,Saudi Arabia,Gulf,business,2024-01-16
+C1407,Sfax,Tunisia,North Africa,consumer,2025-09-30
+C1408,Mansoura,Egypt,Egypt,consumer,2025-02-08
+C1409,Dammam,Saudi Arabia,Gulf,consumer,2025-03-17
+C1410,Giza,Egypt,Egypt,consumer,2024-05-29
+C1411,Alexandria,Egypt,Egypt,consumer,2024-06-07
+C1412,Riyadh,SAUDI ARABIA,Gulf,consumer,2025-06-20
+C1413,Tunis,Tunisia,North Africa,consumer,2024-01-23
+C1414,Mansoura,Egypt,Egypt,consumer,2024-10-13
+C1415,Rabat,Morocco,North Africa,consumer,2024-03-06
+C1416,Dammam,Saudi Arabia,Gulf,consumer,2025-09-22
+C1417,Dubai,United Arab Emirates,Gulf,consumer,2024-12-08
+C1418,Amman,Jordan,Levant,consumer,2024-12-11
+C1419,Jeddah,Saudi Arabia,Gulf,consumer,2024-07-09
+C1420,Mansoura,Egypt,Egypt,consumer,2024-10-01
+C1421,Kuwait City,Kuwait,Gulf,consumer,2024-12-19
+C1422,Mansoura,egypt ,Egypt,consumer,2024-01-08
+C1423,Mansoura,Egypt,Egypt,business,2025-01-27
+C1424,Riyadh,Saudi Arabia,Gulf,consumer,2025-07-14
+C1425,Giza,Egypt,Egypt,consumer,2025-01-23
+C1426,Sharjah,United Arab Emirates,Gulf,consumer,2024-07-04
+C1427,Irbid,Jordan,Levant,consumer,2024-12-09
+C1428,Cairo,Egypt,Egypt,consumer,2024-09-23
+C1429,Beirut,Lebanon,Levant,business,2024-04-15
+C1430,Irbid,Jordan,Levant,business,2024-09-10
+C1431,Sharjah,United Arab Emirates,Gulf,consumer,2025-05-17
+C1432,Riyadh,Saudi Arabia,Gulf,consumer,2024-04-11
+C1433,Tunis,Tunisia,North Africa,consumer,2025-02-01
+C1434,,Saudi Arabia,Gulf,consumer,2025-04-14
+C1435,Giza,Egypt,Egypt,consumer,2024-05-09
+C1436,Jeddah,Saudi Arabia,Gulf,consumer,2024-03-15
+C1437,Mansoura,Egypt,Egypt,consumer,2024-06-17
+C1438,Dammam,Saudi Arabia,Gulf,consumer,2025-09-28
+C1439,Giza,Egypt,Egypt,consumer,2024-02-14
+C1440,Giza,Egypt,Egypt,business,2024-08-05
+C1441,Riyadh,Saudi Arabia,Gulf,consumer,2025-05-06
+C1442,Riyadh,Saudi Arabia,Gulf,consumer,2025-07-05
+C1443,Sfax,Tunisia,North Africa,consumer,2025-05-30
+C1444,Abu Dhabi,United Arab Emirates,Gulf,business,2024-02-26
+C1445,Mansoura,Egypt,Egypt,consumer,2024-07-09
+C1446,Mansoura,Egypt,Egypt,consumer,2025-01-05
+C1447,Giza,Egypt,Egypt,business,2024-03-16
+C1448,Giza,  Egypt,Egypt,consumer,2025-09-04
+C1449,Cairo,Egypt,Egypt,consumer,2025-01-23
+C1450,Kuwait City,Kuwait,Gulf,consumer,2024-07-02
+C1451,Dammam,Saudi Arabia,Gulf,consumer,2025-07-29
+C1452,Beirut,Lebanon,Levant,consumer,2024-12-04
+C1453,Cairo,Egypt,Egypt,consumer,2025-02-25
+C1454,Cairo,Egypt,Egypt,consumer,2024-03-16
+C1455,Giza,Egypt,Egypt,consumer,2025-05-04
+C1456,Riyadh,Saudi Arabia,Gulf,consumer,2024-02-14
+C1457,Beirut,Lebanon,Levant,consumer,2024-04-02
+C1458,Giza,Egypt,Egypt,consumer,2024-02-14
+C1459,Mansoura,Egypt,Egypt,business,2025-08-24
+C1460,Sharjah,United Arab Emirates,Gulf,business,2024-08-01
+C1461,Casablanca,Morocco,North Africa,consumer,2024-07-03
+C1462,Doha,Qatar,Gulf,consumer,2025-05-01
+C1463,Giza,Egypt,Egypt,business,2025-09-29
+C1464,Giza,Egypt,Egypt,business,2024-06-29
+C1465,Alexandria,Egypt,Egypt,consumer,2024-04-25
+C1466,Mansoura,Egypt,Egypt,consumer,2025-07-01
+C1467,Jeddah,Saudi Arabia,Gulf,business,2024-04-18
+C1468,Kuwait City,Kuwait,Gulf,consumer,2025-03-29
+C1469,Giza,Egypt,Egypt,consumer,2024-10-05
+C1470,Mansoura,Egypt,Egypt,consumer,2024-02-26
+C1471,Riyadh,Saudi Arabia,Gulf,consumer,2025-03-05
+C1472,Dubai,United Arab Emirates,Gulf,consumer,2025-02-12
+C1473,Sharjah,united arab emirates ,Gulf,consumer,2025-02-01
+C1474,Kuwait City,Kuwait,Gulf,consumer,2024-09-01
+C1475,Alexandria,Egypt,Egypt,consumer,2024-01-08
+C1476,Alexandria,Egypt,Egypt,consumer,2024-01-28
+C1477,Mansoura,Egypt,Egypt,business,2024-08-10
+C1478,Alexandria,Egypt,Egypt,consumer,2024-08-11
+C1479,Mansoura,Egypt,Egypt,consumer,2025-08-21
+C1480,Riyadh,Saudi Arabia,Gulf,consumer,2025-05-09
+C1481,Mansoura,Egypt,Egypt,consumer,2025-06-12
+C1482,Alexandria,EGYPT,Egypt,consumer,2025-07-10
+C1483,Irbid,Jordan,Levant,consumer,2025-08-13
+C1484,Beirut,  Lebanon,Levant,consumer,2025-03-30
+C1485,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-12-22
+C1486,Cairo,Egypt,Egypt,consumer,2025-01-26
+C1487,Cairo,Egypt,Egypt,consumer,2024-07-13
+C1488,Beirut,lebanon ,Levant,consumer,2024-08-21
+C1489,Sfax,Tunisia,North Africa,consumer,2024-11-10
+C1490,Cairo,Egypt,Egypt,consumer,2025-06-28
+C1491,Alexandria,Egypt,Egypt,consumer,2025-04-08
+C1492,Cairo,Egypt,Egypt,business,2024-04-05
+C1493,Jeddah,Saudi Arabia,Gulf,consumer,2024-10-18
+C1494,Jeddah,Saudi Arabia,Gulf,consumer,2025-06-18
+C1495,Abu Dhabi,United Arab Emirates,Gulf,consumer,2024-07-19
+C1496,Giza,Egypt,Egypt,business,2025-09-27
+C1497,Giza, egypt,Egypt,business,2025-05-09
+C1498,,Morocco,North Africa,business,2024-08-18
+C1499,Sharjah,United Arab Emirates,Gulf,consumer,2024-10-27
+C1500,Amman,Jordan,Levant,consumer,2024-12-01

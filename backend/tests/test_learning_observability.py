@@ -46,7 +46,7 @@ def _generate(client, who, **body):
 
 # ─── Metrics ────────────────────────────────────────────────────────────────
 
-def test_a_generation_is_counted_and_timed(learn_client, learn_catalog, deltas):
+def test_a_generation_is_counted_and_timed(learn_client, legacy_catalog, deltas):
     who = register(learn_client)
     deltas.start("learning_path_generations_total", outcome="ok")
     deltas.start("learning_path_generation_seconds_count")
@@ -55,14 +55,14 @@ def test_a_generation_is_counted_and_timed(learn_client, learn_catalog, deltas):
     assert deltas.change("learning_path_generation_seconds_count") == 1
 
 
-def test_a_rejected_generation_is_counted_separately(learn_client, learn_catalog, deltas):
+def test_a_rejected_generation_is_counted_separately(learn_client, legacy_catalog, deltas):
     who = register(learn_client)
     deltas.start("learning_path_generations_total", outcome="rejected")
     assert _generate(learn_client, who, career_goal="chef").status_code == 422
     assert deltas.change("learning_path_generations_total", outcome="rejected") == 1
 
 
-def test_a_route_with_nothing_published_is_counted_as_empty_not_ok(learn_client, learn_catalog, deltas):
+def test_a_route_with_nothing_published_is_counted_as_empty_not_ok(learn_client, legacy_catalog, deltas):
     who = register(learn_client)
     deltas.start("learning_path_generations_total", outcome="empty")
     deltas.start("learning_path_generations_total", outcome="ok")
@@ -73,7 +73,7 @@ def test_a_route_with_nothing_published_is_counted_as_empty_not_ok(learn_client,
     assert deltas.change("learning_path_generations_total", outcome="ok") == 0
 
 
-def test_a_failing_generation_is_counted_and_logged_with_a_traceback(learn_db, learn_catalog, deltas, caplog, logs_enabled, monkeypatch):
+def test_a_failing_generation_is_counted_and_logged_with_a_traceback(learn_db, legacy_catalog, deltas, caplog, logs_enabled, monkeypatch):
     def boom(*args, **kwargs):
         raise RuntimeError("catalogue exploded")
 
@@ -87,7 +87,7 @@ def test_a_failing_generation_is_counted_and_logged_with_a_traceback(learn_db, l
     assert record.exc_info is not None and record.career_goal == "ai-engineer"
 
 
-def test_profile_saves_are_counted_by_outcome(learn_client, learn_catalog, deltas):
+def test_profile_saves_are_counted_by_outcome(learn_client, legacy_catalog, deltas):
     who = register(learn_client)
     for outcome in ("created", "updated", "rejected"):
         deltas.start("learning_profile_events_total", outcome=outcome)
@@ -100,7 +100,7 @@ def test_profile_saves_are_counted_by_outcome(learn_client, learn_catalog, delta
     assert deltas.change("learning_profile_events_total", outcome="rejected") == 1
 
 
-def test_metric_labels_are_a_fixed_vocabulary_never_a_slug_or_an_id(learn_client, learn_catalog):
+def test_metric_labels_are_a_fixed_vocabulary_never_a_slug_or_an_id(learn_client, legacy_catalog):
     who = register(learn_client)
     _generate(learn_client, who, fields=["speech"], career_goal="ml-engineer")
     labels = {
@@ -122,7 +122,7 @@ def _make_cycle(db):
     db.commit()
 
 
-def test_a_prerequisite_cycle_is_reported_but_never_breaks_a_learner(learn_client, learn_catalog, learn_db, deltas, caplog, logs_enabled):
+def test_a_prerequisite_cycle_is_reported_but_never_breaks_a_learner(learn_client, legacy_catalog, learn_db, deltas, caplog, logs_enabled):
     _make_cycle(learn_db)  # written around the API, which would have refused it
     who = register(learn_client)
     deltas.start("learning_catalog_issues_total", issue="prerequisite_cycle")
@@ -135,7 +135,7 @@ def test_a_prerequisite_cycle_is_reported_but_never_breaks_a_learner(learn_clien
     assert warning.levelno == logging.WARNING and warning.career_goal == "ai-engineer"
 
 
-def test_a_career_goal_without_a_template_is_reported(learn_client, learn_catalog, learn_db, deltas):
+def test_a_career_goal_without_a_template_is_reported(learn_client, legacy_catalog, learn_db, deltas):
     from app.models.learning_path import PathTemplate
 
     learn_db.query(PathTemplate).filter(PathTemplate.slug == "mlops-engineer-path").delete()
@@ -149,7 +149,7 @@ def test_a_career_goal_without_a_template_is_reported(learn_client, learn_catalo
 
 # ─── What is and is not logged ──────────────────────────────────────────────
 
-def test_logs_carry_ids_and_slugs_never_personal_data(learn_client, learn_catalog, caplog, logs_enabled):
+def test_logs_carry_ids_and_slugs_never_personal_data(learn_client, legacy_catalog, caplog, logs_enabled):
     who = register(learn_client)
     with caplog.at_level(logging.DEBUG, logger=SERVICE_LOGGER):
         learn_client.put(f"{API}/my-profile", headers=who["headers"],

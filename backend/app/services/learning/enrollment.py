@@ -36,7 +36,7 @@ from app.models.billing import CourseEnrollment
 from app.models.learning_path import COURSE_KIND_TOOL, Course
 from app.models.tool_course import CURRICULUM_CATEGORY, ToolEnrollment
 from app.models.user import User
-from app.services.billing.access_service import course_access, purchase_required
+from app.services.billing.access_service import enrollment_access, purchase_required
 from app.services.learning.catalog_service import CatalogBundle
 from app.services.learning.progress_service import _DONE, course_completion
 
@@ -80,7 +80,7 @@ def enroll(db: Session, user: User, course: Course, bundle: CatalogBundle) -> Tu
     if not course.is_active or info is None or not info.is_available:
         raise course_unavailable(course)
 
-    access = course_access(db, user.id, course)
+    access = enrollment_access(db, user.id, course)
     if not access.has_access:
         raise purchase_required(course)
 
@@ -88,7 +88,7 @@ def enroll(db: Session, user: User, course: Course, bundle: CatalogBundle) -> Tu
         CourseEnrollment.user_id == user.id, CourseEnrollment.course_id == course.id,
     ).with_for_update().first()
     if existing is not None:
-        if existing.status != "active" and course.is_free:
+        if existing.status != "active" and existing.source == "free":
             existing.status, existing.expires_at = "active", None
             _mirror_tool_enrollment(db, user.id, course)
             db.commit()
@@ -147,7 +147,7 @@ def sync_lifecycle(db: Session, user_id: int, course: Course, *, fraction: Optio
         enrollment = get_enrollment(db, user_id, course.id)
         now = datetime.now(timezone.utc)
         if enrollment is None:
-            if not course_access(db, user_id, course).has_access:
+            if not enrollment_access(db, user_id, course).has_access:
                 return
             enrollment = CourseEnrollment(
                 user_id=user_id, course_id=course.id, source="free", status="active", learning_status=ENROLLED,

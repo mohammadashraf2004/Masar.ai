@@ -46,6 +46,8 @@ class MentorSessionResponse(BaseModel):
 class CodeReviewRequest(BaseModel):
     code: str = Field(..., min_length=1, max_length=MAX_CODE_CHARS)
     language: str = Field("python", max_length=40)
+    ui_language: Optional[str] = Field(None, pattern="^(ar|en)$")
+    exercise_id: Optional[int] = Field(None, gt=0)
     context: Optional[str] = Field(None, max_length=2_000)  # what the code is supposed to do
 
 
@@ -78,6 +80,8 @@ class MockInterviewRequest(BaseModel):
     topic: str = Field(..., min_length=1, max_length=200)  # "ML concepts", "system design", ...
     difficulty: str = Field("intermediate", max_length=40)
     previous_qa: List[dict] = Field(default_factory=list, max_length=50)  # ongoing interview
+    # The interview's language. Only selects prompt text, like MentorMessage.language.
+    language: Optional[str] = Field(None, pattern="^(ar|en)$")
 
 
 class MockInterviewResponse(BaseModel):

@@ -117,7 +117,9 @@
       "type": "image",
       "file": "assets/horp_0501.png",
       "alt": "Multiple IT teams feed a shared RAG platform governed for security, answer accuracy, and cost before it serves users.",
+      "alt_ar": "تغذي عدة فرق تقنية منصة RAG مشتركة تحكم الأمن ودقة الإجابات والتكلفة قبل تقديم الخدمة للمستخدمين.",
       "caption": "A shared RAG platform centralizes security, quality, and cost controls instead of duplicating them across teams.",
+      "caption_ar": "تجمع منصة RAG المشتركة ضوابط الأمن والجودة والتكلفة مركزيًا بدل تكرارها لدى كل فريق.",
       "source_reference": "Figure 5-1; source file horp_0501.png"
     },
     {

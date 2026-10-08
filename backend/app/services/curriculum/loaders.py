@@ -28,6 +28,8 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Tuple
 
 from app.services.curriculum import normalize as N
+from app.services.curriculum.code_classification import apply_pending_code_classification
+from app.services.curriculum.code_blanks import apply_fill_in_blank_format
 from app.services.curriculum.arabic import attach_arabic
 from app.services.curriculum.assets import load_asset_manifest
 from app.services.curriculum.spec import (
@@ -457,6 +459,10 @@ def _load_consolidated_topics(root: Path, course_id: str) -> CourseSpec:
 
     The directory is the inventory: adding or removing one lesson does not
     require repeating its path in a central Python registry or JSON manifest.
+    Converted chapter courses can opt into ``consolidated_file_modules`` when
+    each self-contained file is meant to remain a separate learner-visible
+    module even though its preserved lesson id still belongs to an older
+    module numbering scheme.
     """
     loaded = [(path, load_py(path)) for path in _consolidated_files(root)]
     required = ("LESSON_CODE", "MODULE_ORDER", "MODULE_TITLE", "MODULE_DESCRIPTION", "TOPIC")
@@ -468,6 +474,7 @@ def _load_consolidated_topics(root: Path, course_id: str) -> CourseSpec:
     manifest = read_json(manifest_file) if manifest_file.is_file() else {}
     difficulty = _default_difficulty(course_id, manifest)
     known_module_ids, known_quiz_ids, id_style = _legacy_quiz_identity(root)
+    file_modules = manifest.get("consolidated_file_modules") is True
 
     def lesson_position(item: Tuple[Path, Any]) -> Tuple[int, int, str]:
         path, authored = item
@@ -477,8 +484,14 @@ def _load_consolidated_topics(root: Path, course_id: str) -> CourseSpec:
         return int(authored.MODULE_ORDER), lesson_order, path.name.lower()
 
     grouped: Dict[int, List[Tuple[Path, Any]]] = {}
-    for item in sorted(loaded, key=lesson_position):
-        grouped.setdefault(int(item[1].MODULE_ORDER), []).append(item)
+    if file_modules:
+        # Preserve authored module/lesson order while promoting each complete
+        # file to its own learner-visible module. Keep lesson ids stable: they
+        # key translations, imports, progress and assessment history.
+        grouped = {order: [item] for order, item in enumerate(sorted(loaded, key=lesson_position), 1)}
+    else:
+        for item in sorted(loaded, key=lesson_position):
+            grouped.setdefault(int(item[1].MODULE_ORDER), []).append(item)
 
     modules: List[ModuleSpec] = []
     # `MODULE_ORDER` is the author's identity for a module (it can follow the
@@ -521,6 +534,11 @@ def _load_consolidated_topics(root: Path, course_id: str) -> CourseSpec:
                         local_id = f"{lesson.lesson_id}.{local_id}"
                     question.question_id = prefix + local_id
             module.lessons.append(lesson)
+        if file_modules:
+            # A chapter file is both the module and its sole lesson. The
+            # learner-facing lesson title is more precise than the broad
+            # legacy MODULE_TITLE copied into every converted file.
+            module.title = module.lessons[0].title
         modules.append(module)
 
     raw_title = manifest.get("course_title") or manifest.get("title")
@@ -1020,6 +1038,10 @@ def load_course_dir(root: Path) -> CourseSpec:
     _consolidate_module_projects(spec)
     if not spec.embedded_quizzes_are_canonical:
         _consolidate_module_quizzes(spec, content_root)
+    from app.services.curriculum.course_exercise_definitions import apply_deterministic_course_exercises
+    apply_deterministic_course_exercises(spec)
+    apply_fill_in_blank_format(spec)
+    apply_pending_code_classification(spec)
     # Figures are course-level, whatever the lesson layout: one manifest per folder.
     images = load_asset_manifest(content_root, store_root=root.parent)
     spec.assets, spec.asset_problems = images.assets, images.problems
@@ -1027,6 +1049,22 @@ def load_course_dir(root: Path) -> CourseSpec:
     # Arabic from the folder's `ar/` (absent = none yet); after the quizzes are consolidated, because
     # an Arabic question attaches to the English question it is the twin of.
     attach_arabic(spec, content_root, root)
+    manifest_file = content_root / "course_manifest.json"
+    manifest = read_json(manifest_file) if manifest_file.is_file() else {}
+    file_modules = manifest.get("consolidated_file_modules") is True
+    keep_module_ar_descriptions = manifest.get("consolidated_module_ar_descriptions") is True
+    # When a one-lesson module intentionally shares the lesson's English
+    # title, its translated lesson title is also the best module title. In a
+    # promoted-file layout it must override ar/_course.json: those entries use
+    # the old grouped module ids and can otherwise attach to the wrong chapter.
+    for module in spec.modules:
+        if len(module.lessons) == 1 and module.title == module.lessons[0].title:
+            if file_modules:
+                module.title_ar = module.lessons[0].title_ar or module.title_ar
+                if not keep_module_ar_descriptions:
+                    module.description_ar = None
+            elif not module.title_ar:
+                module.title_ar = module.lessons[0].title_ar
     return spec
 
 

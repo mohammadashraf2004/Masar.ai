@@ -10,7 +10,7 @@ lesson files instead of the descriptive-slug names other courses use).
 `load_course_dir` detects and unwraps that nesting generically (by name, not by
 course id), and a layout function reads the bare-numbered convention. These
 tests pin that behaviour down so a future change cannot silently break
-COURSE-015, and exercise all sixteen course folders.
+COURSE-015, and exercise all eighteen course folders.
 """
 import base64
 import json
@@ -26,16 +26,16 @@ from app.services.curriculum.spec import CurriculumError
 
 @pytest.fixture(scope="module")
 def courses():
-    return load_all_courses(only=[f"COURSE-{n:03d}" for n in range(1, 17)])
+    return load_all_courses(only=[f"COURSE-{n:03d}" for n in range(1, 19)])
 
 
-def test_all_sixteen_courses_load_with_no_errors(courses):
-    assert [c.course_id for c in courses] == [f"COURSE-{n:03d}" for n in range(1, 17)]
+def test_all_eighteen_courses_load_with_no_errors(courses):
+    assert [c.course_id for c in courses] == [f"COURSE-{n:03d}" for n in range(1, 19)]
 
 
 def test_course_015_loads_through_the_nested_nested_wrapper_folder(courses):
     c15 = next(c for c in courses if c.course_id == "COURSE-015")
-    assert len(c15.modules) == 1
+    assert len(c15.modules) == 13
     assert sum(len(m.lessons) for m in c15.modules) == 13
     # The outer folder's name is what the rest of the system displays/keys
     # off (source_dir), even though its content was read from the nested one.
@@ -71,14 +71,62 @@ def test_other_courses_are_unaffected_by_the_wrapper_unwrap_logic(courses):
     must take its normal, direct-layout-detection path for all of them. (The
     module counts are what the folders hold today; update them with the content.)"""
     expected_module_counts = {
-        "COURSE-001": 7, "COURSE-002": 15, "COURSE-003": 14, "COURSE-004": 2,
-        "COURSE-005": 12, "COURSE-006": 9, "COURSE-007": 5, "COURSE-008": 1,
-        "COURSE-009": 1, "COURSE-010": 1, "COURSE-011": 8, "COURSE-012": 1,
-        "COURSE-013": 15, "COURSE-014": 13, "COURSE-016": 16,
+        "COURSE-001": 7, "COURSE-002": 15, "COURSE-003": 14, "COURSE-004": 11,
+        "COURSE-005": 12, "COURSE-006": 9, "COURSE-007": 8, "COURSE-008": 11,
+        "COURSE-009": 10, "COURSE-010": 12, "COURSE-011": 17, "COURSE-012": 11,
+        "COURSE-013": 15, "COURSE-014": 13, "COURSE-016": 16, "COURSE-017": 8,
+        "COURSE-018": 8,
     }
     by_id = {c.course_id: c for c in courses}
     for course_id, expected in expected_module_counts.items():
         assert len(by_id[course_id].modules) == expected, course_id
+
+
+def test_course_004_keeps_each_source_chapter_visible_as_a_module(courses):
+    course = next(c for c in courses if c.course_id == "COURSE-004")
+
+    assert [module.module_id for module in course.modules] == [f"M004-{n:02d}" for n in range(1, 12)]
+    assert [len(module.lessons) for module in course.modules] == [1] * 11
+    assert [module.lessons[0].lesson_id for module in course.modules] == [
+        "M01.L01", "M02.L01", "M01.L02", "M01.L03", "M01.L04", "M01.L05",
+        "M01.L07", "M01.L06", "M01.L08", "M01.L10", "M01.L09",
+    ]
+
+
+@pytest.mark.parametrize("course_id", ["COURSE-017", "COURSE-018"])
+def test_new_chapter_courses_follow_their_source_chapter_order(courses, course_id):
+    """COURSE-018 arrived with three lessons coded M04.L01 / M05.L01 / M07.L01
+    among M01.Lxx files, which sorted chapters 4, 5 and 7 after chapter 8. Every
+    lesson is now M01.L<chapter>, so module N is source chapter N."""
+    course = next(c for c in courses if c.course_id == course_id)
+    number = course_id.split("-")[1]
+
+    assert [m.module_id for m in course.modules] == [f"M{number}-{n:02d}" for n in range(1, 9)]
+    assert [m.lessons[0].lesson_id for m in course.modules] == [f"M01.L{n:02d}" for n in range(1, 9)]
+    assert all(m.lessons[0].title_ar and m.lessons[0].content_ar for m in course.modules)
+
+
+@pytest.mark.parametrize("course_id,module_count", [
+    ("COURSE-007", 8),
+    ("COURSE-008", 11),
+    ("COURSE-009", 10),
+    ("COURSE-010", 12),
+    ("COURSE-011", 17),
+    ("COURSE-012", 11),
+    ("COURSE-015", 13),
+    ("COURSE-017", 8),
+    ("COURSE-018", 8),
+])
+def test_converted_chapter_courses_keep_each_file_visible_as_a_module(courses, course_id, module_count):
+    course = next(c for c in courses if c.course_id == course_id)
+
+    assert [module.order for module in course.modules] == list(range(1, module_count + 1))
+    assert [len(module.lessons) for module in course.modules] == [1] * module_count
+    assert all(module.title == module.lessons[0].title for module in course.modules)
+    assert all(
+        not module.lessons[0].title_ar or module.title_ar == module.lessons[0].title_ar
+        for module in course.modules
+    )
 
 
 def test_assessments_are_one_module_quiz_with_stable_lesson_traceability(courses):

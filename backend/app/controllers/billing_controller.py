@@ -4,7 +4,6 @@ import uuid
 from datetime import datetime, timezone
 from typing import Literal, Optional
 
-import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from sqlalchemy.exc import IntegrityError
@@ -29,7 +28,7 @@ from app.services.billing.refunds import (
     RefundError, refund_eligibility, request_refund, transition_refund,
 )
 from app.services.learning.catalog_service import load_catalog_bundle
-from app.services.payments import paymob_service
+from app.services.payments.checkout import PROVIDER as CHECKOUT_PROVIDER, language_of, start_checkout
 from app.services.billing.subscriptions import (
     cancel_at_period_end, current_plan_code, current_subscription, plan_amount,
     release_stale_checkouts, start_free_trial, subscription_is_entitled,
@@ -177,14 +176,10 @@ class SubscriptionCheckoutIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     plan: Literal["pro"]
     billing_period: Literal["monthly", "yearly"]
+    # Accepted from older clients and ignored: Kashier's hosted page offers card
+    # and mobile wallet itself and collects the wallet number there.
     method: Literal["card", "wallet"] = "card"
     phone_number: Optional[str] = Field(None, min_length=6, max_length=20, pattern=r"^\+?[0-9]{6,19}$")
-
-    @model_validator(mode="after")
-    def wallet_phone(self):
-        if self.method == "wallet" and not self.phone_number:
-            raise ValueError("phone_number is required for method=wallet")
-        return self
 
 
 class SubscriptionTrialIn(BaseModel):
@@ -240,7 +235,7 @@ def subscription_checkout(
     merchant_order_id = f"subscription-{current_user.id}-{uuid.uuid4().hex}"
     order = SubscriptionOrder(
         user_id=current_user.id, plan_id=plan.id, billing_period=payload.billing_period,
-        amount=amount, currency=plan.currency, provider="paymob",
+        amount=amount, currency=plan.currency, provider=CHECKOUT_PROVIDER,
         merchant_order_id=merchant_order_id, status="pending",
     )
     db.add(order)
@@ -258,20 +253,15 @@ def subscription_checkout(
     db.refresh(order)
 
     try:
-        provider = paymob_service.init_payment_minor(
-            amount_minor=order.amount, currency=order.currency,
-            merchant_order_id=order.merchant_order_id, method=payload.method,
-            full_name=current_user.full_name, email=current_user.email,
-            phone_number=payload.phone_number or "01000000000",
+        provider = start_checkout(
+            kind="subscription", amount_minor=order.amount, currency=order.currency,
+            merchant_order_id=order.merchant_order_id, user=current_user,
+            description=f"Masar Pro ({order.billing_period})", language=language_of(request),
         )
-    except paymob_service.PaymobConfigError as exc:
+    except HTTPException:
         order.status = "failed"
         db.commit()
-        raise HTTPException(status_code=503, detail=str(exc))
-    except httpx.HTTPError:
-        order.status = "failed"
-        db.commit()
-        raise HTTPException(status_code=502, detail="Could not reach Paymob. Please try again.")
+        raise
     except Exception:
         db.rollback()
         order.status = "failed"
@@ -279,7 +269,7 @@ def subscription_checkout(
         logger.exception("billing.subscription.provider_error", extra={"order_id": order.id})
         raise HTTPException(status_code=502, detail="The payment provider returned an unexpected response.")
 
-    order.provider_order_id = str(provider["paymob_order_id"])
+    order.provider_order_id = provider["provider_order_id"]
     db.commit()
     return {
         "order_id": order.id, "reference_number": order.reference_number,
@@ -451,14 +441,9 @@ class CheckoutIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     course_id: str | int
+    # Accepted and ignored, as for subscriptions: Kashier's page picks the method.
     method: Literal["card", "wallet"] = "card"
     phone_number: Optional[str] = Field(None, min_length=6, max_length=20, pattern=r"^\+?[0-9]{6,19}$")
-
-    @model_validator(mode="after")
-    def wallet_phone(self):
-        if self.method == "wallet" and not self.phone_number:
-            raise ValueError("phone_number is required for method=wallet")
-        return self
 
 
 @router.post("/billing/checkout")
@@ -506,7 +491,7 @@ def checkout(
         offer_id=offer.id,
         amount=offer.price_amount,
         currency=offer.currency,
-        provider="paymob",
+        provider=CHECKOUT_PROVIDER,
         merchant_order_id=merchant_order_id,
         status="pending",
     )
@@ -530,28 +515,15 @@ def checkout(
     db.refresh(order)
 
     try:
-        provider = paymob_service.init_payment_minor(
-            amount_minor=order.amount,
-            currency=order.currency,
-            merchant_order_id=order.merchant_order_id,
-            method=payload.method,
-            full_name=current_user.full_name,
-            email=current_user.email,
-            phone_number=payload.phone_number or "01000000000",
+        provider = start_checkout(
+            kind="course_payment", amount_minor=order.amount, currency=order.currency,
+            merchant_order_id=order.merchant_order_id, user=current_user,
+            description=f"Masar course: {course.slug}", language=language_of(request),
         )
-    except paymob_service.PaymobConfigError as exc:
+    except HTTPException:
         order.status = "failed"
         db.commit()
-        raise HTTPException(status_code=503, detail=str(exc))
-    except httpx.HTTPStatusError as exc:
-        order.status = "failed"
-        db.commit()
-        logger.warning("Paymob rejected course checkout", extra={"order_id": order.id, "status": exc.response.status_code})
-        raise HTTPException(status_code=502, detail="The payment provider rejected this request.")
-    except httpx.HTTPError:
-        order.status = "failed"
-        db.commit()
-        raise HTTPException(status_code=502, detail="Could not reach Paymob. Please try again.")
+        raise
     except Exception:
         # Anything else (an unexpected provider response) must not leave a
         # pending order behind to block the next attempt.
@@ -561,7 +533,7 @@ def checkout(
         logger.exception("billing.checkout.provider_error", extra={"order_id": order.id})
         raise HTTPException(status_code=502, detail="The payment provider returned an unexpected response.")
 
-    order.provider_order_id = str(provider["paymob_order_id"])
+    order.provider_order_id = provider["provider_order_id"]
     db.commit()
     logger.info(
         "billing.checkout.created",

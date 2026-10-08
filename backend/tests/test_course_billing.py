@@ -1,4 +1,4 @@
-"""Course purchase lifecycle: server pricing, Paymob settlement and access."""
+"""Course purchase lifecycle: server pricing, Kashier settlement (Paymob for historical orders) and access."""
 import hashlib
 import hmac as hmac_lib
 
@@ -11,6 +11,7 @@ from app.services.learning.catalog_service import load_catalog_bundle
 from app.services.payments import paymob_service
 from tests.learning_fixtures import *  # noqa: F401,F403
 from tests.learning_fixtures import make_admin, register
+from tests.kashier_fixtures import kashier  # noqa: F401
 
 
 SECRET = "course-webhook-secret"
@@ -28,15 +29,8 @@ def _paid_available_course(db):
     return course, offer
 
 
-def _checkout(client, db, monkeypatch, who):
+def _checkout(client, db, kashier, who):
     course, offer = _paid_available_course(db)
-    captured = {}
-
-    def fake_init(**kwargs):
-        captured.update(kwargs)
-        return {"checkout_url": "https://accept.paymob.test/checkout", "paymob_order_id": 777001}
-
-    monkeypatch.setattr(paymob_service, "init_payment_minor", fake_init)
     response = client.post(
         "/api/v1/billing/checkout",
         headers=who["headers"],
@@ -44,7 +38,27 @@ def _checkout(client, db, monkeypatch, who):
     )
     assert response.status_code == 200, response.text
     order = db.query(BillingOrder).filter(BillingOrder.id == response.json()["order_id"]).one()
-    return course, offer, order, captured
+    return course, offer, order, kashier.sessions[order.provider_order_id]
+
+
+def _historical_paymob_order(db, who, course, offer, provider_order_id="777001"):
+    """An order Paymob took before the switch to Kashier: its callbacks still reconcile."""
+    order = BillingOrder(
+        user_id=who["id"], purchasable_type="course", purchasable_id=course.id, course_id=course.id,
+        offer_id=offer.id, amount=offer.price_amount, currency="EGP", provider="paymob",
+        merchant_order_id=f"course-{course.id}-historical-{provider_order_id}",
+        provider_order_id=provider_order_id, status="pending",
+    )
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+    return order
+
+
+def _kashier_pay(kashier, client, order, *, amount="1499.00", status="SUCCESS", transaction_id=None, record="PAID"):
+    kashier.record(order.provider_order_id, order.merchant_order_id, amount, status=record)
+    return kashier.post(client, kashier.data(order.merchant_order_id, amount, status=status,
+                                             transaction_id=transaction_id))
 
 
 def _webhook_obj(order, *, transaction_id=99101, amount=None, success=True, pending=False):
@@ -85,13 +99,14 @@ def _post_webhook(client, obj):
     )
 
 
-def test_checkout_uses_database_minor_units_and_provider_id(learn_client, learn_db, learn_catalog, monkeypatch):
+def test_checkout_uses_database_minor_units_and_provider_id(learn_client, learn_db, learn_catalog, kashier):
     who = register(learn_client)
-    course, offer, order, captured = _checkout(learn_client, learn_db, monkeypatch, who)
+    course, offer, order, captured = _checkout(learn_client, learn_db, kashier, who)
     assert captured["amount_minor"] == 149900
     assert captured["currency"] == "EGP"
     assert order.amount == offer.price_amount == 149900
-    assert order.provider_order_id == "777001"
+    assert order.provider == "kashier"
+    assert order.provider_order_id == kashier.session_of(order.merchant_order_id)
     assert order.course_id == course.id
 
 
@@ -289,15 +304,15 @@ def test_admin_has_full_course_content_without_subscription_or_purchase(
 
 
 def test_successful_webhook_creates_one_paid_order_transaction_and_enrollment(
-    learn_client, learn_db, learn_catalog, monkeypatch,
+    learn_client, learn_db, learn_catalog, kashier,
 ):
-    monkeypatch.setattr(paymob_service.settings, "PAYMOB_HMAC_SECRET", SECRET)
     who = register(learn_client)
-    course, _, order, _ = _checkout(learn_client, learn_db, monkeypatch, who)
-    obj = _webhook_obj(order)
+    course, _, order, _ = _checkout(learn_client, learn_db, kashier, who)
+    kashier.record(order.provider_order_id, order.merchant_order_id, "1499.00")
+    data = kashier.data(order.merchant_order_id, "1499.00")
 
-    first = _post_webhook(learn_client, obj)
-    second = _post_webhook(learn_client, obj)
+    first = kashier.post(learn_client, data)
+    second = kashier.post(learn_client, data)
     assert first.status_code == second.status_code == 200
     assert second.json()["status"] == "already_processed"
 
@@ -312,11 +327,10 @@ def test_successful_webhook_creates_one_paid_order_transaction_and_enrollment(
     assert access.json()["reason"] == "purchase"
 
 
-def test_wrong_amount_is_recorded_but_never_grants_access(learn_client, learn_db, learn_catalog, monkeypatch):
-    monkeypatch.setattr(paymob_service.settings, "PAYMOB_HMAC_SECRET", SECRET)
+def test_wrong_amount_is_recorded_but_never_grants_access(learn_client, learn_db, learn_catalog, kashier):
     who = register(learn_client)
-    course, _, order, _ = _checkout(learn_client, learn_db, monkeypatch, who)
-    response = _post_webhook(learn_client, _webhook_obj(order, amount=1))
+    course, _, order, _ = _checkout(learn_client, learn_db, kashier, who)
+    response = _kashier_pay(kashier, learn_client, order, amount="0.01")
     assert response.status_code == 200
     learn_db.expire_all()
     assert learn_db.query(BillingOrder).filter_by(id=order.id).one().status == "failed"
@@ -325,41 +339,68 @@ def test_wrong_amount_is_recorded_but_never_grants_access(learn_client, learn_db
     assert tx.response_code == "amount_mismatch"
 
 
-def test_failed_payment_does_not_enroll(learn_client, learn_db, learn_catalog, monkeypatch):
-    monkeypatch.setattr(paymob_service.settings, "PAYMOB_HMAC_SECRET", SECRET)
+def test_failed_payment_does_not_enroll(learn_client, learn_db, learn_catalog, kashier):
     who = register(learn_client)
-    course, _, order, _ = _checkout(learn_client, learn_db, monkeypatch, who)
-    assert _post_webhook(learn_client, _webhook_obj(order, success=False)).status_code == 200
+    course, _, order, _ = _checkout(learn_client, learn_db, kashier, who)
+    assert _kashier_pay(kashier, learn_client, order, status="FAILURE").status_code == 200
     assert learn_db.query(CourseEnrollment).filter_by(user_id=who["id"], course_id=course.id).count() == 0
 
 
 def test_pending_then_final_webhook_with_same_transaction_enrolls_once(
-    learn_client, learn_db, learn_catalog, monkeypatch,
+    learn_client, learn_db, learn_catalog, kashier,
 ):
-    monkeypatch.setattr(paymob_service.settings, "PAYMOB_HMAC_SECRET", SECRET)
     who = register(learn_client)
-    course, _, order, _ = _checkout(learn_client, learn_db, monkeypatch, who)
+    course, _, order, _ = _checkout(learn_client, learn_db, kashier, who)
 
-    pending = _post_webhook(
-        learn_client, _webhook_obj(order, transaction_id=77123, success=False, pending=True),
-    )
+    pending = _kashier_pay(kashier, learn_client, order, status="PENDING", transaction_id="TX-77123")
     assert pending.status_code == 200
     assert pending.json()["success"] is False
     assert learn_db.query(CourseEnrollment).filter_by(user_id=who["id"], course_id=course.id).count() == 0
 
-    final = _post_webhook(
-        learn_client, _webhook_obj(order, transaction_id=77123, success=True, pending=False),
-    )
+    final = _kashier_pay(kashier, learn_client, order, status="SUCCESS", transaction_id="TX-77123")
     assert final.status_code == 200
     assert final.json()["success"] is True
     assert learn_db.query(PaymentTransaction).filter_by(order_id=order.id).count() == 1
     assert learn_db.query(CourseEnrollment).filter_by(user_id=who["id"], course_id=course.id).count() == 1
 
 
-def test_invalid_hmac_changes_nothing(learn_client, learn_db, learn_catalog, monkeypatch):
+def test_invalid_signature_changes_nothing(learn_client, learn_db, learn_catalog, kashier):
+    who = register(learn_client)
+    _, _, order, _ = _checkout(learn_client, learn_db, kashier, who)
+    kashier.record(order.provider_order_id, order.merchant_order_id, "1499.00")
+    response = kashier.post(learn_client, kashier.data(order.merchant_order_id, "1499.00"), signature="wrong")
+    assert response.status_code == 401
+    learn_db.expire_all()
+    assert learn_db.query(BillingOrder).filter_by(id=order.id).one().status == "pending"
+
+
+def test_a_historical_paymob_order_still_settles_through_paymob_only(
+    learn_client, learn_db, learn_catalog, kashier, monkeypatch,
+):
     monkeypatch.setattr(paymob_service.settings, "PAYMOB_HMAC_SECRET", SECRET)
     who = register(learn_client)
-    _, _, order, _ = _checkout(learn_client, learn_db, monkeypatch, who)
+    course, offer = _paid_available_course(learn_db)
+    order = _historical_paymob_order(learn_db, who, course, offer)
+
+    # A Kashier-signed callback naming it is ignored: Kashier never took this order.
+    ignored = kashier.post(learn_client, kashier.data(order.merchant_order_id, "1499.00"))
+    assert ignored.json() == {"status": "no matching order"}
+
+    obj = _webhook_obj(order)
+    assert _post_webhook(learn_client, obj).json()["success"] is True
+    assert _post_webhook(learn_client, obj).json()["status"] == "already_processed"
+    learn_db.expire_all()
+    assert learn_db.query(BillingOrder).filter_by(id=order.id).one().status == "paid"
+    tx = learn_db.query(PaymentTransaction).filter_by(order_id=order.id).one()
+    assert tx.provider == "paymob"
+    assert learn_db.query(CourseEnrollment).filter_by(user_id=who["id"], course_id=course.id).one().source == "purchase"
+
+
+def test_invalid_paymob_hmac_changes_nothing(learn_client, learn_db, learn_catalog, monkeypatch):
+    monkeypatch.setattr(paymob_service.settings, "PAYMOB_HMAC_SECRET", SECRET)
+    who = register(learn_client)
+    course, offer = _paid_available_course(learn_db)
+    order = _historical_paymob_order(learn_db, who, course, offer, provider_order_id="777002")
     response = learn_client.post(
         "/api/v1/payments/paymob/webhook?hmac=wrong",
         json={"type": "TRANSACTION", "obj": _webhook_obj(order)},
@@ -369,9 +410,9 @@ def test_invalid_hmac_changes_nothing(learn_client, learn_db, learn_catalog, mon
     assert learn_db.query(BillingOrder).filter_by(id=order.id).one().status == "pending"
 
 
-def test_owned_course_cannot_be_purchased_twice(learn_client, learn_db, learn_catalog, monkeypatch):
+def test_owned_course_cannot_be_purchased_twice(learn_client, learn_db, learn_catalog, kashier):
     who = register(learn_client)
-    course, _, _, _ = _checkout(learn_client, learn_db, monkeypatch, who)
+    course, _, _, _ = _checkout(learn_client, learn_db, kashier, who)
     learn_db.add(CourseEnrollment(user_id=who["id"], course_id=course.id, source="admin_grant", status="active"))
     learn_db.commit()
     response = learn_client.post(
@@ -381,9 +422,9 @@ def test_owned_course_cannot_be_purchased_twice(learn_client, learn_db, learn_ca
     assert response.json()["detail"]["code"] == "COURSE_ALREADY_OWNED"
 
 
-def test_course_cannot_have_two_pending_checkouts(learn_client, learn_db, learn_catalog, monkeypatch):
+def test_course_cannot_have_two_pending_checkouts(learn_client, learn_db, learn_catalog, kashier):
     who = register(learn_client)
-    course, _, order, _ = _checkout(learn_client, learn_db, monkeypatch, who)
+    course, _, order, _ = _checkout(learn_client, learn_db, kashier, who)
     response = learn_client.post(
         "/api/v1/billing/checkout", headers=who["headers"], json={"course_id": course.slug},
     )
@@ -455,8 +496,8 @@ def test_admin_can_create_and_update_an_egp_offer(learn_client, learn_db, learn_
     assert course.is_free is False
 
 
-def test_user_cannot_read_another_users_order(learn_client, learn_db, learn_catalog, monkeypatch):
+def test_user_cannot_read_another_users_order(learn_client, learn_db, learn_catalog, kashier):
     owner = register(learn_client)
     stranger = register(learn_client)
-    _, _, order, _ = _checkout(learn_client, learn_db, monkeypatch, owner)
+    _, _, order, _ = _checkout(learn_client, learn_db, kashier, owner)
     assert learn_client.get(f"/api/v1/billing/orders/{order.id}", headers=stranger["headers"]).status_code == 404

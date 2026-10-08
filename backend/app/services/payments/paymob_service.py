@@ -1,8 +1,13 @@
 """
 backend/app/services/payments/paymob_service.py
 
-Thin client for Paymob's Accept API (the dominant Egyptian payment
-gateway — cards + mobile wallets via one integration).
+Thin client for Paymob's Accept API.
+
+HISTORICAL ONLY (2026-10-08): Masar takes new payments through Kashier
+(kashier_service, payments/checkout.py). Nothing starts a Paymob checkout any
+more; what is still used here is verify_webhook_hmac() and to_notice(), so the
+Paymob webhook can reconcile payments and refunds of the orders Paymob took
+before the switch. The checkout functions below are kept for that history.
 Docs: https://docs.paymob.com/docs/accept-standard-redirect
       https://docs.paymob.com/docs/mobile-wallets
       https://docs.paymob.com/docs/transaction-callbacks (HMAC)
@@ -245,6 +250,32 @@ def provider_order_matches(obj: dict, provider_order_id: str | None) -> bool:
     order = obj.get("order") if isinstance(obj.get("order"), dict) else {}
     signed = order.get("id")
     return provider_order_id is not None and signed is not None and str(signed) == str(provider_order_id)
+
+
+def to_notice(obj: dict):
+    """The provider-neutral form of a verified Paymob callback (`obj`), or None
+    when it names no merchant order. A missing transaction id is an empty
+    `event_id`; each settlement decides what that means for its own order."""
+    from app.services.payments.notice import PaymentNotice
+
+    order = obj.get("order") if isinstance(obj.get("order"), dict) else {}
+    merchant_order_id = order.get("merchant_order_id")
+    if not merchant_order_id:
+        return None
+    try:
+        amount = int(obj.get("amount_cents"))
+    except (TypeError, ValueError):
+        amount = -1
+    data = obj.get("data")
+    message = data.get("message") if isinstance(data, dict) else None
+    return PaymentNotice(
+        provider="paymob", event_id="" if obj.get("id") is None else str(obj["id"]), merchant_order_id=str(merchant_order_id),
+        provider_order_id=str(order["id"]) if order.get("id") is not None else None,
+        amount=amount, currency=str(obj.get("currency") or "").upper(),
+        success=bool(obj.get("success")), pending=bool(obj.get("pending")),
+        kind=classify_transaction(obj),
+        response_code=str(message or obj.get("txn_response_code") or "")[:100] or None, raw=obj,
+    )
 
 
 def verify_webhook_hmac(transaction_obj: dict, received_hmac: str) -> bool:

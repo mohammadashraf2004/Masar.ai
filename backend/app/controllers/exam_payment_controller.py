@@ -28,7 +28,7 @@ router = APIRouter()
 # THE authoritative value. payments_controller imports this rather than
 # keeping its own copy — the two were previously separate literals held in
 # sync by a comment, which is one edit away from charging a different
-# amount through Paymob than the manual-reference flow quotes.
+# amount through the payment provider than the manual-reference flow quotes.
 EXAM_PRICE_EGP = 150.0
 
 PAYMENT_LABELS = {

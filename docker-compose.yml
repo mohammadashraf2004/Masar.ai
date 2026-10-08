@@ -129,6 +129,13 @@ services:
       - PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus-multiproc
       - RESEND_API_KEY
       - EMAIL_FROM
+      # Payments: Kashier takes every new payment (app/services/payments/checkout.py).
+      - KASHIER_MODE=${KASHIER_MODE:-test}
+      - KASHIER_MERCHANT_ID
+      - KASHIER_API_KEY
+      - KASHIER_SECRET_KEY
+      - KASHIER_PUBLIC_API_URL
+      # Paymob: historical only - its webhook still reconciles the orders it took.
       - PAYMOB_API_KEY
       - PAYMOB_INTEGRATION_ID_CARD
       - PAYMOB_INTEGRATION_ID_WALLET

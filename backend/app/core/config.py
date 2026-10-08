@@ -212,7 +212,30 @@ class Settings(BaseSettings):
     RESEND_API_KEY: Optional[str] = None
     EMAIL_FROM: str = "Masar <noreply@example.com>"
 
-    # ─── Payments (Paymob) ─────────────────────────────────────────────────
+    # ─── Payments (Kashier) ────────────────────────────────────────────────
+    # Every new checkout - Pro subscriptions, course purchases, wallet top-ups
+    # and exam fees - is a Kashier hosted payment session. "test" talks to
+    # test-api.kashier.io with the test keys, "live" to api.kashier.io with the
+    # live keys; production refuses "test". All four blank: payments are off
+    # (checkout answers 503) and nothing else is affected.
+    KASHIER_MODE: str = "test"
+    KASHIER_MERCHANT_ID: Optional[str] = None
+    # The Payment API key: signs webhooks (x-kashier-signature) - the HMAC secret.
+    KASHIER_API_KEY: Optional[str] = None
+    # The secret key: the Authorization header of server-to-server calls.
+    KASHIER_SECRET_KEY: Optional[str] = None
+    # This API's public https origin (e.g. https://api.masarai.net): Kashier posts
+    # the webhook to <origin>/api/v1/payments/kashier/webhook and returns the
+    # shopper to <origin>/api/v1/payments/kashier/return.
+    KASHIER_PUBLIC_API_URL: Optional[str] = None
+    KASHIER_ALLOWED_METHODS: str = "card,wallet"
+    KASHIER_SESSION_MINUTES: int = 60
+    KASHIER_TIMEOUT_SECONDS: float = 20.0
+
+    # ─── Payments (Paymob, historical only) ────────────────────────────────
+    # No new Paymob payment is ever started. These remain so the Paymob
+    # webhook can still verify and reconcile the payments and refunds of the
+    # orders Paymob took before the switch to Kashier.
     PAYMOB_API_KEY: Optional[str] = None
     PAYMOB_INTEGRATION_ID_CARD: Optional[str] = None
     PAYMOB_INTEGRATION_ID_WALLET: Optional[str] = None
@@ -327,6 +350,30 @@ class Settings(BaseSettings):
             )
         return problems
 
+    @property
+    def kashier_configured(self) -> bool:
+        return all((self.KASHIER_MERCHANT_ID, self.KASHIER_API_KEY, self.KASHIER_SECRET_KEY,
+                    self.KASHIER_PUBLIC_API_URL))
+
+    def kashier_problems(self, *, production: bool) -> list[str]:
+        """Payments off (nothing set) is allowed; half a configuration is not."""
+        problems: list[str] = []
+        if self.KASHIER_MODE not in {"test", "live"}:
+            problems.append("KASHIER_MODE must be test or live")
+        values = (self.KASHIER_MERCHANT_ID, self.KASHIER_API_KEY, self.KASHIER_SECRET_KEY,
+                  self.KASHIER_PUBLIC_API_URL)
+        if any(values) and not all(values):
+            problems.append(
+                "Kashier is partly configured: set all of KASHIER_MERCHANT_ID, KASHIER_API_KEY, "
+                "KASHIER_SECRET_KEY and KASHIER_PUBLIC_API_URL (or none, to keep payments off)"
+            )
+        if production and any(values):
+            if self.KASHIER_MODE != "live":
+                problems.append("KASHIER_MODE must be live in production (test keys take no real payments)")
+            if not (self.KASHIER_PUBLIC_API_URL or "").startswith("https://"):
+                problems.append("KASHIER_PUBLIC_API_URL must be an https:// origin in production")
+        return problems
+
 
 settings = Settings()
 
@@ -386,6 +433,7 @@ if settings.is_production:
     # then fails every AI request with the first sign being user reports.
     _problems.extend(settings.llm_config_problems())
     _problems.extend(settings.project_lab_problems())
+    _problems.extend(settings.kashier_problems(production=True))
     if settings.project_lab_backend == "local":
         # The local adapter runs learner code as the API's own user, with the
         # API's filesystem and network. It exists for development and tests;

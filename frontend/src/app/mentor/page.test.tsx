@@ -6,6 +6,7 @@ import { useLanguageStore } from '@/lib/language'
 import { STRINGS } from '@/lib/i18n'
 import { router, setSearch } from '@/test/nav'
 import { WalletProvider } from '@/components/layout/WalletContext'
+import { useAuthStore } from '@/lib/store'
 
 // The AI mentor page, chat mode. The API is the seam: every request goes through `api.*`, so what
 // the page does with a success, a failure, a slow answer and a full quota is testable without a
@@ -75,6 +76,7 @@ async function ask(user: ReturnType<typeof userEvent.setup>, text: string) {
 }
 
 beforeEach(() => {
+  useAuthStore.setState({ token: 'test-token', _hasHydrated: true })
   Element.prototype.scrollTo = vi.fn()
   sessions.mockResolvedValue([])
   getWallet.mockResolvedValue({ credit_balance: 500 })

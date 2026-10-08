@@ -37,6 +37,8 @@ export function toThread(session: MentorSession): Thread {
       role: m.role,
       content: m.content,
       timestamp: m.timestamp,
+      // A Mentor v2 answer is stored as blocks; its `content` is their JSON, not prose.
+      ...(m.blocks ? { blocks: m.blocks } : {}),
     })),
   }
 }

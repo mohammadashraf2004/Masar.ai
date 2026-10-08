@@ -20,7 +20,7 @@ vi.mock('@/components/layout/PageHeader', async () => {
 vi.mock('@/lib/api', () => ({
   api: {
     getLearningLevels: vi.fn(), getLearningFields: vi.fn(), getCareerGoals: vi.fn(),
-    listCatalogCourses: vi.fn(),
+    listCatalogCourses: vi.fn(), listTracks: vi.fn(),
   },
 }))
 import { api } from '@/lib/api'
@@ -39,6 +39,7 @@ beforeEach(() => {
   vi.mocked(api.getLearningFields).mockResolvedValue(CATALOG.fields)
   vi.mocked(api.getCareerGoals).mockResolvedValue(CATALOG.goals)
   vi.mocked(api.listCatalogCourses).mockResolvedValue([RAG, AGENTS])
+  vi.mocked(api.listTracks).mockResolvedValue([])
 })
 
 const lastFilters = () => vi.mocked(api.listCatalogCourses).mock.calls.at(-1)![0]
@@ -64,7 +65,9 @@ describe('Explore — browsing without committing', () => {
   it('starts with every course, unfiltered', async () => {
     await ready()
     await screen.findByRole('link', { name: 'RAG & Knowledge Systems' })
-    expect(lastFilters()).toEqual({ level: [], field: [], career_goal: [] })
+    expect(lastFilters()).toEqual({
+      level: [], field: [], career_goal: [], available_only: true, curriculum_only: true,
+    })
     expect(screen.getByRole('heading', { name: /Courses \(2\)/ })).toBeInTheDocument()
   })
 
@@ -76,6 +79,7 @@ describe('Explore — browsing without committing', () => {
     await user.click(chip(/^AI Engineer/))
     await waitFor(() => expect(lastFilters()).toEqual({
       level: ['intermediate'], field: ['nlp'], career_goal: ['ai-engineer'],
+      available_only: true, curriculum_only: true,
     }))
   })
 
@@ -163,7 +167,7 @@ describe('Explore — View path', () => {
     await user.click(chip(/NLP & LLMs/))
     await user.click(chip(/Speech & Voice AI/))
     await user.click(chip(/^AI Engineer/))
-    expect(viewPathLink()).toHaveAttribute('href', '/paths/custom?level=intermediate&fields=nlp,speech&goal=ai-engineer')
+    expect(viewPathLink()).toHaveAttribute('href', '/tracks/ai-engineer')
   })
 
   it('is not offered for an ambiguous combination such as two levels', async () => {
@@ -183,13 +187,15 @@ describe('Explore — View path', () => {
     await user.click(chip(/Beginner/))
     await user.click(chip(/Speech & Voice AI/))
     await user.click(screen.getByRole('button', { name: /Clear filters/ }))
-    await waitFor(() => expect(lastFilters()).toEqual({ level: [], field: [], career_goal: [] }))
+    await waitFor(() => expect(lastFilters()).toEqual({
+      level: [], field: [], career_goal: [], available_only: true, curriculum_only: true,
+    }))
     expect(screen.queryByRole('button', { name: /Clear filters/ })).toBeNull()
   })
 
   it('offers the ready-made paths too', async () => {
     await ready()
-    expect(screen.getByRole('link', { name: /Ready-made paths/ })).toHaveAttribute('href', '/paths')
+    expect(screen.getByRole('link', { name: /Ready-made paths/ })).toHaveAttribute('href', '/tracks')
   })
 })
 

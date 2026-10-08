@@ -31,7 +31,11 @@ export function PlanCard({
   const note = free
     ? t('billing.note.free')
     : cycle === 'yearly'
-      ? tf('billing.note.yearly', { total: money(yearlyTotal(plan)), list: money(monthlyYearTotal(plan)) })
+      ? tf('billing.note.yearly', {
+          total: money(yearlyTotal(plan)),
+          list: money(monthlyYearTotal(plan)),
+          saving: money(monthlyYearTotal(plan) - yearlyTotal(plan)),
+        })
       : t('billing.note.monthly')
 
   return (
@@ -53,7 +57,9 @@ export function PlanCard({
 
       <div className="flex items-baseline gap-1.5">
         <span className="font-display text-[40px] font-extrabold leading-none text-white">{formatAmount(price)}</span>
-        <span className="text-[13px] text-dim">{free ? currencyName : tf('billing.perMonth', { currency: currencyName })}</span>
+        <span className="text-[13px] text-dim">
+          {free ? currencyName : tf(cycle === 'yearly' ? 'billing.perYear' : 'billing.perMonth', { currency: currencyName })}
+        </span>
       </div>
 
       <p className="min-h-[18px] text-xs text-ghost">{note}</p>

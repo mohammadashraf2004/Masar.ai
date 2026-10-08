@@ -20,7 +20,7 @@ type Load = { key: string; doc: LegalDocument | null }
  * accepting. It follows the interface language; switching it fetches the other
  * language's text of the same version.
  */
-export function LegalDocumentPage({ kind }: { kind: 'terms' | 'privacy' }) {
+export function LegalDocumentPage({ kind }: { kind: 'terms' | 'privacy' | 'refund' }) {
   const { t, tf, language } = useI18n()
   const key = `${kind}|${language}`
   const [load, setLoad] = useState<Load | null>(null)

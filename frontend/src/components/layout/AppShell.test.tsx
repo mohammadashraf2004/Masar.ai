@@ -24,7 +24,7 @@ const sidebar = () => screen.getByRole('complementary')
 
 beforeEach(() => {
   vi.mocked(api.getWallet).mockResolvedValue({ credit_balance: 1240 })
-  setPathname('/dashboard')
+  setPathname('/')
   signIn()
 })
 
@@ -33,16 +33,15 @@ describe('the sidebar', () => {
     renderShell()
     const links = within(within(sidebar()).getByRole('navigation', { name: 'Menu' })).getAllByRole('link')
     expect(links.map((a) => a.getAttribute('href'))).toEqual([
-      '/', '/dashboard', '/learn', '/learn/my-courses', '/explore', '/tracks', '/tools', '/certificates', '/billing',
-      '/glossary', '/mentor', '/community', '/challenges',
+      '/', '/learn/masar', '/explore', '/tracks', '/mentor', '/challenges', '/community', '/tools', '/glossary',
     ])
   })
 
   it('marks the page you are on, and the section when you are inside it', () => {
-    setPathname('/tracks/ai-developer')
+    setPathname('/learn/masar/x')
     renderShell()
     const current = within(sidebar()).getAllByRole('link').filter((a) => a.getAttribute('aria-current') === 'page')
-    expect(current.map((a) => a.getAttribute('href'))).toEqual(['/tracks'])
+    expect(current.map((a) => a.getAttribute('href'))).toEqual(['/learn/masar'])
   })
 
   it('shows the admin page to an admin only', () => {
@@ -57,34 +56,25 @@ describe('the sidebar', () => {
   it('labels the destinations in Arabic for an Arabic reader', () => {
     useLanguageStore.setState({ language: 'ar', mode: 'arabic_first' })
     renderShell()
-    expect(within(sidebar()).getByRole('link', { name: 'تعلّم' })).toHaveAttribute('href', '/learn')
+    expect(within(sidebar()).getAllByRole('link')[0]).toHaveAccessibleName('مسار')
+    expect(within(sidebar()).getByRole('link', { name: 'مسارك' })).toHaveAttribute('href', '/learn/masar')
     expect(within(sidebar()).getByRole('link', { name: 'استكشف' })).toHaveAttribute('href', '/explore')
-    expect(within(sidebar()).getByRole('link', { name: 'الشهادات' })).toHaveAttribute('href', '/certificates')
+    expect(within(sidebar()).getByRole('link', { name: 'المسارات' })).toHaveAttribute('href', '/tracks')
+    expect(within(sidebar()).getByRole('link', { name: 'المجتمع' })).toHaveAttribute('href', '/community')
   })
 
   it('leads with the brand, which is one link home named for the product', () => {
     renderShell()
     const brand = within(sidebar()).getAllByRole('link')[0]
-    expect(brand).toHaveAttribute('href', '/dashboard')
-    // Both scripts are in the DOM (CSS shows one); the second copy is hidden from assistive technology.
-    expect(brand).toHaveAccessibleName(/^Masar\s*مسار$/)
-    expect(brand.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThanOrEqual(2)
+    expect(brand).toHaveAttribute('href', '/')
+    expect(brand).toHaveAccessibleName('Masar')
     expect(brand.querySelector('.brand-en')?.parentElement).toHaveClass('text-[17px]')
-    expect(brand.querySelector('.brand-alt-ar')?.parentElement).toHaveClass('text-[17px]')
+    expect(brand.querySelector('.brand-alt-en, .brand-alt-ar')).toBeNull()
   })
 
-  it('shows the wallet: the balance, with thousands separated, and the way to top up', async () => {
+  it('carries no wallet card of its own: the credit balance lives only in the top bar', () => {
     renderShell()
-    const card = within(sidebar())
-    expect(await card.findByText('1,240')).toBeInTheDocument()
-    expect(card.getByText('Wallet')).toBeInTheDocument()
-    expect(card.getByRole('link', { name: 'Top up credits' })).toHaveAttribute('href', '/billing')
-  })
-
-  it('shows a dash rather than a made-up zero until the balance is known', () => {
-    vi.mocked(api.getWallet).mockReturnValue(new Promise(() => {}))
-    renderShell()
-    expect(within(sidebar()).getByText('—')).toBeInTheDocument()
+    expect(within(sidebar()).queryByText('Wallet')).toBeNull()
   })
 
   it('shows who is signed in, with a way to their profile', () => {
@@ -111,11 +101,12 @@ describe('the sidebar', () => {
 })
 
 describe('the header', () => {
-  it('has the search, the credit pill, the theme choice and the account menu', async () => {
+  it('has the search, the credit pill, Plans & Offers, the theme choice and the account menu', async () => {
     renderShell()
     const header = within(screen.getByRole('banner'))
     expect(header.getByRole('combobox', { name: 'Search' })).toBeInTheDocument()
     expect(await header.findByRole('link', { name: '1240 credits' })).toHaveAttribute('href', '/billing')
+    expect(header.getByRole('link', { name: 'Plans & offers' })).toHaveAttribute('href', '/billing')
     expect(header.getByRole('group', { name: 'Theme' })).toBeInTheDocument()
     expect(header.getByRole('button', { name: 'Profile menu: Amira Hassan' })).toBeInTheDocument()
   })
@@ -151,17 +142,17 @@ describe('the mobile menu', () => {
 
     const panel = document.getElementById('mobile-menu') as HTMLElement
     expect(panel).not.toBeNull()
-    const rows = within(panel).getAllByRole('link').filter((a) => !['/profile', '/terms', '/privacy'].includes(a.getAttribute('href') ?? ''))
-    expect(rows).toHaveLength(13)
+    const rows = within(panel).getAllByRole('link').filter((a) => !['/profile', '/billing'].includes(a.getAttribute('href') ?? ''))
+    expect(rows).toHaveLength(9)
     for (const row of rows) expect(row).toHaveClass('min-h-[48px]')
-    expect(rows.find((a) => a.getAttribute('aria-current') === 'page')).toHaveAttribute('href', '/dashboard')
+    expect(rows.find((a) => a.getAttribute('aria-current') === 'page')).toHaveAttribute('href', '/')
 
     const close = screen.getByRole('button', { name: 'Close navigation menu' })
     expect(close).toHaveAttribute('aria-expanded', 'true')
     expect(close).toHaveAttribute('aria-controls', panel.id)
   })
 
-  it('holds the account, the theme, the language and sign-out in its footer', async () => {
+  it('holds the account, the theme, the language, Plans & Offers and sign-out in its footer', async () => {
     const user = userEvent.setup()
     renderShell()
     await user.click(openButton())
@@ -169,6 +160,7 @@ describe('the mobile menu', () => {
     expect(panel.getByRole('link', { name: /Amira Hassan/ })).toHaveAttribute('href', '/profile')
     expect(panel.getByRole('group', { name: 'Theme' })).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /EN/ })).toBeInTheDocument() // the language switcher
+    expect(panel.getByRole('link', { name: 'Plans & offers' })).toHaveAttribute('href', '/billing')
     expect(panel.getByRole('button', { name: 'Sign out' })).toHaveClass('min-h-[44px]')
     expect(panel.queryByRole('link', { name: 'Terms of Use' })).toBeNull()
     expect(panel.queryByRole('link', { name: 'Privacy Policy' })).toBeNull()
@@ -179,7 +171,7 @@ describe('the mobile menu', () => {
     document.addEventListener('click', (e) => e.preventDefault(), { once: true, capture: true })
     renderShell()
     await user.click(openButton())
-    await user.click(within(document.getElementById('mobile-menu') as HTMLElement).getByRole('link', { name: 'Certificates' }))
+    await user.click(within(document.getElementById('mobile-menu') as HTMLElement).getByRole('link', { name: 'Explore' }))
     expect(document.getElementById('mobile-menu')).toBeNull()
     expect(openButton()).toHaveAttribute('aria-expanded', 'false')
   })

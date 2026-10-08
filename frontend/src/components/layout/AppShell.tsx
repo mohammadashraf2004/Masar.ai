@@ -5,7 +5,6 @@ import { MobileMenu } from '@/components/layout/MobileMenu'
 import { ShellHeader } from '@/components/layout/ShellHeader'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { WalletProvider } from '@/components/layout/WalletContext'
-import { UpdateGate } from '@/components/updates/UpdateGate'
 import { TourProvider } from '@/features/tours/TourProvider'
 
 /**
@@ -40,10 +39,6 @@ function AppShellFrame({ children }: { children: React.ReactNode }) {
       {/* Asks for acceptance of the current Terms and Privacy Policy when the
           account has not given it; renders nothing otherwise. */}
       <LegalGate />
-
-      {/* Tells an existing account what is new, or introduces a new one to the
-          skill-gap experience, once - when the server says it is due. */}
-      <UpdateGate />
 
       <Sidebar />
 

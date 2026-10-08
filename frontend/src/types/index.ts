@@ -32,7 +32,7 @@ export interface LegalSection {
 }
 
 export interface LegalDocument {
-  kind: 'terms' | 'privacy'
+  kind: 'terms' | 'privacy' | 'refund'
   version: string
   language: 'en' | 'ar'
   title: string
@@ -132,10 +132,19 @@ export interface Exercise {
   title_ar?: string | null
   description_ar?: string | null
   starter_code?: string
+  exercise_type?: 'legacy' | 'code' | 'code_pending'
+  language?: string | null
+  hint?: string | null
+  hint_ar?: string | null
+  grading_available?: boolean
   difficulty: Difficulty
   skill_tested: string[]
   is_locked?: boolean
   course_slug?: string | null
+  /** The lesson this exercise is graded against, when the course authors a
+   *  direct 1:1 pairing. Null/absent for an exercise that only shares a
+   *  topic with its sibling lessons. */
+  lesson_id?: number | null
 }
 
 export interface Project {
@@ -215,6 +224,36 @@ export interface CareerTrack {
   icon?: string
   estimated_weeks: number
   levels: TrackLevel[]
+  title_en?: string | null
+  stack?: string[]
+  level?: string | null
+  stage_count?: number
+  course_count?: number
+  hours?: number
+  progress?: number
+  status?: TrackCatalogueStatus
+  cta_href?: string | null
+  stages?: TrackCatalogueStage[]
+  projects?: string[]
+  roles?: string[]
+  exam?: TrackExamState | null
+}
+
+export type TrackCatalogueStatus = 'done' | 'current' | 'open'
+export type TrackStageStatus = 'completed' | 'current' | 'start' | 'locked'
+
+export interface TrackCatalogueStage {
+  number: number
+  title: string
+  hours: number
+  courses: string[]
+  status: TrackStageStatus
+}
+
+export interface TrackExamState {
+  status: 'passed' | 'available' | 'locked'
+  score?: number | null
+  unlock_after_stage: number
 }
 
 export interface CareerTrackSummary {
@@ -226,6 +265,15 @@ export interface CareerTrackSummary {
   description_ar?: string | null
   icon?: string
   estimated_weeks: number
+  title_en?: string | null
+  stack?: string[]
+  level?: string | null
+  stage_count?: number
+  course_count?: number
+  hours?: number
+  progress?: number
+  status?: TrackCatalogueStatus
+  cta_href?: string | null
 }
 
 export interface Enrollment {
@@ -290,6 +338,8 @@ export interface ToolTopic {
   skill_tags: string[]
   technical_terms: string[]
   prerequisite_ids: number[]
+  completion_required?: boolean
+  is_optional?: boolean
   lessons: Lesson[]
   exercises: Exercise[]
   quizzes: Quiz[]
@@ -359,6 +409,8 @@ export interface MentorMessage {
   /** Set on the assistant bubble that reports a failed request, so it is
    *  announced as an alert and styled as one. Never sent to the server. */
   error?: boolean
+  /** A Mentor v2 answer's blocks (then `content` is their JSON and is not shown). */
+  blocks?: import('@/features/mentor/types').MentorBlock[]
 }
 
 export interface MentorSession {
@@ -459,6 +511,77 @@ export interface VocabularyProgress {
   /** Term ids the student has proven, by exercise or by marking them. */
   learned: string[]
   total_terms: number
+}
+
+// ─── AI Vocabulary (normalized dictionary, migration 022) ──────────────────
+
+export interface VocabularyTermProgressState {
+  status: 'new' | 'learning' | 'mastered'
+}
+
+export interface VocabularyTermSummary {
+  slug: string
+  term_en: string
+  term_ar: string
+  acronym?: string | null
+  explanation_simple_ar?: string | null
+  definition_en: string
+  definition_ar: string
+  category?: string | null
+  difficulty: string
+  course_count: number
+  progress?: VocabularyTermProgressState | null
+}
+
+export interface VocabularyCourseMapping {
+  course_key: string
+  course_title?: string | null
+  course_href?: string | null
+  /** False for a course whose only association is course/module-level (no
+   *  lesson body exists, e.g. COURSE-006) — never offer a lesson deep-link
+   *  for these, even when `course_href` is set. */
+  has_lesson_mapping: boolean
+}
+
+export interface VocabularyLessonMapping {
+  course_key: string
+  module_key?: string | null
+  lesson_key: string
+  lesson_title?: string | null
+  href?: string | null
+}
+
+export interface VocabularyRelatedTerm {
+  slug: string
+  term_en: string
+  term_ar: string
+}
+
+export interface VocabularyTermDetail {
+  slug: string
+  term_en: string
+  term_ar: string
+  acronym?: string | null
+  aliases: string[]
+  category?: string | null
+  difficulty: string
+  tags: string[]
+  definition_en: string
+  definition_ar: string
+  explanation_simple_ar?: string | null
+  why_it_matters_ar?: string | null
+  example_ar?: string | null
+  related_terms: VocabularyRelatedTerm[]
+  courses: VocabularyCourseMapping[]
+  first_introduced?: VocabularyLessonMapping | null
+  progress?: VocabularyTermProgressState | null
+}
+
+export interface VocabularyListResponse {
+  items: VocabularyTermSummary[]
+  total: number
+  page: number
+  page_size: number
 }
 
 export interface TerminologyWarning {
@@ -705,6 +828,8 @@ export interface CourseModule {
   exercise_count: number
   quiz_count: number
   project_count: number
+  completion_required?: boolean
+  is_optional?: boolean
   completion_pct?: number | null
   status?: 'not_started' | 'in_progress' | 'completed' | null
 }
@@ -874,16 +999,18 @@ export interface CourseOffer {
   original_price_amount?: number | null
 }
 
-export type CourseAccessReason = 'free' | 'purchase' | 'admin_grant' | 'purchase_required'
+export type CourseAccessReason = 'admin' | 'pro' | 'free' | 'purchase' | 'admin_grant' | 'legacy_free' | 'purchase_required'
 
 export interface CourseAccess {
   has_access: boolean
   reason: CourseAccessReason
   enrollment_id?: number | null
+  free_lesson_count?: number
 }
 
 export interface CheckoutResponse {
   order_id: number
+  reference_number?: string
   payment_url: string
   amount: number
   currency: 'EGP'
@@ -903,7 +1030,7 @@ export interface CourseEnrollment {
   id: number
   user_id: number
   course_id: string
-  source: 'purchase' | 'admin_grant' | 'free'
+  source: 'purchase' | 'admin_grant' | 'free' | 'legacy_free'
   status: 'active' | 'revoked' | 'expired'
   enrolled_at: string
   expires_at?: string | null
@@ -917,7 +1044,7 @@ export interface MyCourse {
   href?: string | null
   progress: number
   enrolled_at: string
-  access_type: 'purchase' | 'admin_grant' | 'free'
+  access_type: 'purchase' | 'admin_grant' | 'free' | 'legacy_free'
   /** Lifecycle, cached on the enrollment; `progress` is always live. */
   status?: LearningStatus
   started_at?: string | null
@@ -1067,6 +1194,54 @@ export interface PathSummary {
   estimated_hours: number
 }
 
+// ─── Career track workflow ─────────────────────────────────────────────────
+// The five fixed career tracks, each an ordered workflow over the canonical
+// courses. Order, role, required-ness and section all come from the server
+// (`course_roles`); nothing here is reconstructed on the client.
+
+export type TrackSection =
+  | 'foundations' | 'language-generative-ai' | 'application-production'
+  | 'advanced-ai-systems' | 'specializations'
+
+export type WorkflowStatus = 'completed' | 'in_progress' | 'next' | 'locked' | 'available'
+
+export interface CourseRef {
+  id: number
+  slug: string
+  title: string
+  title_ar?: string | null
+}
+
+export interface TrackWorkflowCourse {
+  course_id: number
+  slug: string
+  title: string
+  title_ar?: string | null
+  order: number
+  role: CourseRole
+  required: boolean
+  section?: TrackSection | null
+  status: WorkflowStatus
+  progress_percent: number
+  is_available: boolean
+  estimated_hours: number
+  module_count: number
+  lesson_count: number
+  prerequisites: CourseRef[]
+}
+
+export interface TrackWorkflow {
+  career_goal: RoleRef
+  courses: TrackWorkflowCourse[]
+  required_total: number
+  required_completed: number
+  /** Completed required courses / total required courses. */
+  progress_percent: number
+  current?: CourseRef | null
+  next?: CourseRef | null
+  has_sections: boolean
+}
+
 export interface LearningProfile {
   level?: LevelRef | null
   career_goal?: RoleRef | null
@@ -1192,6 +1367,8 @@ export interface CourseFilters {
   skill?: string[]
   q?: string
   available_only?: boolean
+  /** Only canonical COURSE-001... curriculum; excludes legacy track lessons and frameworks. */
+  curriculum_only?: boolean
   /** true: only my courses; false: only those I am not in. */
   enrolled?: boolean
 }
@@ -1213,3 +1390,47 @@ export interface CertificateSummary {
   /** The exam it was earned in. Only on the learner's own list: the public lookup omits it. */
   exam_id?: number | null
 }
+
+// [code-cell]
+export interface ExerciseFile {
+  name: string
+  content: string
+  readOnly?: boolean
+}
+
+export interface TestResult {
+  name: string
+  passed: boolean
+  message?: string
+}
+
+export type ExerciseExecutionStatus =
+  | 'success' | 'syntax_error' | 'runtime_error' | 'timeout'
+  | 'memory_limit' | 'forbidden_operation' | 'execution_error' | 'grading_error'
+
+export interface ExerciseRunResult {
+  status: ExerciseExecutionStatus
+  stdout: string
+  stderr: string
+  execution_time_ms: number
+}
+
+export interface ExerciseFeedback {
+  code: string
+  message: string
+  test_id?: string | null
+  messages: { en?: string; ar?: string }
+}
+
+export interface GradeResult {
+  status: ExerciseExecutionStatus | 'incorrect' | 'correct'
+  passed: boolean
+  stdout: string
+  stderr: string
+  execution_time_ms: number
+  feedback: ExerciseFeedback
+  tests_passed: number
+  tests_total: number
+  failed_test?: string | null
+}
+// [/code-cell]

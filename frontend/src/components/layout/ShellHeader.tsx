@@ -48,6 +48,12 @@ export function ShellHeader() {
       <div className="ms-auto flex items-center gap-2 lg:gap-3">
         <LanguageSwitcher className="hidden lg:block" />
         <CreditsBadge />
+        <Link
+          href="/billing"
+          className="hidden min-h-[44px] items-center rounded-full border border-border bg-surface px-3 text-xs text-white transition-colors hover:border-amber/30 lg:flex lg:h-[34px] lg:min-h-0"
+        >
+          {t('nav.billing')}
+        </Link>
         <ThemeToggle className="hidden lg:flex" />
         <AccountMenu className="hidden lg:block" />
         <button

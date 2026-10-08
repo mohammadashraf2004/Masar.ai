@@ -1,4 +1,5 @@
-import type { BillingCatalog, PromoResult } from '@/lib/billing/types'
+import type { BillingCatalog, Plan, PromoResult } from '@/lib/billing/types'
+import { api } from '@/lib/api'
 
 /**
  * Where the plans, packs, offer and promo codes come from.
@@ -16,69 +17,33 @@ export interface BillingCatalogSource {
   validatePromo(code: string): Promise<PromoResult>
 }
 
-/** 4 days, 11 hours, 32 minutes: the handoff's countdown, counted from when the page loads. */
-const PLACEHOLDER_OFFER_MS = ((4 * 24 + 11) * 60 + 32) * 60_000
-
-const PLACEHOLDER_CODE = 'MASAR30'
-const PLACEHOLDER_PERCENT = 30
-
-export const placeholderCatalogSource: BillingCatalogSource = {
+export const apiCatalogSource: BillingCatalogSource = {
   async load() {
+    const catalog = await api.getBillingCatalog()
     return {
-      currency: 'SAR',
-      // Saudi VAT is 15% and consumer prices are shown tax-inclusive. Both are the catalog's to
-      // say, so a business that prices ex-VAT changes two values here and nothing in the page.
-      vatRate: 0.15,
-      pricesIncludeVat: true,
-      currentPlan: 'free',
-      plans: [
-        {
-          id: 'free', monthly: 0, yearly: 0,
-          features: [
-            'billing.plan.free.f1', // TODO(product): confirm
-            'billing.plan.free.f2', // TODO(product): confirm
-            'billing.plan.free.f3', // TODO(product): confirm
-          ],
-        },
-        {
-          id: 'pro', monthly: 79, yearly: 63, popular: true,
-          features: [
-            'billing.plan.pro.f1', // TODO(product): confirm
-            'billing.plan.pro.f2', // TODO(product): confirm
-            'billing.plan.pro.f3', // TODO(product): confirm
-            'billing.plan.pro.f4', // TODO(product): confirm
-          ],
-        },
-        {
-          id: 'career', monthly: 149, yearly: 119,
-          features: [
-            'billing.plan.career.f1', // TODO(product): confirm
-            'billing.plan.career.f2', // TODO(product): confirm
-            'billing.plan.career.f3', // TODO(product): confirm
-            'billing.plan.career.f4', // TODO(product): confirm
-            'billing.plan.career.f5', // TODO(product): confirm
-          ],
-        },
-      ],
-      packs: [
-        { id: 'p1', credits: 500, bonus: 0, price: 49 },
-        { id: 'p2', credits: 1200, bonus: 100, price: 99 },
-        { id: 'p3', credits: 3000, bonus: 400, price: 229 },
-      ],
-      offer: {
-        code: PLACEHOLDER_CODE,
-        percent: PLACEHOLDER_PERCENT,
-        endsAt: new Date(Date.now() + PLACEHOLDER_OFFER_MS).toISOString(),
-      },
+      currency: catalog.currency,
+      vatRate: catalog.vat_rate,
+      pricesIncludeVat: catalog.prices_include_vat,
+      currentPlan: catalog.current_plan,
+      trialEligible: catalog.trial_eligible,
+      plans: catalog.plans.map((plan) => ({
+        id: plan.id,
+        monthly: plan.monthly,
+        yearly: plan.yearly,
+        popular: plan.popular,
+        signupCredits: plan.signup_credits,
+        features: plan.features as Plan['features'],
+      })),
+      packs: catalog.packs,
+      offer: catalog.offer,
+      refundPolicy: catalog.refund_policy,
     }
   },
 
-  async validatePromo(code) {
-    return code.trim().toUpperCase() === PLACEHOLDER_CODE
-      ? { valid: true, code: PLACEHOLDER_CODE, percent: PLACEHOLDER_PERCENT }
-      : { valid: false, reason: 'invalid' }
+  async validatePromo(_code) {
+    return { valid: false, reason: 'unavailable' }
   },
 }
 
 /** The catalog the app uses. */
-export const billingCatalog: BillingCatalogSource = placeholderCatalogSource
+export const billingCatalog: BillingCatalogSource = apiCatalogSource

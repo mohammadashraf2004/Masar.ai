@@ -3,11 +3,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { LegalFooter } from '@/components/layout/LegalFooter'
+import { PageBody } from '@/components/layout/PageContainer'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, DifficultyBadge, Spinner, ProgressBar } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
+import { LabProjectsSection } from '@/features/project-lab/LabProjectsSection'
 import {
   Zap, Lock, CheckCircle, Code2, Download,
   ChevronRight, AlertTriangle, Trophy, Star,
@@ -600,44 +602,51 @@ export default function ChallengesPage() {
     <AppShell>
       <PageHeader
         title="Challenge Projects"
-        subtitle="Unlock real-world dirty data challenges. Pay with credits, submit your pipeline, get AI-graded feedback."
+        subtitle="Build portfolio-ready guided projects with deterministic checks, or take shorter challenges for focused practice."
+        contained
       />
-      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+      <PageBody>
 
-        {/* Filter tabs */}
-        <div className="flex items-center gap-2 mb-6 flex-wrap">
-          {['all', 'enrolled', 'beginner', 'intermediate', 'advanced'].map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
-                filter === f
-                  ? 'bg-amber/10 border border-amber/30 text-amber-text'
-                  : 'bg-surface border border-border text-ghost hover:text-soft'
-              }`}
-            >
-              {f === 'all' ? 'All Challenges' : f === 'enrolled' ? 'My Challenges' : f}
-            </button>
-          ))}
-        </div>
+        {/* Guided Project Lab projects (free, deterministic checks). */}
+        <LabProjectsSection />
 
         {loading ? (
           <div className="flex justify-center py-16"><Spinner announce className="w-6 h-6" /></div>
-        ) : filtered.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Code2 size={32} className="text-ghost mx-auto mb-3" />
-            <p className="text-bright font-medium mb-1">No challenges found</p>
-            <p className="text-xs text-ghost">Try a different filter.</p>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {filtered.map(ch => (
-              <ChallengeCard key={ch.id} ch={ch} onSelect={() => setSelectedSlug(ch.slug)} />
-            ))}
-          </div>
-        )}
-        <LegalFooter />
-      </div>
+        ) : challenges.length > 0 ? (
+          <section aria-label="Practice challenges">
+            {/* Filter tabs are only useful when this legacy challenge collection exists. */}
+            <div className="mb-6 flex flex-wrap items-center gap-2">
+              {['all', 'enrolled', 'beginner', 'intermediate', 'advanced'].map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`min-h-[44px] rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-all lg:min-h-0 ${
+                    filter === f
+                      ? 'bg-amber/10 border border-amber/30 text-amber-text'
+                      : 'bg-surface border border-border text-ghost hover:text-soft'
+                  }`}
+                >
+                  {f === 'all' ? 'All Challenges' : f === 'enrolled' ? 'My Challenges' : f}
+                </button>
+              ))}
+            </div>
+
+            {filtered.length === 0 ? (
+              <Card className="p-8 text-center">
+                <Code2 size={28} className="text-ghost mx-auto mb-3" />
+                <p className="text-bright font-medium mb-1">No challenges found</p>
+                <p className="text-xs text-ghost">Try a different filter.</p>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {filtered.map(ch => (
+                  <ChallengeCard key={ch.id} ch={ch} onSelect={() => setSelectedSlug(ch.slug)} />
+                ))}
+              </div>
+            )}
+          </section>
+        ) : null}
+      </PageBody>
     </AppShell>
   )
 }

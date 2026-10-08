@@ -1,12 +1,15 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CourseViewer } from './CourseViewer'
 import { useLanguageStore } from '@/lib/language'
-import type { Lesson, ToolCourse, ToolTopic } from '@/types'
+// [code-cell]
+import type { Exercise, Lesson, ToolCourse, ToolTopic } from '@/types'
+// [/code-cell]
 
-vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ user: { id: 1 }, isAuthenticated: true, isLoading: false }) }))
+const auth = vi.hoisted(() => ({ user: { id: 1 }, isAuthenticated: true, isLoading: false }))
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth }))
 vi.mock('@/components/layout/AppShell', () => ({ AppShell: ({ children }: { children: ReactNode }) => <>{children}</> }))
 vi.mock('@/components/layout/PageHeader', () => ({ PageHeader: ({ title }: { title: string }) => <h1>{title}</h1> }))
 vi.mock('@/lib/api', async (importOriginal) => {
@@ -39,9 +42,9 @@ const WITH_FIGURES = lesson({
 })
 const PLAIN = lesson({ id: 2, title: 'Plain lesson', content: '## Plain heading\n\nJust prose, no figures.' })
 
-const topic = (lessons: Lesson[]): ToolTopic => ({
+const topic = (lessons: Lesson[], exercises: Exercise[] = []): ToolTopic => ({
   id: 10, title: 'Topic', slug: 't', description: null, order: 1, difficulty: 'beginner', skill_tags: [],
-  technical_terms: [], prerequisite_ids: [], lessons, exercises: [], quizzes: [], projects: [],
+  technical_terms: [], prerequisite_ids: [], lessons, exercises, quizzes: [], projects: [],
 } as unknown as ToolTopic)
 
 const courseWith = (lessons: Lesson[]): ToolCourse => ({
@@ -51,6 +54,8 @@ const courseWith = (lessons: Lesson[]): ToolCourse => ({
 } as unknown as ToolCourse)
 
 beforeEach(() => {
+  auth.isAuthenticated = true
+  auth.isLoading = false
   vi.mocked(api.getToolCourse).mockReset()
   vi.mocked(api.getCourseProgress).mockResolvedValue({ enrolled: true, progress_percentage: 10 } as never)
 })
@@ -62,6 +67,34 @@ async function open(lessons: Lesson[]) {
 }
 
 describe('the lesson viewer with inline figures', () => {
+  it('waits for persisted authentication before requesting protected lesson content', async () => {
+    auth.isLoading = true
+    vi.mocked(api.getToolCourse).mockResolvedValue(courseWith([PLAIN]))
+    const view = render(<CourseViewer slug="course-008" curriculum />)
+
+    expect(api.getToolCourse).not.toHaveBeenCalled()
+
+    auth.isLoading = false
+    view.rerender(<CourseViewer slug="course-008" curriculum />)
+    await screen.findByRole('heading', { name: /Vision-Language Models/ })
+    expect(api.getToolCourse).toHaveBeenCalledWith('course-008')
+  })
+
+  it('clearly labels the COURSE-016 Kubernetes module as an optional specialization', async () => {
+    const optionalCourse = courseWith([PLAIN])
+    optionalCourse.slug = 'course-016'
+    optionalCourse.title = 'Machine Learning Systems & MLOps Engineering'
+    optionalCourse.topics[0].title = 'Kubernetes Operations for ML Workloads'
+    optionalCourse.topics[0].completion_required = false
+    optionalCourse.topics[0].is_optional = true
+    vi.mocked(api.getToolCourse).mockResolvedValue(optionalCourse)
+
+    render(<CourseViewer slug="course-016" curriculum />)
+    await screen.findByRole('heading', { name: /Machine Learning Systems/ })
+
+    expect(screen.getAllByText('Optional Kubernetes specialization').length).toBeGreaterThan(0)
+  })
+
   it('renders each figure between the text blocks the author placed around it, in order', async () => {
     await open([WITH_FIGURES])
     const body = document.querySelector('.lesson-blocks') as HTMLElement
@@ -101,6 +134,14 @@ describe('the lesson viewer with inline figures', () => {
     expect(screen.getByRole('heading', { name: 'Plain heading' })).toBeInTheDocument()
     expect(document.querySelector('figure')).toBeNull()
     expect(document.querySelector('img')).toBeNull()
+    const openLesson = screen.getByRole('link', { name: 'Open lesson' })
+    expect(openLesson).toHaveAttribute(
+      'href', '/courses/course-008/lessons/2',
+    )
+    expect(
+      openLesson.compareDocumentPosition(screen.getByRole('heading', { name: 'Plain heading' }))
+      & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
   })
 
   it('mixes a lesson with figures and one without in the same topic', async () => {
@@ -144,7 +185,109 @@ describe('the lesson viewer with inline figures', () => {
 
   it('shows neither text nor figures for a locked lesson', async () => {
     await open([lesson({ id: 5, title: 'Locked lesson', is_locked: true, course_slug: 'course-008', content: '', blocks: null })])
+    expect(screen.getByText('Locked lesson')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open lesson' })).toHaveAttribute(
+      'href', '/courses/course-008/lessons/5',
+    )
     expect(screen.getByText(/Purchase this course/)).toBeInTheDocument()
     expect(document.querySelector('figure')).toBeNull()
+  })
+
+  // [code-cell]
+  it('uses the code cell for a canonical course exercise without starter code', async () => {
+    const course = courseWith([PLAIN])
+    course.topics[0] = topic([PLAIN], [{
+      id: 81,
+      title: 'Architecture exercise',
+      description: 'Write a small Python answer.',
+      exercise_type: 'code',
+      language: 'python',
+      grading_available: true,
+      difficulty: 'intermediate',
+      skill_tested: ['python'],
+    }])
+    vi.mocked(api.getToolCourse).mockResolvedValue(course)
+    render(<CourseViewer slug="course-008" curriculum />)
+    await screen.findByRole('heading', { name: /Vision-Language Models/ })
+    await userEvent.click(screen.getByRole('button', { name: /^Exercises/ }))
+    expect(await screen.findByRole('textbox', { name: 'agent.py' })).toHaveValue('# Write your solution here\n')
+    expect(screen.getByRole('tab', { name: 'agent.py' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.queryByRole('tab', { name: 'tests.py' })).toBeNull()
+    expect(screen.getByTestId('course-page-scroll')).toHaveClass('flex-1', 'overflow-y-auto', 'overflow-x-hidden')
+    expect(screen.getByTestId('course-content-scroll')).not.toHaveClass('overflow-y-auto')
+  })
+  // [/code-cell]
+
+  it('keeps the section switcher visible and compacts the topic rail while reading', async () => {
+    await open([PLAIN])
+
+    expect(screen.getByTestId('course-section-switcher')).toHaveClass('sticky', 'top-0')
+    const scroller = screen.getByTestId('course-page-scroll')
+    const rail = screen.getByTestId('course-topic-rail')
+    expect(rail).toHaveClass('lg:w-56', 'xl:w-64')
+
+    fireEvent.scroll(scroller, { target: { scrollTop: 120 } })
+    expect(rail).toHaveClass('lg:w-20')
+
+    fireEvent.scroll(scroller, { target: { scrollTop: 0 } })
+    expect(rail).toHaveClass('lg:w-56', 'xl:w-64')
+  })
+
+  it('moves through available exercises and quizzes with the bottom Next button', async () => {
+    const course = courseWith([PLAIN])
+    course.topics[0] = {
+      ...topic([PLAIN], [{
+        id: 82,
+        title: 'Practice the architecture',
+        description: 'Write the answer.',
+        difficulty: 'beginner',
+        skill_tested: [],
+      }]),
+      quizzes: [{ id: 91, title: 'Topic check', questions: [], passing_score: 70 }],
+    }
+    vi.mocked(api.getToolCourse).mockResolvedValue(course)
+    render(<CourseViewer slug="course-008" curriculum />)
+    await screen.findByRole('heading', { name: /Vision-Language Models/ })
+
+    const nextExercises = screen.getByRole('button', { name: 'Next: Exercises' })
+    await userEvent.click(nextExercises)
+
+    expect(screen.getByRole('button', { name: /^Exercises/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText('Practice the architecture')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next: Quiz' })).toBeInTheDocument()
+  })
+
+  it('advances from the final quiz or project to the next module', async () => {
+    const course = courseWith([PLAIN])
+    const firstTopic = {
+      ...topic([PLAIN]),
+      title: 'Current module',
+      quizzes: [{
+        id: 92,
+        title: 'Final check',
+        questions: [],
+        passing_score: 70,
+        is_locked: true,
+        course_slug: 'course-008',
+      }],
+    }
+    const nextTopic = {
+      ...topic([lesson({ id: 3, title: 'Next lesson', order: 1 })]),
+      id: 11,
+      order: 2,
+      slug: 'next',
+      title: 'Next module',
+    }
+    course.topics = [firstTopic, nextTopic]
+    vi.mocked(api.getToolCourse).mockResolvedValue(course)
+    render(<CourseViewer slug="course-008" curriculum />)
+    await screen.findByRole('heading', { name: /Vision-Language Models/ })
+
+    await userEvent.click(screen.getByRole('button', { name: /^Quiz/ }))
+    const nextModule = screen.getByRole('button', { name: 'Next module: Next module' })
+    await userEvent.click(nextModule)
+
+    expect(screen.getByRole('heading', { name: 'Next module' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Lessons/ })).toHaveAttribute('aria-pressed', 'true')
   })
 })

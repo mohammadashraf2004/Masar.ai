@@ -19,7 +19,8 @@ export const metadata: Metadata = {
   applicationName: 'Masar',
   // Needed for the OpenGraph image URL to resolve absolutely. Set
   // NEXT_PUBLIC_SITE_URL in production or link previews point at localhost.
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  // `||`, not `??`: the Docker build passes an empty string when it is unset.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   // The brand files live in public/ (favicon.ico, icon.svg, apple-touch-icon.png,
   // og.png), so nothing under app/ may use the icon / apple-icon /
   // opengraph-image file conventions: Next serves those at the same URLs and

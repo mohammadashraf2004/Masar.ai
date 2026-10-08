@@ -12,14 +12,60 @@ import type { StringKey } from '@/lib/i18n'
 
 export type BillingCycle = 'monthly' | 'yearly'
 
-export type PlanId = 'free' | 'pro' | 'career'
+export type PlanId = 'free' | 'pro'
+
+export type RefundStatus =
+  | 'not_requested' | 'requested' | 'under_review' | 'approved'
+  | 'rejected' | 'processing' | 'refunded' | 'failed'
+
+export interface RefundPolicySummary {
+  version: string
+  trial_days: number
+  request_window_days: number
+  review_required: boolean
+  original_payment_method_when_supported: boolean
+  provider_processing_time_applies: boolean
+  cancellation_is_not_refund: boolean
+  subscription_credits_granted: number
+}
+
+export interface SubscriptionOrder {
+  reference_number: string
+  plan: PlanId
+  billing_period: BillingCycle
+  amount: number
+  currency: string
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'refunded'
+  created_at: string
+  paid_at: string | null
+  refund_eligible: boolean
+  refund_ineligibility_reason: string | null
+  refund: {
+    status: RefundStatus
+    requested_at: string | null
+    processed_at: string | null
+    amount: number | null
+    reason: string | null
+    provider_reference: string | null
+  }
+  refund_policy: RefundPolicySummary
+  timeline?: Array<{
+    type: 'payment' | 'refund'
+    status: string
+    from_status?: string
+    amount?: number
+    currency?: string
+    created_at: string
+  }>
+}
 
 export interface Plan {
   id: PlanId
   /** Per month, paid month by month. */
   monthly: number
-  /** Per month, paid for the whole year up front (so the year costs `yearly * 12`). */
+  /** Total charged for a full year. */
   yearly: number
+  signupCredits?: number
   popular?: boolean
   /** The plan's feature lines, as language-table keys. Product copy: see the catalog. */
   features: StringKey[]
@@ -52,9 +98,11 @@ export interface BillingCatalog {
   pricesIncludeVat: boolean
   /** The plan the account is on now. It cannot be "bought". */
   currentPlan: PlanId
+  trialEligible?: boolean
   plans: Plan[]
   packs: CreditPack[]
   offer: Offer | null
+  refundPolicy?: RefundPolicySummary
 }
 
 /** One item at a time: choosing a plan or a pack replaces what was chosen before. */

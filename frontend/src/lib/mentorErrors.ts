@@ -26,8 +26,16 @@ export function mentorErrorKey(error: unknown): StringKey {
     ? (detail as { error?: unknown }).error
     : undefined
 
+  const accessCode = typeof detail === 'object' && detail !== null
+    ? (detail as { code?: unknown }).code
+    : undefined
+
   if (resp.status === 402 || code === 'insufficient_credits') return 'mentor.error.credits'
   if (resp.status === 403 && code === 'email_verification_required') return 'mentor.error.verify'
+  // The lesson/exercise is beyond the learner's access (checked before any charge).
+  if (resp.status === 403 && accessCode === 'COURSE_PURCHASE_REQUIRED') return 'mentor.error.locked'
+  // A lesson or exercise id that does not exist, or ids that do not belong together.
+  if (resp.status === 404) return 'mentor.error.notFound'
   if (resp.status === 429) return 'mentor.error.rateLimit'
   // 422: the input broke a length limit or a schema rule.
   if (resp.status === 422) return 'mentor.error.invalid'

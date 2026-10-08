@@ -78,7 +78,7 @@ export function CourseCard({ course, defaultOpen = false, className, showCourseL
       {(course.estimated_hours > 0 || course.module_count) && (
         <p className="mt-1.5 flex flex-wrap gap-x-3 text-xs text-soft">
           {course.module_count ? <span>{tf('card.modules', { n: course.module_count })}</span> : null}
-          {course.estimated_hours > 0 && <span>{tf('card.hours', { n: course.estimated_hours })}</span>}
+          {course.estimated_hours > 0 && <span>{tf('card.hours', { n: Math.round(course.estimated_hours) })}</span>}
         </p>
       )}
 

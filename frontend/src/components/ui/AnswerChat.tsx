@@ -20,6 +20,11 @@ interface AnswerChatProps {
    * what "Start again" restores. */
   starterCode?: string
   placeholder?: string
+  /** Fires whenever the grader returns a verdict for a fresh submission —
+   *  not on the initial load of a past conversation. Lets a host page react
+   *  to a pass (e.g. the lesson page unlocking the next lesson) without
+   *  duplicating the grading call. */
+  onResult?: (correct: boolean) => void
 }
 
 /** Typing is grouped into undo steps by time: a burst of keystrokes is one
@@ -29,7 +34,7 @@ const UNDO_COALESCE_MS = 600
  *  can't grow the array without limit. */
 const UNDO_LIMIT = 100
 
-export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerChatProps) {
+export function AnswerChat({ target, isCode, starterCode, placeholder, onResult }: AnswerChatProps) {
   const { language, mode, t } = useI18n()
   const [messages, setMessages] = useState<AnswerChatMessage[]>([])
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
@@ -157,6 +162,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder }: AnswerC
         : await api.answerQuizQuestion(target.quizId, target.questionIndex, content, prefs)
       setMessages(data.messages)
       setIsCorrect(data.is_correct)
+      if (data.is_correct != null) onResult?.(data.is_correct)
     } catch (err) {
       setError(getErrorMessage(err))
       // Roll back the optimistic message on failure.

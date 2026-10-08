@@ -71,7 +71,7 @@ describe('the 404 page', () => {
       signedIn()
       render(<NotFound />)
       const sidebar = screen.getByRole('complementary')
-      expect(within(sidebar).getByRole('link', { name: 'Dashboard' })).toBeInTheDocument()
+      expect(within(sidebar).getByRole('link', { name: 'Your Masar' })).toBeInTheDocument()
       expect(screen.getByRole('heading', { level: 1, name: 'Page not found' })).toBeInTheDocument()
     })
   })

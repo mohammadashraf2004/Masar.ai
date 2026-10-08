@@ -8,6 +8,7 @@ import type { UiLanguage } from '@/lib/language'
  */
 const CURRENCY_LABELS: Record<string, Record<UiLanguage, string>> = {
   SAR: { en: 'SAR', ar: 'ر.س' },
+  EGP: { en: 'EGP', ar: 'ج.م' },
 }
 
 export function currencyLabel(currency: string, language: UiLanguage): string {

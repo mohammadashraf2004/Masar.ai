@@ -56,7 +56,7 @@ export default function RoadmapPage() {
         {(state === 'missing' || state === 'error') && (
           <Card className="space-y-3 p-8 text-center">
             <p role="alert" className="text-sm text-rose">{t('rm.loadError')}</p>
-            <Link href="/learn" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>{t('nav.learn')}</Link>
+            <Link href="/explore" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>{t('nav.explore')}</Link>
           </Card>
         )}
         {state === 'ready' && roadmap && (
@@ -67,7 +67,7 @@ export default function RoadmapPage() {
               </p>
               {description && <p className="text-sm text-soft" dir="auto">{description}</p>}
               <p className="text-xs text-soft">{t('rm.note')}</p>
-              <Link href="/paths" className="inline-block text-xs text-amber-text hover:text-amber-text2">{t('rm.seePaths')}</Link>
+              <Link href="/tracks" className="inline-block text-xs text-amber-text hover:text-amber-text2">{t('rm.seePaths')}</Link>
             </div>
 
             {roadmap.courses.length === 0 ? (

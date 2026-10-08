@@ -35,7 +35,7 @@ describe('CourseCard — why is this course relevant?', () => {
     await user.click(toggle)
     expect(toggle).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByText('Build retrieval-augmented applications.')).toBeInTheDocument()
-    expect(screen.getByText('40.5h')).toBeInTheDocument()
+    expect(screen.getByText('41h')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open course' })).toHaveAttribute('href', '/tracks/ai-developer')
 
     await user.click(toggle)
@@ -108,7 +108,7 @@ describe('Arabic (RTL) rendering', () => {
     expect(screen.getByText('المهارات')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /التفاصيل/ }))
     expect(screen.getByText('ابنِ تطبيقات تعتمد على الاسترجاع.')).toBeInTheDocument()
-    expect(screen.getByText('40.5 ساعة')).toBeInTheDocument()
+    expect(screen.getByText('41 ساعة')).toBeInTheDocument()
   })
 
   it('shows skills through the terminology dictionary — RAG with its Arabic gloss, in an LTR run', () => {
@@ -134,7 +134,7 @@ describe('CourseCard — enrollment and readiness on the card', () => {
   it('shows the size of the course on the card itself, without opening the details', () => {
     render(<CourseCard course={course({ module_count: 12 })} />)
     expect(screen.getByText('12 modules')).toBeInTheDocument()
-    expect(screen.getByText('40.5h')).toBeInTheDocument()
+    expect(screen.getByText('41h')).toBeInTheDocument()
   })
 
   it('offers "View course" to a learner who is not enrolled, and shows their readiness', () => {

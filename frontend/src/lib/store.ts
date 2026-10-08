@@ -74,6 +74,14 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== 'undefined') {
           try {
             localStorage.removeItem('auth-storage')
+            // The mentor's conversation copies and approved plan are this account's private
+            // learning data: the next person on this browser must not see them.
+            const mentorKeys: string[] = []
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i)
+              if (key && key.startsWith('masar:mentor-v2:')) mentorKeys.push(key)
+            }
+            mentorKeys.forEach((key) => localStorage.removeItem(key))
           } catch {}
         }
       },

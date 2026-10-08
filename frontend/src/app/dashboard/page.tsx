@@ -165,7 +165,6 @@ export default function DashboardPage() {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">{en.track.icon}</span>
                         <span dir="auto" className="font-medium text-bright">{localizedTitle(en.track, language)}</span>
                       </div>
                       {en.target_job_title && <Badge variant="ghost" dir="auto">{en.target_job_title}</Badge>}
@@ -241,10 +240,7 @@ export default function DashboardPage() {
                 <div className="flex justify-center py-4"><Spinner announce /></div>
               ) : skills.length === 0 ? (
                 <div className="text-center py-4">
-                  <p className="text-xs text-ghost mb-3">{t('dash.noScores')}</p>
-                  <Link href="/mentor" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
-                    {t('dash.runGap')}
-                  </Link>
+                  <p className="text-xs text-ghost">{t('dash.noScores')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">

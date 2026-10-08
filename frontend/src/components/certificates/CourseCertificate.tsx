@@ -202,7 +202,7 @@ export function CourseCertificate({
                 <span aria-hidden="true" style={tick} />
                 <span className={mono} style={cellLabel}>Course duration</span>
                 <span style={{ display: 'flex', alignItems: 'baseline', gap: '0.5cqw', whiteSpace: 'nowrap' }}>
-                  <span className={display} style={{ fontWeight: 700, fontSize: '2.2cqw', lineHeight: 1, color: C.head }}>{durationHours}</span>
+                  <span className={display} style={{ fontWeight: 700, fontSize: '2.2cqw', lineHeight: 1, color: C.head }}>{Math.round(durationHours)}</span>
                   <span className={mono} style={{ fontSize: '1cqw', color: C.faint }}>hours</span>
                 </span>
               </div>

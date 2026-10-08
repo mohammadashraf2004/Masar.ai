@@ -15,10 +15,14 @@ describe('LegalFooter', () => {
     expect(footer.querySelector('.brand-ar')).toHaveClass('brand-ar')
     expect(within(footer).getByRole('link', { name: 'Terms of Use' })).toHaveAttribute('href', '/terms')
     expect(within(footer).getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
-    expect(within(footer).getByRole('link', { name: 'LinkedIn' })).toHaveAttribute(
+    expect(within(footer).getByRole('link', { name: 'Refund Policy' })).toHaveAttribute('href', '/refund-policy')
+    const linkedin = within(footer).getByRole('link', { name: 'LinkedIn' })
+    expect(linkedin).toHaveAttribute(
       'href',
       'https://www.linkedin.com/company/masarai-learning',
     )
+    expect(linkedin.parentElement).toContainElement(footer.querySelector('.brand-en'))
+    expect(within(footer).getByRole('navigation')).not.toContainElement(linkedin)
   })
 
   it('renders the Arabic copy while keeping the company line left-to-right', () => {
@@ -27,6 +31,7 @@ describe('LegalFooter', () => {
     const footer = screen.getByRole('contentinfo', { name: 'معلومات قانونية' })
     expect(within(footer).getByRole('link', { name: 'شروط الاستخدام' })).toHaveAttribute('href', '/terms')
     expect(within(footer).getByRole('link', { name: 'سياسة الخصوصية' })).toHaveAttribute('href', '/privacy')
+    expect(within(footer).getByRole('link', { name: 'سياسة الاسترداد' })).toHaveAttribute('href', '/refund-policy')
     expect(footer).toHaveTextContent('جميع الحقوق محفوظة')
     expect(footer.querySelector('.brand-ar')).toHaveTextContent('مسار')
     expect(footer.querySelector('.brand-en')).toHaveClass('brand-en')

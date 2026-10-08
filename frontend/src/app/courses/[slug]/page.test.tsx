@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -22,8 +22,6 @@ vi.mock('@/lib/api', () => ({
   api: {
     getCatalogCourse: vi.fn(),
     getCourseAccess: vi.fn(),
-    getCourseOffer: vi.fn(),
-    checkoutCourse: vi.fn(),
     getCourseReadiness: vi.fn(),
     enrollInCourse: vi.fn(),
     setCoursePaused: vi.fn(),
@@ -33,176 +31,82 @@ vi.mock('@/lib/api', () => ({
 }))
 import { api } from '@/lib/api'
 
-const paidCourse: CatalogCourseDetail = {
+const proOnlyCourse: CatalogCourseDetail = {
   ...course({ is_free: false }),
   assumes: [], prerequisites: [], learning_objectives: [], learning_objectives_ar: [],
 }
 
 beforeEach(() => {
-  vi.mocked(api.getCatalogCourse).mockResolvedValue(paidCourse)
-  vi.mocked(api.getCourseOffer).mockResolvedValue({
-    course_id: paidCourse.slug, price_amount: 149900, currency: 'EGP', original_price_amount: 199900,
-  })
-  vi.mocked(api.checkoutCourse).mockReset()
+  vi.mocked(api.getCatalogCourse).mockResolvedValue(proOnlyCourse)
   vi.mocked(api.getCourseReadiness).mockResolvedValue(readinessReport())
 })
 
 const enrolledCourse = (): CatalogCourseDetail => ({
-  ...paidCourse, enrollment: { status: 'in_progress', progress_percentage: 30 },
+  ...proOnlyCourse, enrollment: { status: 'in_progress', progress_percentage: 30 },
 })
 
-describe('paid course page: the rest of the copy', () => {
-  it('has every string in Arabic: price fallback, benefits, and the free and owned notices', async () => {
+describe('a course beyond the free preview: the Pro upsell (backend-enforced, no price on this page)', () => {
+  it('shows the two-lesson preview notice, a free-lessons link and an Upgrade to Pro link — no price, no buy button', async () => {
+    vi.mocked(api.getCourseAccess).mockResolvedValue({
+      has_access: false, reason: 'purchase_required', enrollment_id: null, free_lesson_count: 2,
+    })
+    render(<CoursePage />)
+    expect(await screen.findByText('The first 2 lessons are free. Upgrade to Pro for the complete course.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Upgrade to Pro' })).toHaveAttribute('href', '/billing')
+    expect(screen.getByRole('link', { name: 'Start free lessons' })).toHaveAttribute('href', `/courses/${proOnlyCourse.slug}/learn`)
+    expect(screen.queryByRole('button', { name: /Buy Course/ })).toBeNull()
+    expect(screen.queryByText(/EGP/)).toBeNull()
+  })
+
+  it('has the same notice in Arabic', async () => {
     useLanguageStore.setState({ language: 'ar', mode: 'arabic_first', annotateTerms: true })
-    vi.mocked(api.getCourseAccess).mockResolvedValueOnce({ has_access: false, reason: 'purchase_required', enrollment_id: null })
-    vi.mocked(api.getCourseOffer).mockRejectedValueOnce(new Error('no offer'))
-    const first = render(<CoursePage />)
-    for (const text of ['السعر غير متاح', 'وصول مدى الحياة', 'دروس بالعربية أولاً', 'مشاريع عملية', 'المرشد الذكي', 'شهادة']) {
-      expect(await screen.findByText(text)).toBeInTheDocument()
-    }
-    for (const english of ['Price unavailable', 'Lifetime access', 'Arabic-first lessons', 'Practical projects', 'AI Mentor', 'Certificate']) {
-      expect(screen.queryByText(english)).toBeNull()
-    }
-    first.unmount()
-
-    vi.mocked(api.getCourseAccess).mockResolvedValueOnce({ has_access: true, reason: 'purchase', enrollment_id: 10 })
-    const second = render(<CoursePage />)
-    expect(await screen.findByText('أنت تملك هذه الدورة')).toBeInTheDocument()
-    second.unmount()
-
-    vi.mocked(api.getCatalogCourse).mockResolvedValueOnce({ ...paidCourse, is_free: true })
-    vi.mocked(api.getCourseAccess).mockResolvedValueOnce({ has_access: true, reason: 'free', enrollment_id: null })
+    vi.mocked(api.getCourseAccess).mockResolvedValue({
+      has_access: false, reason: 'purchase_required', enrollment_id: null, free_lesson_count: 2,
+    })
     render(<CoursePage />)
-    expect(await screen.findByText('وصول مجاني للدورة')).toBeInTheDocument()
+    expect(await screen.findByText('أول درسين مجانيان. اشترك في Pro للوصول إلى الدورة كاملة.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'الترقية إلى Pro' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'ابدأ الدروس المجانية' })).toBeInTheDocument()
   })
 
-  it('and in English, unchanged', async () => {
-    vi.mocked(api.getCourseAccess).mockResolvedValueOnce({ has_access: false, reason: 'purchase_required', enrollment_id: null })
+  it('has no free-lessons link when the course has no preview lessons to offer', async () => {
+    vi.mocked(api.getCourseAccess).mockResolvedValue({
+      has_access: false, reason: 'purchase_required', enrollment_id: null, free_lesson_count: 0,
+    })
     render(<CoursePage />)
-    for (const text of ['Lifetime access', 'Arabic-first lessons', 'Practical projects', 'AI Mentor', 'Certificate']) {
-      expect(await screen.findByText(text)).toBeInTheDocument()
-    }
-  })
-})
-
-describe('paid course page', () => {
-  it('has Arabic for both actions, from the string table', async () => {
-    useLanguageStore.setState({ language: 'ar', mode: 'arabic_first', annotateTerms: true })
-    vi.mocked(api.getCourseAccess).mockResolvedValueOnce({ has_access: false, reason: 'purchase_required', enrollment_id: null })
-    const first = render(<CoursePage />)
-    expect(await screen.findByRole('button', { name: new RegExp(STRINGS.ar['course.buy']) })).toBeInTheDocument()
-    expect(screen.queryByText(/Buy Course/)).toBeNull()
-    first.unmount()
-    vi.mocked(api.getCourseAccess).mockResolvedValueOnce({ has_access: true, reason: 'purchase', enrollment_id: 10 })
-    vi.mocked(api.getCatalogCourse).mockResolvedValueOnce(enrolledCourse())
-    render(<CoursePage />)
-    expect(await screen.findByRole('link', { name: STRINGS.ar['course.continueLearning'] })).toHaveAttribute('href', paidCourse.href!)
-    expect(STRINGS.ar['course.buy']).not.toBe(STRINGS.en['course.buy'])
+    await screen.findByRole('link', { name: 'Upgrade to Pro' })
+    expect(screen.queryByRole('link', { name: 'Start free lessons' })).toBeNull()
   })
 
-  it('renders the server price and Buy Course when access is locked', async () => {
-    vi.mocked(api.getCourseAccess).mockResolvedValue({ has_access: false, reason: 'purchase_required', enrollment_id: null })
+  it('shows the Pro-plan notice, not a purchase notice, for a Pro subscriber', async () => {
+    vi.mocked(api.getCourseAccess).mockResolvedValue({ has_access: true, reason: 'pro', enrollment_id: null })
     render(<CoursePage />)
-    expect(await screen.findByText(/EGP\s*1,499/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Buy Course/ })).toBeInTheDocument()
-    expect(screen.queryByText('Continue Learning')).toBeNull()
+    expect(await screen.findByText('Included with your Pro plan')).toBeInTheDocument()
+    expect(screen.queryByText('You own this course')).toBeNull()
   })
 
-  it('shows ownership and Continue Learning instead of a buy button', async () => {
+  it('shows plain ownership for a legacy course purchase or admin grant', async () => {
     vi.mocked(api.getCourseAccess).mockResolvedValue({ has_access: true, reason: 'purchase', enrollment_id: 10 })
     vi.mocked(api.getCatalogCourse).mockResolvedValue(enrolledCourse())
     render(<CoursePage />)
     expect(await screen.findByText('You own this course')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Continue Learning' })).toHaveAttribute('href', paidCourse.href!)
-    expect(screen.queryByRole('button', { name: /Buy Course/ })).toBeNull()
-  })
-
-  it('starts checkout through the backend without sending a price', async () => {
-    const user = userEvent.setup()
-    vi.mocked(api.getCourseAccess).mockResolvedValue({ has_access: false, reason: 'purchase_required', enrollment_id: null })
-    vi.mocked(api.checkoutCourse).mockReturnValue(new Promise(() => {}))
-    render(<CoursePage />)
-    await user.click(await screen.findByRole('button', { name: /Buy Course/ }))
-    expect(api.checkoutCourse).toHaveBeenCalledWith(paidCourse.slug)
-  })
-
-  it('switches to Continue Learning when checkout reports existing ownership', async () => {
-    const user = userEvent.setup()
-    vi.mocked(api.getCourseAccess).mockResolvedValue({ has_access: false, reason: 'purchase_required', enrollment_id: null })
-    vi.mocked(api.checkoutCourse).mockRejectedValue({
-      isAxiosError: true,
-      response: { data: { detail: { code: 'COURSE_ALREADY_OWNED' } } },
-    })
-    render(<CoursePage />)
-    await user.click(await screen.findByRole('button', { name: /Buy Course/ }))
-    expect(await screen.findByText('You already own this course.')).toBeInTheDocument()
-    // The page now treats them as the owner: the buy button is gone and they can enroll.
-    expect(screen.queryByRole('button', { name: /Buy Course/ })).toBeNull()
-    expect(screen.getByRole('button', { name: 'Enroll now' })).toBeInTheDocument()
-  })
-})
-
-describe.each([
-  ['en', 'Buy Course'],
-  ['ar', STRINGS.ar['course.buy']],
-] as const)('checkout errors in %s', (language, buyLabel) => {
-  const failure = (code?: string) => ({
-    isAxiosError: true,
-    response: { data: { detail: code ? { code } : 'boom' } },
-  })
-  const cases: Array<[string, string | undefined, 'course.err.owned' | 'course.err.unavailable' | 'course.err.checkout']> = [
-    ['the course is already owned', 'COURSE_ALREADY_OWNED', 'course.err.owned'],
-    ['the course cannot be bought right now', 'COURSE_OFFER_UNAVAILABLE', 'course.err.unavailable'],
-    ['anything else goes wrong', undefined, 'course.err.checkout'],
-  ]
-
-  beforeEach(() => {
-    useLanguageStore.setState({ language, mode: 'arabic_first', annotateTerms: true })
-    vi.mocked(api.getCourseAccess).mockResolvedValue({ has_access: false, reason: 'purchase_required', enrollment_id: null })
-  })
-
-  it.each(cases)('when %s, says so in the reader’s language', async (_name, code, key) => {
-    const user = userEvent.setup()
-    vi.mocked(api.checkoutCourse).mockRejectedValue(failure(code))
-    render(<CoursePage />)
-    await user.click(await screen.findByRole('button', { name: new RegExp(buyLabel) }))
-    expect(await screen.findByRole('alert')).toHaveTextContent(STRINGS[language][key])
-  })
-
-  it('has the handoff wording, and the two languages differ', () => {
-    const arabic = {
-      'course.err.owned': 'أنت تملك هذه الدورة بالفعل.',
-      'course.err.unavailable': 'هذه الدورة غير متاحة للشراء حالياً.',
-      'course.err.checkout': 'تعذّر بدء الدفع. حاول مرة أخرى.',
-    } as const
-    for (const [key, text] of Object.entries(arabic)) {
-      expect(STRINGS.ar[key as keyof typeof arabic]).toBe(text)
-      expect(STRINGS.en[key as keyof typeof arabic]).not.toBe(text)
-    }
-  })
-
-  it('the message follows a language change instead of staying in the one it was raised in', async () => {
-    const user = userEvent.setup()
-    vi.mocked(api.checkoutCourse).mockRejectedValue(failure())
-    render(<CoursePage />)
-    await user.click(await screen.findByRole('button', { name: new RegExp(buyLabel) }))
-    await screen.findByRole('alert')
-    const other = language === 'en' ? 'ar' : 'en'
-    act(() => useLanguageStore.setState({ language: other }))
-    expect(await screen.findByRole('alert')).toHaveTextContent(STRINGS[other]['course.err.checkout'])
+    expect(screen.getByRole('link', { name: 'Continue Learning' })).toHaveAttribute('href', proOnlyCourse.href!)
   })
 })
 
 describe('a course on its own: no track, no goal', () => {
-  const free = (over: Partial<CatalogCourseDetail> = {}): CatalogCourseDetail => courseDetail({ is_free: true, ...over })
+  // These exercise enrollment/readiness, which only needs `has_access`; a Pro
+  // subscriber stands in for "this course is open" (no course is free outright
+  // any more - see access_service.free_lesson_ids for the two-lesson preview).
+  const open = (over: Partial<CatalogCourseDetail> = {}): CatalogCourseDetail => courseDetail({ is_free: false, ...over })
 
   beforeEach(() => {
-    vi.mocked(api.getCourseAccess).mockResolvedValue({ has_access: true, reason: 'free', enrollment_id: null })
+    vi.mocked(api.getCourseAccess).mockResolvedValue({ has_access: true, reason: 'pro', enrollment_id: null })
     vi.mocked(api.enrollInCourse).mockReset()
   })
 
   it('opens from its own address and shows what the course is: modules, projects, roadmaps, skills', async () => {
-    vi.mocked(api.getCatalogCourse).mockResolvedValue(free())
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open())
     render(<CoursePage />)
     expect(await screen.findByText('Chunking')).toBeInTheDocument()
     expect(api.getCatalogCourse).toHaveBeenCalledWith('rag-knowledge-systems')
@@ -215,7 +119,7 @@ describe('a course on its own: no track, no goal', () => {
 
   it('enrolls with nothing but the course: no track, goal or score is sent', async () => {
     const user = userEvent.setup()
-    vi.mocked(api.getCatalogCourse).mockResolvedValue(free())
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open())
     vi.mocked(api.enrollInCourse).mockResolvedValue({
       enrollment: {
         course_id: 1, course_slug: 'rag-knowledge-systems', status: 'enrolled', source: 'free',
@@ -237,7 +141,7 @@ describe('a course on its own: no track, no goal', () => {
   })
 
   it('shows readiness as advice: strengths, what to review and what to study first', async () => {
-    vi.mocked(api.getCatalogCourse).mockResolvedValue(free())
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open())
     render(<CoursePage />)
     expect(await screen.findByText('Mostly ready')).toBeInTheDocument()
     expect(screen.getByText('You can start now. A little review would help.')).toBeInTheDocument()
@@ -248,7 +152,7 @@ describe('a course on its own: no track, no goal', () => {
 
   it('never blocks a learner who needs more foundation: the button just says "Start anyway"', async () => {
     const user = userEvent.setup()
-    vi.mocked(api.getCatalogCourse).mockResolvedValue(free())
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open())
     vi.mocked(api.getCourseReadiness).mockResolvedValue(readinessReport({ state: 'needs_foundation', score: 20 }))
     render(<CoursePage />)
     expect(await screen.findByText('You can start this course, but we recommend reviewing first.')).toBeInTheDocument()
@@ -261,7 +165,7 @@ describe('a course on its own: no track, no goal', () => {
   })
 
   it('still shows the course when readiness cannot be loaded', async () => {
-    vi.mocked(api.getCatalogCourse).mockResolvedValue(free())
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open())
     vi.mocked(api.getCourseReadiness).mockRejectedValue(new Error('down'))
     render(<CoursePage />)
     expect(await screen.findByRole('button', { name: 'Enroll now' })).toBeInTheDocument()
@@ -270,7 +174,7 @@ describe('a course on its own: no track, no goal', () => {
   })
 
   it('shows progress for an enrolled learner, and a way to pause', async () => {
-    vi.mocked(api.getCatalogCourse).mockResolvedValue(free({ enrollment: { status: 'in_progress', progress_percentage: 42 } }))
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open({ enrollment: { status: 'in_progress', progress_percentage: 42 } }))
     render(<CoursePage />)
     expect(await screen.findByText('42% complete')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Continue Learning' })).toBeInTheDocument()
@@ -279,7 +183,7 @@ describe('a course on its own: no track, no goal', () => {
   })
 
   it('offers review once the course is completed', async () => {
-    vi.mocked(api.getCatalogCourse).mockResolvedValue(free({ enrollment: { status: 'completed', progress_percentage: 100 } }))
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open({ enrollment: { status: 'completed', progress_percentage: 100 } }))
     render(<CoursePage />)
     expect(await screen.findByRole('link', { name: 'Review course' })).toBeInTheDocument()
     expect(screen.getByText('Completed')).toBeInTheDocument()
@@ -287,7 +191,7 @@ describe('a course on its own: no track, no goal', () => {
 
   it('takes the quick readiness check, sends only the answers, and shows the result the server worked out', async () => {
     const user = userEvent.setup()
-    vi.mocked(api.getCatalogCourse).mockResolvedValue(free())
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open())
     vi.mocked(api.getReadinessAssessment).mockResolvedValue({
       course_id: 1, course_slug: 'rag-knowledge-systems', question_count: 2, estimated_minutes: 2,
       questions: [
@@ -314,7 +218,7 @@ describe('a course on its own: no track, no goal', () => {
 
   it('has its readiness and enrollment copy in Arabic', async () => {
     useLanguageStore.setState({ language: 'ar', mode: 'arabic_first', annotateTerms: true })
-    vi.mocked(api.getCatalogCourse).mockResolvedValue(free())
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open())
     render(<CoursePage />)
     expect(await screen.findByRole('button', { name: STRINGS.ar['enr.enroll'] })).toBeInTheDocument()
     expect(screen.getByText(STRINGS.ar['rd.state.mostly_ready'])).toBeInTheDocument()

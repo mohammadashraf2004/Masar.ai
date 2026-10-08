@@ -8,12 +8,13 @@ import { useAuthStore } from '@/lib/store'
 import { useLanguageStore } from '@/lib/language'
 import { setPathname, setSearch } from '@/test/nav'
 import type { User } from '@/types'
+import type { BillingCatalogApi } from '@/lib/api'
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: null, isAuthenticated: true, isLoading: false }),
   useGuest: () => {},
 }))
-vi.mock('@/lib/api', () => ({ api: { getWallet: vi.fn(), search: vi.fn() } }))
+vi.mock('@/lib/api', () => ({ api: { getWallet: vi.fn(), search: vi.fn(), getBillingCatalog: vi.fn() } }))
 
 const held = vi.hoisted(() => ({ provider: null as unknown }))
 vi.mock('@/lib/billing/payments', async (importOriginal) => ({
@@ -44,6 +45,16 @@ function provideReceipt(found: PaymentReceipt | null) {
 beforeEach(() => {
   useAuthStore.setState({ token: 'tok', expiresAt: null, _hasHydrated: true, user: student })
   vi.mocked(api.getWallet).mockResolvedValue({ credit_balance: 100 })
+  const catalog: BillingCatalogApi = {
+    currency: 'EGP', vat_rate: 0.14, prices_include_vat: true, current_plan: 'free',
+    plans: [
+      { id: 'free', monthly: 0, yearly: 0, signup_credits: 40, features: ['billing.plan.free.f1'] },
+      { id: 'pro', monthly: 299, yearly: 2199, signup_credits: 0, popular: true, features: ['billing.plan.pro.f1'] },
+    ],
+    packs: [{ id: 'p2', credits: 1200, bonus: 100, price: 300 }],
+    offer: null,
+  }
+  vi.mocked(api.getBillingCatalog).mockResolvedValue(catalog)
   setPathname('/billing/success')
   setSearch(`invoice=${INVOICE}`)
 })

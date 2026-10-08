@@ -46,6 +46,7 @@ const TRACKS = [
 const ENROLLMENT: Enrollment = { id: 1, track_id: 3, track: TRACKS[2], completion_percentage: 0, enrolled_at: '2026-09-01T00:00:00Z' }
 
 beforeEach(() => {
+  useLanguageStore.setState({ language: 'en', mode: 'english_technical' })
   vi.mocked(api.listTracks).mockResolvedValue(TRACKS)
   vi.mocked(api.getMyEnrollments).mockResolvedValue([ENROLLMENT])
   vi.mocked(api.getSkillScores).mockResolvedValue({ readiness_score: 42, skills: [] })
@@ -58,7 +59,7 @@ beforeEach(() => {
 describe('the tracks page — no longer a "complete three to unlock AI Engineer" flowchart', () => {
   async function renderTracks() {
     render(<TracksPage />)
-    await screen.findByRole('button', { name: /AI Developer/ })
+    await screen.findByRole('link', { name: 'Explore AI Developer' })
   }
 
   it('drops every trace of the old apex framing', async () => {
@@ -69,41 +70,25 @@ describe('the tracks page — no longer a "complete three to unlock AI Engineer"
     }
   })
 
-  it('says instead that AI Engineer is a goal with routes, and points at Your Masar', async () => {
+  it('uses the five career-track catalogue from the design', async () => {
     await renderTracks()
-    expect(screen.getByText(/AI Engineer is a goal with several specialization routes/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open your Masar/ })).toHaveAttribute('href', '/learn/masar')
+    expect(screen.getByRole('heading', { name: 'Career tracks' })).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /Explore (Data|ML|AI|MLOps)/ })).toHaveLength(5)
   })
 
   it('shows AI Engineer like any other track, not locked away', async () => {
     await renderTracks()
-    const ai = screen.getByRole('button', { name: /AI Engineer/ })
-    expect(ai).toBeEnabled()
-    expect(within(ai).queryByText(/locked|unlock/i)).toBeNull()
-    expect(screen.getAllByRole('button').filter((b) => /Data Analyst|ML Engineer|AI Developer|MLOps Engineer|AI Engineer/.test(b.textContent ?? ''))).toHaveLength(5)
+    expect(screen.getByRole('link', { name: 'Explore AI Engineer' })).toHaveAttribute('href', '/tracks/ai-engineer')
+    expect(screen.queryByText(/locked|unlock/i)).toBeNull()
   })
 
-  it('still lets an enrolled learner continue their track (existing behaviour)', async () => {
-    await renderTracks()
-    expect(screen.getByRole('link', { name: /Continue/ })).toHaveAttribute('href', '/tracks/ai-developer')
-  })
-
-  it('still lets a learner enrol in an available track and then opens it (existing behaviour)', async () => {
-    const user = userEvent.setup()
-    vi.mocked(api.getMyEnrollments).mockResolvedValue([])
-    vi.mocked(api.enroll).mockResolvedValue({ ...ENROLLMENT, id: 2 })
+  it('routes the CTA to the canonical track detail', async () => {
+    vi.mocked(api.listTracks).mockResolvedValue(TRACKS.map(t => t.slug === 'ai-developer'
+      ? { ...t, status: 'current', cta_href: '/courses/course-005/learn', progress: 46 }
+      : t))
     render(<TracksPage />)
-    await user.click(await screen.findByRole('button', { name: /AI Developer/ }))
-    await user.click(await screen.findByRole('button', { name: 'Enroll now' }))
-    await waitFor(() => expect(api.enroll).toHaveBeenCalledWith(3))
-    expect(router.push).toHaveBeenCalledWith('/tracks/ai-developer')
-  })
-
-  it('still marks unpublished tracks as coming soon (existing behaviour)', async () => {
-    vi.mocked(api.getMyEnrollments).mockResolvedValue([])
-    render(<TracksPage />)
-    const analyst = await screen.findByRole('button', { name: /Data Analyst/ })
-    expect(within(analyst).getByText('Coming soon')).toBeInTheDocument()
+    const links = await screen.findAllByRole('link', { name: 'Explore Track' })
+    expect(links.find(link => link.getAttribute('href') === '/tracks/ai-developer')).toBeDefined()
   })
 })
 
@@ -157,20 +142,20 @@ describe('registration', () => {
 describe('the sidebar', () => {
   beforeEach(() => resetNav())
 
-  it('adds Your Masar and Explore beside the existing destinations, removing none', () => {
+  it('keeps Your Masar and Explore among the consolidated destinations', () => {
     render(<AppShell><p>page</p></AppShell>)
     const hrefs = screen.getAllByRole('link').map((a) => a.getAttribute('href'))
-    for (const existing of ['/', '/dashboard', '/tracks', '/tools', '/glossary', '/mentor', '/community', '/challenges']) {
+    for (const existing of ['/', '/tools', '/glossary', '/mentor', '/community', '/challenges']) {
       expect(hrefs).toContain(existing)
     }
-    expect(hrefs).toContain('/learn')
+    expect(hrefs).toContain('/learn/masar')
     expect(hrefs).toContain('/explore')
   })
 
-  it('puts the personalised path ahead of the curriculum libraries', () => {
+  it('puts the personalised path ahead of Explore', () => {
     render(<AppShell><p>page</p></AppShell>)
     const hrefs = screen.getAllByRole('link').map((a) => a.getAttribute('href'))
-    expect(hrefs.indexOf('/learn')).toBeLessThan(hrefs.indexOf('/tracks'))
+    expect(hrefs.indexOf('/learn/masar')).toBeLessThan(hrefs.indexOf('/explore'))
   })
 
   // The "Ask your AI mentor" quick action that used to sit above the sign-out button is gone
@@ -180,7 +165,7 @@ describe('the sidebar', () => {
   it('labels the new entries in Arabic for an Arabic reader', () => {
     useLanguageStore.setState({ language: 'ar', mode: 'arabic_first' })
     render(<AppShell><p>page</p></AppShell>)
-    expect(screen.getByRole('link', { name: 'تعلّم' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'مسارك' })).toHaveAttribute('href', '/learn/masar')
     expect(screen.getByRole('link', { name: 'استكشف' })).toHaveAttribute('href', '/explore')
   })
 })
@@ -280,7 +265,8 @@ describe('controls that navigate are links; controls that act are buttons', () =
     const cont = screen.getByRole('link', { name: 'Continue' })
     expectLinkStyledAsButton(cont, '/tracks/ai-developer')
     expectMirroredArrow(cont)
-    expectLinkStyledAsButton(screen.getByRole('link', { name: /Run skill gap analysis/ }), '/mentor')
+    expect(screen.getByText('Skill scores')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Run skill gap analysis/ })).toBeNull()
     const mentor = screen.getByRole('link', { name: /Open mentor/ })
     expectLinkStyledAsButton(mentor, '/mentor')
     expect(mentor.className).toContain('w-full') // still fills its card
@@ -292,22 +278,21 @@ describe('controls that navigate are links; controls that act are buttons', () =
     expectLinkStyledAsButton(await screen.findByRole('link', { name: 'Browse tracks' }), '/tracks')
   })
 
-  it('the tracks page: Open your Masar and Continue', async () => {
+  it('the tracks page: the card and its CTA are real links', async () => {
+    vi.mocked(api.listTracks).mockResolvedValue(TRACKS.map(t => t.slug === 'ai-developer'
+      ? { ...t, status: 'current', cta_href: '/courses/course-005/learn' }
+      : t))
     render(<TracksPage />)
-    await screen.findByRole('button', { name: /AI Developer/ })
-    const masar = screen.getByRole('link', { name: /Open your Masar/ })
-    expectLinkStyledAsButton(masar, '/learn/masar')
-    expectMirroredArrow(masar)
-    const cont = screen.getByRole('link', { name: /Continue/ })
-    expectLinkStyledAsButton(cont, '/tracks/ai-developer')
-    expectMirroredArrow(cont)
+    expect(await screen.findByRole('link', { name: 'Explore AI Developer' })).toHaveAttribute('href', '/tracks/ai-developer')
+    const cta = screen.getAllByRole('link', { name: 'Explore Track' }).find(link => link.getAttribute('href') === '/tracks/ai-developer')
+    expect(cta).toBeDefined()
+    expectLinkStyledAsButton(cta as HTMLElement, '/tracks/ai-developer')
   })
 
   it('a link is one tab stop and Enter follows it', async () => {
     const user = userEvent.setup()
     render(<TracksPage />)
-    await screen.findByRole('button', { name: /AI Developer/ })
-    const masar = screen.getByRole('link', { name: /Open your Masar/ })
+    const masar = await screen.findByRole('link', { name: 'Explore Data Analyst' })
     const followed = vi.fn((e: Event) => e.preventDefault()) // jsdom cannot navigate
     masar.addEventListener('click', followed)
     let stops = 0
@@ -324,17 +309,13 @@ describe('controls that navigate are links; controls that act are buttons', () =
     expect(followed).toHaveBeenCalledTimes(1)
   })
 
-  it.each([[' ', 'Space'], ['{Enter}', 'Enter']])('a real action stays a button and works from the keyboard (%#)', async (key) => {
-    const user = userEvent.setup()
-    vi.mocked(api.getMyEnrollments).mockResolvedValue([])
-    vi.mocked(api.enroll).mockResolvedValue({ ...ENROLLMENT, id: 2 })
+  it.each([
+    ['done', '/certificates'],
+    ['open', '/courses/course-001'],
+  ] as const)('track status %s keeps canonical detail navigation as a link', async (status, href) => {
+    vi.mocked(api.listTracks).mockResolvedValue([{ ...TRACKS[0], status, cta_href: href }])
     render(<TracksPage />)
-    await user.click(await screen.findByRole('button', { name: /AI Developer/ }))
-    const enroll = await screen.findByRole('button', { name: 'Enroll now' })
-    expect(enroll.tagName).toBe('BUTTON')
-    enroll.focus()
-    await user.keyboard(key)
-    await waitFor(() => expect(api.enroll).toHaveBeenCalledTimes(1))
+    expect(await screen.findByRole('link', { name: 'Explore Track' })).toHaveAttribute('href', '/tracks/data-analyst')
   })
 
   it('an Arabic reader gets the same links, with the arrows mirrored', async () => {

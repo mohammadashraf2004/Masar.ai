@@ -8,11 +8,12 @@ import type {
   ToolCourse, ToolCourseSummary, ToolEnrollment,
   AnswerSubmission,
   TerminologyDictionary, VocabularyProgress, TerminologyLintResult,
+  VocabularyListResponse, VocabularyTermDetail,
   SearchResults, LanguagePrefs,
   AdminAnalyticsOverview, AdminUserLookup, AdminGrantResult,
   ProjectHint,
   LearningLevel, LearningField, CareerGoal, CatalogCourse, CatalogCourseDetail,
-  PathSummary, LearningPath, LearningProfile, LearningProfileUpdate, LearningProgress,
+  PathSummary, LearningPath, LearningProfile, LearningProfileUpdate, LearningProgress, TrackWorkflow,
   GeneratePathRequest, CourseFilters, SkillOption, SkillOptionsQuery, MySkills, SkillsSaved, SkillGaps,
   LegalDocument, CertificateSummary,
   BillingOrder, CheckoutResponse, CourseAccess, CourseOffer, MyCourse,
@@ -20,17 +21,40 @@ import type {
   AssessmentResult, Recommendations, TrackDetail, SkillLevels,
 } from '@/types'
 import { useAuthStore } from '@/lib/store'
+import { useLanguageStore } from '@/lib/language'
+import type { BillingCycle, CreditPack, Offer, PlanId, RefundPolicySummary, RefundStatus, SubscriptionOrder } from '@/lib/billing/types'
+import { mentorV2EndpointLive, mentorV2Live } from '@/features/mentor/flag'
+
+export interface BillingCatalogApi {
+  currency: string
+  vat_rate: number
+  prices_include_vat: boolean
+  current_plan: PlanId
+  trial_eligible?: boolean
+  plans: Array<{
+    id: PlanId
+    monthly: number
+    yearly: number
+    signup_credits: number
+    features: Array<`billing.plan.${string}`>
+    popular?: boolean
+  }>
+  packs: CreditPack[]
+  offer: Offer | null
+  refund_policy?: RefundPolicySummary
+}
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
-/** A walkthrough record as the wire has it (docs/backend-requests.md section 6); the tours feature
- * translates this into its own local shape (frontend/src/features/tours/sync.ts). */
+/** A walkthrough record as the wire has it (docs/backend-requests.md §6); the tours feature
+ *  translates this into its own local shape (frontend/src/features/tours/sync.ts). */
 export interface TourRecordApi {
   tour_id: string
   status: 'completed' | 'skipped' | 'in_progress'
   version: number
   at: string
 }
+
 /**
  * The address the browser loads a lesson figure from. The API hands out a path
  * relative to its own root (or, once figures are served from a CDN, a full URL);
@@ -158,13 +182,7 @@ class ApiClient {
     return res.data
   }
 
-  /** Say the signed-in account has seen an announcement. Returns the account. */
-  async acknowledgeUpdate(releaseId: string) {
-    const res = await this.http.post<User>(`/auth/updates/${encodeURIComponent(releaseId)}/acknowledge`)
-    return res.data
-  }
-
-  async getLegalDocument(kind: 'terms' | 'privacy', lang: 'en' | 'ar') {
+  async getLegalDocument(kind: 'terms' | 'privacy' | 'refund', lang: 'en' | 'ar') {
     const res = await this.http.get<LegalDocument>(`/legal/${kind}`, { params: { lang } })
     return res.data
   }
@@ -184,19 +202,20 @@ class ApiClient {
     return res.data
   }
 
-  /** Every walkthrough record the account has (see docs/backend-requests.md section 6), in one call,
-   * not one per tour. */
+  /** Every walkthrough record the account has (see docs/backend-requests.md §6) — one call,
+   *  not one per tour. */
   async getMyTours() {
     const res = await this.http.get<TourRecordApi[]>('/auth/me/tours')
     return res.data
   }
 
   /** Upsert one tour's record. `at` is when the status became true on the client, not the
-   * request's arrival time; see app.services.tour_service.upsert. */
+   *  request's arrival time — see app.services.tour_service.upsert. */
   async putTour(tourId: string, data: { status: 'completed' | 'skipped'; version: number; at?: string }) {
     const res = await this.http.put<TourRecordApi>(`/auth/me/tours/${encodeURIComponent(tourId)}`, data)
     return res.data
   }
+
   async verifyEmail(token: string) {
     const res = await this.http.post<{ message: string }>('/auth/verify-email', { token })
     return res.data
@@ -394,8 +413,10 @@ class ApiClient {
     return res.data
   }
 
-  async reviewCode(code: string, language: string, context?: string) {
-    const res = await this.http.post<CodeReviewResult>('/mentor/code-review', { code, language, context })
+  async reviewCode(code: string, language: string, context?: string, uiLanguage?: 'ar' | 'en', exerciseId?: string) {
+    const res = await this.http.post<CodeReviewResult>('/mentor/code-review', {
+      code, language, context, ui_language: uiLanguage, exercise_id: exerciseId ? Number(exerciseId) : undefined,
+    })
     return res.data
   }
 
@@ -404,16 +425,17 @@ class ApiClient {
     return res.data
   }
 
-  async getMockInterviewQuestion(topic: string, difficulty: string, previousQa: Array<{ question: string; answer: string }> = []) {
+  /** `language` is the interview's language; the server adds what the learner has studied itself. */
+  async getMockInterviewQuestion(topic: string, difficulty: string, previousQa: Array<{ question: string; answer: string }> = [], language?: 'ar' | 'en') {
     const res = await this.http.post<InterviewQuestion>('/mentor/mock-interview', {
-      topic, difficulty, previous_qa: previousQa,
+      topic, difficulty, previous_qa: previousQa, ...(language ? { language } : {}),
     })
     return res.data
   }
 
-  async getRoadmap(track?: string) {
+  async getRoadmap(track?: string, language?: 'ar' | 'en') {
     const res = await this.http.get<{ track: string; weeks: RoadmapWeek[] }>('/mentor/roadmap', {
-      params: { track },
+      params: { track, language },
     })
     return res.data
   }
@@ -615,6 +637,53 @@ class ApiClient {
     return res.data
   }
 
+  // ─── AI Vocabulary (normalized dictionary, migration 022) ─────────────
+
+  /** The AI Vocabulary list: one canonical row per concept, with course
+   *  counts and progress computed server-side. */
+  async listVocabularyTerms(params: {
+    search?: string
+    course_id?: string
+    category?: string
+    difficulty?: string
+    status?: 'new' | 'learning' | 'mastered'
+    page?: number
+    page_size?: number
+  } = {}) {
+    const res = await this.http.get<VocabularyListResponse>('/vocabulary/', { params })
+    return res.data
+  }
+
+  async getVocabularyTerm(slug: string) {
+    const res = await this.http.get<VocabularyTermDetail>(`/vocabulary/${slug}`)
+    return res.data
+  }
+
+  async getVocabularyCategories() {
+    const res = await this.http.get<{ categories: string[]; counts: { category: string; term_count: number }[] }>(
+      '/vocabulary/categories'
+    )
+    return res.data
+  }
+
+  async getVocabularyCourseCounts() {
+    const res = await this.http.get<{
+      courses: {
+        course_key: string
+        term_count: number
+        course_title?: string | null
+        course_slug?: string | null
+        course_href?: string | null
+      }[]
+    }>('/vocabulary/courses')
+    return res.data.courses
+  }
+
+  async recordVocabularyTermProgress(slug: string, status: 'learning' | 'mastered') {
+    const res = await this.http.post<VocabularyTermDetail>(`/vocabulary/${slug}/progress`, { status })
+    return res.data
+  }
+
   // ─── Search ───────────────────────────────────────────────────────────
 
   /** Bilingual: "Embeddings", "embedding" and "التضمينات" all return the
@@ -658,6 +727,7 @@ class ApiClient {
         skill: filters.skill,
         q: filters.q || undefined,
         available_only: filters.available_only || undefined,
+        curriculum_only: filters.curriculum_only || undefined,
         enrolled: filters.enrolled,
       },
       paramsSerializer: { indexes: null },
@@ -677,6 +747,14 @@ class ApiClient {
 
   async getLearningPath(slug: string, level?: string) {
     const res = await this.http.get<LearningPath>(`/learning/paths/${slug}`, { params: { level } })
+    return res.data
+  }
+
+  /** One of the five fixed career tracks, as an ordered workflow over the
+   *  canonical courses. Public; a signed-in learner also gets real completion
+   *  state, so a shared course reads as completed in every track it is in. */
+  async getTrackWorkflow(goal: string) {
+    const res = await this.http.get<TrackWorkflow>(`/learning/tracks/${goal}/workflow`)
     return res.data
   }
 
@@ -826,6 +904,107 @@ class ApiClient {
     return res.data
   }
 
+  async getBillingCatalog() {
+    const res = await this.http.get<BillingCatalogApi>('/billing/catalog')
+    return res.data
+  }
+
+  async checkoutSubscription(plan: 'pro', billingPeriod: BillingCycle, method: 'card' | 'wallet' = 'card') {
+    const res = await this.http.post<CheckoutResponse>('/billing/subscriptions/checkout', {
+      plan,
+      billing_period: billingPeriod,
+      method,
+    })
+    return res.data
+  }
+
+  async startSubscriptionTrial(plan: 'pro', billingPeriod: BillingCycle) {
+    const res = await this.http.post('/billing/subscriptions/trial', { plan, billing_period: billingPeriod })
+    return res.data
+  }
+
+  async getSubscriptionOrders() {
+    const res = await this.http.get<SubscriptionOrder[]>('/billing/subscription-orders')
+    return res.data
+  }
+
+  async getSubscriptionOrder(referenceNumber: string) {
+    const res = await this.http.get<SubscriptionOrder>(
+      `/billing/subscription-orders/by-reference/${encodeURIComponent(referenceNumber)}`,
+    )
+    return res.data
+  }
+
+  async requestSubscriptionRefund(
+    referenceNumber: string,
+    input: { reason: string; amount?: number; confirmed: boolean; idempotency_key: string },
+  ) {
+    const res = await this.http.post<SubscriptionOrder>(
+      `/billing/subscription-orders/${encodeURIComponent(referenceNumber)}/refund`, input,
+    )
+    return res.data
+  }
+
+  async getMySubscription() {
+    const res = await this.http.get<{
+      plan: PlanId
+      subscription: null | {
+        id: number
+        plan: PlanId
+        status: string
+        billing_period: BillingCycle
+        current_period_start: string
+        current_period_end: string
+        cancel_at_period_end: boolean
+        has_pro_access: boolean
+      }
+      latest_order: SubscriptionOrder | null
+      refund_policy: RefundPolicySummary
+    }>('/billing/subscription')
+    return res.data
+  }
+
+  async adminSubscriptionOrders(params: {
+    reference_number?: string
+    provider_transaction_id?: string
+    customer?: string
+    order_id?: number
+    refund_status?: RefundStatus
+  } = {}) {
+    const res = await this.http.get<Array<SubscriptionOrder & {
+      id: number
+      customer: { email: string; name: string }
+      provider_transaction_id: string | null
+    }>>('/admin/subscription-orders', { params })
+    return res.data
+  }
+
+  async adminSubscriptionOrder(referenceNumber: string) {
+    const res = await this.http.get<SubscriptionOrder & {
+      id: number
+      customer: { email: string; name: string }
+      provider_transaction_id: string | null
+      refund_admin_note: string | null
+    }>(`/admin/subscription-orders/${encodeURIComponent(referenceNumber)}`)
+    return res.data
+  }
+
+  async adminTransitionRefund(
+    referenceNumber: string,
+    input: {
+      status: Exclude<RefundStatus, 'not_requested' | 'requested'>
+      idempotency_key: string
+      amount?: number
+      provider_reference?: string
+      note?: string
+    },
+  ) {
+    const res = await this.http.post<SubscriptionOrder>(
+      `/admin/subscription-orders/${encodeURIComponent(referenceNumber)}/refund-transition`, input,
+    )
+    return res.data
+  }
+
   async checkoutCourse(courseId: string, method: 'card' | 'wallet' = 'card', phoneNumber?: string) {
     const res = await this.http.post<CheckoutResponse>('/billing/checkout', {
       course_id: courseId,
@@ -880,6 +1059,348 @@ class ApiClient {
     })
     return res.data
   }
+
+  // [mentor-v2]
+  async sendMentorV2Message(
+    body: {
+      text: string
+      intent?: import('@/features/mentor/types').MentorIntent
+      context: import('@/features/mentor/types').MentorContextRef
+      /** Same id on a retry of the same send: the server answers it once and charges once. */
+      requestId?: string
+      /** The learner started a new conversation. */
+      fresh?: boolean
+      hintLevel?: 1 | 2 | 3
+    },
+    language: 'ar' | 'en',
+  ) {
+    const res = await this.http.post<import('@/features/mentor/types').MentorMessageV2 & { sessionId: number }>(
+      '/mentor/message', { ...body, language },
+    )
+    return res.data
+  }
+
+  async getMentorV2Context(
+    params: { lessonId?: string; exerciseId?: string },
+    language: 'ar' | 'en',
+  ) {
+    const res = await this.http.get<import('@/features/mentor/types').MentorContextSelection>(
+      '/mentor/context', { params: { ...params, language } },
+    )
+    return res.data
+  }
+
+  /** The question a quiz block shows, in `language`. The same question: no cost, nothing recorded. */
+  async getMentorV2Quiz(quizId: string, language: 'ar' | 'en') {
+    const res = await this.http.get<Extract<import('@/features/mentor/types').MentorBlock, { kind: 'quiz' }>>(
+      `/mentor/quiz/${encodeURIComponent(quizId)}`, { params: { language } },
+    )
+    return res.data
+  }
+
+  /** The weekly plan from the learner's real enrolments and progress. Free. */
+  async getMentorPlan(params: { weekStart: string; variant?: number }, language: 'ar' | 'en') {
+    const res = await this.http.get<import('@/features/mentor/types').StudyPlanV2>(
+      '/mentor/plan', { params: { ...params, language } },
+    )
+    return res.data
+  }
+
+  /** The conversation the server is continuing for this lesson (or general): what it sends the
+   *  model as history, so a new device shows the same thread. Free. */
+  async getMentorThread(lessonId: string | undefined) {
+    const res = await this.http.get<{ messages: import('@/features/mentor/types').MentorMessageV2[] }>(
+      '/mentor/thread', { params: lessonId ? { lessonId } : {} },
+    )
+    return res.data.messages
+  }
+
+  /** What the mentor knows about the learner: position and quiz-evidenced skills. Free. */
+  async getMentorLearner(language: 'ar' | 'en') {
+    const res = await this.http.get<import('@/features/mentor/types').LearnerModel>(
+      '/mentor/learner', { params: { language } },
+    )
+    return res.data
+  }
+
+  async answerMentorV2Quiz(body: { quizId: string; optionId: string }, language: 'ar' | 'en') {
+    const res = await this.http.post<import('@/features/mentor/types').QuizAnswerResult>(
+      '/mentor/quiz/answer', { ...body, language },
+    )
+    return res.data
+  }
+
+  async runCodeExercise(id: string | number, code: string) {
+    const res = await this.http.post<import('@/types').ExerciseRunResult>(
+      `/practice/exercises/${id}/run`, { code, language: useLanguageStore.getState().language },
+    )
+    return res.data
+  }
+
+  async getCodeExercise(id: string | number) {
+    const res = await this.http.get<{
+      id: number
+      title: string
+      title_ar?: string | null
+      language?: string | null
+      starter_code?: string | null
+    }>(`/practice/exercises/${id}`)
+    return res.data
+  }
+
+  async submitCodeExercise(id: string | number, code: string) {
+    const res = await this.http.post<import('@/types').GradeResult>(
+      `/practice/exercises/${id}/submit`, { code, language: useLanguageStore.getState().language },
+    )
+    return res.data
+  }
+
+  async revealCodeExerciseSolution(id: string | number) {
+    const res = await this.http.post<{ solution_code: string }>(`/practice/exercises/${id}/solution`)
+    return res.data.solution_code
+  }
+  // [/mentor-v2]
+
+  // [project-lab] Challenges › Projects. Deterministic and free: no credits are charged.
+  async getLabProjects() {
+    const res = await this.http.get<import('@/features/project-lab/types').LabProjectCard[]>('/project-lab/projects')
+    return res.data
+  }
+
+  async getLabProject(slug: string) {
+    const res = await this.http.get<import('@/features/project-lab/types').LabProjectDetail>(
+      `/project-lab/projects/${encodeURIComponent(slug)}`,
+    )
+    return res.data
+  }
+
+  /** Idempotent: returns the learner's existing attempt when there is one. */
+  async startLabProject(slug: string) {
+    const res = await this.http.post<{ attempt_id: number; created: boolean }>(
+      `/project-lab/projects/${encodeURIComponent(slug)}/start`,
+    )
+    return res.data
+  }
+
+  async getLabAttempt(attemptId: number) {
+    const res = await this.http.get<import('@/features/project-lab/types').LabAttempt>(`/project-lab/attempts/${attemptId}`)
+    return res.data
+  }
+
+  async getLabWorkspace(attemptId: number) {
+    const res = await this.http.get<import('@/features/project-lab/types').LabWorkspace>(
+      `/project-lab/attempts/${attemptId}/workspace`,
+    )
+    return res.data
+  }
+
+  async getLabFile(attemptId: number, path: string) {
+    const res = await this.http.get<import('@/features/project-lab/types').LabFile>(
+      `/project-lab/attempts/${attemptId}/files`, { params: { path } },
+    )
+    return res.data
+  }
+
+  async saveLabFile(attemptId: number, path: string, content: string) {
+    const res = await this.http.put<import('@/features/project-lab/types').LabFile>(
+      `/project-lab/attempts/${attemptId}/files`, { content }, { params: { path } },
+    )
+    return res.data
+  }
+
+  async resetLabFile(attemptId: number, path: string) {
+    const res = await this.http.post<import('@/features/project-lab/types').LabFile>(
+      `/project-lab/attempts/${attemptId}/files/reset`, { path },
+    )
+    return res.data
+  }
+
+  async runLabFile(attemptId: number, path: string) {
+    const res = await this.http.post<import('@/features/project-lab/types').LabRunResult>(
+      `/project-lab/attempts/${attemptId}/run`, { path },
+    )
+    return res.data
+  }
+
+  async checkLabTask(attemptId: number, taskSlug: string) {
+    const res = await this.http.post<import('@/features/project-lab/types').LabCheckResult>(
+      `/project-lab/attempts/${attemptId}/tasks/${encodeURIComponent(taskSlug)}/check`,
+      { language: useLanguageStore.getState().language },
+    )
+    return res.data
+  }
+
+  async getLabArtifacts(attemptId: number) {
+    const res = await this.http.get<import('@/features/project-lab/types').LabArtifact[]>(
+      `/project-lab/attempts/${attemptId}/artifacts`,
+    )
+    return res.data
+  }
+
+  async getLabArtifact(attemptId: number, path: string) {
+    const res = await this.http.get<import('@/features/project-lab/types').LabArtifactContent>(
+      `/project-lab/attempts/${attemptId}/artifacts/content`, { params: { path } },
+    )
+    return res.data
+  }
+
+  async getLabSubmission(attemptId: number) {
+    const res = await this.http.get<import('@/features/project-lab/types').LabSubmission>(
+      `/project-lab/attempts/${attemptId}/submission`,
+    )
+    return res.data
+  }
+
+  async getLabCompletion(attemptId: number) {
+    const res = await this.http.get<import('@/features/project-lab/types').LabCompletion>(
+      `/project-lab/attempts/${attemptId}/completion`,
+    )
+    return res.data
+  }
+
+  async submitLabProject(attemptId: number) {
+    const res = await this.http.post<import('@/features/project-lab/types').LabSubmission>(
+      `/project-lab/attempts/${attemptId}/submit`,
+    )
+    return res.data
+  }
+  // [/project-lab]
 }
 
 export const api = new ApiClient()
+
+// [code-cell]
+/** Temporary exercise endpoints. Keeping this boundary means the UI will not
+ * change when these two calls move from the local mock to the backend. */
+export async function runExerciseTests(
+  id: string | number,
+  files: import('@/types').ExerciseFile[],
+): Promise<import('@/types').ExerciseRunResult> {
+  const code = files.find(file => !file.readOnly)?.content ?? ''
+  return api.runCodeExercise(id, code)
+}
+
+export async function submitExercise(
+  id: string | number,
+  files: import('@/types').ExerciseFile[],
+): Promise<import('@/types').GradeResult> {
+  const code = files.find(file => !file.readOnly)?.content ?? ''
+  return api.submitCodeExercise(id, code)
+}
+
+export async function showExerciseSolution(id: string | number): Promise<string> {
+  return api.revealCodeExerciseSolution(id)
+}
+// [/code-cell]
+
+// [screens]
+/** The signed-in Home's data. Served from the local mock until the backend can supply
+ * readiness, milestones and exam eligibility; the screen only ever calls this. */
+export async function getHomeOverview(): Promise<import('@/features/home/types').HomeOverview> {
+  const { MOCK_HOME_OVERVIEW } = await import('@/features/home/mock')
+  return MOCK_HOME_OVERVIEW
+}
+// [/screens]
+
+// [mentor-v2]
+/** Mentor v2 endpoints. Message and quiz can go live independently with
+ * NEXT_PUBLIC_MENTOR_V2_LIVE=message,quiz. Once anything is live (`mentorV2Live`), no fixture is
+ * ever served: each surface uses its real endpoint, or - where there is none yet - shows nothing. */
+type MentorV2Lang = 'ar' | 'en'
+const mentorMock = () => import('@/features/mentor/mock')
+
+const HINT_ASK: Record<1 | 2 | 3, { ar: string; en: string }> = {
+  1: { ar: 'أعطني تلميحاً مفاهيمياً لهذا التمرين.', en: 'Give me a conceptual nudge for this exercise.' },
+  2: { ar: 'أعطني تلميحاً أوضح: اتجاهاً محدداً.', en: 'Give me a clearer hint: a specific direction.' },
+  3: { ar: 'أعطني إرشاداً مفصّلاً من دون الحل الكامل.', en: 'Give me detailed guidance, without the full solution.' },
+}
+
+export const mentorV2 = {
+  async sendMessage(body: { text: string; intent?: import('@/features/mentor/types').MentorIntent; context: import('@/features/mentor/types').MentorContextRef; requestId?: string; fresh?: boolean }, lang: MentorV2Lang) {
+    if (mentorV2EndpointLive('message')) return api.sendMentorV2Message(body, lang)
+    return (await mentorMock()).mockSendMessage(body, lang)
+  },
+  /**
+   * One rung of the hint ladder. Live, levels 1-3 are mentor replies about the real exercise and
+   * the learner's draft (HINT with `hintLevel`), and level 4 is the exercise's own reference
+   * solution from the grading service - which records that it was viewed - never a model answer.
+   */
+  async hint(
+    body: { exerciseId: string; level: import('@/features/mentor/types').HintLevel; confirm?: boolean; lessonId?: string; code?: string | null; requestId?: string },
+    lang: MentorV2Lang,
+  ): Promise<import('@/features/mentor/types').MentorMessageV2> {
+    if (!mentorV2Live()) return (await mentorMock()).mockHint(body, lang)
+    if (body.level === 4) {
+      if (!body.confirm) throw new Error('confirm_required')
+      const code = await api.revealCodeExerciseSolution(body.exerciseId)
+      return {
+        id: `solution-${body.exerciseId}-${Date.now().toString(36)}`, role: 'mentor', intent: 'HINT', creditCost: 0,
+        blocks: [{
+          kind: 'hint', grounding: 'lesson', level: 4,
+          label: lang === 'ar' ? 'الحل المرجعي' : 'Reference solution',
+          text: lang === 'ar' ? 'هذا حل التمرين المرجعي، وقد سُجّل أنك عرضته.' : "This is the exercise's reference solution; viewing it is recorded on the exercise.",
+          code,
+        }],
+      }
+    }
+    const level = body.level as 1 | 2 | 3
+    return api.sendMentorV2Message({
+      text: HINT_ASK[level][lang], intent: 'HINT', hintLevel: level, requestId: body.requestId,
+      context: {
+        exerciseId: body.exerciseId, attachCode: true,
+        ...(body.lessonId ? { lessonId: body.lessonId } : {}),
+        ...(body.code ? { code: body.code } : {}),
+      },
+    }, lang)
+  },
+  /** The same quiz question in another language, for a learner who switched language with it on screen. */
+  async quiz(quizId: string, lang: MentorV2Lang) {
+    if (mentorV2EndpointLive('quiz')) return api.getMentorV2Quiz(quizId, lang)
+    return (await mentorMock()).mockQuiz(quizId, lang)
+  },
+  async answerQuiz(body: { quizId: string; optionId: string }, lang: MentorV2Lang) {
+    if (mentorV2EndpointLive('quiz')) return api.answerMentorV2Quiz(body, lang)
+    return (await mentorMock()).mockAnswerQuiz(body, lang)
+  },
+  async review(body: { exerciseId?: string; code?: string; lang: string }, lang: MentorV2Lang) {
+    const result = await api.reviewCode(body.code ?? '', body.lang, undefined, lang, body.exerciseId)
+    return {
+      executed: false as const,
+      summary: result.summary,
+      comments: result.issues.map((issue, index) => ({
+        line: issue.line ?? index + 1,
+        severity: issue.severity === 'high' ? 'issue' as const : issue.severity === 'medium' ? 'suggestion' as const : 'ok' as const,
+        title: issue.type,
+        text: `${issue.message}${issue.suggestion ? ` ${issue.suggestion}` : ''}`,
+      })),
+      debugSteps: result.improvements.map((text) => ({ text, unlocked: true })),
+    }
+  },
+  async learner(lang: MentorV2Lang): Promise<import('@/features/mentor/types').LearnerModel> {
+    if (mentorV2Live()) return api.getMentorLearner(lang)
+    return (await mentorMock()).mockLearner(lang)
+  },
+  /** No real suggestion endpoint exists yet: live, there is no card rather than an invented one. */
+  async suggestion(lang: MentorV2Lang): Promise<import('@/features/mentor/types').MentorSuggestion | null> {
+    if (mentorV2Live()) return null
+    return (await mentorMock()).mockSuggestion(lang)
+  },
+  async resolveSuggestion(id: string) {
+    if (mentorV2Live()) return
+    return (await mentorMock()).mockResolveSuggestion(id)
+  },
+  async plan(body: { weekStart: string; variant?: number }, lang: MentorV2Lang): Promise<import('@/features/mentor/types').StudyPlanV2> {
+    if (mentorV2Live()) return api.getMentorPlan(body, lang)
+    return (await mentorMock()).mockPlan(body, lang)
+  },
+  async approvePlan(plan: import('@/features/mentor/types').StudyPlanV2) { return (await mentorMock()).mockApprovePlan(plan) },
+  async addToPlan(blocks: import('@/features/mentor/types').PlanBlock[]) { return (await mentorMock()).mockAddToPlan(blocks) },
+  async approvedPlan() { return (await mentorMock()).mockApprovedPlan() },
+  /** A proactive card needs a verified trigger the client does not have here: live, none. */
+  async proactive(lang: MentorV2Lang): Promise<import('@/features/mentor/types').MentorMessageV2 | null> {
+    if (mentorV2Live()) return null
+    return (await mentorMock()).mockProactive(lang)
+  },
+  async interviewReport(id: string, lang: MentorV2Lang) { return (await mentorMock()).mockInterviewReport(id, lang) },
+}
+// [/mentor-v2]

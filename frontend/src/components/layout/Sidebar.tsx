@@ -4,32 +4,9 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 import { useI18n } from '@/lib/i18n'
-import { AltWordmark, LogoMark, Wordmark } from '@/components/layout/Logo'
+import { LogoMark, Wordmark } from '@/components/layout/Logo'
 import { Avatar } from '@/components/layout/AccountMenu'
-import { LOW_CREDITS, useCreditBalance } from '@/components/layout/WalletContext'
 import { isActive, navFor } from '@/components/layout/nav'
-
-/** The wallet: what is left to spend, and the way to add to it. */
-function WalletCard() {
-  const { t } = useI18n()
-  const balance = useCreditBalance()
-  const low = balance !== null && balance < LOW_CREDITS
-
-  return (
-    <div className="flex flex-col gap-2 rounded-[10px] border border-border bg-surface p-3.5">
-      <span className="text-xs text-dim">{t('nav.wallet')}</span>
-      <div className="flex items-baseline gap-1.5">
-        <span className={cn('font-mono text-[22px] font-medium', low ? 'text-rose' : 'text-white')}>
-          {balance === null ? '—' : balance.toLocaleString('en-US')}
-        </span>
-        <span className="text-xs text-dim">{t('nav.credits')}</span>
-      </div>
-      <Link href="/billing" className="text-xs text-amber-text hover:underline">
-        {t('nav.topUp')}
-      </Link>
-    </div>
-  )
-}
 
 /** Who is signed in, and the way to their profile. */
 function UserRow() {
@@ -60,24 +37,27 @@ function UserRow() {
 export function Sidebar() {
   const pathname = usePathname()
   const role = useAuthStore((s) => s.user?.role)
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const items = navFor(role)
 
   return (
     <aside className="hidden w-[248px] shrink-0 flex-col gap-7 border-e border-border bg-ink px-4 py-5 lg:flex">
-      {/* Brand: the name in the reader's script leads; the other script sits at the far end. */}
-      <Link href="/dashboard" className="flex shrink-0 items-center gap-2.5 px-1.5">
+      {/* The locale-aware wordmark shows Masar in English and مسار in Arabic. */}
+      <Link
+        href="/"
+        aria-label={language === 'ar' ? 'مسار' : 'Masar'}
+        className="flex shrink-0 items-center gap-2.5 px-1.5"
+      >
         <LogoMark size={28} label={null} />
         <Wordmark className="text-[17px] text-white" />
-        <AltWordmark className="ms-auto text-[17px] text-ghost" />
       </Link>
 
       <nav aria-label={t('nav.menu')} className="min-h-0 flex-1 overflow-y-auto">
         <ul className="flex flex-col gap-1">
-          {items.map(({ href, icon: Icon, label, tour }) => {
+          {items.map(({ href, icon: Icon, label, tour, groupStart }) => {
             const active = isActive(pathname, href)
             return (
-              <li key={href}>
+              <li key={href} className={groupStart ? 'mt-3 border-t border-border pt-3' : undefined}>
                 <Link
                   href={href}
                   data-tour={tour}
@@ -98,10 +78,7 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      <div className="flex shrink-0 flex-col gap-3.5">
-        <WalletCard />
-        <UserRow />
-      </div>
+      <UserRow />
 
     </aside>
   )

@@ -50,7 +50,7 @@ export function ProjectCard({
         </h3>
 
         <div className="flex items-center gap-3 mt-2.5">
-          {project.estimated_hours != null && <Badge variant="ghost">{project.estimated_hours}h</Badge>}
+          {project.estimated_hours != null && <Badge variant="ghost">{Math.round(project.estimated_hours)}h</Badge>}
           {project.starter_repo_url && (
             <a
               href={safeUrl(project.starter_repo_url)}

@@ -1,7 +1,8 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { placeholderCatalogSource } from '@/lib/billing/catalog'
+
+vi.mock('@/lib/api', () => ({ api: { getBillingCatalog: vi.fn(), checkoutSubscription: vi.fn() } }))
+
+import { apiCatalogSource } from '@/lib/billing/catalog'
 import { currencyLabel, formatMoney } from '@/lib/billing/money'
 import { MockPaymentProvider, mockOutcomeFromUrl } from '@/lib/billing/mockPayments'
 import { getPaymentProvider, type PaymentProvider, type PaymentRequest } from '@/lib/billing/payments'
@@ -11,11 +12,25 @@ import {
 } from '@/lib/billing/pricing'
 import type { BillingCatalog } from '@/lib/billing/types'
 import { timeLeft } from '@/components/billing/OfferBanner'
+import { api } from '@/lib/api'
 
-let catalog: BillingCatalog
-beforeEach(async () => {
-  catalog = await placeholderCatalogSource.load()
-})
+/** What the backend's /billing/catalog actually returns: EGP, Free + Pro only, no offers yet. */
+const catalog: BillingCatalog = {
+  currency: 'EGP',
+  vatRate: 0.14,
+  pricesIncludeVat: true,
+  currentPlan: 'free',
+  plans: [
+    { id: 'free', monthly: 0, yearly: 0, signupCredits: 40, features: ['billing.plan.free.f1', 'billing.plan.free.f2', 'billing.plan.free.f3'] },
+    { id: 'pro', monthly: 299, yearly: 2199, signupCredits: 0, popular: true, features: ['billing.plan.pro.f1', 'billing.plan.pro.f2', 'billing.plan.pro.f3', 'billing.plan.pro.f4'] },
+  ],
+  packs: [
+    { id: 'p1', credits: 500, bonus: 0, price: 100 },
+    { id: 'p2', credits: 1200, bonus: 100, price: 300 },
+    { id: 'p3', credits: 3000, bonus: 400, price: 700 },
+  ],
+  offer: null,
+}
 
 describe('formatting a price', () => {
   it('separates thousands and drops .00 from a whole number', () => {
@@ -37,64 +52,64 @@ describe('formatting a price', () => {
 })
 
 describe('pricing an order: VAT-inclusive, so nothing is added on top', () => {
-  it('a yearly plan costs twelve of its monthly-billed-yearly prices', () => {
+  it('a yearly plan costs the total year price, not twelve times it', () => {
     const pro = catalog.plans.find((p) => p.id === 'pro')!
-    expect(yearlyTotal(pro)).toBe(756)
-    expect(monthlyYearTotal(pro)).toBe(948)
-    expect(subtotalOf({ type: 'plan', id: 'pro' }, 'yearly', catalog)).toBe(756)
-    expect(subtotalOf({ type: 'plan', id: 'pro' }, 'monthly', catalog)).toBe(79)
+    expect(yearlyTotal(pro)).toBe(2199)
+    expect(monthlyYearTotal(pro)).toBe(3588)
+    expect(subtotalOf({ type: 'plan', id: 'pro' }, 'yearly', catalog)).toBe(2199)
+    expect(subtotalOf({ type: 'plan', id: 'pro' }, 'monthly', catalog)).toBe(299)
   })
 
   it('a pack costs its price, whatever the billing cycle', () => {
-    expect(subtotalOf({ type: 'pack', id: 'p2' }, 'yearly', catalog)).toBe(99)
-    expect(subtotalOf({ type: 'pack', id: 'p2' }, 'monthly', catalog)).toBe(99)
+    expect(subtotalOf({ type: 'pack', id: 'p2' }, 'yearly', catalog)).toBe(300)
+    expect(subtotalOf({ type: 'pack', id: 'p2' }, 'monthly', catalog)).toBe(300)
   })
 
   it('when prices include VAT the total is the subtotal, with no tax added', () => {
     expect(catalog.pricesIncludeVat).toBe(true)
     const order = priceOrder({ type: 'plan', id: 'pro' }, 'yearly', catalog, null)!
-    expect(order).toMatchObject({ subtotal: 756, discount: 0, total: 756, vatIncluded: true, vatPercent: 15 })
-    expect(priceOrder({ type: 'pack', id: 'p3' }, 'monthly', catalog, null)).toMatchObject({ subtotal: 229, total: 229 })
+    expect(order).toMatchObject({ subtotal: 2199, discount: 0, total: 2199, vatIncluded: true, vatPercent: 14 })
+    expect(priceOrder({ type: 'pack', id: 'p3' }, 'monthly', catalog, null)).toMatchObject({ subtotal: 700, total: 700 })
   })
 
   it('says how much of an inclusive total is VAT, without adding it', () => {
-    // 756 / 1.15 = 657.39: the VAT inside it is the difference.
-    expect(priceOrder({ type: 'plan', id: 'pro' }, 'yearly', catalog, null)!.vat).toBe(98.61)
+    // 2199 / 1.14 = 1928.9474: the VAT inside it is the difference.
+    expect(priceOrder({ type: 'plan', id: 'pro' }, 'yearly', catalog, null)!.vat).toBe(270.05)
   })
 
   it('when prices exclude VAT it is added to the discounted amount, at the catalog rate', () => {
     const exclusive = { ...catalog, pricesIncludeVat: false }
     expect(priceOrder({ type: 'plan', id: 'pro' }, 'yearly', exclusive, null)).toMatchObject({
-      subtotal: 756, discount: 0, vat: 113.4, vatPercent: 15, vatIncluded: false, total: 869.4,
+      subtotal: 2199, discount: 0, vat: 307.86, vatPercent: 14, vatIncluded: false, total: 2506.86,
     })
     // the discount comes off first, and the tax is on what is left
     expect(priceOrder({ type: 'plan', id: 'pro' }, 'yearly', exclusive, { percent: 30 })).toMatchObject({
-      subtotal: 756, discount: 226.8, vat: 79.38, total: 608.58,
+      subtotal: 2199, discount: 659.7, vat: 215.5, total: 1754.8,
     })
   })
 
   it('uses whatever VAT rate the catalog gives', () => {
     const order = priceOrder({ type: 'pack', id: 'p2' }, 'yearly', { ...catalog, pricesIncludeVat: false, vatRate: 0.05 }, null)!
-    expect(order).toMatchObject({ vat: 4.95, vatPercent: 5, total: 103.95 })
+    expect(order).toMatchObject({ vat: 15, vatPercent: 5, total: 315 })
   })
 
-  it('takes a promo off the subtotal, rounded to the halala, and that is the total', () => {
-    expect(priceOrder({ type: 'plan', id: 'pro' }, 'yearly', catalog, { percent: 30 })).toMatchObject({ subtotal: 756, discount: 226.8, total: 529.2 })
-    expect(priceOrder({ type: 'pack', id: 'p1' }, 'yearly', catalog, { percent: 30 })).toMatchObject({ subtotal: 49, discount: 14.7, total: 34.3 })
+  it('takes a promo off the subtotal, rounded to the piastre, and that is the total', () => {
+    expect(priceOrder({ type: 'plan', id: 'pro' }, 'yearly', catalog, { percent: 30 })).toMatchObject({ subtotal: 2199, discount: 659.7, total: 1539.3 })
+    expect(priceOrder({ type: 'pack', id: 'p1' }, 'yearly', catalog, { percent: 30 })).toMatchObject({ subtotal: 100, discount: 30, total: 70 })
   })
 
   it('has no price for something the catalog does not sell', () => {
     expect(priceOrder({ type: 'pack', id: 'nope' }, 'yearly', catalog, null)).toBeNull()
-    expect(priceOrder({ type: 'plan', id: 'career' as never }, 'yearly', { ...catalog, plans: [] }, null)).toBeNull()
+    expect(priceOrder({ type: 'plan', id: 'pro' }, 'yearly', { ...catalog, plans: [] }, null)).toBeNull()
   })
 
   it('splits a Tabby payment into four, the first one today', () => {
-    expect(installment(756)).toBe(189)
-    expect(installment(529.2)).toBe(132.3)
+    expect(installment(2199)).toBe(549.75)
+    expect(installment(299)).toBe(74.75)
   })
 
-  it('says yearly saves 20% on the best paid plan', () => {
-    expect(yearlySavingPercent(catalog.plans)).toBe(20)
+  it('says yearly saves ~39% on the best paid plan (299 x 12 = 3,588 vs 2,199)', () => {
+    expect(yearlySavingPercent(catalog.plans)).toBe(39)
     expect(yearlySavingPercent([{ id: 'free', monthly: 0, yearly: 0, features: [] }])).toBe(0)
   })
 })
@@ -117,43 +132,44 @@ describe('money', () => {
     expect(formatMoney(1234.5, 'SAR', 'ar')).toBe('1,234.50 ر.س')
   })
 
-  it('shows a currency it has no name for by its code', () => {
-    expect(currencyLabel('EGP', 'ar')).toBe('EGP')
+  it('names EGP in both languages, and falls back to the code for one it does not know', () => {
+    expect(currencyLabel('EGP', 'ar')).toBe('ج.م')
     expect(formatMoney(99, 'EGP', 'en')).toBe('EGP 99')
+    expect(currencyLabel('USD', 'ar')).toBe('USD')
   })
 })
 
-describe('the placeholder catalog', () => {
-  it('says the currency, the VAT rate and that prices include it', () => {
-    expect(catalog.currency).toBe('SAR')
-    expect(catalog.vatRate).toBe(0.15)
-    expect(catalog.pricesIncludeVat).toBe(true)
+describe('the API-backed catalog', () => {
+  it('maps the backend catalog (snake_case, minor-unit-free) into the shape the page uses', async () => {
+    vi.mocked(api.getBillingCatalog).mockResolvedValue({
+      currency: 'EGP', vat_rate: 0.14, prices_include_vat: true, current_plan: 'free',
+      plans: [
+        { id: 'free', monthly: 0, yearly: 0, signup_credits: 40, features: ['billing.plan.free.f1'] },
+        { id: 'pro', monthly: 299, yearly: 2199, signup_credits: 0, popular: true, features: ['billing.plan.pro.f1'] },
+      ],
+      packs: [{ id: 'p1', credits: 500, bonus: 0, price: 100 }],
+      offer: null,
+    })
+
+    expect(await apiCatalogSource.load()).toEqual({
+      currency: 'EGP', vatRate: 0.14, pricesIncludeVat: true, currentPlan: 'free',
+      plans: [
+        { id: 'free', monthly: 0, yearly: 0, signupCredits: 40, popular: undefined, features: ['billing.plan.free.f1'] },
+        { id: 'pro', monthly: 299, yearly: 2199, signupCredits: 0, popular: true, features: ['billing.plan.pro.f1'] },
+      ],
+      packs: [{ id: 'p1', credits: 500, bonus: 0, price: 100 }],
+      offer: null,
+    })
   })
 
-  it('marks every plan feature line as unconfirmed product copy', () => {
-    const source = readFileSync(join(process.cwd(), 'src', 'lib', 'billing', 'catalog.ts'), 'utf8')
-    const featureLines = source.split('\n').filter((line) => /'billing\.plan\.\w+\.f\d'/.test(line))
-    expect(featureLines.length).toBe(catalog.plans.flatMap((p) => p.features).length)
-    for (const line of featureLines) expect(line).toContain('// TODO(product): confirm')
-  })
-
-  it('has a plan the account is on, three plans, three packs and an offer', () => {
-    expect(catalog.currentPlan).toBe('free')
-    expect(catalog.plans.map((p) => p.id)).toEqual(['free', 'pro', 'career'])
-    expect(catalog.packs).toHaveLength(3)
-    expect(catalog.offer?.code).toBe('MASAR30')
-    expect(Date.parse(catalog.offer!.endsAt)).toBeGreaterThan(Date.now())
-  })
-
-  it('accepts its own code in any case and refuses any other', async () => {
-    expect(await placeholderCatalogSource.validatePromo(' masar30 ')).toEqual({ valid: true, code: 'MASAR30', percent: 30 })
-    expect(await placeholderCatalogSource.validatePromo('SAVE50')).toEqual({ valid: false, reason: 'invalid' })
+  it('has no promo codes yet: the backend has none to validate', async () => {
+    expect(await apiCatalogSource.validatePromo('ANYTHING')).toEqual({ valid: false, reason: 'unavailable' })
   })
 })
 
 describe('the mock payment provider', () => {
   const request: PaymentRequest = {
-    cart: { type: 'plan', id: 'pro' }, cycle: 'yearly', method: 'mada', amount: 756, currency: 'SAR', promoCode: null,
+    cart: { type: 'plan', id: 'pro' }, cycle: 'yearly', method: 'mada', amount: 2199, currency: 'EGP', promoCode: null,
   }
   beforeEach(() => window.sessionStorage.clear())
 
@@ -174,7 +190,7 @@ describe('the mock payment provider', () => {
     expect(result.status).toBe('paid')
     if (result.status !== 'paid') return
     expect(result.invoiceId).toMatch(/^INV-\d{4}-\d{2}-\d{2}-\d{4}$/)
-    expect(await provider.getReceipt(result.invoiceId)).toMatchObject({ invoiceId: result.invoiceId, amount: 756, currency: 'SAR', method: 'mada', cycle: 'yearly' })
+    expect(await provider.getReceipt(result.invoiceId)).toMatchObject({ invoiceId: result.invoiceId, amount: 2199, currency: 'EGP', method: 'mada', cycle: 'yearly' })
   })
 
   it('knows nothing about an invoice it did not issue', async () => {
@@ -218,25 +234,36 @@ describe('the mock payment provider', () => {
     expect(click).toHaveBeenCalledTimes(1)
     await vi.waitFor(() => expect(body).toContain('NOTHING WAS CHARGED'))
     expect(body).toContain(paid.invoiceId)
-    expect(body).toContain('SAR 756 (VAT included)')
+    expect(body).toContain('EGP 2,199 (VAT included)')
     click.mockRestore()
   })
 })
 
-describe('the Paymob stub', () => {
+describe('the Paymob provider: redirects to a backend-priced hosted checkout', () => {
+  const proRequest: PaymentRequest = { cart: { type: 'plan', id: 'pro' }, cycle: 'yearly', method: 'card', amount: 2199, currency: 'EGP', promoCode: null }
+
   it('lists cards and mobile wallets, and nothing the gateway does not take', async () => {
     const provider = new PaymobProvider()
     expect(provider.isMock).toBe(false)
     expect(await provider.listMethods()).toEqual(['card', 'wallet'])
   })
 
-  it('throws "not configured" for everything that would touch money', async () => {
+  it('asks the backend for a checkout order and redirects to its hosted URL, never pricing the sale itself', async () => {
+    vi.mocked(api.checkoutSubscription).mockResolvedValue({ order_id: 7, payment_url: 'https://accept.paymob.com/pay/7', amount: 219900, currency: 'EGP' })
     const provider = new PaymobProvider()
-    const request: PaymentRequest = { cart: { type: 'plan', id: 'pro' }, cycle: 'yearly', method: 'card', amount: 756, currency: 'SAR', promoCode: null }
-    await expect(provider.pay()).rejects.toThrow('PaymobProvider is not configured')
-    await expect(provider.getReceipt()).rejects.toThrow(PAYMOB_NOT_CONFIGURED)
-    await expect(provider.downloadInvoice()).rejects.toThrow(PAYMOB_NOT_CONFIGURED)
-    expect(request.method).toBe('card')
+
+    expect(await provider.pay(proRequest)).toEqual({ status: 'redirect', url: 'https://accept.paymob.com/pay/7' })
+    expect(api.checkoutSubscription).toHaveBeenCalledWith('pro', 'yearly', 'card')
+  })
+
+  it('refuses anything that is not the Pro plan: nothing else sells through it yet', async () => {
+    const provider = new PaymobProvider()
+    await expect(provider.pay({ ...proRequest, cart: { type: 'pack', id: 'p1' } })).rejects.toThrow(PAYMOB_NOT_CONFIGURED)
+  })
+
+  it('fails cleanly for a method Paymob does not take', async () => {
+    const provider = new PaymobProvider()
+    expect(await provider.pay({ ...proRequest, method: 'mada' })).toEqual({ status: 'failed', reason: 'unavailable' })
   })
 
   it('has no card fields of its own: it redirects to a hosted checkout', () => {
@@ -244,12 +271,18 @@ describe('the Paymob stub', () => {
     expect(provider.CardFields).toBeUndefined()
   })
 
-  it('is not what the app uses, whatever the environment', () => {
+  it('is not what the app uses by default, whatever the environment', () => {
     for (const env of ['development', 'production']) {
       vi.stubEnv('NODE_ENV', env)
       vi.stubEnv('NEXT_PUBLIC_PAYMENTS_MOCK', '1')
       expect(getPaymentProvider()?.id).not.toBe('paymob')
     }
+    vi.unstubAllEnvs()
+  })
+
+  it('is used once NEXT_PUBLIC_PAYMENTS_PROVIDER explicitly selects it', () => {
+    vi.stubEnv('NEXT_PUBLIC_PAYMENTS_PROVIDER', 'paymob')
+    expect(getPaymentProvider()?.id).toBe('paymob')
     vi.unstubAllEnvs()
   })
 })

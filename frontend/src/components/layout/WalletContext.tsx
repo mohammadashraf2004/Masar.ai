@@ -1,6 +1,7 @@
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { api } from '@/lib/api'
+import { useAuthStore } from '@/lib/store'
 
 /**
  * The reader's credit balance, fetched once per page for everything in the
@@ -15,16 +16,18 @@ const WalletContext = createContext<number | null>(null)
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [balance, setBalance] = useState<number | null>(null)
+  const token = useAuthStore(state => state.token)
 
   useEffect(() => {
+    if (!token) return
     let live = true
     api.getWallet()
       .then((wallet) => { if (live) setBalance(wallet.credit_balance) })
       .catch(() => {})
     return () => { live = false }
-  }, [])
+  }, [token])
 
-  return <WalletContext.Provider value={balance}>{children}</WalletContext.Provider>
+  return <WalletContext.Provider value={token ? balance : null}>{children}</WalletContext.Provider>
 }
 
 export function useCreditBalance(): number | null {

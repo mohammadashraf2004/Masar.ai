@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreditsBadge } from '@/components/layout/CreditsBadge'
 import { WalletProvider } from '@/components/layout/WalletContext'
 import { useLanguageStore } from '@/lib/language'
+import { useAuthStore } from '@/lib/store'
 
 vi.mock('@/lib/api', () => ({ api: { getWallet: vi.fn() } }))
 import { api } from '@/lib/api'
@@ -10,6 +11,7 @@ import { api } from '@/lib/api'
 const renderBadge = () => render(<WalletProvider><CreditsBadge /></WalletProvider>)
 
 beforeEach(() => {
+  useAuthStore.setState({ token: 'test-token', _hasHydrated: true })
   vi.mocked(api.getWallet).mockResolvedValue({ credit_balance: 1240 })
 })
 

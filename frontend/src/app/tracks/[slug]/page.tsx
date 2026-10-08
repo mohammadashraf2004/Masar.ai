@@ -1,343 +1,129 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
+import { useParams } from 'next/navigation'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
-import { PageHeader } from '@/components/layout/PageHeader'
-import { Card, Spinner } from '@/components/ui/index'
-import { Badge, DifficultyBadge } from '@/components/ui/index'
-import { ProgressBar } from '@/components/ui/index'
-import { Button, buttonStyles } from '@/components/ui/Button'
-import { QuizPanel } from '@/components/ui/QuizPanel'
-import { ExerciseCard } from '@/components/ui/ExerciseCard'
-import { ProjectCard as ProjectBrief } from '@/components/ui/ProjectCard'
-import { ProjectSubmit } from '@/components/ui/ProjectSubmit'
+import { PageBody } from '@/components/layout/PageContainer'
+import { TrackWorkflowPath } from '@/components/learning/TrackWorkflowPath'
 import { api } from '@/lib/api'
-import type { CareerTrack, Topic, Enrollment, Lesson, Project } from '@/types'
-import { difficultyBg, cn, safeUrl } from '@/lib/utils'
-import { isTrackComingSoon } from '@/lib/tracks'
+import { localizedDescription, localizedTitle } from '@/lib/content-language'
 import { useI18n } from '@/lib/i18n'
-import {
-  localizedTitle, localizedDescription, localizedContent,
-} from '@/lib/content-language'
-import {
-  ChevronDown, ChevronRight, BookOpen, Code, FolderKanban,
-  Lock, CheckCircle, Circle, ArrowRight, Play, HelpCircle
-} from 'lucide-react'
-import { MarkdownLesson } from '@/components/ui/MarkdownLesson'
-import { CourseVocabulary } from '@/components/ui/TechnicalTerm'
-import { Info } from 'lucide-react'
+import { useAuthStore } from '@/lib/store'
+import { cn } from '@/lib/utils'
+import type { CareerTrack, CareerTrackSummary } from '@/types'
+import { normalizedTrack } from '@/features/tracks/TrackCard'
 
-export default function TrackPage() {
-  useAuth()
-  const { t, tf, language } = useI18n()
+function DetailSkeleton({ label }: { label: string }) {
+  return (
+    <div className="animate-pulse space-y-4" aria-label={label}>
+      <div className="h-11 rounded-xl bg-surface" />
+      <div className="h-64 rounded-[14px] bg-surface" />
+      <div className="h-[520px] rounded-xl bg-surface" />
+    </div>
+  )
+}
+
+export default function TrackDetailPage() {
   const { slug } = useParams() as { slug: string }
+  const { t, language, dir } = useI18n()
+  const authLoading = !useAuthStore(state => state._hasHydrated)
   const [track, setTrack] = useState<CareerTrack | null>(null)
-  const [enrollment, setEnrollment] = useState<Enrollment | null>(null)
-  const [expandedLevel, setExpandedLevel] = useState<number>(0)
-  const [activeTopic, setActiveTopic] = useState<Topic | null>(null)
-  const [activeTab, setActiveTab] = useState<'lesson' | 'exercise' | 'quiz' | 'project'>('lesson')
+  const [tabs, setTabs] = useState<CareerTrackSummary[]>([])
   const [loading, setLoading] = useState(true)
-  const [enrolling, setEnrolling] = useState(false)
+  const [error, setError] = useState(false)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [t, enrs] = await Promise.all([api.getTrack(slug), api.getMyEnrollments()])
-        setTrack(t)
-        const enr = enrs.find(e => e.track.slug === slug)
-        if (enr) setEnrollment(enr)
-        // Auto-open first level and select first topic
-        if (t.levels?.[0]?.topics?.[0]) {
-          setActiveTopic(t.levels[0].topics[0])
-        }
-      } catch {}
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(false)
+    try {
+      const [detail, all] = await Promise.all([api.getTrack(slug), api.listTracks()])
+      setTrack(detail)
+      setTabs(all)
+    } catch {
+      setError(true)
+    } finally {
       setLoading(false)
     }
-    load()
   }, [slug])
 
-  async function handleEnroll() {
-    if (!track) return
-    setEnrolling(true)
-    try {
-      const enr = await api.enroll(track.id)
-      setEnrollment(enr)
-    } catch {}
-    setEnrolling(false)
-  }
+  useEffect(() => {
+    document.querySelector<HTMLElement>('[data-page-scroll]')?.scrollTo({ top: 0 })
+    window.scrollTo({ top: 0 })
+    if (authLoading) return
+    const timer = window.setTimeout(() => { void load() }, 0)
+    return () => window.clearTimeout(timer)
+  }, [authLoading, load])
 
-  if (loading) return (
-    <AppShell>
-      <div className="flex-1 flex items-center justify-center">
-        <Spinner announce className="w-6 h-6" />
-      </div>
-    </AppShell>
-  )
-
-  if (!track) return (
-    <AppShell>
-      <div className="flex-1 flex items-center justify-center text-ghost">{t('tracks.notFound')}</div>
-    </AppShell>
-  )
+  const Back = dir === 'rtl' ? ArrowRight : ArrowLeft
 
   return (
     <AppShell>
-      <PageHeader
-        title={localizedTitle(track, language)}
-        subtitle={localizedDescription(track, language)}
-        dirAuto
-        action={
-          enrollment ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-emerald">{t('course.enrolled')}</span>
-              <ProgressBar value={enrollment.completion_percentage} className="w-24" />
-            </div>
-          ) : isTrackComingSoon(track.slug) ? (
-            // Reachable by URL even though the tracks list offers no way in,
-            // so the CTA has to be gated here too — otherwise a stale link
-            // enrols someone in a track with no lessons behind it.
-            <Button size="sm" variant="ghost" disabled>
-              {t('course.comingSoon')}
-            </Button>
-          ) : (
-            <Button onClick={handleEnroll} loading={enrolling} size="sm">
-              Enroll now
-            </Button>
-          )
-        }
-      />
-
-      <div className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden min-w-0">
-        {/* ── Skill tree sidebar ── */}
-        <div className="w-full lg:w-60 xl:w-72 shrink-0 max-h-[45vh] lg:max-h-none overflow-y-auto border-b lg:border-b-0 lg:border-e border-border bg-ink py-4">
-          {track.levels.map((level, li) => {
-            const isOpen = expandedLevel === li
-            return (
-              <div key={level.id} className="mb-1">
-                <button
-                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface transition-colors group"
-                  onClick={() => setExpandedLevel(isOpen ? -1 : li)}
-                >
-                  <div className="w-5 h-5 rounded bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0">
-                    <span className="text-xs font-mono text-amber-text">{li + 1}</span>
-                  </div>
-                  <span dir="auto" className="text-sm font-medium text-bright flex-1 text-start">
-                    {localizedTitle(level, language)}
-                  </span>
-                  {isOpen
-                    ? <ChevronDown size={13} className="text-ghost" />
-                    : <ChevronRight size={13} className="text-ghost" />
-                  }
-                </button>
-
-                {isOpen && (
-                  <div className="ms-4 ps-4 border-s border-border mb-2">
-                    {level.topics.map(topic => {
-                      const active = activeTopic?.id === topic.id
-                      return (
-                        <button
-                          key={topic.id}
-                          className={cn(
-                            'w-full text-start px-3 py-2 rounded text-sm transition-all my-0.5',
-                            active
-                              ? 'bg-amber/10 text-amber-text border border-amber/20'
-                              : 'text-dim hover:text-bright hover:bg-surface border border-transparent'
-                          )}
-                          onClick={() => setActiveTopic(topic)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Circle size={8} className={active ? 'text-amber-text' : 'text-ghost'} />
-                            <span dir="auto" className="flex-1">{localizedTitle(topic, language)}</span>
-                          </div>
-                          <div className="flex items-center gap-2 mt-1 ms-3.5">
-                            <DifficultyBadge level={topic.difficulty} className="text-xs py-0" />
-                            {topic.estimated_hours != null && <span className="text-lc-meta text-ghost">{tf('card.hours', { n: topic.estimated_hours })}</span>}
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-
-        {/* ── Topic content ── */}
-        {activeTopic ? (
-          <div className="flex-1 min-w-0 flex flex-col lg:overflow-hidden">
-            {/* Topic header */}
-            <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-border shrink-0">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 dir="auto" className="font-display font-bold text-white text-xl mb-2">{localizedTitle(activeTopic, language)}</h2>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <DifficultyBadge level={activeTopic.difficulty} />
-                    {activeTopic.estimated_hours != null && <Badge variant="ghost">{tf('course.estimatedHours', { n: activeTopic.estimated_hours })}</Badge>}
-                    {activeTopic.skill_tags.map(tag => (
-                      <Badge key={tag} variant="ghost">{tag}</Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Content tabs */}
-              <div className="flex items-center gap-1 mt-4 py-1 -my-1 overflow-x-auto">
-                {[
-                  { key: 'lesson', icon: BookOpen, label: 'Lessons', count: activeTopic.lessons.length },
-                  { key: 'exercise', icon: Code, label: 'Exercises', count: activeTopic.exercises.length },
-                  { key: 'quiz', icon: HelpCircle, label: 'Quiz', count: activeTopic.quizzes.length },
-                  { key: 'project', icon: FolderKanban, label: 'Projects', count: activeTopic.projects.length },
-                ].map(({ key, icon: Icon, label, count }) => (
-                  <button
-                    key={key}
-                    onClick={() => setActiveTab(key as typeof activeTab)}
-                    className={cn(
-                      'flex shrink-0 items-center gap-2 whitespace-nowrap px-4 py-2 min-h-[44px] lg:min-h-0 rounded text-sm transition-all',
-                      activeTab === key
-                        ? 'bg-amber/10 text-amber-text border border-amber/20'
-                        : 'text-ghost hover:text-soft border border-transparent'
-                    )}
-                  >
-                    <Icon size={13} />
-                    {label}
-                    <span className={cn(
-                      'text-xs px-1.5 py-0.5 rounded',
-                      activeTab === key ? 'bg-amber/20 text-amber-text' : 'bg-muted text-ghost'
-                    )}>
-                      {count}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Content area */}
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-              {activeTab === 'lesson' && (
-                <div className="space-y-4 max-w-3xl">
-                  {activeTopic.lessons.length === 0 ? (
-                    <p className="text-ghost text-sm">{t('course.noLessons')}</p>
-                  ) : activeTopic.lessons.map((lesson, i) => (
-                    <LessonCard key={lesson.id} lesson={lesson} index={i} />
-                  ))}
-
-                  {/* The English terminology this topic teaches, so the
-                      student leaves able to name what they just learned. */}
-                  <CourseVocabulary terms={activeTopic.technical_terms ?? []} className="pt-4" />
-                </div>
-              )}
-
-              {activeTab === 'exercise' && (
-                <div className="space-y-5 max-w-3xl">
-                  {activeTopic.exercises.length === 0 ? (
-                    <p className="text-ghost text-sm">{t('exercise.noneYet')}</p>
-                  ) : activeTopic.exercises.map((ex, i) => ex.is_locked ? (
-                    <LockedContent key={ex.id} courseSlug={ex.course_slug} />
-                  ) : (
-                    <ExerciseCard key={ex.id} exercise={ex} index={i} total={activeTopic.exercises.length} />
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'quiz' && (
-                activeTopic.quizzes.length === 0 ? (
-                  <p className="text-ghost text-sm">No quiz for this topic yet.</p>
-                ) : (
-                  <div className="space-y-8">
-                    {activeTopic.quizzes.map(quiz => quiz.is_locked ? (
-                      <LockedContent key={quiz.id} courseSlug={quiz.course_slug} />
-                    ) : <QuizPanel key={quiz.id} quiz={quiz} />)}
-                  </div>
-                )
-              )}
-
-              {activeTab === 'project' && (
-                <div className="space-y-4 max-w-3xl">
-                  {activeTopic.projects.length === 0 ? (
-                    <p className="text-ghost text-sm">No projects for this topic yet.</p>
-                  ) : activeTopic.projects.map(proj => proj.is_locked ? (
-                    <LockedContent key={proj.id} courseSlug={proj.course_slug} />
-                  ) : <ProjectCard key={proj.id} project={proj} />)}
-                </div>
-              )}
-            </div>
+      <PageBody footer={false}>
+        {authLoading || loading ? <DetailSkeleton label={t('tracks.detailLoading')} /> : error || !track ? (
+          <div className="rounded-xl border border-border bg-surface p-10 text-center">
+            <p className="mb-4 text-sm text-dim">{t('tracks.detailError')}</p>
+            <button onClick={() => void load()} className="h-11 rounded-lg border border-amber px-5 text-sm font-semibold text-amber-text">{t('common.retry')}</button>
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-ghost flex-col gap-2">
-            <BookOpen size={32} className="text-muted" />
-            <p className="text-sm">Select a topic from the left to start.</p>
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <Link href="/tracks" aria-label={t('tracks.back')} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-bright hover:border-amber hover:text-amber-text">
+                <Back size={17} aria-hidden="true" />
+              </Link>
+              <nav className="flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-xl border border-border bg-surface p-1" aria-label={t('tracks.switcher')}>
+                {tabs.map((tab) => (
+                  <Link
+                    key={tab.slug}
+                    href={`/tracks/${tab.slug}`}
+                    className={cn(
+                      'shrink-0 rounded-lg px-4 py-2 font-display text-xs font-semibold whitespace-nowrap',
+                      tab.slug === track.slug ? 'bg-amber text-on-amber' : 'text-dim hover:bg-panel hover:text-white',
+                    )}
+                  >{localizedTitle({ title: tab.title_en || tab.title, title_ar: tab.title_ar }, language)}</Link>
+                ))}
+              </nav>
+            </div>
+            <TrackHeader track={track} />
+            <TrackWorkflowPath goal={track.slug} />
           </div>
         )}
-      </div>
+      </PageBody>
     </AppShell>
   )
 }
 
-// ── Sub-components ──────────────────────────────────────────────────────────
-
-function LessonCard({ lesson, index }: { lesson: Lesson; index: number }) {
+function TrackHeader({ track }: { track: CareerTrack }) {
   const { t, tf, language } = useI18n()
-  const [expanded, setExpanded] = useState(index === 0)
-
-  // Same fallback rule as the tool-course reader: show the Arabic body when
-  // it exists, otherwise the English original with a note.
-  const body = localizedContent(lesson, language)
-
-  if (lesson.is_locked) return <LockedContent courseSlug={lesson.course_slug} />
+  const item = normalizedTrack(track)
+  const title = localizedTitle({ title: item.title_en, title_ar: item.title_ar }, language)
+  const description = localizedDescription(item, language)
+  const progressLabel = item.status === 'done'
+    ? t('tracks.progress.done')
+    : item.status === 'current' ? t('tracks.progress.current') : t('tracks.progress.new')
 
   return (
-    <Card className={cn('overflow-hidden transition-all', expanded ? 'border-amber/20' : '')}>
-      <button
-        className="w-full flex items-center gap-4 p-4 sm:p-5 text-start hover:bg-surface/50 transition-colors"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <div className="w-7 h-7 rounded bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0">
-          <Play size={11} className="text-amber-text" />
+    <section className={cn(
+      'rounded-[14px] border bg-surface p-5 sm:p-7',
+      item.status === 'current' ? 'border-amber shadow-[0_0_0_4px_rgb(var(--acc)/var(--acc-soft-a))]' : 'border-border',
+    )}>
+      <h1 dir="auto" className="font-display text-[28px] font-bold leading-tight text-white">{title}</h1>
+      <p dir="auto" className="mt-3 max-w-3xl text-[13px] leading-[1.7] text-dim [text-wrap:pretty]">{description}</p>
+      <div className="mt-4 flex flex-wrap gap-x-2 gap-y-1 text-xs text-dim">
+        <span>{tf('tracks.courseCount', { n: item.course_count })}</span>
+        <span>·</span>
+        <span>{tf('tracks.hourCount', { n: item.hours })}</span>
+      </div>
+      <div className="mt-6 border-t border-border pt-4">
+        <div className="mb-2 flex items-center justify-between text-xs">
+          <span className="text-dim">{progressLabel}</span>
+          <span dir="ltr" className="font-mono text-amber-text">{Math.round(item.progress)}%</span>
         </div>
-        <div className="flex-1 min-w-0">
-          <p dir="auto" className="font-display font-bold text-bright text-lc-title">{localizedTitle(lesson, language)}</p>
-          {lesson.estimated_minutes != null && <p className="text-lc-meta text-ghost mt-1">{tf('lesson.readTime', { n: lesson.estimated_minutes })}</p>}
+        <div className="h-1 overflow-hidden rounded-sm bg-panel" role="progressbar" aria-valuenow={Math.round(item.progress)} aria-valuemin={0} aria-valuemax={100}>
+          <div className={cn('h-full', item.status === 'done' ? 'bg-emerald' : 'bg-amber')} style={{ width: `${item.progress}%` }} />
         </div>
-        {expanded
-          ? <ChevronDown size={14} className="text-ghost shrink-0" />
-          : <ChevronRight size={14} className="text-ghost shrink-0 rtl:rotate-180" />
-        }
-      </button>
-
-      {expanded && (
-        <div className="px-4 sm:px-6 pb-6 border-t border-border">
-          {body.isFallback && (
-            <div className="mt-4 flex items-start gap-2 px-3 py-2 rounded-lg bg-sky/5 border border-sky/20">
-              <Info size={13} className="text-sky shrink-0 mt-0.5" />
-              <p className="text-lc-meta text-soft">{t('course.arabicUnavailable')}</p>
-            </div>
-          )}
-          <div className="mt-4">
-            <MarkdownLesson content={body.text} dir={body.shownIn === 'ar' ? 'rtl' : 'ltr'} />
-          </div>
-        </div>
-      )}
-    </Card>
+      </div>
+    </section>
   )
-}
-
-function LockedContent({ courseSlug }: { courseSlug?: string | null }) {
-  return (
-    <Card className="flex flex-col items-center gap-3 p-8 text-center">
-      <Lock size={24} className="text-amber-text" aria-hidden="true" />
-      <p className="text-sm font-medium text-bright">Purchase this course to unlock this content.</p>
-      <Link href={courseSlug ? `/courses/${courseSlug}` : '/explore'} className={buttonStyles({ size: 'sm' })}>
-        View course
-      </Link>
-    </Card>
-  )
-}
-
-function ProjectCard({ project }: { project: Project }) {
-  // Brief and submission are both shared with the tool-course reader now —
-  // this page used to carry its own copy of each, and its own bugs in them.
-  return <ProjectBrief project={project} footer={<ProjectSubmit project={project} />} />
 }

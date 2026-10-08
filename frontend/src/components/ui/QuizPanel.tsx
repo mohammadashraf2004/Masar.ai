@@ -4,6 +4,10 @@ import { api } from '@/lib/api'
 import { Card, Badge, Spinner } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { AnswerChat } from '@/components/ui/AnswerChat'
+// [mentor-v2]
+import { mentorV2Enabled } from '@/features/mentor/flag'
+import { MentorQuizNote } from '@/features/lessons/mentor/MentorQuizNote'
+// [/mentor-v2]
 import { getErrorMessage } from '@/lib/utils'
 import type { Quiz, QuizAttempt } from '@/types'
 import { CheckCircle, XCircle, Trophy, RotateCcw, MessageSquare } from 'lucide-react'
@@ -131,6 +135,11 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
                 )
               })}
             </div>
+            {/* [mentor-v2] a wrong answer gets the mentor's guiding question instead of only a red mark */}
+            {resolved && 'correct' in fb && !fb.correct && answers[i] !== undefined && mentorV2Enabled() && (
+              <MentorQuizNote quizId={`${quiz.id}:${i}`} optionId={String(answers[i])} />
+            )}
+            {/* [/mentor-v2] */}
             {resolved && 'explanation' in fb && fb.explanation && (
               <p className="text-xs text-ghost mt-3 pt-3 border-t border-border leading-relaxed">
                 {fb.explanation}

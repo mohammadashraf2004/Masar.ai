@@ -11,6 +11,10 @@ import { Spinner } from '@/components/ui/index'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { useI18n } from '@/lib/i18n'
 import { useAuthStore } from '@/lib/store'
+// [screens]
+import { HomeScreen } from '@/features/home/HomeScreen'
+import { homeMocksEnabled } from '@/features/home/flag'
+// [/screens]
 
 /**
  * `/` is two pages. A signed-in learner gets a compact home: their roadmap, one
@@ -26,6 +30,9 @@ export default function Home() {
   if (!hydrated) {
     return <div className="flex min-h-dvh items-center justify-center bg-void"><Spinner announce className="h-6 w-6" /></div>
   }
+  // [screens] the designed Home (mock data) in dev and on demo builds; see features/home/flag.ts
+  if (token && homeMocksEnabled()) return <HomeScreen />
+  // [/screens]
   return token ? <MemberHome /> : <Landing />
 }
 

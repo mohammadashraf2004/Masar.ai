@@ -1,6 +1,6 @@
 import type { ElementType } from 'react'
 import {
-  Award, BarChart3, BookMarked, BookOpen, Compass, CreditCard, Flame, Home, LayoutDashboard, MessageSquareDot, Target, Users, Wrench,
+  BarChart3, BookMarked, Compass, Flame, Home, MessageSquareDot, Target, Users, Wrench,
 } from 'lucide-react'
 import { TrackIcon } from '@/components/brand/TrackIcon'
 import type { StringKey } from '@/lib/i18n'
@@ -13,6 +13,8 @@ export interface NavItem {
   label: StringKey
   /** The walkthrough's handle for this item (`data-tour`), where a tour points at it. */
   tour?: string
+  /** Starts a new visual group (a divider before it), for MAIN / LEARNING / RESOURCES. */
+  groupStart?: boolean
 }
 
 /**
@@ -20,31 +22,26 @@ export interface NavItem {
  * by the mobile menu: the two must never drift into offering different
  * destinations.
  *
- * The design handoff draws five (Home, Tracks, Courses, Exercises,
- * Certificates); the product has more, and none of the rest is removed. The five
- * keep the handoff's relative order. "Courses" is the tool courses (`/tools`) and
- * "Exercises" has no page of its own (they live inside lessons), so it is not a
- * destination here.
+ * Consolidated per the navigation IA pass: Dashboard, Learn and My Courses
+ * folded into "Your Masar" (`/learn/masar`, the personalised path); Learning
+ * Certificates moved into Your Masar's summary card; Credit Wallet and Plans
+ * & Offers moved to the top bar. The old routes
+ * still resolve (deep links, back-buttons), they are just not primary
+ * destinations any more.
  */
 export const NAV: NavItem[] = [
   { href: '/',             icon: Home,            label: 'nav.home' },
-  { href: '/dashboard',    icon: LayoutDashboard, label: 'nav.dashboard' },
-  { href: '/learn',        icon: Target,          label: 'nav.learn' },
-  { href: '/learn/my-courses', icon: BookOpen,    label: 'nav.myCourses' },
+  { href: '/learn/masar',  icon: Target,          label: 'nav.yourMasar' },
   { href: '/explore',      icon: Compass,         label: 'nav.explore' },
-  // The tracks icon is the mark's own two rails and marker, as the handoff draws it.
   { href: '/tracks',       icon: TrackIcon,       label: 'nav.tracks' },
-  { href: '/tools',        icon: Wrench,          label: 'nav.tools' },
-  { href: '/certificates', icon: Award,           label: 'nav.certificates' },
-  // Plans & offers sits right after Certificates, as the handoff orders them.
-  { href: '/billing',      icon: CreditCard,      label: 'nav.billing' },
-  { href: '/glossary',     icon: BookMarked,      label: 'nav.glossary' },
   // A speech bubble with a dot in it, as the handoff draws the mentor.
-  { href: '/mentor',       icon: MessageSquareDot, label: 'nav.mentor', tour: 'nav-mentor' },
-  { href: '/community',    icon: Users,           label: 'nav.community' },
+  { href: '/mentor',       icon: MessageSquareDot, label: 'nav.mentor', tour: 'nav-mentor', groupStart: true },
   // The graded challenges are where practice lives (there is no separate Exercises page), so the
   // walkthrough's "practice" step points here.
   { href: '/challenges',   icon: Flame,           label: 'nav.challenges', tour: 'nav-practice' },
+  { href: '/community',    icon: Users,           label: 'nav.community' },
+  { href: '/tools',        icon: Wrench,          label: 'nav.tools', groupStart: true },
+  { href: '/glossary',     icon: BookMarked,      label: 'nav.glossary' },
 ]
 
 // Appended for admins only. Kept separate from NAV rather than filtered out

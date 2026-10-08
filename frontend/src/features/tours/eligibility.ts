@@ -7,9 +7,17 @@ import { TOURS, TOURS_RELEASED_AT, routeMatches, type TourDef } from './registry
  * touches the DOM.
  */
 
-/** An account created after the walkthroughs shipped. An unreadable date counts as an old one. */
+// An ISO timestamp with no zone designator is read as UTC, not as the browser's local time,
+// so the boundary is the same instant for every learner (the API sends offsets anyway).
+const HAS_ZONE = /(Z|[+-]\d{2}:?\d{2})$/i
+function parseInstant(value: string): number {
+  const text = String(value ?? '').trim()
+  return Date.parse(/T\d/.test(text) && !HAS_ZONE.test(text) ? `${text}Z` : text)
+}
+
+/** An account created at or after the launch instant. An unreadable date counts as an old one. */
 export function isNewAccount(user: Pick<User, 'created_at'>): boolean {
-  return Date.parse(user.created_at) >= Date.parse(TOURS_RELEASED_AT)
+  return parseInstant(user.created_at) >= Date.parse(TOURS_RELEASED_AT)
 }
 
 /** Whether a tour is meant for this account at all. */

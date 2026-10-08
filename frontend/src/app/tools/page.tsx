@@ -9,7 +9,12 @@ import { Card, Badge, DifficultyBadge, Spinner, ProgressBar } from '@/components
 import { Button, buttonStyles } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import type { ToolCourseSummary, ToolEnrollment, SearchResults } from '@/types'
-import { ArrowRight, CheckCircle, Layers, Boxes, Server, Database, Clock, Search } from 'lucide-react'
+import {
+  Activity, AppWindow, Archive, ArrowRight, BadgeCheck, BookOpen, Bot, Boxes,
+  CheckCircle, Clock, Database, GitBranch, Layers, Link2, Network, Search, Server, Smile,
+  TreePine, TrendingUp, Triangle, Wind, Workflow, Wrench, Zap,
+  type LucideIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useI18n, type StringKey } from '@/lib/i18n'
 import { localizedTitle, localizedDescription } from '@/lib/content-language'
@@ -30,6 +35,27 @@ const CATEGORY_LABEL: Record<string, StringKey> = {
   'Vector Databases':           'tools.cat.vector',
   'MLOps & Infrastructure':     'tools.cat.mlops',
   'Data Tools':                 'tools.cat.data',
+}
+
+// The API still carries legacy emoji in `course.icon`. Keep presentation in the
+// same line-icon language as the rest of the app by resolving stable slugs here.
+const TOOL_ICONS: Record<string, LucideIcon> = {
+  langchain: Link2,
+  langgraph: GitBranch,
+  llamaindex: BookOpen,
+  'openai-api': Bot,
+  'hugging-face': Smile,
+  pinecone: TreePine,
+  qdrant: Triangle,
+  weaviate: Network,
+  mlflow: Activity,
+  dvc: Archive,
+  wandb: TrendingUp,
+  'fastapi-serving': Zap,
+  airflow: Wind,
+  dbt: Wrench,
+  'great-expectations': BadgeCheck,
+  streamlit: AppWindow,
 }
 
 export default function ToolsPage() {
@@ -190,6 +216,7 @@ export default function ToolsPage() {
                   {byCategory.get(category)!.map(course => {
                     const enr = enrMap.get(course.id)
                     const comingSoon = course.topic_count === 0 && !enr
+                    const ToolIcon = TOOL_ICONS[course.slug] ?? Workflow
                     return (
                       <Card
                         key={course.id}
@@ -198,7 +225,16 @@ export default function ToolsPage() {
                         className={cn('p-5 flex flex-col', comingSoon && 'border-dashed')}
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <span className={cn('text-2xl', comingSoon && 'grayscale opacity-60')}>{course.icon}</span>
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              'grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-muted/40',
+                              meta.text,
+                              comingSoon && 'opacity-60',
+                            )}
+                          >
+                            <ToolIcon size={18} strokeWidth={1.8} />
+                          </span>
                           {comingSoon ? (
                             <Badge variant="ghost">
                               <Clock size={10} className="me-1" /> {t('course.comingSoon')}
@@ -226,7 +262,7 @@ export default function ToolsPage() {
                           </div>
                         ) : !comingSoon ? (
                           <div className="flex items-center gap-3 mb-3 text-xs text-ghost">
-                            {course.estimated_hours && <span>{tf('card.hours', { n: course.estimated_hours })}</span>}
+                            {course.estimated_hours && <span>{tf('card.hours', { n: Math.round(course.estimated_hours) })}</span>}
                             {course.topic_count > 0 && (
                               <span>{course.topic_count} {t('course.topics')}</span>
                             )}

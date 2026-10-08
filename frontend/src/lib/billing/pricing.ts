@@ -23,7 +23,7 @@ export function formatAmount(n: number): string {
 
 /** What the year costs paid up front, and what it would cost month by month. */
 export function yearlyTotal(plan: Plan): number {
-  return round2(plan.yearly * 12)
+  return round2(plan.yearly)
 }
 export function monthlyYearTotal(plan: Plan): number {
   return round2(plan.monthly * 12)
@@ -31,7 +31,7 @@ export function monthlyYearTotal(plan: Plan): number {
 
 /** How much cheaper paying yearly is, in whole percent, for the best paid plan. */
 export function yearlySavingPercent(plans: Plan[]): number {
-  const savings = plans.filter((p) => p.monthly > 0).map((p) => (1 - p.yearly / p.monthly) * 100)
+  const savings = plans.filter((p) => p.monthly > 0).map((p) => (1 - p.yearly / (p.monthly * 12)) * 100)
   return savings.length ? Math.round(Math.max(...savings)) : 0
 }
 

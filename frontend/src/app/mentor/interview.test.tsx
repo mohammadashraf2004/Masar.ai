@@ -107,7 +107,8 @@ describe('the stage', () => {
     seed()
     await renderStage()
     expect(await screen.findByRole('heading', { level: 2, name: 'What is retrieval-augmented generation?' })).toBeInTheDocument()
-    expect(nextQuestion).toHaveBeenCalledWith('AI Developer technical concepts', 'intermediate', [])
+    // The interview's own language goes with the request; the server adds what the learner studied.
+    expect(nextQuestion).toHaveBeenCalledWith('AI Developer technical concepts', 'intermediate', [], 'en')
     expect(screen.getByText('AI Developer')).toHaveAttribute('dir', 'ltr')
     expect(screen.getByText('Technical')).toBeInTheDocument()
     expect(screen.getByText('Question 1 of 2')).toBeInTheDocument()
@@ -143,7 +144,7 @@ describe('the stage', () => {
     expect(screen.getByText('Question 2 of 2')).toBeInTheDocument()
     expect(nextQuestion).toHaveBeenLastCalledWith('AI Developer technical concepts', 'intermediate', [
       { question: 'First?', answer: 'It retrieves documents first. Then it generates from them. We cut errors by 30 percent.' },
-    ])
+    ], 'en')
     // The panel: a score out of 10, the three bars, and the note.
     await screen.findByText(STRINGS.en['interview.dim.accuracy'])
     expect(screen.getAllByRole('meter')).toHaveLength(3)
@@ -161,7 +162,7 @@ describe('the stage', () => {
     await user.click(await screen.findByRole('button', { name: STRINGS.en['interview.skip'] }))
     expect(await screen.findByText('Second?')).toBeInTheDocument()
     expect(interviewStore.get('iv1')?.questions[0]).toMatchObject({ skipped: true, answer: '', score: null })
-    expect(nextQuestion).toHaveBeenLastCalledWith(expect.any(String), 'intermediate', [{ question: 'First?', answer: '' }])
+    expect(nextQuestion).toHaveBeenLastCalledWith(expect.any(String), 'intermediate', [{ question: 'First?', answer: '' }], 'en')
   })
 
   it('finishing the last question ends the interview once its score is in, and opens the report', async () => {

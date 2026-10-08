@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { BarChart3, CircleHelp, LogOut, User, Zap } from 'lucide-react'
+import { BarChart3, CircleHelp, CreditCard, LogOut, ReceiptText, User, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 import { useI18n } from '@/lib/i18n'
@@ -82,7 +82,7 @@ export function AccountMenu({ className }: { className?: string }) {
 
           <div className="py-1.5">
             <Link
-              href="/profile"
+              href="/billing"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 px-4 py-2 text-xs text-soft transition-colors hover:bg-surface hover:text-bright"
             >
@@ -97,19 +97,37 @@ export function AccountMenu({ className }: { className?: string }) {
               <Zap size={13} className="text-ghost" />
               Buy Credits
             </Link>
+            <Link
+              href="/billing/orders"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2 text-xs text-soft transition-colors hover:bg-surface hover:text-bright"
+            >
+              <ReceiptText size={13} className="text-ghost" />
+              Billing &amp; payments
+            </Link>
 
             {/* Admins only. The account menu is where someone looks for
                 "the things I can do because of who I am", which is why the
                 link lives here as well as in the sidebar. */}
             {user.role === 'admin' && (
-              <Link
-                href="/admin/analytics"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-2 text-xs text-soft transition-colors hover:bg-surface hover:text-bright"
-              >
-                <BarChart3 size={13} className="text-amber-text" />
-                Admin analytics
-              </Link>
+              <>
+                <Link
+                  href="/admin/analytics"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2 text-xs text-soft transition-colors hover:bg-surface hover:text-bright"
+                >
+                  <BarChart3 size={13} className="text-amber-text" />
+                  Admin analytics
+                </Link>
+                <Link
+                  href="/admin/billing"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2 text-xs text-soft transition-colors hover:bg-surface hover:text-bright"
+                >
+                  <CreditCard size={13} className="text-amber-text" />
+                  Admin billing
+                </Link>
+              </>
             )}
           </div>
 

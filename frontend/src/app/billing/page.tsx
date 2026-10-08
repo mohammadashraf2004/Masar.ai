@@ -10,9 +10,11 @@ import { CheckoutCard, type OrderItem } from '@/components/billing/CheckoutCard'
 import { OfferBanner, type PromoError } from '@/components/billing/OfferBanner'
 import { PackTile } from '@/components/billing/PackTile'
 import { PlanCard } from '@/components/billing/PlanCard'
+import { RefundPolicySummary } from '@/components/billing/RefundPolicySummary'
 import { Button } from '@/components/ui/Button'
 import { Card, Spinner } from '@/components/ui/index'
 import { billingCatalog } from '@/lib/billing/catalog'
+import { api } from '@/lib/api'
 import { useMoney } from '@/lib/billing/money'
 import { getPaymentProvider, type PaymentFailure } from '@/lib/billing/payments'
 import { formatAmount, priceOrder, yearlySavingPercent } from '@/lib/billing/pricing'
@@ -56,7 +58,7 @@ export default function BillingPage() {
   const [processing, setProcessing] = useState(false)
   const [failure, setFailure] = useState<PaymentFailure | null>(null)
 
-  const { money } = useMoney(catalog?.currency ?? 'SAR')
+  const { money } = useMoney(catalog?.currency ?? 'EGP')
 
   useEffect(() => {
     let alive = true
@@ -127,16 +129,27 @@ export default function BillingPage() {
   }
 
   async function pay() {
-    if (!catalog || !provider || !totals || !method || processing) return
+    const startsTrial = Boolean(catalog?.trialEligible && cart.type === 'plan' && cart.id === 'pro')
+    if (!catalog || !totals || processing || (!startsTrial && (!provider || !method))) return
     setProcessing(true)
     setFailure(null)
     try {
+      if (startsTrial) {
+        await api.startSubscriptionTrial('pro', cycle)
+        router.push('/billing/orders?trial=started')
+        return
+      }
+      if (!provider || !method) return
       const result = await provider.pay({
         cart, cycle, method, amount: totals.total, currency: catalog.currency, promoCode: promo?.code ?? null,
       })
       if (result.status === 'paid') {
         // Stays "processing" while the next page loads, so the button cannot be pressed twice.
         router.push(`/billing/success?invoice=${encodeURIComponent(result.invoiceId)}`)
+        return
+      }
+      if (result.status === 'redirect') {
+        window.location.assign(result.url)
         return
       }
       setFailure(result.reason)
@@ -156,7 +169,9 @@ export default function BillingPage() {
           name: t(`billing.plan.${plan.id}.name` as StringKey),
           cycle: cycle === 'yearly' ? t('billing.yearly') : t('billing.monthly'),
         }),
-        meta: cycle === 'yearly' ? tf('billing.item.planYearly', { price: money(plan.yearly) }) : t('billing.item.planMonthly'),
+        meta: catalog.trialEligible && plan.id === 'pro'
+          ? t('billing.trial.summary')
+          : cycle === 'yearly' ? tf('billing.item.planYearly', { price: money(plan.yearly) }) : t('billing.item.planMonthly'),
       }
     }
     const pack = catalog.packs.find((p) => p.id === cart.id)
@@ -255,9 +270,11 @@ export default function BillingPage() {
                   processing={processing}
                   failure={failure}
                   onPay={() => void pay()}
+                  trial={Boolean(catalog.trialEligible && cart.type === 'plan' && cart.id === 'pro')}
                 />
               </div>
             </div>
+            <RefundPolicySummary />
           </>
         )}
       </PageBody>

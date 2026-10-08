@@ -55,7 +55,7 @@ describe('right-to-left safety of the learning screens', () => {
   it('covers the files it claims to (guards against the scan silently matching nothing)', () => {
     const names = NEW_SURFACES.map((f) => relative(SRC, f).replace(/\\/g, '/'))
     expect(names).toEqual(expect.arrayContaining([
-      'components/learning/OnboardingFlow.tsx', 'components/learning/PathRoadmap.tsx',
+      'components/learning/OnboardingFlow.tsx',
       'components/learning/CourseCard.tsx', 'components/learning/Pickers.tsx',
       'app/learn/page.tsx', 'app/explore/page.tsx', 'app/paths/page.tsx', 'app/paths/[slug]/page.tsx',
       'app/courses/[slug]/page.tsx', 'app/onboarding/learning-profile/page.tsx', 'app/profile/learning/page.tsx',

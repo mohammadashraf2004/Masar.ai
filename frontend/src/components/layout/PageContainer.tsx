@@ -37,7 +37,7 @@ export function PageBody({
   footer?: boolean
 }) {
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto" data-page-scroll>
       <PageContainer className="flex min-h-full flex-col pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
         <div className={cn('flex-1', className)}>{children}</div>
         {footer && <LegalFooter />}

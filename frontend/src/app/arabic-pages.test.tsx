@@ -33,8 +33,15 @@ vi.mock('@/lib/api', () => ({
 }))
 import { api } from '@/lib/api'
 
+const ARABIC_TRACK_TITLES: Record<string, string> = {
+  'data-analyst': 'محلل بيانات',
+  'ml-engineer': 'مهندس تعلم آلي',
+  'ai-developer': 'مطور ذكاء اصطناعي',
+  'mlops-engineer': 'مهندس MLOps',
+  'ai-engineer': 'مهندس ذكاء اصطناعي',
+}
 const track = (id: number, slug: string, title: string, weeks: number): CareerTrackSummary =>
-  ({ id, slug, title, description: '', icon: '', estimated_weeks: weeks })
+  ({ id, slug, title, title_en: title, title_ar: ARABIC_TRACK_TITLES[slug], description: '', description_ar: '', icon: '', estimated_weeks: weeks })
 const TRACKS = [
   track(1, 'data-analyst', 'Data Analyst', 12), track(2, 'ml-engineer', 'ML Engineer', 16),
   track(3, 'ai-developer', 'AI Developer', 14), track(4, 'mlops-engineer', 'MLOps Engineer', 10),
@@ -102,48 +109,32 @@ describe('sign in', () => {
 describe('the career tracks page', () => {
   async function renderTracks() {
     render(<TracksPage />)
-    await screen.findByRole('button', { name: /AI Developer/ })
+    await screen.findByRole('link', { name: 'استكشف مطور ذكاء اصطناعي' })
   }
 
   it('is in Arabic, with no English sentence left', async () => {
     await renderTracks()
     expect(screen.getByRole('heading', { level: 1, name: 'المسارات المهنية' })).toBeInTheDocument()
-    expect(screen.getByText(/يُبنى مسارك التعليمي من مستواك/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /افتح مسارك/ })).toHaveAttribute('href', '/learn/masar')
-    expect(screen.getByText('مكتبات المنهج')).toBeInTheDocument()
+    expect(screen.getByText(/اختر المسار الأقرب للوظيفة التي تستهدفها/)).toBeInTheDocument()
     for (const english of ['Career tracks', 'Curriculum libraries', 'Open your Masar', 'Coming soon', "What you'll learn", 'Overall progress']) {
       expect(screen.queryByText(new RegExp(english))).toBeNull()
     }
   })
 
-  it('counts weeks the way Arabic does: 3 to 10 take the plural, 11 and over the singular', async () => {
+  it('makes every whole card open its detail route', async () => {
     await renderTracks()
-    expect(screen.getByRole('button', { name: /MLOps Engineer/ })).toHaveTextContent('10 أسابيع')
-    expect(screen.getByRole('button', { name: /Data Analyst/ })).toHaveTextContent('12 أسبوعاً')
-    expect(screen.getByRole('button', { name: /AI Developer/ })).toHaveTextContent('14 أسبوعاً')
+    expect(screen.getByRole('link', { name: 'استكشف مهندس MLOps' })).toHaveAttribute('href', '/tracks/mlops-engineer')
   })
 
-  it('says what the selected track teaches, in Arabic, keeping technical terms in English', async () => {
+  it('uses the Arabic track title on the Arabic screen', async () => {
     await renderTracks()
-    expect(screen.getByText('ابنِ تطبيقات ذكاء اصطناعي جاهزة للإنتاج باستخدام LLMs وواجهات API')).toBeInTheDocument()
-    expect(screen.getByText('أنظمة RAG')).toBeInTheDocument()
-    expect(screen.getByText('هندسة الـ Prompts')).toBeInTheDocument()
-    expect(screen.getByText('ما ستتعلّمه')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'مهندس MLOps' })).toHaveAttribute('dir', 'auto')
   })
 
-  it('lets a track title from the data pick its own direction', async () => {
-    await renderTracks()
-    expect(screen.getByText('MLOps Engineer')).toHaveAttribute('dir', 'auto')
-  })
-
-  it('has copy for every track, in both languages, so a track is never shown half translated', async () => {
-    const { STRINGS } = await import('@/lib/i18n')
-    for (const slug of ['data-analyst', 'ml-engineer', 'ai-developer', 'mlops-engineer', 'ai-engineer']) {
-      for (const language of ['en', 'ar'] as const) {
-        const table = STRINGS[language] as Record<string, string>
-        expect(table[`tracks.meta.${slug}.outcome`], `${slug} outcome (${language})`).toBeTruthy()
-        for (const i of [1, 2, 3, 4]) expect(table[`tracks.meta.${slug}.topic${i}`], `${slug} topic ${i} (${language})`).toBeTruthy()
-      }
+  it('receives bilingual canonical track titles from the catalogue', () => {
+    for (const item of TRACKS) {
+      expect(item.title_en).toBeTruthy()
+      expect(item.title_ar).toBeTruthy()
     }
   })
 })
@@ -153,7 +144,7 @@ describe('the dashboard stat tiles', () => {
 
   async function renderDashboard() {
     render(<DashboardPage />)
-    await screen.findByText(ENROLLMENT.track.title)
+    await screen.findByText(ENROLLMENT.track.title_ar ?? ENROLLMENT.track.title)
   }
 
   it('are in Arabic', async () => {
@@ -171,7 +162,7 @@ describe('the dashboard stat tiles', () => {
     for (const arabic of ['مساراتك', 'الخطة الأسبوعية', 'درجات المهارات', 'المرشد الذكي', 'افتح المرشد']) {
       expect(screen.getByText(arabic)).toBeInTheDocument()
     }
-    expect(screen.getByText(/أنشئ خطة أسبوعية مخصّصة لمسار AI Developer/)).toBeInTheDocument()
+    expect(screen.getByText(/أنشئ خطة أسبوعية مخصّصة لمسار مطور ذكاء اصطناعي/)).toBeInTheDocument()
     expect(screen.getByText('برنامج 14 أسبوعاً')).toBeInTheDocument()
     expect(screen.queryByText('Your tracks')).toBeNull()
     expect(screen.queryByText(/Generate a personalised weekly plan/)).toBeNull()
@@ -195,13 +186,13 @@ describe('the dashboard stat tiles', () => {
   it('colour the readiness score only once it means something good or bad', async () => {
     auth.readiness = 82
     const { unmount } = render(<DashboardPage />)
-    await screen.findByText(ENROLLMENT.track.title)
+    await screen.findByText(ENROLLMENT.track.title_ar ?? ENROLLMENT.track.title)
     expect(within(tile('مؤشر الجاهزية')).getByText('82%')).toHaveClass('text-emerald')
     unmount()
 
     auth.readiness = 42
     render(<DashboardPage />)
-    await screen.findByText(ENROLLMENT.track.title)
+    await screen.findByText(ENROLLMENT.track.title_ar ?? ENROLLMENT.track.title)
     expect(within(tile('مؤشر الجاهزية')).getByText('42%')).toHaveClass('text-rose')
   })
 

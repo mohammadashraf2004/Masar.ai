@@ -1,20 +1,19 @@
 'use client'
 import { Suspense, useMemo } from 'react'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PageBody } from '@/components/layout/PageContainer'
 import { ChatCard } from '@/components/mentor/ChatCard'
 import { ChatSide } from '@/components/mentor/ChatSide'
-import { InterviewSide } from '@/components/mentor/InterviewSide'
-import { InterviewStage } from '@/components/mentor/InterviewStage'
-import { buttonStyles } from '@/components/ui/Button'
-import { Card, Spinner } from '@/components/ui/index'
+import { Spinner } from '@/components/ui/index'
 import { useAuth } from '@/hooks/useAuth'
-import { useInterviewRun } from '@/hooks/useInterviewRun'
-import { useInterviews } from '@/hooks/useInterviews'
 import { useMentorChat } from '@/hooks/useMentorChat'
+// [mentor-v2]
+import { InterviewMode } from '@/features/mentor/InterviewTab'
+import { MentorHub } from '@/features/mentor/MentorHub'
+import { mentorV2Enabled } from '@/features/mentor/flag'
+// [/mentor-v2]
 import { useI18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
@@ -27,6 +26,9 @@ const MODES: readonly Mode[] = ['chat', 'interview']
  * they should. What each mode is built on, and what is a stand-in, is in docs/backend-requests.md.
  */
 export default function MentorPage() {
+  // [mentor-v2] the v2 hub (four tabs, mock endpoints) in dev and on demo builds; see features/mentor/flag.ts
+  if (mentorV2Enabled()) return <Suspense fallback={null}><MentorHub /></Suspense>
+  // [/mentor-v2]
   return (
     <Suspense fallback={null}>
       <MentorScreen />
@@ -96,42 +98,6 @@ function ChatMode() {
         <ChatCard chat={chat} />
       </div>
       <ChatSide chat={chat} name={user?.full_name ?? ''} level={level} readiness={readiness} />
-    </>
-  )
-}
-
-function InterviewMode() {
-  const { interviews, loaded } = useInterviews()
-  const active = loaded ? (interviews.find((s) => s.endedAt === null) ?? null) : null
-
-  if (!loaded) {
-    return <div className="flex w-full justify-center py-16"><Spinner announce className="h-6 w-6" /></div>
-  }
-  return active ? <ActiveInterview id={active.id} /> : <NoInterview />
-}
-
-function ActiveInterview({ id }: { id: string }) {
-  const { user } = useAuth()
-  const run = useInterviewRun(id, user?.experience_level)
-  if (!run.session) return null
-  return (
-    <>
-      <InterviewStage run={run} session={run.session} />
-      <InterviewSide session={run.session} scoring={run.scoring} scoringOn={run.scoringOn} scoresAreMock={run.scoresAreMock} />
-    </>
-  )
-}
-
-function NoInterview() {
-  const { t } = useI18n()
-  return (
-    <>
-      <Card className="flex min-w-0 flex-[2_1_480px] flex-col items-start gap-3 p-6">
-        <h2 className="text-base font-bold text-white">{t('interview.none.title')}</h2>
-        <p className="max-w-prose text-sm leading-relaxed text-dim">{t('interview.none.body')}</p>
-        <Link href="/mentor/interview/new" className={buttonStyles({ className: 'mt-1' })}>{t('interview.report.new')}</Link>
-      </Card>
-      <InterviewSide session={null} />
     </>
   )
 }

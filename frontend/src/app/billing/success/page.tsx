@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Check } from 'lucide-react'
+import { Check, Clock3, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -10,12 +10,20 @@ import { PageBody } from '@/components/layout/PageContainer'
 import { Button, buttonStyles } from '@/components/ui/Button'
 import { Card, Spinner } from '@/components/ui/index'
 import { billingCatalog } from '@/lib/billing/catalog'
+import { api } from '@/lib/api'
+import { ReferenceNumber } from '@/components/billing/ReferenceNumber'
+import { RefundPolicySummary } from '@/components/billing/RefundPolicySummary'
+import { useRefundI18n } from '@/lib/billing/refundI18n'
 import { getPaymentProvider, type PaymentReceipt } from '@/lib/billing/payments'
 import { formatAmount } from '@/lib/billing/pricing'
-import type { BillingCatalog } from '@/lib/billing/types'
+import type { BillingCatalog, SubscriptionOrder } from '@/lib/billing/types'
 import { useI18n, type StringKey } from '@/lib/i18n'
 
-type View = { kind: 'loading' } | { kind: 'none' } | { kind: 'paid'; receipt: PaymentReceipt; catalog: BillingCatalog }
+type View =
+  | { kind: 'loading' }
+  | { kind: 'none' }
+  | { kind: 'paid'; receipt: PaymentReceipt; catalog: BillingCatalog }
+  | { kind: 'order'; order: SubscriptionOrder }
 
 export default function BillingSuccessPage() {
   return (
@@ -34,7 +42,9 @@ export default function BillingSuccessPage() {
 function BillingSuccessInner() {
   const { isLoading: authLoading } = useAuth()
   const { t, tf } = useI18n()
+  const refundCopy = useRefundI18n()
   const invoice = useSearchParams().get('invoice') ?? ''
+  const reference = useSearchParams().get('reference') ?? ''
   const provider = useMemo(() => getPaymentProvider(), [])
   const [view, setView] = useState<View>({ kind: 'loading' })
 
@@ -43,6 +53,11 @@ function BillingSuccessInner() {
     let alive = true
     ;(async () => {
       try {
+        if (reference) {
+          const order = await api.getSubscriptionOrder(reference)
+          if (alive) setView({ kind: 'order', order })
+          return
+        }
         const [receipt, catalog] = await Promise.all([
           provider && invoice ? provider.getReceipt(invoice) : Promise.resolve(null),
           billingCatalog.load(),
@@ -55,7 +70,7 @@ function BillingSuccessInner() {
     return () => {
       alive = false
     }
-  }, [authLoading, invoice, provider])
+  }, [authLoading, invoice, provider, reference])
 
   if (authLoading) {
     return <div className="flex min-h-dvh items-center justify-center bg-void"><Spinner announce className="h-6 w-6" /></div>
@@ -102,6 +117,43 @@ function BillingSuccessInner() {
               </Button>
             </div>
           </Card>
+        )}
+
+        {view.kind === 'order' && (
+          <div className="mx-auto flex max-w-lg flex-col gap-4">
+            <Card className="flex flex-col items-center gap-3 px-6 py-10 text-center">
+              <span aria-hidden="true" className="grid h-14 w-14 place-items-center rounded-full bg-amber text-on-amber">
+                {view.order.status === 'pending'
+                  ? <Clock3 size={26} />
+                  : view.order.status === 'paid' || view.order.status === 'refunded'
+                    ? <Check size={26} strokeWidth={2.6} />
+                    : <X size={26} />}
+              </span>
+              <h2 className="text-lg font-bold text-white">
+                {view.order.status === 'pending'
+                  ? refundCopy.t('pendingTitle')
+                  : view.order.status === 'paid' || view.order.status === 'refunded'
+                    ? refundCopy.t('paidTitle')
+                    : refundCopy.t('failedTitle')}
+              </h2>
+              {view.order.status === 'pending' && (
+                <p className="text-[13px] leading-[1.7] text-dim">{refundCopy.t('pendingMessage')}</p>
+              )}
+              {(view.order.status === 'failed' || view.order.status === 'cancelled') && (
+                <p className="text-[13px] leading-[1.7] text-dim">{refundCopy.t('failedMessage')}</p>
+              )}
+              <ReferenceNumber value={view.order.reference_number} showHelp />
+              <div className="mt-1.5 flex flex-wrap justify-center gap-2.5">
+                <Link href={`/billing/orders/${encodeURIComponent(view.order.reference_number)}`} className={buttonStyles({ size: 'lg' })}>
+                  {refundCopy.t('details')}
+                </Link>
+                <Link href="/billing/orders" className={buttonStyles({ variant: 'ghost', size: 'lg' })}>
+                  {refundCopy.t('backToPayments')}
+                </Link>
+              </div>
+            </Card>
+            <RefundPolicySummary compact />
+          </div>
         )}
       </PageBody>
     </AppShell>

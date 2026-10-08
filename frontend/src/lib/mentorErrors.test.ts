@@ -15,6 +15,8 @@ describe('mentorErrorKey — what the learner is told, by what actually failed',
     ['the provider failing (503, credits refunded)', failed(503, 'The mentor is unavailable right now. Your credits were refunded.'), 'mentor.error.unavailable'],
     ['an unhandled server error', failed(500, 'Internal server error'), 'mentor.error.unavailable'],
     ['a gateway timeout', failed(504), 'mentor.error.unavailable'],
+    ['a lesson beyond what the learner may open (checked before any charge)', failed(403, { code: 'COURSE_PURCHASE_REQUIRED', course_id: 'course-004' }), 'mentor.error.locked'],
+    ['a lesson or exercise id that does not exist', failed(404, 'Lesson not found'), 'mentor.error.notFound'],
   ])('%s', (_name, error, key) => {
     expect(mentorErrorKey(error)).toBe(key)
   })
@@ -42,6 +44,7 @@ describe('mentorErrorKey — what the learner is told, by what actually failed',
     const keys = [
       'mentor.error.unavailable', 'mentor.error.credits', 'mentor.error.verify',
       'mentor.error.rateLimit', 'mentor.error.network', 'mentor.error.invalid',
+      'mentor.error.locked', 'mentor.error.notFound',
     ] as const
     for (const key of keys) {
       expect(STRINGS.en[key], `en ${key}`).toBeTruthy()

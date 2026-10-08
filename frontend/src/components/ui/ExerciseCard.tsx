@@ -7,6 +7,11 @@ import { useI18n } from '@/lib/i18n'
 import { pickText } from '@/lib/content-language'
 import { cn } from '@/lib/utils'
 import type { Exercise } from '@/types'
+// [code-cell]
+import { CodeCell } from '@/features/exercises/CodeCell/CodeCell'
+import { exerciseFiles, memorySaverImportLine } from '@/features/exercises/lessonExerciseFiles'
+import { runExerciseTests, showExerciseSolution, submitExercise } from '@/lib/api'
+// [/code-cell]
 
 /**
  * One exercise, as a brief the student can actually follow.
@@ -30,11 +35,17 @@ export function ExerciseCard({
   exercise,
   index,
   total,
+  onResult,
+  forceCodeCell = false,
 }: {
   exercise: Exercise
   /** Position in the topic, 0-based — rendered as "Exercise 2 of 4". */
   index?: number
   total?: number
+  /** Fires when the grader returns a fresh verdict for this exercise. */
+  onResult?: (correct: boolean) => void
+  /** Author preview override; production readers rely on exercise_type. */
+  forceCodeCell?: boolean
 }) {
   const { t, language } = useI18n()
 
@@ -43,7 +54,22 @@ export function ExerciseCard({
   const brief = pickText(exercise.description, exercise.description_ar, language)
   const title = pickText(exercise.title, exercise.title_ar, language)
 
-  const hasCode = Boolean(exercise.starter_code)
+  const hasCode = exercise.exercise_type === 'code' || Boolean(exercise.starter_code) || forceCodeCell
+  // [code-cell]
+  const files = hasCode ? exerciseFiles(exercise) : []
+  const codeLanguage = exercise.language ?? 'python'
+  const runtimes: Record<string, string> = {
+    bash: 'Shell',
+    dockerfile: 'Dockerfile',
+    hcl: 'Terraform HCL',
+    ini: 'Configuration',
+    python: 'Python 3.12',
+    sparql: 'SPARQL',
+    sql: 'SQL',
+    yaml: 'YAML',
+  }
+  const runtime = runtimes[codeLanguage] ?? codeLanguage
+  // [/code-cell]
   const counter =
     index !== undefined && total !== undefined && total > 1
       ? `${t('exercise.label')} ${index + 1} ${t('exercise.of')} ${total}`
@@ -99,11 +125,31 @@ export function ExerciseCard({
           was showing the student a copy of text they already had in front
           of them, editable, one section further down. */}
       <Section icon={<PenLine size={13} />} label={t('exercise.yourAnswer')} last>
-        <AnswerChat
-          target={{ kind: 'exercise', id: exercise.id }}
-          isCode={hasCode}
-          starterCode={exercise.starter_code}
-        />
+        {/* [code-cell] All course readers share ExerciseCard, so every coding
+            exercise gets the same cell while written exercises keep chat. */}
+        {hasCode ? (
+          <CodeCell
+            key={exercise.id}
+            exerciseId={exercise.id}
+            files={files}
+            runtime={runtime}
+            language={codeLanguage}
+            highlightLines={memorySaverImportLine(files)}
+            onRunTests={currentFiles => runExerciseTests(exercise.id, currentFiles)}
+            onSubmit={currentFiles => submitExercise(exercise.id, currentFiles)}
+            onPassed={() => onResult?.(true)}
+            gradingAvailable={exercise.grading_available !== false}
+            hint={language === 'ar' ? exercise.hint_ar ?? exercise.hint : exercise.hint}
+            onShowSolution={exercise.grading_available !== false ? () => showExerciseSolution(exercise.id) : undefined}
+          />
+        ) : (
+          <AnswerChat
+            target={{ kind: 'exercise', id: exercise.id }}
+            isCode={false}
+            onResult={onResult}
+          />
+        )}
+        {/* [/code-cell] */}
       </Section>
     </div>
   )

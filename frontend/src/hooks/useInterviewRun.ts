@@ -64,7 +64,7 @@ export function useInterviewRun(id: string, level: string | undefined) {
       const earlier = saved.questions
         .filter((q) => q.answer !== null)
         .map((q) => ({ question: q.text, answer: q.skipped ? '' : (q.answer ?? '') }))
-      const question = await api.getMockInterviewQuestion(topicFor(saved.role, saved.type), difficultyFor(level), earlier)
+      const question = await api.getMockInterviewQuestion(topicFor(saved.role, saved.type), difficultyFor(level), earlier, saved.language)
       update(id, (s) => (s.endedAt || s.questions.length >= s.totalQuestions ? s : { ...s, questions: [...s.questions, newQuestion(question)] }))
     } catch (err) {
       setError(mentorErrorKey(err))

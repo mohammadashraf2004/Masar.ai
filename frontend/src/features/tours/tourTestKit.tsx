@@ -50,7 +50,7 @@ export function mockLayout({ width = 1440, height = 900, rects = {}, rtlRects = 
 
 export const student = (over: Partial<User> = {}): User => ({
   id: 7, email: 'layan@example.com', full_name: 'Layan Harbi', role: 'student', experience_level: 'beginner',
-  is_verified: true, overall_readiness_score: 42, created_at: '2026-09-28T09:00:00Z',
+  is_verified: true, overall_readiness_score: 42, created_at: '2026-10-11T09:00:00Z',
   requires_legal_acceptance: false, pending_updates: [], ...over,
 })
 

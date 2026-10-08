@@ -60,7 +60,16 @@ export default function ExplorePage() {
   useEffect(() => {
     if (authLoading) return
     let stale = false // a slower earlier response must never overwrite a newer one
-    api.listCatalogCourses({ level: levels, field: fields, career_goal: goals })
+    // Explore is the canonical course catalogue. Legacy track lessons no
+    // longer belong here, and unpublished framework cards remain available on
+    // the dedicated Tools & frameworks page.
+    api.listCatalogCourses({
+      level: levels,
+      field: fields,
+      career_goal: goals,
+      available_only: true,
+      curriculum_only: true,
+    })
       .then((rows) => {
         if (stale) return
         setCourses(rows)
@@ -75,7 +84,7 @@ export default function ExplorePage() {
   const canView = levels.length === 1 && fields.length >= 1 && goals.length === 1
   const anyFilter = levels.length + fields.length + goals.length > 0
   const viewHref = canView
-    ? `/paths/custom?level=${levels[0]}&fields=${fields.join(',')}&goal=${goals[0]}`
+    ? `/tracks/${goals[0]}`
     : null
 
   if (authLoading) {
@@ -147,7 +156,7 @@ export default function ExplorePage() {
                   ) : (
                     <Button size="sm" disabled>{t('explore.viewPath')}</Button>
                   )}
-                  <Link href="/paths" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
+                  <Link href="/tracks" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
                     {t('explore.readyMade')}
                   </Link>
                 </div>

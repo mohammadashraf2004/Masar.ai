@@ -37,7 +37,7 @@ export function CourseOutline({ course }: { course: CatalogCourseDetail }) {
           {course.estimated_hours > 0 && (
             <span className="inline-flex items-center gap-1">
               <Clock size={12} aria-hidden="true" />
-              {tf('card.hours', { n: course.estimated_hours })}
+              {tf('card.hours', { n: Math.round(course.estimated_hours) })}
             </span>
           )}
           {course.module_count ? <span>{tf('card.modules', { n: course.module_count })}</span> : null}
@@ -126,10 +126,17 @@ export function CourseOutline({ course }: { course: CatalogCourseDetail }) {
                     </p>
                     <p className="mt-0.5 text-xs text-soft">
                       {tf('cp.moduleLessons', { n: m.lesson_count })}
-                      {m.estimated_hours ? ` · ${tf('card.hours', { n: m.estimated_hours })}` : ''}
+                      {m.estimated_hours ? ` · ${tf('card.hours', { n: Math.round(m.estimated_hours) })}` : ''}
                     </p>
                   </div>
-                  {m.status === 'completed' && <Badge variant="emerald">{t('enr.completed')}</Badge>}
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
+                    {m.is_optional === true && (
+                      <Badge variant="ghost">
+                        {course.slug === 'course-016' ? t('course.optionalKubernetes') : t('course.optionalModule')}
+                      </Badge>
+                    )}
+                    {m.status === 'completed' && <Badge variant="emerald">{t('enr.completed')}</Badge>}
+                  </div>
                 </div>
                 {m.completion_pct != null && m.completion_pct > 0 && m.status !== 'completed' && (
                   <ProgressBar value={m.completion_pct} className="mt-2" />

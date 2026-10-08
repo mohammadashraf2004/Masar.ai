@@ -7,6 +7,13 @@ import { resetTourSession, setToursEnabled } from '@/features/tours/session'
 import { useLanguageStore } from '@/lib/language'
 import { resetNav } from './nav'
 
+// Local rollout flags belong to the running app, not to unit-test selection.
+// Individual tests exercise the v2 components directly; legacy page tests must
+// not silently switch implementations because a developer has enabled rollout
+// in .env.local.
+process.env.NEXT_PUBLIC_MENTOR_V2 = ''
+process.env.NEXT_PUBLIC_MENTOR_V2_LIVE = ''
+
 // jsdom has no layout engine. These tests therefore cover behaviour, structure,
 // accessibility and text — including which language/direction a string is
 // rendered in — but not how the page is *laid out*. Real RTL rendering and the

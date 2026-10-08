@@ -24,6 +24,10 @@ import {
   type ScoreDimension,
 } from '@/lib/mentor/interview'
 import { mentorMocksEnabled } from '@/lib/mentor/mocks'
+// [mentor-v2]
+import { InterviewReportPage as InterviewReportV2Page } from '@/features/mentor/InterviewReportPage'
+import { mentorV2Enabled, mentorV2MocksAllowed } from '@/features/mentor/flag'
+// [/mentor-v2]
 
 /**
  * The interview report (handoff Task 12b, "needed but not designed"): the overall score, the
@@ -34,7 +38,7 @@ import { mentorMocksEnabled } from '@/lib/mentor/mocks'
  * and every question under the bar); nothing is written that the scores do not say. With no
  * scorer (a production build today) the page says so and lists questions and answers only.
  */
-export default function InterviewReportPage() {
+function LegacyInterviewReport() {
   const { isLoading } = useAuth()
   const { t } = useI18n()
   const id = String(useParams<{ id: string }>().id ?? '')
@@ -198,3 +202,11 @@ function Report({ session }: { session: InterviewSession }) {
     </AppShell>
   )
 }
+
+// [mentor-v2] The v2 report has no server behind it yet (its content is a fixture), so it is shown
+// only on a fixture build. With the live mentor - production - learners get the page above, which
+// is built from their own interview.
+export default function InterviewReportPage() {
+  return mentorV2Enabled() && mentorV2MocksAllowed() ? <InterviewReportV2Page /> : <LegacyInterviewReport />
+}
+// [/mentor-v2]

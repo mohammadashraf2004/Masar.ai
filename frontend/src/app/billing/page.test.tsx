@@ -2,19 +2,21 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import BillingPage from '@/app/billing/page'
-import { billingCatalog } from '@/lib/billing/catalog'
 import { MockPaymentProvider, type MockOutcome } from '@/lib/billing/mockPayments'
 import type { PaymentProvider } from '@/lib/billing/payments'
 import { useAuthStore } from '@/lib/store'
 import { useLanguageStore } from '@/lib/language'
 import { router, setPathname } from '@/test/nav'
 import type { User } from '@/types'
+import type { BillingCatalogApi } from '@/lib/api'
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: null, isAuthenticated: true, isLoading: false }),
   useGuest: () => {},
 }))
-vi.mock('@/lib/api', () => ({ api: { getWallet: vi.fn(), search: vi.fn() } }))
+vi.mock('@/lib/api', () => ({ api: {
+  getWallet: vi.fn(), search: vi.fn(), getBillingCatalog: vi.fn(), startSubscriptionTrial: vi.fn(),
+} }))
 
 // The provider is the test's to steer: which outcome it gives, or none at all (payments not open).
 const held = vi.hoisted(() => ({ provider: null as unknown }))
@@ -28,6 +30,21 @@ const student: User = {
   id: 1, email: 'layan@example.com', full_name: 'Layan Al-Harbi', role: 'student', experience_level: 'beginner',
   is_verified: true, overall_readiness_score: 42, created_at: '2026-01-01T00:00:00Z',
   requires_legal_acceptance: false, pending_updates: [],
+}
+
+/** What the backend's /billing/catalog actually returns. */
+const CATALOG: BillingCatalogApi = {
+  currency: 'EGP', vat_rate: 0.14, prices_include_vat: true, current_plan: 'free' as const,
+  plans: [
+    { id: 'free' as const, monthly: 0, yearly: 0, signup_credits: 40, features: ['billing.plan.free.f1', 'billing.plan.free.f2', 'billing.plan.free.f3'] },
+    { id: 'pro' as const, monthly: 299, yearly: 2199, signup_credits: 0, popular: true, features: ['billing.plan.pro.f1', 'billing.plan.pro.f2', 'billing.plan.pro.f3', 'billing.plan.pro.f4'] },
+  ],
+  packs: [
+    { id: 'p1', credits: 500, bonus: 0, price: 100 },
+    { id: 'p2', credits: 1200, bonus: 100, price: 300 },
+    { id: 'p3', credits: 3000, bonus: 400, price: 700 },
+  ],
+  offer: null,
 }
 
 function useProvider(outcome: MockOutcome = 'paid'): MockPaymentProvider {
@@ -50,6 +67,7 @@ async function renderBilling({ methods = true } = {}) {
 beforeEach(() => {
   useAuthStore.setState({ token: 'tok', expiresAt: null, _hasHydrated: true, user: student })
   vi.mocked(api.getWallet).mockResolvedValue({ credit_balance: 1240 })
+  vi.mocked(api.getBillingCatalog).mockResolvedValue(CATALOG)
   setPathname('/billing')
   window.sessionStorage.clear()
   useProvider()
@@ -62,29 +80,28 @@ describe('plans & offers: the starting order', () => {
     expect(plan('Pro').getByRole('button', { name: 'Selected' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('radio', { name: /mada/ })).toBeChecked()
     expect(screen.getByText('Pro plan — Yearly')).toBeInTheDocument()
-    expect(payButton()).toHaveTextContent('Pay SAR 756')
+    expect(payButton()).toHaveTextContent('Pay EGP 2,199')
   })
 
-  it('shows what yearly saves, worked out from the prices', async () => {
+  it('shows what yearly saves, worked out from the prices (299 x 12 = 3,588 vs 2,199)', async () => {
     await renderBilling()
-    expect(screen.getByText('Save 20% yearly')).toBeInTheDocument()
+    expect(screen.getByText('Save 39% yearly')).toBeInTheDocument()
   })
 
   it('shows each plan with its price, its year total and its features', async () => {
     await renderBilling()
-    expect(plan('Pro').getByText('63')).toBeInTheDocument()
-    expect(plan('Pro').getByText('SAR / month')).toBeInTheDocument()
-    expect(plan('Pro').getByText('Billed yearly: SAR 756 instead of SAR 948')).toBeInTheDocument()
-    expect(plan('Pro').getByText('Every track and every tool course')).toBeInTheDocument()
+    expect(plan('Pro').getByText('2,199')).toBeInTheDocument()
+    expect(plan('Pro').getByText('EGP / year')).toBeInTheDocument()
+    expect(plan('Pro').getByText('Billed yearly: EGP 2,199 instead of EGP 3,588 — save EGP 1,389')).toBeInTheDocument()
+    expect(plan('Pro').getByText('All lessons in every available course')).toBeInTheDocument()
     expect(plan('Pro').getByText('Most popular')).toBeInTheDocument()
     expect(plan('Free').getByText('Free forever')).toBeInTheDocument()
-    expect(plan('Career').getByText('Billed yearly: SAR 1,428 instead of SAR 1,788')).toBeInTheDocument()
   })
 
   it('lists the credit packs with their bonuses, and the balance they add to', async () => {
     await renderBilling()
-    expect(screen.getByRole('button', { name: /1,200.*SAR 99/ })).toHaveTextContent('+100 free')
-    expect(screen.getByRole('button', { name: /500.*SAR 49/ })).not.toHaveTextContent('free')
+    expect(screen.getByRole('button', { name: /1,200.*EGP 300/ })).toHaveTextContent('+100 free')
+    expect(screen.getByRole('button', { name: /500.*EGP 100/ })).not.toHaveTextContent('free')
     // (the sidebar's wallet card shows the same number, so find it by the words beside it)
     expect((await screen.findByText('Your balance')).textContent).toContain('1,240')
   })
@@ -93,18 +110,18 @@ describe('plans & offers: the starting order', () => {
 describe('the total is VAT-inclusive', () => {
   it('says "VAT included" under the total and adds no tax line', async () => {
     await renderBilling()
-    expect(total().getByText('SAR 756')).toBeInTheDocument()
+    expect(total().getByText('EGP 2,199')).toBeInTheDocument()
     expect(total().getByText('VAT included')).toBeInTheDocument()
-    // The words appear once, under the total: no "VAT 15%" line is added to the order.
+    // The words appear once, under the total: no "VAT 14%" line is added to the order.
     expect(screen.getAllByText(/VAT/)).toHaveLength(1)
-    expect(screen.queryByText(/15%/)).toBeNull()
+    expect(screen.queryByText(/14%/)).toBeNull()
   })
 
   it('charges exactly what the subtotal says when there is no discount', async () => {
     await renderBilling()
     const summary = within(screen.getByText('Order summary').closest('div') as HTMLElement)
-    expect(summary.getAllByText('SAR 756').length).toBeGreaterThanOrEqual(2)
-    expect(payButton()).toHaveTextContent('Pay SAR 756')
+    expect(summary.getAllByText('EGP 2,199').length).toBeGreaterThanOrEqual(2)
+    expect(payButton()).toHaveTextContent('Pay EGP 2,199')
   })
 })
 
@@ -115,32 +132,22 @@ describe('choosing what to buy', () => {
     await user.click(screen.getByRole('button', { name: 'Monthly' }))
 
     expect(screen.getByRole('button', { name: 'Monthly', pressed: true })).toBeInTheDocument()
-    expect(plan('Pro').getByText('79')).toBeInTheDocument()
+    expect(plan('Pro').getByText('299')).toBeInTheDocument()
     expect(plan('Pro').getByText('Billed monthly · cancel any time')).toBeInTheDocument()
     expect(screen.getByText('Pro plan — Monthly')).toBeInTheDocument()
-    expect(payButton()).toHaveTextContent('Pay SAR 79')
-  })
-
-  it('moves the order to another plan', async () => {
-    const user = userEvent.setup()
-    await renderBilling()
-    await user.click(plan('Career').getByRole('button', { name: 'Choose Career' }))
-
-    expect(plan('Career').getByRole('button', { name: 'Selected' })).toBeInTheDocument()
-    expect(plan('Pro').getByRole('button', { name: 'Choose Pro' })).toBeInTheDocument()
-    expect(payButton()).toHaveTextContent('Pay SAR 1,428')
+    expect(payButton()).toHaveTextContent('Pay EGP 299')
   })
 
   it('replaces the plan with a pack: one item at a time', async () => {
     const user = userEvent.setup()
     await renderBilling()
-    await user.click(screen.getByRole('button', { name: /1,200.*SAR 99/ }))
+    await user.click(screen.getByRole('button', { name: /1,200.*EGP 300/ }))
 
-    expect(screen.getByRole('button', { name: /1,200.*SAR 99/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /1,200.*EGP 300/ })).toHaveAttribute('aria-pressed', 'true')
     expect(plan('Pro').getByRole('button', { name: 'Choose Pro' })).toBeInTheDocument()
     expect(screen.getByText('1,200 credits', { selector: 'span.text-sm' })).toBeInTheDocument()
     expect(screen.getByText('Includes 100 free bonus credits')).toBeInTheDocument()
-    expect(payButton()).toHaveTextContent('Pay SAR 99')
+    expect(payButton()).toHaveTextContent('Pay EGP 300')
   })
 
   it('shows the plan the account is on, and does not let it be bought', async () => {
@@ -151,67 +158,31 @@ describe('choosing what to buy', () => {
 
     await user.click(current)
     expect(plan('Pro').getByRole('button', { name: 'Selected' })).toBeInTheDocument()
-    expect(payButton()).toHaveTextContent('Pay SAR 756')
-  })
-})
-
-describe('the offer', () => {
-  it('shows the offer with a live countdown', async () => {
-    await renderBilling()
-    expect(screen.getByText('LIMITED OFFER')).toBeInTheDocument()
-    expect(screen.getByText('Start-of-term offer: 30% off your first payment')).toBeInTheDocument()
-    expect(screen.getByRole('timer')).toHaveAccessibleName(/^Time left: 4 days, 11 hours, \d+ minutes$/)
-  })
-
-  it('applies the code as a discount on the subtotal, and the total drops with it', async () => {
-    const user = userEvent.setup()
-    await renderBilling()
-    await user.click(screen.getByRole('button', { name: 'Apply code' }))
-
-    const applied = await screen.findByRole('button', { name: 'Applied' })
-    expect(applied).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByText('MASAR30 discount (30%)')).toBeInTheDocument()
-    expect(screen.getByText('−SAR 226.80')).toBeInTheDocument()
-    expect(total().getByText('SAR 529.20')).toBeInTheDocument()
-    expect(total().getByText('VAT included')).toBeInTheDocument()
-    expect(payButton()).toHaveTextContent('Pay SAR 529.20')
-  })
-
-  it('takes the code off again when pressed again', async () => {
-    const user = userEvent.setup()
-    await renderBilling()
-    await user.click(screen.getByRole('button', { name: 'Apply code' }))
-    await user.click(await screen.findByRole('button', { name: 'Applied' }))
-
-    expect(screen.getByRole('button', { name: 'Apply code' })).toBeInTheDocument()
-    expect(screen.queryByText(/discount/)).toBeNull()
-    expect(payButton()).toHaveTextContent('Pay SAR 756')
-  })
-
-  it('says so under the code when the server refuses it, and applies nothing', async () => {
-    const user = userEvent.setup()
-    vi.spyOn(billingCatalog, 'validatePromo').mockResolvedValueOnce({ valid: false, reason: 'expired' })
-    await renderBilling()
-    await user.click(screen.getByRole('button', { name: 'Apply code' }))
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('That code has expired.')
-    expect(screen.queryByText(/discount/)).toBeNull()
-    expect(payButton()).toHaveTextContent('Pay SAR 756')
-  })
-
-  it('is not asked to be applied once it has ended', async () => {
-    vi.spyOn(billingCatalog, 'load').mockResolvedValueOnce({
-      ...(await billingCatalog.load()),
-      offer: { code: 'MASAR30', percent: 30, endsAt: new Date(Date.now() - 60_000).toISOString() },
-    })
-    await renderBilling()
-    expect(screen.getByText('This offer has ended.')).toBeInTheDocument()
-    expect(screen.queryByRole('timer')).toBeNull()
-    expect(screen.getByRole('button', { name: 'Apply code' })).toBeDisabled()
+    expect(payButton()).toHaveTextContent('Pay EGP 2,199')
   })
 })
 
 describe('paying', () => {
+  it('starts the one-time seven-day trial without sending a payment', async () => {
+    const user = userEvent.setup()
+    const provider = useProvider()
+    const pay = vi.spyOn(provider, 'pay')
+    vi.mocked(api.getBillingCatalog).mockResolvedValueOnce({ ...CATALOG, trial_eligible: true })
+    vi.mocked(api.startSubscriptionTrial).mockResolvedValueOnce({})
+    render(<BillingPage />)
+
+    const start = await screen.findByRole('button', { name: 'Start 7-day free trial' })
+    expect(screen.getByText('7-day free trial · no charge today')).toBeInTheDocument()
+    expect(screen.getByText('Plan price after trial')).toBeInTheDocument()
+    expect(total().getByText('EGP 0')).toBeInTheDocument()
+    expect(screen.queryByRole('radio')).toBeNull()
+    await user.click(start)
+
+    await waitFor(() => expect(api.startSubscriptionTrial).toHaveBeenCalledWith('pro', 'yearly'))
+    expect(pay).not.toHaveBeenCalled()
+    expect(router.push).toHaveBeenCalledWith('/billing/orders?trial=started')
+  })
+
   it('lists the five methods, with the provider\'s own card fields and never a card input of ours', async () => {
     const user = userEvent.setup()
     await renderBilling()
@@ -231,7 +202,7 @@ describe('paying', () => {
     const user = userEvent.setup()
     await renderBilling()
     await user.click(screen.getByText('Tabby'))
-    expect(screen.getByRole('button', { name: 'Pay SAR 189 today' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Pay EGP 549.75 today' })).toBeInTheDocument()
   })
 
   it('sends the order to the provider, then to the success page with the invoice', async () => {
@@ -239,13 +210,11 @@ describe('paying', () => {
     const provider = useProvider()
     const pay = vi.spyOn(provider, 'pay')
     await renderBilling()
-    await user.click(screen.getByRole('button', { name: 'Apply code' }))
-    await screen.findByRole('button', { name: 'Applied' })
     await user.click(payButton())
 
     await waitFor(() => expect(router.push).toHaveBeenCalledWith(expect.stringMatching(/^\/billing\/success\?invoice=INV-\d{4}-\d{2}-\d{2}-\d{4}$/)))
     expect(pay).toHaveBeenCalledWith({
-      cart: { type: 'plan', id: 'pro' }, cycle: 'yearly', method: 'mada', amount: 529.2, currency: 'SAR', promoCode: 'MASAR30',
+      cart: { type: 'plan', id: 'pro' }, cycle: 'yearly', method: 'mada', amount: 2199, currency: 'EGP', promoCode: null,
     })
   })
 
@@ -289,7 +258,7 @@ describe('paying', () => {
     await user.click(payButton())
     await screen.findByRole('alert')
 
-    await user.click(plan('Career').getByRole('button', { name: 'Choose Career' }))
+    await user.click(screen.getByRole('button', { name: /500.*EGP 100/ }))
     expect(screen.queryByRole('alert')).toBeNull()
   })
 
@@ -340,33 +309,33 @@ describe('what the catalog and the provider decide', () => {
   })
 
   it('adds a VAT line at the catalog rate when the prices do not include VAT', async () => {
-    vi.spyOn(billingCatalog, 'load').mockResolvedValueOnce({ ...(await billingCatalog.load()), pricesIncludeVat: false })
+    vi.mocked(api.getBillingCatalog).mockResolvedValueOnce({ ...CATALOG, prices_include_vat: false })
     await renderBilling()
 
-    expect(screen.getByText('VAT 15%')).toBeInTheDocument()
-    expect(screen.getByText('SAR 113.40')).toBeInTheDocument()
-    expect(total().getByText('SAR 869.40')).toBeInTheDocument()
+    expect(screen.getByText('VAT 14%')).toBeInTheDocument()
+    expect(screen.getByText('EGP 307.86')).toBeInTheDocument()
+    expect(total().getByText('EGP 2,506.86')).toBeInTheDocument()
     expect(screen.queryByText('VAT included')).toBeNull()
-    expect(payButton()).toHaveTextContent('Pay SAR 869.40')
+    expect(payButton()).toHaveTextContent('Pay EGP 2,506.86')
   })
 
-  it('shows the catalog currency', async () => {
-    vi.spyOn(billingCatalog, 'load').mockResolvedValueOnce({ ...(await billingCatalog.load()), currency: 'EGP' })
+  it('shows whatever currency the catalog says, not a hardcoded one', async () => {
+    vi.mocked(api.getBillingCatalog).mockResolvedValueOnce({ ...CATALOG, currency: 'USD' })
     await renderBilling()
 
-    expect(plan('Pro').getByText('EGP / month')).toBeInTheDocument()
-    expect(plan('Pro').getByText('Billed yearly: EGP 756 instead of EGP 948')).toBeInTheDocument()
-    expect(payButton()).toHaveTextContent('Pay EGP 756')
+    expect(plan('Pro').getByText('USD / year')).toBeInTheDocument()
+    expect(plan('Pro').getByText('Billed yearly: USD 2,199 instead of USD 3,588 — save USD 1,389')).toBeInTheDocument()
+    expect(payButton()).toHaveTextContent('Pay USD 2,199')
   })
 
   it('takes each plan\'s feature lines from the catalog', async () => {
-    vi.spyOn(billingCatalog, 'load').mockResolvedValueOnce({
-      ...(await billingCatalog.load()),
-      plans: [{ id: 'pro', monthly: 79, yearly: 63, features: ['billing.plan.free.f1'] }],
+    vi.mocked(api.getBillingCatalog).mockResolvedValueOnce({
+      ...CATALOG,
+      plans: [{ id: 'pro', monthly: 299, yearly: 2199, signup_credits: 0, features: ['billing.plan.free.f1'] }],
     })
     await renderBilling()
-    expect(plan('Pro').getByText('First two units of every track')).toBeInTheDocument()
-    expect(plan('Pro').queryByText('Every track and every tool course')).toBeNull()
+    expect(plan('Pro').getByText('First 2 lessons of every course')).toBeInTheDocument()
+    expect(plan('Pro').queryByText('All lessons in every available course')).toBeNull()
   })
 })
 
@@ -378,17 +347,16 @@ describe('in Arabic', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'الخطط والعروض' })).toBeInTheDocument()
     await screen.findByRole('radio', { name: /مدى/ })
 
-    expect(screen.getByText('وفّر 20% سنوياً')).toBeInTheDocument()
+    expect(screen.getByText('وفّر 39% سنوياً')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'سنوي', pressed: true })).toBeInTheDocument()
-    expect(screen.getByText('عرض بداية الفصل: خصم 30% على أول دفعة')).toBeInTheDocument()
-    expect(screen.getByText('يُدفع سنوياً 756 ر.س بدلاً من 948 ر.س')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'ادفع 756 ر.س' })).toBeInTheDocument()
+    expect(screen.getByText('يُدفع سنوياً 2,199 ج.م بدلاً من 3,588 ج.م — وفّر 1,389 ج.م')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'ادفع 2,199 ج.م' })).toBeInTheDocument()
 
     const totalRow = within(screen.getByText('الإجمالي').closest('div') as HTMLElement)
-    expect(totalRow.getByText('756 ر.س')).toBeInTheDocument()
+    expect(totalRow.getByText('2,199 ج.م')).toBeInTheDocument()
     expect(totalRow.getByText('شامل الضريبة')).toBeInTheDocument()
     // no English sentence is left
-    for (const english of ['Order summary', 'Payment method', 'VAT included', 'Most popular', 'Apply code']) {
+    for (const english of ['Order summary', 'Payment method', 'VAT included', 'Most popular']) {
       expect(screen.queryByText(english)).toBeNull()
     }
   })

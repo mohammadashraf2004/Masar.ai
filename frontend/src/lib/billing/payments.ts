@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react'
 import type { BillingCycle, CartItem, PaymentMethodId } from '@/lib/billing/types'
 import { MockPaymentProvider, mockOutcomeFromUrl } from '@/lib/billing/mockPayments'
+import { PaymobProvider } from '@/lib/billing/paymobProvider'
 
 /**
  * The seam between the billing page and whatever takes the money.
@@ -31,6 +32,7 @@ export type PaymentFailure = 'declined' | 'cancelled' | 'unavailable'
 
 export type PaymentResult =
   | { status: 'paid'; invoiceId: string }
+  | { status: 'redirect'; url: string }
   | { status: 'failed'; reason: PaymentFailure }
 
 /** What the success page shows about a payment that went through. */
@@ -73,6 +75,7 @@ export interface PaymentProvider {
  * open yet instead of showing "payment successful" for a payment that never happened.
  */
 export function getPaymentProvider(): PaymentProvider | null {
+  if (process.env.NEXT_PUBLIC_PAYMENTS_PROVIDER === 'paymob') return new PaymobProvider()
   const mockAllowed = process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_PAYMENTS_MOCK === '1'
   return mockAllowed ? new MockPaymentProvider({ outcome: mockOutcomeFromUrl }) : null
 }

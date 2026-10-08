@@ -43,20 +43,12 @@ export interface TourDef {
 /**
  * When the walkthroughs shipped. An account created before it is an "existing" one: it
  * sees feature tours with the "New" tag and is not given the first-run onboarding; one
- * created after it is a new signup, and gets the opposite. Set this to the real release
- * date when it ships.
+ * created at or after it is a new signup, and gets the opposite.
  */
-// TODO(product): set real release date
-const PLACEHOLDER_TOURS_RELEASED_AT = '2026-09-27T00:00:00Z'
-export const TOURS_RELEASED_AT = PLACEHOLDER_TOURS_RELEASED_AT
-
-// Dev-only: a placeholder release date silently mis-sorts every account into the wrong
-// onboarding/"New"-tag bucket, so flag it loudly rather than let it ship unnoticed.
-if (process.env.NODE_ENV === 'development' && TOURS_RELEASED_AT === PLACEHOLDER_TOURS_RELEASED_AT) {
-  console.warn(
-    '[tours] TOURS_RELEASED_AT is still the placeholder date from the TODO(product) comment in registry.ts — set the real release date before this ships.',
-  )
-}
+// The new Masar launch: the start of 10 October 2026 in Cairo. Egypt is on summer time
+// (UTC+3) until the last Thursday of October, so this instant is 2026-10-09T21:00:00Z.
+// Written with its offset so no runtime timezone can move the boundary.
+export const TOURS_RELEASED_AT = '2026-10-10T00:00:00+03:00'
 
 export const TOURS: readonly TourDef[] = [
   {

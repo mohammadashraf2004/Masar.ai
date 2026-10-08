@@ -6,30 +6,16 @@ import { ADMIN_NAV, NAV, isActive, navFor } from '@/components/layout/nav'
 const hrefs = (items: { href: string }[]) => items.map((i) => i.href)
 
 describe('the navigation list', () => {
-  it('keeps every destination the app already had', () => {
-    for (const existing of ['/', '/dashboard', '/learn', '/explore', '/tracks', '/tools', '/glossary', '/mentor', '/community', '/challenges']) {
-      expect(hrefs(NAV)).toContain(existing)
+  it('lists the primary destinations, including Learning Tracks', () => {
+    expect(hrefs(NAV)).toEqual([
+      '/', '/learn/masar', '/explore', '/tracks', '/mentor', '/challenges', '/community', '/tools', '/glossary',
+    ])
+  })
+
+  it('no longer carries Dashboard, My Courses, Certificates or Plans as primary destinations', () => {
+    for (const removed of ['/dashboard', '/learn/my-courses', '/certificates', '/billing']) {
+      expect(hrefs(NAV)).not.toContain(removed)
     }
-  })
-
-  it('adds Certificates, the handoff’s fifth destination', () => {
-    expect(hrefs(NAV)).toContain('/certificates')
-  })
-
-  it("keeps the handoff's relative order: Home, Tracks, Courses (the tool courses), Certificates", () => {
-    const at = (href: string) => hrefs(NAV).indexOf(href)
-    expect(at('/')).toBeLessThan(at('/tracks'))
-    expect(at('/tracks')).toBeLessThan(at('/tools'))
-    expect(at('/tools')).toBeLessThan(at('/certificates'))
-  })
-
-  it('adds Plans & offers (Task 10) straight after Certificates, and keeps the mentor', () => {
-    expect(hrefs(NAV).indexOf('/billing')).toBe(hrefs(NAV).indexOf('/certificates') + 1)
-    expect(hrefs(NAV)).toContain('/mentor')
-  })
-
-  it('puts the personalised path ahead of the curriculum libraries', () => {
-    expect(hrefs(NAV).indexOf('/learn')).toBeLessThan(hrefs(NAV).indexOf('/tracks'))
   })
 
   it('lists no destination twice', () => {
@@ -56,8 +42,8 @@ describe('navFor', () => {
 
 describe('isActive', () => {
   it('is the exact page or anything beneath it', () => {
-    expect(isActive('/tracks', '/tracks')).toBe(true)
-    expect(isActive('/tracks/ai-developer', '/tracks')).toBe(true)
+    expect(isActive('/tools', '/tools')).toBe(true)
+    expect(isActive('/tools/x', '/tools')).toBe(true)
   })
 
   // "Certificates" was in the sidebar for a while with no page behind it: a link every
@@ -72,13 +58,13 @@ describe('isActive', () => {
   })
 
   it('does not treat a sibling that shares a prefix as the same section', () => {
-    expect(isActive('/tracks-archive', '/tracks')).toBe(false)
+    expect(isActive('/tools-archive', '/tools')).toBe(false)
     expect(isActive('/tools', '/tracks')).toBe(false)
   })
 
   it('marks Home only on the home page, not on every page', () => {
     expect(isActive('/', '/')).toBe(true)
     expect(isActive('/dashboard', '/')).toBe(false)
-    expect(isActive('/tracks/x', '/')).toBe(false)
+    expect(isActive('/tools/x', '/')).toBe(false)
   })
 })

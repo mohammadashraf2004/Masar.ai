@@ -1,4 +1,4 @@
-import { render, waitFor, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DashboardPage from './page'
 import { useAuthStore } from '@/lib/store'
@@ -56,5 +56,26 @@ describe('the phone\'s Challenges row', () => {
   it('tags the mentor button the walkthrough points at on a phone', async () => {
     const { container } = render(<DashboardPage />)
     await waitFor(() => expect(container.querySelector('a[data-tour="mentor"]')).toHaveAttribute('href', '/mentor'))
+  })
+})
+
+describe('dashboard track and Skill Scores cleanup', () => {
+  it('renders the enrolled track name without its decorative emoji', async () => {
+    vi.mocked(api.getMyEnrollments).mockResolvedValue([{
+      id: 7, track_id: 5, completion_percentage: 25, enrolled_at: '2026-01-01',
+      track: {
+        id: 5, slug: 'ai-engineer', title: 'AI Engineer', title_ar: 'مهندس ذكاء اصطناعي',
+        description: 'Track', estimated_weeks: 12, icon: '🤖',
+      },
+    }] as never)
+    render(<DashboardPage />)
+    expect(await screen.findByText('AI Engineer')).toBeInTheDocument()
+    expect(screen.queryByText('🤖')).not.toBeInTheDocument()
+  })
+
+  it('keeps Skill Scores but removes the Skill Gap Analysis action', async () => {
+    render(<DashboardPage />)
+    expect(await screen.findByText(STRINGS.en['dash.skillScores'])).toBeInTheDocument()
+    expect(screen.queryByText(STRINGS.en['dash.runGap'])).not.toBeInTheDocument()
   })
 })

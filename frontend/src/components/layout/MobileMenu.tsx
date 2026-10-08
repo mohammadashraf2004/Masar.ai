@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CircleHelp, LogOut } from 'lucide-react'
+import { CircleHelp, CreditCard, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 import { useI18n } from '@/lib/i18n'
@@ -53,10 +53,10 @@ export function MobileMenu() {
         className="fixed inset-x-0 top-14 z-40 max-h-[calc(100dvh-7.5rem)] overflow-y-auto border-b border-border bg-ink px-4 pb-[18px] pt-2.5 lg:hidden"
       >
         <ul className="flex flex-col gap-1">
-          {navFor(user?.role).map(({ href, icon: Icon, label }) => {
+          {navFor(user?.role).map(({ href, icon: Icon, label, groupStart }) => {
             const active = isActive(pathname, href)
             return (
-              <li key={href}>
+              <li key={href} className={groupStart ? 'mt-2 border-t border-border pt-2' : undefined}>
                 <Link
                   href={href}
                   onClick={close}
@@ -99,6 +99,17 @@ export function MobileMenu() {
               </button>
             )}
           </div>
+
+          {/* Plans & Offers has no sidebar row of its own on the phone either; the top bar's
+              credit pill is where it would otherwise live, so it moves in here instead. */}
+          <Link
+            href="/billing"
+            onClick={close}
+            className="inline-flex min-h-[44px] items-center gap-2 self-start px-2 text-sm text-soft transition-colors hover:text-bright"
+          >
+            <CreditCard size={14} className="shrink-0" aria-hidden="true" />
+            {t('nav.billing')}
+          </Link>
 
           {/* The help menu: for now, the walkthrough. */}
           {tours && (

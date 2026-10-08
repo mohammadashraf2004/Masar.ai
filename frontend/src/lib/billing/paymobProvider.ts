@@ -1,5 +1,6 @@
 import type { PaymentProvider, PaymentReceipt, PaymentResult } from '@/lib/billing/payments'
 import type { PaymentMethodId } from '@/lib/billing/types'
+import { api } from '@/lib/api'
 
 /**
  * A stub for Paymob, the gateway the backend already integrates (`/payments/wallet/topup/init`,
@@ -14,7 +15,7 @@ import type { PaymentMethodId } from '@/lib/billing/types'
  * it redirects to a hosted checkout rather than mounting card fields, so there is no `CardFields`;
  * and it prices in EGP where the design shows SAR.
  */
-export const PAYMOB_NOT_CONFIGURED = 'PaymobProvider is not configured'
+export const PAYMOB_NOT_CONFIGURED = 'This Paymob operation is not configured'
 
 export class PaymobProvider implements PaymentProvider {
   readonly id = 'paymob'
@@ -24,8 +25,17 @@ export class PaymobProvider implements PaymentProvider {
     return ['card', 'wallet']
   }
 
-  async pay(): Promise<PaymentResult> {
-    throw new Error(PAYMOB_NOT_CONFIGURED)
+  async pay(request: Parameters<PaymentProvider['pay']>[0]): Promise<PaymentResult> {
+    if (request.cart.type !== 'plan' || request.cart.id !== 'pro') {
+      throw new Error(PAYMOB_NOT_CONFIGURED)
+    }
+    if (request.method !== 'card' && request.method !== 'wallet') {
+      return { status: 'failed', reason: 'unavailable' }
+    }
+    // Amount/currency in `request` are display values only. The backend
+    // selects the plan row and sends its own immutable amount to Paymob.
+    const checkout = await api.checkoutSubscription('pro', request.cycle, request.method)
+    return { status: 'redirect', url: checkout.payment_url }
   }
 
   async getReceipt(): Promise<PaymentReceipt | null> {

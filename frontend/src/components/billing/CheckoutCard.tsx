@@ -30,6 +30,7 @@ const LOGO_SLOT: Record<PaymentMethodId, string> = { mada: 'mada', apple: 'Pay',
 export function CheckoutCard({
   item, totals, currency, promo, methods, method, onMethod, provider, cardReady, onCardReady,
   processing, failure, onPay,
+  trial = false,
 }: {
   item: OrderItem
   totals: OrderTotals
@@ -46,15 +47,16 @@ export function CheckoutCard({
   processing: boolean
   failure: PaymentFailure | null
   onPay: () => void
+  trial?: boolean
 }) {
   const { t, tf } = useI18n()
   const { money } = useMoney(currency)
   const CardFields = provider?.CardFields
 
-  const payLabel = method === 'tabby'
+  const payLabel = trial ? t('billing.trial.start') : method === 'tabby'
     ? tf('billing.payToday', { amount: money(installment(totals.total)) })
     : tf('billing.pay', { amount: money(totals.total) })
-  const blocked = !provider || !method || (method === 'card' && !!CardFields && !cardReady)
+  const blocked = trial ? false : (!provider || !method || (method === 'card' && !!CardFields && !cardReady))
 
   return (
     <Card className="flex flex-col gap-4 p-[22px] lg:sticky lg:top-6">
@@ -65,12 +67,12 @@ export function CheckoutCard({
           <span className="text-sm font-semibold text-white">{item.name}</span>
           <span className="text-xs text-dim">{item.meta}</span>
         </div>
-        <span className="whitespace-nowrap font-mono text-[13px] text-white">{money(totals.subtotal)}</span>
+        <span className="whitespace-nowrap font-mono text-[13px] text-white">{money(trial ? 0 : totals.subtotal)}</span>
       </div>
 
       <dl className="flex flex-col gap-2.5 text-[13px]">
         <div className="flex justify-between text-dim">
-          <dt>{t('billing.line.subtotal')}</dt>
+          <dt>{trial ? t('billing.trial.after') : t('billing.line.subtotal')}</dt>
           <dd className="font-mono">{money(totals.subtotal)}</dd>
         </div>
         {promo && (
@@ -88,14 +90,14 @@ export function CheckoutCard({
         <div className="flex items-baseline justify-between border-t border-border pt-3">
           <dt className="text-sm font-bold text-white">{t('billing.total')}</dt>
           <dd className="text-end">
-            <span className="block font-display text-[22px] font-extrabold text-white">{money(totals.total)}</span>
+            <span className="block font-display text-[22px] font-extrabold text-white">{money(trial ? 0 : totals.total)}</span>
             {/* Under the total, never a line added to it: the price already includes the tax. */}
-            {totals.vatIncluded && <span className="block text-xs text-ghost">{t('billing.vatIncluded')}</span>}
+            {!trial && totals.vatIncluded && <span className="block text-xs text-ghost">{t('billing.vatIncluded')}</span>}
           </dd>
         </div>
       </dl>
 
-      {methods.length > 0 && (
+      {!trial && methods.length > 0 && (
       <fieldset className="flex flex-col gap-2 border-0 p-0">
         <legend className="mb-2 p-0 text-[13px] font-semibold text-white">{t('billing.method')}</legend>
         {methods.map((id) => {
@@ -142,10 +144,11 @@ export function CheckoutCard({
       </fieldset>
       )}
 
-      {method === 'card' && CardFields && <CardFields onReadyChange={onCardReady} />}
+      {!trial && method === 'card' && CardFields && <CardFields onReadyChange={onCardReady} />}
 
-      {!provider && <p className="text-xs leading-relaxed text-dim">{t('billing.closed')}</p>}
-      {provider?.isMock && <p className="text-xs leading-relaxed text-amber-text">{t('billing.mock')}</p>}
+      {!trial && !provider && <p className="text-xs leading-relaxed text-dim">{t('billing.closed')}</p>}
+      {!trial && provider?.isMock && <p className="text-xs leading-relaxed text-amber-text">{t('billing.mock')}</p>}
+      {trial && <p className="text-xs leading-relaxed text-amber-text">{t('billing.trial.trust')}</p>}
 
       {failure && (
         <p role="alert" className="rounded-lg border border-rose/20 bg-rose/10 px-3 py-2.5 text-xs text-rose">

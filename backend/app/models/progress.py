@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Float, JSON, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Float, JSON, ForeignKey, Enum, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -104,6 +104,9 @@ class MentorSession(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     title = Column(String, nullable=True)
     context_topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
+    # Mentor v2's scope for this conversation: "lesson:<id>" or "general" (migration 033).
+    # NULL for legacy /mentor/chat sessions, which v2 never reads as history.
+    context_key = Column(String(64), nullable=True)
     messages = Column(JSON, default=list)
     # messages format: [{"role": "user"|"assistant", "content": "...", "timestamp": "...", "latency_ms": int, "tokens": int}]
     total_tokens = Column(Integer, default=0)
@@ -112,6 +115,10 @@ class MentorSession(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     user = relationship("User", back_populates="mentor_sessions")
+
+    __table_args__ = (
+        Index("ix_mentor_sessions_user_context_key", "user_id", "context_key"),
+    )
 
 
 class UserSkillScore(Base):

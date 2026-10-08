@@ -134,6 +134,17 @@ class Exercise(Base):
     # identical in every language.
     starter_code = Column(Text)
     solution_code = Column(Text)
+    # Deterministic code-exercise fields.  Legacy written exercises keep the
+    # default ``legacy`` kind and continue through the conversational answer
+    # flow; code exercises never fall back to that LLM path.
+    exercise_type = Column(String(24), nullable=False, default="legacy", server_default="legacy")
+    language = Column(String(24), nullable=True)
+    pre_exercise_code = Column(Text, nullable=True)
+    grading_tests = Column(JSON, nullable=True)
+    hint = Column(Text, nullable=True)
+    hint_ar = Column(Text, nullable=True)
+    success_message = Column(Text, nullable=True)
+    success_message_ar = Column(Text, nullable=True)
     difficulty = Column(Enum(DifficultyLevel), default=DifficultyLevel.beginner)
     skill_tested = Column(JSON, default=list)
 
@@ -147,6 +158,10 @@ class Exercise(Base):
     # their sibling lessons, with no single one being "the" lesson's exercise.
     lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=True, index=True)
     lesson    = relationship("Lesson", foreign_keys="[Exercise.lesson_id]")
+
+    @property
+    def grading_available(self) -> bool:
+        return self.exercise_type == "code" and bool(self.grading_tests)
 
 
 class Project(Base):

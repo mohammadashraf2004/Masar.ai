@@ -57,6 +57,14 @@ COURSE_ROLE_SUPPORTING = "supporting"
 COURSE_ROLE_OPTIONAL = "optional"
 COURSE_ROLE_RELATIONS = (COURSE_ROLE_CORE, COURSE_ROLE_SUPPORTING, COURSE_ROLE_OPTIONAL)
 
+# Sections group a goal's workflow on screen (AI Engineer's apex path is the
+# one goal that needs them today). `None` means "no section" - a simpler
+# goal's workflow reads as one flat, ordered list.
+TRACK_SECTIONS = (
+    "foundations", "language-generative-ai", "application-production",
+    "advanced-ai-systems", "specializations",
+)
+
 # A course prerequisite is `required` (the path generator orders the roadmap by it -
 # what every prerequisite has always been) or `recommended` (advice only: read by
 # readiness and recommendations, never by the path generator). Neither blocks a
@@ -280,9 +288,9 @@ class Course(Base):
     learning_objectives = Column(JSON, nullable=True)
     learning_objectives_ar = Column(JSON, nullable=True)
     is_active = Column(Boolean, nullable=False, default=True, server_default=text("true"))
-    # Existing catalogue content remains free after the billing migration.
-    # Creating an active paid offer deliberately turns this off.
-    is_free = Column(Boolean, nullable=False, default=True, server_default=text("true"))
+    # Free accounts receive two ordered lesson previews; full-course access
+    # comes from Pro or a preserved course entitlement.
+    is_free = Column(Boolean, nullable=False, default=False, server_default=text("false"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     level = relationship("LearningLevel")
@@ -309,15 +317,33 @@ class CourseField(Base):
 class CourseRole(Base):
     """A course serves a career goal, with a weight: `core`, `supporting` or
     `optional`. The row is the only place the weight lives, so a course is never
-    copied per goal - it is one entity with a different relation in each."""
+    copied per goal - it is one entity with a different relation in each.
+
+    `position`, `required` and `section` are this same row's answer to "where
+    does this course sit in this goal's workflow": an explicit, server-owned
+    order (never the course's own primary key, never alphabetical), whether it
+    gates that goal's required-completion math, and - for a goal whose
+    workflow reads as sections (AI Engineer) - which one. A goal with no
+    sections leaves every row's `section` NULL."""
     __tablename__ = "course_roles"
     __table_args__ = (
         CheckConstraint(_in("relation", COURSE_ROLE_RELATIONS), name="ck_course_roles_relation"),
+        CheckConstraint(
+            "section IS NULL OR " + _in("section", TRACK_SECTIONS), name="ck_course_roles_section"),
     )
 
     course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), primary_key=True)
     role_id = Column(Integer, ForeignKey("career_roles.id", ondelete="CASCADE"), primary_key=True, index=True)
     relation = Column(String, nullable=False, default=COURSE_ROLE_CORE, server_default=COURSE_ROLE_CORE)
+    # This course's ordinal position in this goal's workflow; the API sorts by
+    # this column, never by course id. Zero means the relation is catalogue
+    # metadata only and is not part of a fixed track workflow.
+    position = Column(Integer, nullable=False, default=0, server_default=text("0"))
+    # Whether this course gates the goal's required-completion percentage.
+    # Optional courses (role='optional' or required=false) never lower it and
+    # never block progression to a later required course.
+    required = Column(Boolean, nullable=False, default=True, server_default=text("true"))
+    section = Column(String, nullable=True)
 
     role = relationship("CareerRole")
 

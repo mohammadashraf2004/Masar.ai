@@ -49,6 +49,12 @@ class UserTermProgress(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     term_id = Column(String(64), nullable=False, index=True)
+    # Backfilled link to the normalized dictionary (`vocabulary_terms.slug ==
+    # term_id`), added once that table existed. `term_id` stays the column
+    # every existing row and query is keyed on; this is additive, not a
+    # replacement, so a term_id with no matching row (pre-migration content)
+    # still records progress.
+    vocabulary_term_id = Column(Integer, ForeignKey("vocabulary_terms.id"), nullable=True, index=True)
 
     status = Column(Enum(TermStatus), nullable=False, default=TermStatus.encountered)
     first_seen_at = Column(DateTime(timezone=True), server_default=func.now())

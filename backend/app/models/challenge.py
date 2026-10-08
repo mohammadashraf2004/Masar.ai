@@ -120,6 +120,11 @@ class ExamPayment(Base):
             unique=True,
             postgresql_where=text("status = 'confirmed'"),
         ),
+        # One Paymob transaction settles at most one exam payment (migration 034).
+        Index(
+            "uq_exam_payments_provider_txn", "provider_transaction_id", unique=True,
+            postgresql_where=text("provider_transaction_id IS NOT NULL"),
+        ),
     )
 
     id               = Column(Integer, primary_key=True, index=True)
@@ -128,6 +133,10 @@ class ExamPayment(Base):
     egp_amount       = Column(Float, nullable=False)
     payment_method   = Column(String, nullable=False)        # fawry|instapay|vodafone_cash
     payment_ref      = Column(String, nullable=False)
+    # Paymob payments only: the signed provider order created at checkout, and
+    # the provider transaction that settled it.
+    provider_order_id       = Column(String(100), nullable=True)
+    provider_transaction_id = Column(String(100), nullable=True)
     status           = Column(String, default="pending")     # pending|confirmed|failed
     confirmed_by     = Column(String, nullable=True)         # "admin" or "webhook"
     created_at       = Column(DateTime(timezone=True), server_default=func.now())

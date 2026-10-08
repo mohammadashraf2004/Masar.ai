@@ -1,7 +1,7 @@
 """
 backend/app/models/wallet.py
 """
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum, Index, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum, Index, Text, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -62,6 +62,13 @@ class UserWallet(Base):
 
 class WalletTransaction(Base):
     __tablename__ = "wallet_transactions"
+    __table_args__ = (
+        # One Paymob transaction settles at most one top-up (migration 034).
+        Index(
+            "uq_wallet_transactions_provider_txn", "provider_transaction_id", unique=True,
+            postgresql_where=text("provider_transaction_id IS NOT NULL"),
+        ),
+    )
 
     id               = Column(Integer, primary_key=True, index=True)
     wallet_id        = Column(Integer, ForeignKey("user_wallets.id"), nullable=False)
@@ -71,6 +78,10 @@ class WalletTransaction(Base):
     egp_amount       = Column(Float, nullable=True)           # EGP paid (for topups)
     payment_method   = Column(Enum(PaymentMethod), nullable=True)
     payment_ref      = Column(String, nullable=True)          # Fawry/InstaPay reference number
+    # Paymob top-ups only: the signed provider order this row was created for,
+    # and the provider transaction that settled it.
+    provider_order_id       = Column(String(100), nullable=True)
+    provider_transaction_id = Column(String(100), nullable=True)
     description      = Column(String, nullable=False)         # human-readable reason
     action_type      = Column(String, nullable=True)          # "mentor_chat", "code_review", etc.
     balance_after    = Column(Integer, nullable=False)        # snapshot for audit trail

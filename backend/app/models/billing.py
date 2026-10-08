@@ -4,14 +4,27 @@ Payments are deliberately separated from access: a provider transaction pays
 an immutable order snapshot, and that order grants a course enrollment.  The
 learning layer reads only the enrollment.
 """
+import secrets
+from datetime import datetime, timezone
+
 from sqlalchemy import (
     Boolean, CheckConstraint, Column, DateTime, ForeignKey, Index, Integer,
-    JSON, String, UniqueConstraint, text,
+    JSON, String, Text, UniqueConstraint, event, text,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.db.session import Base
+
+
+_REFERENCE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+
+
+def generate_reference_number(now: datetime | None = None) -> str:
+    """Return a customer-safe, non-sequential Masar payment reference."""
+    stamp = (now or datetime.now(timezone.utc)).strftime("%Y%m%d")
+    token = "".join(secrets.choice(_REFERENCE_ALPHABET) for _ in range(8))
+    return f"MSR-{stamp}-{token}"
 
 
 class CourseOffer(Base):
@@ -111,7 +124,11 @@ class CourseEnrollment(Base):
     __tablename__ = "course_enrollments"
     __table_args__ = (
         UniqueConstraint("user_id", "course_id", name="uq_course_enrollments_user_course"),
-        CheckConstraint("source IN ('purchase', 'admin_grant', 'free')", name="ck_course_enrollments_source"),
+        # legacy_free: enrolled while the course was free, kept on the Free/Pro
+        # launch (migration 021); an entitlement like purchase/admin_grant.
+        CheckConstraint(
+            "source IN ('purchase', 'admin_grant', 'free', 'legacy_free')", name="ck_course_enrollments_source",
+        ),
         CheckConstraint("status IN ('active', 'revoked', 'expired')", name="ck_course_enrollments_status"),
         CheckConstraint(
             "learning_status IN ('enrolled', 'in_progress', 'completed', 'paused')",
@@ -143,3 +160,215 @@ class CourseEnrollment(Base):
     user = relationship("User")
     course = relationship("Course")
     order = relationship("BillingOrder")
+
+
+class CourseFreeLegacy(Base):
+    """Every course's `is_free` as it was before migration 021 switched the flag off."""
+    __tablename__ = "course_free_legacy"
+
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), primary_key=True)
+    was_free = Column(Boolean, nullable=False)
+    recorded_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class CourseEnrollmentLegacyFree(Base):
+    """An enrollment migration 021 grandfathered to `legacy_free`, with what it was before."""
+    __tablename__ = "course_enrollment_legacy_free"
+
+    enrollment_id = Column(Integer, ForeignKey("course_enrollments.id", ondelete="CASCADE"), primary_key=True)
+    user_id = Column(Integer, nullable=False)
+    course_id = Column(Integer, nullable=False)
+    previous_source = Column(String(32), nullable=False)
+    granted_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class BillingPlan(Base):
+    """Backend-owned plan catalogue. Amounts are integer piastres."""
+    __tablename__ = "billing_plans"
+    __table_args__ = (
+        CheckConstraint("currency = 'EGP'", name="ck_billing_plans_egp_only"),
+        CheckConstraint("monthly_price_minor >= 0", name="ck_billing_plans_monthly_nonnegative"),
+        CheckConstraint("yearly_price_minor >= 0", name="ck_billing_plans_yearly_nonnegative"),
+    )
+
+    id = Column(Integer, primary_key=True)
+    code = Column(String(32), nullable=False, unique=True, index=True)
+    name = Column(String(80), nullable=False)
+    currency = Column(String(3), nullable=False, default="EGP", server_default="EGP")
+    monthly_price_minor = Column(Integer, nullable=False)
+    yearly_price_minor = Column(Integer, nullable=False)
+    # One-time credits granted at signup. Pro currently changes content
+    # access only, so this is deliberately not a monthly allowance.
+    signup_credits = Column(Integer, nullable=False, default=0, server_default="0")
+    features = Column(JSON, nullable=False, default=list)
+    is_active = Column(Boolean, nullable=False, default=True, server_default=text("true"), index=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+
+
+class UserSubscription(Base):
+    """Subscription state derived only from confirmed provider events."""
+    __tablename__ = "user_subscriptions"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('trialing', 'active', 'past_due', 'cancelled', 'expired')",
+            name="ck_user_subscriptions_status",
+        ),
+        CheckConstraint("billing_period IN ('monthly', 'yearly')", name="ck_user_subscriptions_period"),
+        UniqueConstraint("payment_provider", "provider_subscription_id", name="uq_subscription_provider_id"),
+        Index("ix_user_subscriptions_user_period", "user_id", "current_period_end"),
+        Index(
+            "uq_user_subscriptions_one_trial", "user_id", unique=True,
+            postgresql_where=text("payment_provider = 'internal'"),
+        ),
+    )
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    plan_id = Column(Integer, ForeignKey("billing_plans.id", ondelete="RESTRICT"), nullable=False)
+    status = Column(String(20), nullable=False, default="active", server_default="active", index=True)
+    billing_period = Column(String(16), nullable=False)
+    payment_provider = Column(String(32), nullable=False)
+    provider_customer_id = Column(String(100), nullable=True)
+    provider_subscription_id = Column(String(100), nullable=True)
+    current_period_start = Column(DateTime(timezone=True), nullable=False)
+    current_period_end = Column(DateTime(timezone=True), nullable=False, index=True)
+    cancel_at_period_end = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    cancelled_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User", back_populates="subscriptions")
+    plan = relationship("BillingPlan")
+
+
+class SubscriptionOrder(Base):
+    """Immutable, server-priced subscription checkout snapshot."""
+    __tablename__ = "subscription_orders"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('pending', 'paid', 'failed', 'cancelled', 'refunded')",
+            name="ck_subscription_orders_status",
+        ),
+        CheckConstraint("billing_period IN ('monthly', 'yearly')", name="ck_subscription_orders_period"),
+        CheckConstraint("amount > 0", name="ck_subscription_orders_amount_positive"),
+        CheckConstraint("currency = 'EGP'", name="ck_subscription_orders_egp_only"),
+        CheckConstraint(
+            "refund_status IN ('not_requested', 'requested', 'under_review', 'approved', "
+            "'rejected', 'processing', 'refunded', 'failed')",
+            name="ck_subscription_orders_refund_status",
+        ),
+        CheckConstraint(
+            "refund_amount IS NULL OR (refund_amount > 0 AND refund_amount <= amount)",
+            name="ck_subscription_orders_refund_amount",
+        ),
+        Index(
+            "uq_subscription_orders_one_pending", "user_id", unique=True,
+            postgresql_where=text("status = 'pending'"),
+        ),
+        Index(
+            "ix_subscription_orders_provider_transaction_id", "provider_transaction_id", unique=True,
+            postgresql_where=text("provider_transaction_id IS NOT NULL"),
+        ),
+    )
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True)
+    plan_id = Column(Integer, ForeignKey("billing_plans.id", ondelete="RESTRICT"), nullable=False)
+    billing_period = Column(String(16), nullable=False)
+    amount = Column(Integer, nullable=False)
+    currency = Column(String(3), nullable=False)
+    provider = Column(String(32), nullable=False)
+    # Masar's public support reference. Generated before insert, immutable,
+    # non-sequential, and deliberately separate from every provider id.
+    reference_number = Column(String(32), nullable=False, unique=True, index=True)
+    merchant_order_id = Column(String(100), nullable=False, unique=True, index=True)
+    provider_order_id = Column(String(100), nullable=True, index=True)
+    provider_transaction_id = Column(String(100), nullable=True)
+    status = Column(String(20), nullable=False, default="pending", server_default="pending", index=True)
+    refund_requested_at = Column(DateTime(timezone=True), nullable=True)
+    refund_processed_at = Column(DateTime(timezone=True), nullable=True)
+    refund_amount = Column(Integer, nullable=True)
+    refund_reason = Column(Text, nullable=True)
+    refund_status = Column(
+        String(20), nullable=False, default="not_requested", server_default="not_requested", index=True,
+    )
+    refund_provider_reference = Column(String(100), nullable=True)
+    refund_admin_note = Column(Text, nullable=True)
+    subscription_id = Column(Integer, ForeignKey("user_subscriptions.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+    paid_at = Column(DateTime(timezone=True), nullable=True)
+
+    user = relationship("User")
+    plan = relationship("BillingPlan")
+    events = relationship("SubscriptionPaymentEvent", back_populates="order")
+    refund_events = relationship(
+        "SubscriptionRefundEvent", back_populates="order", order_by="SubscriptionRefundEvent.created_at",
+    )
+
+
+class SubscriptionPaymentEvent(Base):
+    """One provider event, unique for replay-safe webhook processing."""
+    __tablename__ = "subscription_payment_events"
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_event_id", name="uq_subscription_payment_provider_event"),
+        Index("ix_subscription_payment_order_created", "order_id", "created_at"),
+        # An order buys exactly one billing period (migration 034).
+        Index(
+            "uq_subscription_payment_one_grant", "order_id", unique=True,
+            postgresql_where=text("grants_period"),
+        ),
+    )
+
+    id = Column(Integer, primary_key=True)
+    order_id = Column(Integer, ForeignKey("subscription_orders.id", ondelete="CASCADE"), nullable=False)
+    provider = Column(String(32), nullable=False)
+    provider_event_id = Column(String(100), nullable=False)
+    amount = Column(Integer, nullable=False)
+    currency = Column(String(3), nullable=False)
+    success = Column(Boolean, nullable=False)
+    pending = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    response_code = Column(String(100), nullable=True)
+    raw_payload = Column(JSON, nullable=False)
+    # True only on the event that started or extended the subscription.
+    grants_period = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    order = relationship("SubscriptionOrder", back_populates="events")
+
+
+class SubscriptionRefundEvent(Base):
+    """Append-only audit record for each refund request/state transition."""
+    __tablename__ = "subscription_refund_events"
+    __table_args__ = (
+        CheckConstraint(
+            "to_status IN ('requested', 'under_review', 'approved', 'rejected', "
+            "'processing', 'refunded', 'failed')",
+            name="ck_subscription_refund_events_to_status",
+        ),
+        UniqueConstraint("idempotency_key", name="uq_subscription_refund_idempotency"),
+        Index("ix_subscription_refund_order_created", "order_id", "created_at"),
+    )
+
+    id = Column(Integer, primary_key=True)
+    order_id = Column(Integer, ForeignKey("subscription_orders.id", ondelete="RESTRICT"), nullable=False)
+    from_status = Column(String(20), nullable=False)
+    to_status = Column(String(20), nullable=False)
+    actor_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    idempotency_key = Column(String(100), nullable=False)
+    provider_reference = Column(String(100), nullable=True)
+    note = Column(Text, nullable=True)
+    metadata_json = Column(JSON, nullable=False, default=dict, server_default=text("'{}'::json"))
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    order = relationship("SubscriptionOrder", back_populates="refund_events")
+    actor = relationship("User")
+
+
+@event.listens_for(SubscriptionOrder, "before_insert")
+def _subscription_order_reference(_mapper, _connection, target: SubscriptionOrder) -> None:
+    # Covers every server-side creation path, including background jobs and
+    # tests. The database unique index remains the final concurrency guard.
+    if not target.reference_number:
+        target.reference_number = generate_reference_number()

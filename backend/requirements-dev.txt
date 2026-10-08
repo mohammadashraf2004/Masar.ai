@@ -1,3 +1,6 @@
 -r requirements.txt
 pytest==8.2.2
 pytest-cov==5.0.0
+# Learner-side libraries, so the test suite can exercise the Project Lab
+# development execution adapter (app/services/project_lab/execution.py).
+-r project_runner/requirements.txt

@@ -102,6 +102,8 @@ services:
     build:
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?set NEXT_PUBLIC_API_URL to the public https API URL; it is a build argument baked into the client bundle}
+        # Unset, canonical/Open Graph URLs and certificate links point at http://localhost:3000.
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?set NEXT_PUBLIC_SITE_URL to the public https site origin (metadata, link previews, certificate links)}
 
   # ─── Alert delivery ───────────────────────────────────────────────
   # Prometheus evaluates rules and decides an alert is firing; without an

@@ -115,10 +115,6 @@ services:
       - GENERATION_BACKEND
       - GENERATION_MODEL_ID
       - EXTRA_CORS_ORIGINS
-      # Launch promotion — see backend/.env.example. Blank disables it.
-      - LAUNCH_PROMO_UNTIL
-      - LAUNCH_PROMO_CREDITS
-      - LAUNCH_PROMO_DAYS
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       # Metrics. /metrics is served on this same published port, so it is
       # bearer-token gated; app/core/config.py refuses to boot in
@@ -138,6 +134,28 @@ services:
       - PAYMOB_INTEGRATION_ID_WALLET
       - PAYMOB_IFRAME_ID
       - PAYMOB_HMAC_SECRET
+      # Project Lab: learner Python/SQL runs in the project-runner service
+      # below, never in this container. The token default only suits local
+      # runs; app/core/config.py refuses it in production.
+      - PROJECT_LAB_EXECUTION_BACKEND=${PROJECT_LAB_EXECUTION_BACKEND:-runner}
+      - PROJECT_LAB_RUNNER_SOCKET=/run/project-runner/runner.sock
+      - PROJECT_LAB_RUNNER_TOKEN=${PROJECT_LAB_RUNNER_TOKEN:-local-dev-runner-token-change-me}
+      # true when the runner runs under gVisor (PROJECT_RUNNER_RUNTIME=runsc):
+      # the API then refuses to hand learner code to a runner that does not
+      # report gVisor, so a host misconfiguration fails loudly.
+      - PROJECT_LAB_REQUIRE_GVISOR=${PROJECT_LAB_REQUIRE_GVISOR:-false}
+      # Behind Caddy every request's TCP peer is the proxy. Without these two
+      # the rate limiter keys every visitor on Caddy's address: one shared
+      # login/register budget for the whole internet (app/core/limiter.py).
+      # Set in /etc/masar/production.env; 0 / empty is right with no proxy.
+      - TRUSTED_PROXY_COUNT=${TRUSTED_PROXY_COUNT:-0}
+      - TRUSTED_PROXY_IPS=${TRUSTED_PROXY_IPS:-}
+    # The api reaches the project-runner ONLY through this socket volume:
+    # the runner has no network at all. The directory inside is
+    # root:<appuser gid> mode 2750 (seeded from the runner image), so the api
+    # can connect and learner code inside the runner cannot.
+    volumes:
+      - project_runner_socket:/run/project-runner
     ports:
       - "8000:8000"
     depends_on:
@@ -145,6 +163,17 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      # Deliberately NOT project-runner: the api must boot (and report
+      # Project Lab as unavailable) even when the runner is down or cannot
+      # be created at all — e.g. the host lost runsc while
+      # PROJECT_RUNNER_RUNTIME=runsc. With any dependency on it (even
+      # `required: false`) `docker compose up -d api` refused to start the
+      # api in that case (verified 2026-10-07). A full `docker compose up`
+      # still aborts when the runtime is unknown — see the rollback in
+      # docs/project-lab.md. Start order is not needed for the socket volume:
+      # Docker seeds it from the runner image's /run/project-runner
+      # (root:1000, mode 2750) on the runner's first mount even when the api
+      # mounted the new, empty volume first (verified).
     command: gunicorn app.main:app -c gunicorn.conf.py -k uvicorn.workers.UvicornWorker -w 4 --bind 0.0.0.0:8000 --timeout 60
     # tmpfs, not a volume: these are per-run scratch files that must not
     # survive a restart — stale ones are counted as live workers.
@@ -160,6 +189,72 @@ services:
       retries: 5
       start_period: 15s
 
+  # ─── Project Lab runner (untrusted learner code) ────────────────────
+  # Executes learner Python/SQL for the Project Lab. Its isolation is the
+  # security boundary for that code — see backend/project_runner/server.py
+  # and docs/project-lab.md ("Security boundary") before loosening anything:
+  #   * network_mode: none — no interface but loopback, so neither the
+  #     service nor learner code can reach the api, db, redis, frontend,
+  #     proxy, Docker host, cloud metadata or the internet. The api talks to
+  #     it over a Unix socket on the project_runner_socket volume, in a
+  #     directory the sandbox user cannot traverse;
+  #   * no application secrets: its environment is the runner token only;
+  #   * read-only root filesystem; job directories on a size-capped tmpfs;
+  #   * every capability dropped except SETUID/SETGID (to hand each job to
+  #     the unprivileged `sandbox` user); no-new-privileges;
+  #   * a restrictive seccomp allowlist (backend/project_runner/seccomp/);
+  #   * pids/memory/CPU caps for the whole service, rlimits per job;
+  #   * optionally gVisor: PROJECT_RUNNER_RUNTIME=runsc with
+  #     PROJECT_RUNNER_SECCOMP=runner-seccomp-gvisor.json and
+  #     PROJECT_RUNNER_REQUIRE_GVISOR=1 (host setup in docs/project-lab.md).
+  project-runner:
+    build:
+      context: ./backend/project_runner
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    logging: *logging
+    runtime: ${PROJECT_RUNNER_RUNTIME:-runc}
+    environment:
+      - RUNNER_TOKEN=${PROJECT_LAB_RUNNER_TOKEN:-local-dev-runner-token-change-me}
+      # "1": the runner refuses to start unless it is running under gVisor.
+      - RUNNER_REQUIRE_GVISOR=${PROJECT_RUNNER_REQUIRE_GVISOR:-0}
+    volumes:
+      - ./backend/project_templates:/templates:ro
+      - project_runner_socket:/run/project-runner
+    network_mode: none
+    read_only: true
+    tmpfs:
+      # 1733: every job creates its own directory (as the sandbox user);
+      # nobody can list the root, and only an entry's owner can remove it.
+      # nr_inodes caps how many files a job can create; Docker also mounts
+      # tmpfs noexec/nosuid/nodev, so nothing written there can be executed.
+      - /jobs:size=256m,mode=1733,nr_inodes=16384
+      - /tmp:size=16m,mode=0755
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./backend/project_runner/seccomp/${PROJECT_RUNNER_SECCOMP:-runner-seccomp.json}
+    # Host-level pid cap for the whole container. Learner processes are
+    # capped per job by RLIMIT_NPROC (32) inside the sandbox; under gVisor
+    # every guest process also costs host stub processes/threads (34 host
+    # pids idle, 107 measured during one fork bomb), and when the host
+    # clone() fails the gVisor sentry panics ("createSysmsgThread: failed to
+    # get clone") and the runner restarts. So gVisor needs headroom:
+    # PROJECT_RUNNER_PIDS_LIMIT=512 (see deploy/production.env.example).
+    pids_limit: ${PROJECT_RUNNER_PIDS_LIMIT:-128}
+    mem_limit: 1536m
+    cpus: 1.0
+    healthcheck:
+      test: ["CMD", "python", "-I", "/opt/runner/project_runner/healthcheck.py"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   # ─── Next.js Frontend ──────────────────────────────────────────────
   frontend:
     build:
@@ -167,6 +262,9 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+        NEXT_PUBLIC_MENTOR_V2_LIVE: ${NEXT_PUBLIC_MENTOR_V2_LIVE:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+        NEXT_PUBLIC_PAYMENTS_PROVIDER: ${NEXT_PUBLIC_PAYMENTS_PROVIDER:-}
     restart: unless-stopped
     logging: *logging
     environment:
@@ -278,6 +376,8 @@ services:
         condition: service_healthy
 
 volumes:
+  # The api <-> project-runner control socket (see the project-runner service).
+  project_runner_socket:
   postgres_data:
   prometheus_data:
   grafana_data:

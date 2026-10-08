@@ -211,3 +211,37 @@ groups:
           description: >-
             Evictions here silently disable rate limits and login lockouts,
             because that is where their counters live.
+
+  - name: project_lab
+    rules:
+      - alert: ProjectLabRunnerFailing
+        # infrastructure_error = the platform failed, not the learner's code
+        # (runner down or unhealthy, socket missing, gVisor required but not
+        # reported, malformed result). Learners see "try again shortly".
+        # The `> 0.05` floor keeps a single failed run at 3am from paging.
+        expr: |
+          sum(rate(project_lab_executions_total{status="infrastructure_error"}[10m]))
+            /
+          clamp_min(sum(rate(project_lab_executions_total[10m])), 0.05)
+            > 0.2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Over 20% of Project Lab executions are failing in the platform"
+          description: >-
+            Run and Check Step are broken for learners. Check the
+            project-runner container (docker compose ps / logs), its
+            healthcheck, and the api's "project_lab.execution" log lines.
+
+      - alert: ProjectLabValidatorBroken
+        # A validator that raised or a task pointing at an unknown validator:
+        # always a platform bug, and learners on that task cannot progress.
+        expr: sum(increase(project_lab_validator_failures_total[15m])) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "A Project Lab validator is failing"
+          description: >-
+            Search the api logs for "Project Lab validator" to find the task.

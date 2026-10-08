@@ -58,6 +58,8 @@ jobs:
         run: |
           pip install pip-audit==2.7.3
           pip-audit --requirement requirements.txt --strict
+          # The Project Lab runner image ships these to learner code.
+          pip-audit --requirement project_runner/requirements.txt --strict
 
       - name: Check no .env file is tracked in git
         run: |

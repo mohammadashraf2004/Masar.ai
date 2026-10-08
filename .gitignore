@@ -32,3 +32,14 @@ __pycache__/
 # QA screenshots from the tours E2E matrix (2026-09-27): local reference only,
 # the repo has no other tracked QA screenshots to join.
 /walkthrough-handoff/screenshots/
+
+# Regenerable dev artifacts (e.g. scripts/extract_curriculum_concepts.py's
+# output) — reproducible from source, not hand-authored content.
+backend/.generated/
+
+# O'Reilly figure downloader: session cookies + staged downloads, local only.
+/scripts/oreilly_figures/_profile/
+/scripts/oreilly_figures/_staging/
+
+# Codex figure-review scratch output (local evidence only, never released)
+/.codex-figure-review/

@@ -28,7 +28,10 @@ pydantic-settings==2.15.0
 # has no ecdsa dependency, and supports the `require` option that lets
 # app/core/security.py assert claims are PRESENT rather than merely
 # valid-if-present.
-PyJWT==2.13.0
+# 2.13.0 carried the PYSEC-2026-414x/4183 series (mostly JWKS/asymmetric
+# paths this app never uses; also non-base64url signature acceptance).
+# 2.15.1 is a patch-level move with no API change for HS256 decode/encode.
+PyJWT==2.15.1
 # Provides the HMAC/crypto primitives PyJWT uses.
 cryptography==50.0.0
 # passlib 1.7.4 is unmaintained and breaks against bcrypt>=4.1 (it reads

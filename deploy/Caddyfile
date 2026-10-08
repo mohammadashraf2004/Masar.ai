@@ -66,9 +66,24 @@
 	}
 }
 
+# ── www → apex ──────────────────────────────────────────────────────────
+# One canonical origin (CORS, cookies-free auth, certificate links all use
+# FRONTEND_URL). Needs a DNS record for www; without one Caddy just keeps
+# retrying that certificate and every other site is unaffected.
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
+
 # ── API ─────────────────────────────────────────────────────────────────
 {$API_DOMAIN} {
 	encode zstd gzip
+
+	# Refuse oversized bodies before they reach the API, which would buffer
+	# a JSON body in full before validating it. Same ceiling as the app's own
+	# guard (MAX_REQUEST_BODY_BYTES, app/core/body_limit.py).
+	request_body {
+		max_size 4MB
+	}
 
 	# /metrics is served by the application on the same port as the API and
 	# is already bearer-token gated (a wrong token gets 404, not 401). It

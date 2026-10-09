@@ -42,16 +42,13 @@ PYTHON_PENDING = frozenset(
         M14.L01.EX03 M14.L01.EX04
     """)
     | _course("COURSE-004", """
-        M01.L05.EX01 M01.L07.EX01 M02.L01.EX01 M02.L01.EX02
+        M01.L05.EX01 M01.L07.EX01 M02.L01.EX01
     """)
     | _course("COURSE-005", """
         M01.L01.EX02 M02.L01.EX01 M03.L01.EX01 M04.L01.EX01
         M05.L01.EX01 M05.L01.EX02 M06.L01.EX01 M06.L01.EX02
         M07.L01.EX01 M08.L01.EX01 M09.L01.EX01 M10.L01.EX01
         M11.L01.EX01 M12.L01.EX01
-    """)
-    | _course("COURSE-006", """
-        M02.L01.EX02 M08.L01.EX02 M08.L01.EX03
     """)
     | _course("COURSE-007", """
         M03.L02.EX01 M03.L02.EX02 M03.L02.EX03 M03.L02.EX04 M04.L01.EX03
@@ -75,7 +72,7 @@ PYTHON_PENDING = frozenset(
     | _course("COURSE-012", """
         M01.L02.EX02 M01.L03.EX01 M01.L03.EX02
         M01.L04.EX01 M01.L04.EX02 M01.L05.EX01 M01.L05.EX02 M01.L06.EX01
-        M01.L07.EX01 M01.L07.EX02 M01.L08.EX01 M01.L08.EX02
+        M01.L07.EX01 M01.L07.EX02
         M01.L09.EX01 M01.L09.EX02 M01.L10.EX01 M01.L10.EX02
     """)
     | _course("COURSE-013", """
@@ -98,15 +95,15 @@ PYTHON_PENDING = frozenset(
         M03.L01.EX01 M03.L01.EX02 M04.L01.EX01 M04.L01.EX02
         M05.L01.EX01 M05.L01.EX02 M06.L01.EX01 M06.L01.EX02
         M07.L01.EX01 M07.L01.EX02 M08.L01.EX01 M08.L01.EX02
-        M09.L01.EX01 M09.L01.EX02 M10.L01.EX01 M10.L01.EX02
+        M09.L01.EX01 M10.L01.EX01
         M11.L01.EX01 M11.L01.EX02 M12.L01.EX01 M12.L01.EX02 M13.L01.EX01
     """)
     | _course("COURSE-015", """
-        M01.L01.EX01 M01.L03.EX03 M01.L04.EX03 M01.L05.EX03
-        M01.L06.EX08 M01.L07.EX04 M01.L07.EX06
+        M01.L01.EX01 M01.L03.EX03 M01.L04.EX03
+        M01.L06.EX08 M01.L07.EX06
     """)
     | _course("COURSE-016", """
-        M11.L01.EX01 M14.L01.EX03 M14.L01.EX04 M15.L01.EX04 M16.L01.EX04 M16.L01.EX06
+        M11.L01.EX01 M14.L01.EX03 M15.L01.EX04 M16.L01.EX04 M16.L01.EX06
     """)
     | _course("COURSE-002", "M03.L01.EX02")
 )
@@ -145,7 +142,7 @@ SPARQL_PENDING = frozenset(
     _course("COURSE-009", "M01.L09.EX04")
 )
 
-PENDING_BY_LANGUAGE = {
+REVIEWED_CODE_BY_LANGUAGE = {
     **{exercise_id: "python" for exercise_id in PYTHON_PENDING},
     **{exercise_id: "dockerfile" for exercise_id in DOCKERFILE_PENDING},
     **{exercise_id: "yaml" for exercise_id in YAML_PENDING},
@@ -154,6 +151,18 @@ PENDING_BY_LANGUAGE = {
     **{exercise_id: "ini" for exercise_id in INI_PENDING},
     **{exercise_id: "sql" for exercise_id in SQL_PENDING},
     **{exercise_id: "sparql" for exercise_id in SPARQL_PENDING},
+}
+
+
+def _guided_ids() -> frozenset[str]:
+    from .guided import registry
+    return frozenset(registry())
+
+
+# What is still waiting for a guided, graded definition (guided/cNNN.py).
+PENDING_BY_LANGUAGE = {
+    exercise_id: language for exercise_id, language in REVIEWED_CODE_BY_LANGUAGE.items()
+    if exercise_id not in _guided_ids()
 }
 
 

@@ -2958,13 +2958,11 @@ systems maximize modularity.**
                 "late-conditioning designs."
             ),
             "instructions": (
-                "Choose the most appropriate family for each scenario:\n"
-                "A. Low-latency system where generated images are rough reasoning aids.\n"
-                "B. Image-generation product where visual fidelity matters more than speed.\n"
-                "C. Startup with a strong frozen MLLM and an existing diffusion generator, "
-                "with little budget for full multimodal training.\n"
-                "For each, justify the choice using fidelity, latency, modularity, and "
-                "training complexity."
+                ('1. Choose the most appropriate family for each scenario:\n'
+                 '   - A. Low-latency system where generated images are rough reasoning aids.\n'
+                 '   - B. Image-generation product where visual fidelity matters more than speed.\n'
+                 '   - C. Startup with a strong frozen MLLM and an existing diffusion generator, with little budget for full multimodal training.\n'
+                 '2. For each, justify the choice using fidelity, latency, modularity, and training complexity.')
             ),
             "expected_output": (
                 "A three-row decision table with family, rationale, and main trade-off."
@@ -3014,13 +3012,12 @@ systems maximize modularity.**
                 "Interpret conditional and unconditional noise predictions."
             ),
             "instructions": (
-                "For one scalar component, suppose:\n"
-                "ε_uncond = 0.20\n"
-                "ε_cond = 0.50\n"
-                "Compute ε_hat for s=1, s=3, and s=7.5 using:\n"
-                "ε_hat = ε_uncond + s(ε_cond - ε_uncond).\n"
-                "Then explain what increasing s does conceptually and why very high guidance "
-                "may hurt diversity or create artifacts."
+                ('1. For one scalar component, suppose:\n'
+                 '2. ε_uncond = 0.20\n'
+                 '3. ε_cond = 0.50\n'
+                 '4. Compute ε_hat for s=1, s=3, and s=7.5 using:\n'
+                 '5. ε_hat = ε_uncond + s(ε_cond - ε_uncond).\n'
+                 '6. Then explain what increasing s does conceptually and why very high guidance may hurt diversity or create artifacts.')
             ),
             "expected_output": (
                 "Three calculations plus a prompt-adherence versus diversity explanation."
@@ -3042,14 +3039,13 @@ systems maximize modularity.**
                 "Reason about sample balance, token balance, and loss balance together."
             ),
             "instructions": (
-                "You are training on:\n"
-                "- 60% text-only conversations,\n"
-                "- 20% image-VQA,\n"
-                "- 10% text-to-image,\n"
-                "- 10% video QA.\n"
-                "Video samples contain 8x more input tokens than text samples.\n"
-                "Design a better balancing strategy using data-side and loss-side controls. "
-                "Explain how you would detect whether text, video, or generation is dominating."
+                ('1. You are training on:\n'
+                 '   - 60% text-only conversations,\n'
+                 '   - 20% image-VQA,\n'
+                 '   - 10% text-to-image,\n'
+                 '   - 10% video QA.\n'
+                 '2. Video samples contain 8x more input tokens than text samples.\n'
+                 '3. Design a better balancing strategy using data-side and loss-side controls. Explain how you would detect whether text, video, or generation is dominating.')
             ),
             "expected_output": (
                 "A revised mixture/weighting plan plus the validation metrics you would monitor."
@@ -3071,19 +3067,18 @@ systems maximize modularity.**
                 "Synthesize the architecture choices into one any-to-any assistant."
             ),
             "instructions": (
-                "Design a system that can receive text, images, and video-with-audio, then "
-                "return text and spoken answers.\n"
-                "Choose unified vocabulary, factorized heads, hybrid, or late conditioning.\n"
-                "Specify:\n"
-                "- perception encoders,\n"
-                "- reasoning component,\n"
-                "- output handoff,\n"
-                "- speech generation path,\n"
-                "- what is frozen/trainable,\n"
-                "- training stages,\n"
-                "- losses,\n"
-                "- metrics.\n"
-                "Justify the architecture using the source's trade-offs."
+                ('1. Design a system that can receive text, images, and video-with-audio, then return text and spoken answers.\n'
+                 '2. Choose unified vocabulary, factorized heads, hybrid, or late conditioning.\n'
+                 '3. Specify:\n'
+                 '   - perception encoders,\n'
+                 '   - reasoning component,\n'
+                 '   - output handoff,\n'
+                 '   - speech generation path,\n'
+                 '   - what is frozen/trainable,\n'
+                 '   - training stages,\n'
+                 '   - losses,\n'
+                 '   - metrics.\n'
+                 "4. Justify the architecture using the source's trade-offs.")
             ),
             "expected_output": (
                 "An architecture diagram or structured specification with training plan."
@@ -3105,14 +3100,11 @@ systems maximize modularity.**
                 "Compare hybrid multiobjective and late-conditioning systems."
             ),
             "instructions": (
-                "You have the same frozen MLLM and want high-quality image generation.\n"
-                "Design two versions:\n"
-                "A. A tightly integrated hybrid transformer that directly denoises continuous "
-                "image latents.\n"
-                "B. A late-conditioning pipeline with MLLM query states, connector, and a "
-                "swappable diffusion generator.\n"
-                "Compare training difficulty, fidelity/alignment, generator replaceability, "
-                "gradient conflict risk, and inference flow."
+                ('1. You have the same frozen MLLM and want high-quality image generation.\n'
+                 '2. Design two versions:\n'
+                 '   - A. A tightly integrated hybrid transformer that directly denoises continuous image latents.\n'
+                 '   - B. A late-conditioning pipeline with MLLM query states, connector, and a swappable diffusion generator.\n'
+                 '3. Compare training difficulty, fidelity/alignment, generator replaceability, gradient conflict risk, and inference flow.')
             ),
             "expected_output": (
                 "A side-by-side architecture comparison and final trade-off summary."

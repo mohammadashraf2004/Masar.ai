@@ -2378,11 +2378,9 @@ No. Local autonomy is combined with common standards and central curation.
             "placement": "after_section",
             "description": "Create a complete evaluation case for a tool-using agent.",
             "instructions": (
-                "Design one golden case for a Weather Assistant.\n"
-                "Include user input, expected tool/no-tool choice, expected parameters, simulated tool result, "
-                "expected final response behavior, grounding check, token/cost target, latency target, and maximum "
-                "allowed tool-response payload size.\n"
-                "Add one missing-information variant where clarification is required."
+                ('1. Design one golden case for a Weather Assistant.\n'
+                 '2. Include user input, expected tool/no-tool choice, expected parameters, simulated tool result, expected final response behavior, grounding check, token/cost target, latency target, and maximum allowed tool-response payload size.\n'
+                 '3. Add one missing-information variant where clarification is required.')
             ),
             "expected_output": "Two golden records: normal execution and clarification-required.",
             "difficulty": DifficultyLevel.beginner,
@@ -2396,11 +2394,10 @@ No. Local autonomy is combined with common standards and central curation.
             "placement": "after_section",
             "description": "Create a simulator-driven raw-audio test for a live tutor.",
             "instructions": (
-                "Define a Simulator persona and scenario.\n"
-                "Add emotional TTS behavior, one noisy environment, and one deliberate barge-in.\n"
-                "Define an Adaptive Rubric covering response correctness, tone, pacing, barge-in latency, "
-                "context switching, and context retention.\n"
-                "Explain which criteria require raw audio rather than transcripts."
+                ('1. Define a Simulator persona and scenario.\n'
+                 '2. Add emotional TTS behavior, one noisy environment, and one deliberate barge-in.\n'
+                 '3. Define an Adaptive Rubric covering response correctness, tone, pacing, barge-in latency, context switching, and context retention.\n'
+                 '4. Explain which criteria require raw audio rather than transcripts.')
             ),
             "expected_output": "A complete multimodal evaluation scenario and rubric.",
             "difficulty": DifficultyLevel.beginner,
@@ -2414,9 +2411,8 @@ No. Local autonomy is combined with common standards and central curation.
             "placement": "after_section",
             "description": "Connect standardized repositories, tests, CI/CD, and the Tool Registry.",
             "instructions": (
-                "Design a registration pipeline for a new customer-profile tool.\n"
-                "Include repository structure, unit tests, metadata validation, security checks, version assignment, "
-                "deployment/build step if needed, registry registration, owner/access fields, and rollback/deprecation rules."
+                ('1. Design a registration pipeline for a new customer-profile tool.\n'
+                 '2. Include repository structure, unit tests, metadata validation, security checks, version assignment, deployment/build step if needed, registry registration, owner/access fields, and rollback/deprecation rules.')
             ),
             "expected_output": "A CI/CD flow from tool source code to governed registry entry.",
             "difficulty": DifficultyLevel.beginner,
@@ -2468,10 +2464,8 @@ No. Local autonomy is combined with common standards and central curation.
             "placement": "after_section",
             "description": "Balance team autonomy with enterprise governance.",
             "instructions": (
-                "Design a company with three business-unit teams and one central AI Governance team.\n"
-                "Define local tool-development responsibilities, common metadata/testing/security standards, "
-                "the promotion process into the global registry, ownership/version rules, access policy, and "
-                "the criteria used to reject or deprecate a tool."
+                ('1. Design a company with three business-unit teams and one central AI Governance team.\n'
+                 '2. Define local tool-development responsibilities, common metadata/testing/security standards, the promotion process into the global registry, ownership/version rules, access policy, and the criteria used to reject or deprecate a tool.')
             ),
             "expected_output": "A federated governance operating model.",
             "difficulty": DifficultyLevel.beginner,
@@ -2485,9 +2479,8 @@ No. Local autonomy is combined with common standards and central curation.
             "placement": "after_section",
             "description": "Evaluate tool chains, efficiency, and memory together.",
             "instructions": (
-                "Design a three-step Academic Advisor workflow using three tools.\n"
-                "Define expected tool order, parameters, simulated responses, max step count, final response, "
-                "short-term memory topics, and one deliberately irrelevant memory item that the evaluator should reject."
+                ('1. Design a three-step Academic Advisor workflow using three tools.\n'
+                 '2. Define expected tool order, parameters, simulated responses, max step count, final response, short-term memory topics, and one deliberately irrelevant memory item that the evaluator should reject.')
             ),
             "expected_output": "A multi-turn golden trajectory plus memory-evaluation criteria.",
             "difficulty": DifficultyLevel.beginner,

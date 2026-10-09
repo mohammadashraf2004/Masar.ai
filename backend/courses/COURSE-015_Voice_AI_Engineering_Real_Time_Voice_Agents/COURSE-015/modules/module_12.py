@@ -2855,10 +2855,9 @@ No. Long-lived secrets are removed from app code/runtime, while trusted infrastr
             "placement": "after_section",
             "description": "Apply agent-level protections around an action tool.",
             "instructions": (
-                "Design the controls for a ChangeGrade tool.\n"
-                "Include session isolation, indirect-injection defense, least-privilege scope, "
-                "strict schema validation, HITL approval, audit logging, and rollback/error behavior.\n"
-                "Explain which checks happen before and after the tool call."
+                ('1. Design the controls for a ChangeGrade tool.\n'
+                 '2. Include session isolation, indirect-injection defense, least-privilege scope, strict schema validation, HITL approval, audit logging, and rollback/error behavior.\n'
+                 '3. Explain which checks happen before and after the tool call.')
             ),
             "expected_output": "A secure tool-execution sequence.",
             "difficulty": DifficultyLevel.beginner,
@@ -2909,9 +2908,9 @@ No. Long-lived secrets are removed from app code/runtime, while trusted infrastr
             "placement": "after_section",
             "description": "Audit an enterprise agent platform across all eight layers.",
             "instructions": (
-                "Create an eight-layer security review for a live Financial Aid Agent.\n"
-                "For each layer, list at least three controls, one failure mode, and one monitoring/evidence item.\n"
-                "Add a final section for live multimodal safety and identity propagation."
+                ('1. Create an eight-layer security review for a live Financial Aid Agent.\n'
+                 '2. For each layer, list at least three controls, one failure mode, and one monitoring/evidence item.\n'
+                 '3. Add a final section for live multimodal safety and identity propagation.')
             ),
             "expected_output": "A complete production security audit checklist.",
             "difficulty": DifficultyLevel.beginner,
@@ -2944,10 +2943,9 @@ No. Long-lived secrets are removed from app code/runtime, while trusted infrastr
             "placement": "after_section",
             "description": "Build observability without turning logs into a privacy vulnerability.",
             "instructions": (
-                "Design telemetry for a Research Agent.\n"
-                "Include Trace ID propagation, token use, cost, TTFT, total latency, CPU, memory, "
-                "tool-call metadata, redaction policy, warning thresholds, circuit breaker, and kill switch.\n"
-                "State which values must never be written to logs."
+                ('1. Design telemetry for a Research Agent.\n'
+                 '2. Include Trace ID propagation, token use, cost, TTFT, total latency, CPU, memory, tool-call metadata, redaction policy, warning thresholds, circuit breaker, and kill switch.\n'
+                 '3. State which values must never be written to logs.')
             ),
             "expected_output": "An observability and mitigation specification.",
             "difficulty": DifficultyLevel.beginner,
@@ -2961,9 +2959,8 @@ No. Long-lived secrets are removed from app code/runtime, while trusted infrastr
             "placement": "after_section",
             "description": "Place controls at the correct agent lifecycle boundary.",
             "instructions": (
-                "For each callback—before agent, before model, after model, before tool, after tool, after agent—"
-                "define at least one security check and one failure response.\n"
-                "Then identify which checks should also be enforced centrally at the platform/model gateway."
+                ('1. For each callback—before agent, before model, after model, before tool, after tool, after agent—define at least one security check and one failure response.\n'
+                 '2. Then identify which checks should also be enforced centrally at the platform/model gateway.')
             ),
             "expected_output": "A six-row callback security matrix plus centralized-policy layer.",
             "difficulty": DifficultyLevel.beginner,

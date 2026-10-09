@@ -852,10 +852,9 @@ TOPIC = {
             "placement": "after_section",
             "description": "Turn the chapter's exercises into an experiment plan.",
             "instructions": (
-                "Design a small experiment matrix containing: one alternative class-balance ratio, one stronger/weaker augmentation setting, "
-                "one augmentation combination, and F1 plus at least one alternative F-beta score from the chapter's exercises. "
-                "For each run, state the hypothesis, training change, validation metrics to watch, and what result would support or reject the hypothesis. "
-                "Do not assume in advance which setting will win."
+                ("1. Design a small experiment matrix containing: one alternative class-balance ratio, one stronger/weaker augmentation setting, one augmentation combination, and F1 plus at least one alternative F-beta score from the chapter's exercises.\n"
+                 '2. For each run, state the hypothesis, training change, validation metrics to watch, and what result would support or reject the hypothesis.\n'
+                 '3. Do not assume in advance which setting will win.')
             ),
             "expected_output": "A concise experiment matrix with hypotheses, controlled changes, metrics, and decision criteria.",
             "difficulty": DifficultyLevel.intermediate,

@@ -240,9 +240,19 @@ Last results (2026-10-06): **96/96 under runc, 96/96 under gVisor.**
    that dependency.
 3. Throughput is one job per replica with a short queue; a Redis-backed queue
    is the next step before heavy use (the lease interface is ready for it).
-4. The existing lesson **code exercises** (`app/services/code_execution/`)
-   still run in a subprocess of the API in every environment; they are out of
-   scope here and should move to this runner.
+4. Lesson **code exercises** run here too: `IsolatedPythonRunner`
+   (`app/services/code_execution/`) sends each Run and Check Answer to this
+   runner through the same execution service, so they inherit every limit
+   and the isolation above. Outside production `PROJECT_LAB_EXECUTION_BACKEND=local`
+   runs them in a resource-limited API subprocess instead; production never
+   does (`build_backend`: runner, or disabled). Exercises whose libraries the
+   runner does not install (PyTorch, FastAPI, ...) and the YAML/Dockerfile/
+   shell ones are graded without executing learner code. SQL exercises run
+   the learner's query in the API process, in an in-memory SQLite database
+   that is query-only, with ATTACH/PRAGMA/transactions denied by an
+   authorizer, a heap limit, a progress-handler time limit and a 500-row cap
+   (`code_grading/sql_grader.py`). Live Python execution therefore waits on
+   the same production-host runbook below.
 5. If the host loses `runsc` while the env file still names it (a manual
    uninstall, a Docker reinstall that drops the `runtimes` entry), every full
    `docker compose up` aborts until the env file is switched as in rollback

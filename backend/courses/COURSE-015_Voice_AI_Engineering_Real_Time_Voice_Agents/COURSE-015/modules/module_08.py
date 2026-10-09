@@ -2535,11 +2535,9 @@ No. Treat them as capability- and version-dependent.
             "placement": "after_section",
             "description": "Design application-owned state that connects ADK, A2A, and MCP.",
             "instructions": (
-                "Design a task record for a long-running research workflow.\n"
-                "Include user_id, session_id, workflow_id, status, remote A2A task ID, "
-                "MCP operation/task ID where available, progress, artifact references, "
-                "correlation IDs, idempotency key, timestamps, cancellation state, and retention metadata.\n"
-                "Explain which protocol/runtime owns each external ID and why the application must persist the mapping."
+                ('1. Design a task record for a long-running research workflow.\n'
+                 '2. Include user_id, session_id, workflow_id, status, remote A2A task ID, MCP operation/task ID where available, progress, artifact references, correlation IDs, idempotency key, timestamps, cancellation state, and retention metadata.\n'
+                 '3. Explain which protocol/runtime owns each external ID and why the application must persist the mapping.')
             ),
             "expected_output": "A durable task schema plus an ownership explanation.",
             "difficulty": DifficultyLevel.beginner,
@@ -2573,11 +2571,9 @@ No. Treat them as capability- and version-dependent.
             "placement": "after_section",
             "description": "Practice safe handling of duplicate and out-of-order asynchronous events.",
             "instructions": (
-                "Design a webhook/task-update handler.\n"
-                "It must verify sender identity, check event_id duplication, load the expected workflow, "
-                "validate ownership, reject invalid state transitions, ignore stale/out-of-order updates, "
-                "persist valid changes, and resume the workflow only for valid terminal/suspended states.\n"
-                "Explain how the handler responds to the same event arriving twice."
+                ('1. Design a webhook/task-update handler.\n'
+                 '2. It must verify sender identity, check event_id duplication, load the expected workflow, validate ownership, reject invalid state transitions, ignore stale/out-of-order updates, persist valid changes, and resume the workflow only for valid terminal/suspended states.\n'
+                 '3. Explain how the handler responds to the same event arriving twice.')
             ),
             "expected_output": "A numbered idempotent update algorithm.",
             "difficulty": DifficultyLevel.beginner,
@@ -2613,10 +2609,9 @@ No. Treat them as capability- and version-dependent.
             "placement": "after_section",
             "description": "Audit a durable agent workflow before production deployment.",
             "instructions": (
-                "Create a readiness table with sections State, Delivery, Safety, Observability, UX, and Security.\n"
-                "Add at least four checks to each section.\n"
-                "For every failed check, state the failure mode it could cause, such as lost state, duplicate work, "
-                "invisible failure, unauthorized callback, or unrecoverable browser refresh."
+                ('1. Create a readiness table with sections State, Delivery, Safety, Observability, UX, and Security.\n'
+                 '2. Add at least four checks to each section.\n'
+                 '3. For every failed check, state the failure mode it could cause, such as lost state, duplicate work, invisible failure, unauthorized callback, or unrecoverable browser refresh.')
             ),
             "expected_output": "A production-readiness checklist linked to concrete failure modes.",
             "difficulty": DifficultyLevel.beginner,
@@ -2630,10 +2625,10 @@ No. Treat them as capability- and version-dependent.
             "placement": "after_section",
             "description": "Use ownership and correlation IDs to locate failures across the complete architecture.",
             "instructions": (
-                "For a user report that never completes, define a debugging sequence across:\n"
-                "Browser -> Backend -> ADK Session -> A2A Task -> MCP Operation -> Worker -> Callback.\n"
-                "List the identifiers and logs you would inspect at each boundary.\n"
-                "Explain how you would distinguish a UI-only problem from a remote task failure."
+                ('1. For a user report that never completes, define a debugging sequence across:\n'
+                 '2. Browser -> Backend -> ADK Session -> A2A Task -> MCP Operation -> Worker -> Callback.\n'
+                 '3. List the identifiers and logs you would inspect at each boundary.\n'
+                 '4. Explain how you would distinguish a UI-only problem from a remote task failure.')
             ),
             "expected_output": "A distributed debugging runbook with correlation fields.",
             "difficulty": DifficultyLevel.beginner,

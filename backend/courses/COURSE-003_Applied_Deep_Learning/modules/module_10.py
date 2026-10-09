@@ -822,11 +822,10 @@ TOPIC = {
             "placement": "after_section",
             "description": "Practice turning one vague end goal into smaller trainable and debuggable tasks.",
             "instructions": (
-                "Start with the end goal: `given a chest CT, identify suspicious malignant lung tumors`. "
-                "Create a table with columns: stage, input, output, model/data operation, possible failure, "
-                "and metric. Include at least data loading, candidate localization/segmentation, candidate "
-                "classification, and final result aggregation. Then explain which stage you would prototype first "
-                "if you wanted the fastest learning/debugging feedback and why."
+                ('1. Start with the end goal: `given a chest CT, identify suspicious malignant lung tumors`.\n'
+                 '2. Create a table with columns: stage, input, output, model/data operation, possible failure, and metric.\n'
+                 '3. Include at least data loading, candidate localization/segmentation, candidate classification, and final result aggregation.\n'
+                 '4. Then explain which stage you would prototype first if you wanted the fastest learning/debugging feedback and why.')
             ),
             "expected_output": "A system-decomposition table and a reasoned prototyping-order decision.",
             "difficulty": DifficultyLevel.intermediate,

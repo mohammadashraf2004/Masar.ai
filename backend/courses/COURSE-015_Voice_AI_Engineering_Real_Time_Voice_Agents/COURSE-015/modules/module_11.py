@@ -2360,10 +2360,9 @@ No. It also supports access requests, owner approvals, and control-plane policy 
             "placement": "after_section",
             "description": "Create a standardized blueprint for a reusable enterprise agent.",
             "instructions": (
-                "Design a 'Customer Support RAG Agent' template.\n"
-                "Define repository structure, Agent Card, context, prompts, examples, tools, tests, evaluation dataset, "
-                "monitoring placeholder, deployment pipeline, owner, version, and template metadata.\n"
-                "Then describe Discovery -> Selection -> Hydration -> Pipeline Initialization."
+                ("1. Design a 'Customer Support RAG Agent' template.\n"
+                 '2. Define repository structure, Agent Card, context, prompts, examples, tools, tests, evaluation dataset, monitoring placeholder, deployment pipeline, owner, version, and template metadata.\n'
+                 '3. Then describe Discovery -> Selection -> Hydration -> Pipeline Initialization.')
             ),
             "expected_output": "A template specification plus instantiation workflow.",
             "difficulty": DifficultyLevel.beginner,
@@ -2396,10 +2395,8 @@ No. It also supports access requests, owner approvals, and control-plane policy 
             "placement": "after_section",
             "description": "Connect creation, governance, and usage into one end-to-end architecture.",
             "instructions": (
-                "Design a Physics Tutor lifecycle.\n"
-                "Show: template selection, hydrated repository, CI/CD deployment, registry registration, Registry Record, "
-                "Public Facade, default/group policy, optional access request, frontend discovery, backend resolution, "
-                "agent session, and one future downstream identity-propagation requirement."
+                ('1. Design a Physics Tutor lifecycle.\n'
+                 '2. Show: template selection, hydrated repository, CI/CD deployment, registry registration, Registry Record, Public Facade, default/group policy, optional access request, frontend discovery, backend resolution, agent session, and one future downstream identity-propagation requirement.')
             ),
             "expected_output": "A three-stream lifecycle diagram and explanation.",
             "difficulty": DifficultyLevel.beginner,
@@ -2413,10 +2410,9 @@ No. It also supports access requests, owner approvals, and control-plane policy 
             "placement": "after_section",
             "description": "Separate protocol metadata from enterprise metadata and audience-specific exposure.",
             "instructions": (
-                "Create a Registry Record for a Data Science Tutor.\n"
-                "Include an inner Agent Card and outer fields for immutable identity, internal code name, owner, "
-                "compliance level, cost center, lifecycle state, and Public Facade.\n"
-                "Define separate fields visible to end users, developers, and backend/platform services."
+                ('1. Create a Registry Record for a Data Science Tutor.\n'
+                 '2. Include an inner Agent Card and outer fields for immutable identity, internal code name, owner, compliance level, cost center, lifecycle state, and Public Facade.\n'
+                 '3. Define separate fields visible to end users, developers, and backend/platform services.')
             ),
             "expected_output": "A three-audience Registry Record schema.",
             "difficulty": DifficultyLevel.beginner,
@@ -2448,10 +2444,10 @@ No. It also supports access requests, owner approvals, and control-plane policy 
             "placement": "after_section",
             "description": "Distinguish service authorization from end-user authorization.",
             "instructions": (
-                "Trace Alice -> Marketing Router -> Sales Analytics Agent -> Revenue Database.\n"
-                "Identify where Agent Gateway authorization applies.\n"
-                "Then explain why the database still needs Alice's identity, delegated permission, and an audit trail.\n"
-                "Describe the risk of using only the Sales Agent's superuser service account."
+                ('1. Trace Alice -> Marketing Router -> Sales Analytics Agent -> Revenue Database.\n'
+                 '2. Identify where Agent Gateway authorization applies.\n'
+                 "3. Then explain why the database still needs Alice's identity, delegated permission, and an audit trail.\n"
+                 "4. Describe the risk of using only the Sales Agent's superuser service account.")
             ),
             "expected_output": "An identity/authorization flow and risk explanation.",
             "difficulty": DifficultyLevel.beginner,

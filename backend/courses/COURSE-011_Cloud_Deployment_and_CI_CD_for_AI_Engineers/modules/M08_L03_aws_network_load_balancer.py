@@ -424,8 +424,8 @@ The source uses security groups at both the load-balancer and EC2 layers.
             "placement": "after_section",
             "description": "Practice separating front-door listener configuration from backend target registration.",
             "instructions": (
-                "For the Streamlit path, write the values for listener protocol/port, target type, target-group protocol/port, "
-                "registered address, and health-check type. Then explain the role of each field."
+                ('1. For the Streamlit path, write the values for listener protocol/port, target type, target-group protocol/port, registered address, and health-check type.\n'
+                 '2. Then explain the role of each field.')
             ),
             "expected_output": "A listener/target-group mapping table for port 8501.",
             "difficulty": DifficultyLevel.beginner,
@@ -439,8 +439,9 @@ The source uses security groups at both the load-balancer and EC2 layers.
             "placement": "after_section",
             "description": "Represent the complete source port-routing model.",
             "instructions": (
-                "Create one table for TCP ports 22, 8501, 8502, and 8504. Include service, listener, target group, "
-                "backend EC2 private IP, and trusted external source rule. Then explain which layer is public-facing."
+                ('1. Create one table for TCP ports 22, 8501, 8502, and 8504.\n'
+                 '2. Include service, listener, target group, backend EC2 private IP, and trusted external source rule.\n'
+                 '3. Then explain which layer is public-facing.')
             ),
             "expected_output": "A four-service NLB routing and security table.",
             "difficulty": DifficultyLevel.beginner,
@@ -454,9 +455,9 @@ The source uses security groups at both the load-balancer and EC2 layers.
             "placement": "after_section",
             "description": "Use the source architecture to reason about a failed request.",
             "instructions": (
-                "Suppose LOAD_BALANCER_DNS:8501 does not load. Check the path in order: Streamlit process, EC2 port, "
-                "target health, target-group registration, listener mapping, security groups, and client source. "
-                "Explain what evidence you would seek at each step."
+                ('1. Suppose LOAD_BALANCER_DNS:8501 does not load.\n'
+                 '2. Check the path in order: Streamlit process, EC2 port, target health, target-group registration, listener mapping, security groups, and client source.\n'
+                 '3. Explain what evidence you would seek at each step.')
             ),
             "expected_output": "A layered troubleshooting checklist from application to client.",
             "difficulty": DifficultyLevel.beginner,

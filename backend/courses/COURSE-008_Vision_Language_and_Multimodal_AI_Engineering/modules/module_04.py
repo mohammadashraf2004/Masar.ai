@@ -2425,11 +2425,10 @@ representation design and disciplined data engineering.**
                 "Build a scalable filtering pipeline for a large raw multimodal collection."
             ),
             "instructions": (
-                "You have 2,000,000 candidate videos for a training dataset.\n"
-                "Design at least four filtering stages from cheapest to most expensive.\n"
-                "Include: licensing/metadata, corruption checks, a cheap relevance proxy, "
-                "and a model-based visual analysis stage.\n"
-                "For each stage, state what it removes and why it belongs at that point."
+                ('1. You have 2,000,000 candidate videos for a training dataset.\n'
+                 '2. Design at least four filtering stages from cheapest to most expensive.\n'
+                 '3. Include: licensing/metadata, corruption checks, a cheap relevance proxy, and a model-based visual analysis stage.\n'
+                 '4. For each stage, state what it removes and why it belongs at that point.')
             ),
             "expected_output": (
                 "A funnel diagram or table with stage, approximate relative cost, "
@@ -2481,16 +2480,15 @@ representation design and disciplined data engineering.**
                 "Balance domain expertise with preservation of general multimodal capability."
             ),
             "instructions": (
-                "You are specializing a general VLM for industrial document inspection.\n"
-                "Propose a mixture across:\n"
-                "- industrial documents,\n"
-                "- general documents/OCR,\n"
-                "- natural images containing text,\n"
-                "- general visual conversation,\n"
-                "- pure text.\n"
-                "Your percentages must sum to 100%.\n"
-                "Explain which category acts as bridge data and how you would detect "
-                "catastrophic forgetting."
+                ('1. You are specializing a general VLM for industrial document inspection.\n'
+                 '2. Propose a mixture across:\n'
+                 '   - industrial documents,\n'
+                 '   - general documents/OCR,\n'
+                 '   - natural images containing text,\n'
+                 '   - general visual conversation,\n'
+                 '   - pure text.\n'
+                 '3. Your percentages must sum to 100%.\n'
+                 '4. Explain which category acts as bridge data and how you would detect catastrophic forgetting.')
             ),
             "expected_output": (
                 "A 100% mixture table plus justification and a validation plan covering "
@@ -2515,14 +2513,13 @@ representation design and disciplined data engineering.**
                 "needed to learn it."
             ),
             "instructions": (
-                "Design a multimodal warehouse assistant that can:\n"
-                "- hear a spoken question,\n"
-                "- inspect a camera frame,\n"
-                "- answer about labels and damaged boxes,\n"
-                "- find the relevant moment in a short video,\n"
-                "- produce structured JSON for an inventory tool.\n"
-                "For each capability, state the needed modality, representation concept, "
-                "training-data type, and one quality check."
+                ('1. Design a multimodal warehouse assistant that can:\n'
+                 '   - hear a spoken question,\n'
+                 '   - inspect a camera frame,\n'
+                 '   - answer about labels and damaged boxes,\n'
+                 '   - find the relevant moment in a short video,\n'
+                 '   - produce structured JSON for an inventory tool.\n'
+                 '2. For each capability, state the needed modality, representation concept, training-data type, and one quality check.')
             ),
             "expected_output": (
                 "A capability matrix connecting product behavior → modality → representation "

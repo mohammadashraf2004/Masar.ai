@@ -1430,9 +1430,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'description': 'Given four retrieval failures, choose late interaction, nuanced '
                                'reranking, multimodal retrieval, or graph augmentation and justify '
                                'each mapping.',
-                'instructions': 'Match each failure to the smallest technique that directly '
-                                'addresses it. Explain why the other future-facing techniques '
-                                'would add complexity without fixing the root problem.',
+                'instructions': ('1. Match each failure to the smallest technique that directly addresses it.\n'
+                                 '2. Explain why the other future-facing techniques would add complexity without fixing the root problem.'),
                 'expected_output': 'A four-row mapping from failure mode to retrieval technique '
                                    'with a minimal-complexity justification.',
                 'skill_tested': ['retrieval', 'architecture'],
@@ -1445,10 +1444,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'description': 'Design an experiment comparing a dense baseline with a '
                                'late-interaction retriever, including quality and infrastructure '
                                'metrics.',
-                'instructions': 'Hold the corpus and queries constant, compare dense retrieval '
-                                'with late interaction, and measure recall/nDCG, index size, RAM, '
-                                'build time, and query latency. Define the threshold that would '
-                                'justify migration.',
+                'instructions': ('1. Hold the corpus and queries constant, compare dense retrieval with late interaction, and measure recall/nDCG, index size, RAM, build time, and query latency.\n'
+                                 '2. Define the threshold that would justify migration.'),
                 'expected_output': 'An experiment plan with quality and infrastructure metrics '
                                    'plus an explicit adoption criterion.',
                 'skill_tested': ['late-interaction', 'evaluation'],
@@ -1460,10 +1457,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Draft a relevance instruction for a regulated domain and explain '
                                'how you would validate that it improves ranking.',
-                'instructions': 'Write a reranking instruction for your chosen regulated domain '
-                                'that defines what counts as relevant evidence and what must be '
-                                'deprioritized. Then define an offline ranking test against a '
-                                'baseline reranker.',
+                'instructions': ('1. Write a reranking instruction for your chosen regulated domain that defines what counts as relevant evidence and what must be deprioritized.\n'
+                                 '2. Then define an offline ranking test against a baseline reranker.'),
                 'expected_output': 'A domain-specific reranking instruction and an evaluation plan '
                                    'using a labeled query set.',
                 'skill_tested': ['reranking', 'domain-relevance'],
@@ -1475,9 +1470,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Take a failed one-shot RAG scenario and design a bounded '
                                'multi-step retrieval loop that can recover missing evidence.',
-                'instructions': 'Specify the initial query, evidence-gap detector, revised-query '
-                                'step, maximum retrieval iterations, stop conditions, and final '
-                                'synthesis rule. Keep the loop bounded.',
+                'instructions': ('1. Specify the initial query, evidence-gap detector, revised-query step, maximum retrieval iterations, stop conditions, and final synthesis rule.\n'
+                                 '2. Keep the loop bounded.'),
                 'expected_output': 'A bounded agentic retrieval state machine that can recover '
                                    'from missing evidence without running indefinitely.',
                 'skill_tested': ['agentic-rag', 'planning'],
@@ -1489,10 +1483,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Define iteration, time, and budget caps for an agentic workflow '
                                'and explain the behavior when a cap is reached.',
-                'instructions': 'Set maximum iterations, wall-clock time, tool-call count, and '
-                                'monetary/token budget. Define whether the system returns partial '
-                                'evidence, falls back to standard RAG, or requests user '
-                                'clarification when a limit is reached.',
+                'instructions': ('1. Set maximum iterations, wall-clock time, tool-call count, and monetary/token budget.\n'
+                                 '2. Define whether the system returns partial evidence, falls back to standard RAG, or requests user clarification when a limit is reached.'),
                 'expected_output': 'A production loop-budget policy with caps, termination '
                                    'behavior, and observability fields.',
                 'skill_tested': ['agentic-rag', 'guardrails'],
@@ -1504,9 +1496,10 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Route one query across a warehouse, document repository, and '
                                'ticket-search system while preserving provenance and permissions.',
-                'instructions': 'Decompose the query into subqueries for each source, preserve '
-                                'user permissions, execute in parallel where safe, normalize '
-                                'results, and attach source provenance before synthesis.',
+                'instructions': ('1. Decompose the query into one subquery per source: warehouse, document repository, ticket search.\n'
+                                 "2. Make every subquery run with the user's permissions.\n"
+                                 '3. Run the subqueries in parallel where that is safe.\n'
+                                 "4. Normalize the results and attach each one's source provenance before synthesis."),
                 'expected_output': 'A federated retrieval plan showing routing, authorization, '
                                    'parallelism, normalization, and provenance.',
                 'skill_tested': ['federated-retrieval', 'provenance'],
@@ -1518,10 +1511,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'A connected legacy system returns irrelevant results. Identify '
                                'what can be improved in the source versus in the central agent.',
-                'instructions': 'Separate failures caused by poor native indexing/search from '
-                                'failures caused by routing or synthesis. Propose source-side '
-                                'upgrades such as semantic/hybrid search or text-to-SQL before '
-                                'adding central-agent complexity.',
+                'instructions': ('1. Separate failures caused by poor native indexing/search from failures caused by routing or synthesis.\n'
+                                 '2. Propose source-side upgrades such as semantic/hybrid search or text-to-SQL before adding central-agent complexity.'),
                 'expected_output': 'A diagnosis matrix listing source-level versus '
                                    'orchestrator-level fixes and the expected effect of each.',
                 'skill_tested': ['federated-retrieval', 'retrieval-quality'],
@@ -1534,10 +1525,10 @@ TOPIC = {'title': 'The Future of RAG',
                 'description': 'For three workloads, decide whether to use retrieval, long '
                                'context, or context-aware RAG and justify the cost/latency '
                                'trade-off.',
-                'instructions': 'For a small static handbook, a large frequently changing corpus, '
-                                'and a long technical specification, compare full-context, '
-                                'retrieval, and context-aware RAG on cost, latency, freshness, and '
-                                'noise.',
+                'instructions': ('1. Use three workloads: a small static handbook, a large frequently changing corpus, and a long technical specification.\n'
+                                 '2. Compare full context, retrieval and context-aware RAG for each one.\n'
+                                 '3. Judge each option on cost, latency, freshness and noise.\n'
+                                 '4. Choose an approach per workload and justify it.'),
                 'expected_output': 'Three workload decisions with explicit cost/latency/freshness '
                                    'reasoning.',
                 'skill_tested': ['long-context', 'context-aware-rag'],
@@ -1549,10 +1540,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Allocate a fixed token budget among system instructions, retrieved '
                                'evidence, user history, and tool outputs for a sample task.',
-                'instructions': 'Start with a fixed token budget and reserve space for system '
-                                'policy and final answer. Allocate the remainder across retrieved '
-                                'evidence, conversation history, and tool outputs, then define '
-                                'what gets compressed or dropped first.',
+                'instructions': ('1. Start with a fixed token budget and reserve space for system policy and final answer.\n'
+                                 '2. Allocate the remainder across retrieved evidence, conversation history, and tool outputs, then define what gets compressed or dropped first.'),
                 'expected_output': 'A token-budget table with allocation priorities and '
                                    'overflow/compression rules.',
                 'skill_tested': ['context-engineering', 'token-budgeting'],
@@ -1564,10 +1553,10 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Specify what workspace signals can trigger retrieval, what should '
                                'be surfaced, and how the user retains control.',
-                'instructions': 'Define observable workspace signals, retrieval triggers, '
-                                'confidence thresholds, nonintrusive presentation, user opt-out, '
-                                'retention policy, and cases where proactive retrieval must not '
-                                'run.',
+                'instructions': ('1. Define the workspace signals that can be observed.\n'
+                                 '2. Define which signals trigger retrieval and the confidence threshold for showing a result.\n'
+                                 '3. Describe a nonintrusive way to present the result and how the user opts out.\n'
+                                 '4. State the retention policy and the cases where proactive retrieval must not run.'),
                 'expected_output': 'A proactive-assistant design that balances usefulness with '
                                    'privacy and user control.',
                 'skill_tested': ['proactive-rag', 'privacy'],
@@ -1579,10 +1568,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Evaluate whether a sensitive high-volume application should move '
                                'from hosted inference to a local SLM.',
-                'instructions': 'Estimate query volume, sensitivity, uptime needs, model quality '
-                                'requirements, hardware availability, and operations skill. Decide '
-                                'whether the application should stay on hosted APIs, move local, '
-                                'or use a hybrid.',
+                'instructions': ('1. Estimate query volume, sensitivity, uptime needs, model quality requirements, hardware availability, and operations skill.\n'
+                                 '2. Decide whether the application should stay on hosted APIs, move local, or use a hybrid.'),
                 'expected_output': 'A deployment recommendation with quality, privacy, cost, and '
                                    'operations trade-offs.',
                 'skill_tested': ['slm', 'edge-rag'],
@@ -1594,10 +1581,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'List all cost categories needed for a fair comparison between '
                                'token-priced APIs and locally hosted SLMs.',
-                'instructions': 'Compare API token charges with local GPU amortization, power, '
-                                'maintenance, redundancy, staffing, model updates, and '
-                                'utilization. Identify the break-even variables rather than '
-                                'assuming local is always cheaper.',
+                'instructions': ('1. Compare API token charges with local GPU amortization, power, maintenance, redundancy, staffing, model updates, and utilization.\n'
+                                 '2. Identify the break-even variables rather than assuming local is always cheaper.'),
                 'expected_output': 'A TCO comparison model listing fixed and variable costs plus '
                                    'the variables needed for a break-even calculation.',
                 'skill_tested': ['tco', 'local-inference'],
@@ -1609,10 +1594,10 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Design routing rules for users in multiple regions so retrieval '
                                'never violates data-residency constraints.',
-                'instructions': 'Define region selection from user/data policy, route only to '
-                                'approved regional indexes, preserve cross-region restrictions in '
-                                'tool calls, and specify behavior when the required data is '
-                                'unavailable in-region.',
+                'instructions': ('1. Define how the region is selected from the user and data policy.\n'
+                                 '2. Route requests only to approved regional indexes.\n'
+                                 '3. Keep cross-region restrictions in every tool call.\n'
+                                 '4. Specify what happens when the required data is not available in the region.'),
                 'expected_output': 'A regional retrieval-routing policy with residency enforcement '
                                    'and failure behavior.',
                 'skill_tested': ['data-sovereignty', 'routing'],
@@ -1624,10 +1609,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Define metadata needed to delete every derived chunk/index entry '
                                'associated with one source identity.',
-                'instructions': 'Define lineage metadata from source identity through document '
-                                'version, chunk IDs, embeddings, lexical records, caches, and '
-                                'derived summaries. Show the delete workflow and verification '
-                                'step.',
+                'instructions': ('1. Define lineage metadata from source identity through document version, chunk IDs, embeddings, lexical records, caches, and derived summaries.\n'
+                                 '2. Show the delete workflow and verification step.'),
                 'expected_output': 'A deletion-lineage schema and end-to-end right-to-be-forgotten '
                                    'procedure.',
                 'skill_tested': ['privacy', 'data-lineage'],
@@ -1639,10 +1622,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Define quality, latency, and safety checks that must pass before a '
                                'retriever or prompt change can deploy.',
-                'instructions': 'Set minimum retrieval relevance and faithfulness thresholds, '
-                                'maximum latency/cost regressions, required safety tests, and '
-                                'rollback criteria. Include versioning for the benchmark and judge '
-                                'configuration.',
+                'instructions': ('1. Set minimum retrieval relevance and faithfulness thresholds, maximum latency/cost regressions, required safety tests, and rollback criteria.\n'
+                                 '2. Include versioning for the benchmark and judge configuration.'),
                 'expected_output': 'A CI/CD evaluation gate with measurable thresholds, regression '
                                    'policy, and rollback trigger.',
                 'skill_tested': ['evaluation', 'cicd'],
@@ -1654,9 +1635,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Build a decision matrix for a hypothetical new retrieval technique '
                                'using quality, latency, cost, security, and maintenance.',
-                'instructions': 'Score a new technique against measured quality gain, latency, '
-                                'cost, security exposure, operational complexity, reversibility, '
-                                'and maturity. Require evidence before adoption.',
+                'instructions': ('1. Score a new technique against measured quality gain, latency, cost, security exposure, operational complexity, reversibility, and maturity.\n'
+                                 '2. Require evidence before adoption.'),
                 'expected_output': 'A weighted decision matrix that distinguishes measurable '
                                    'architectural value from hype.',
                 'skill_tested': ['architecture', 'technology-evaluation'],
@@ -1668,10 +1648,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Create routing rules that decide when a query stays on standard '
                                'RAG and when it escalates to graph, multimodal, or agentic paths.',
-                'instructions': 'Define a router that starts with standard RAG and escalates only '
-                                'on detected failure classes: relational/multi-hop, visual '
-                                'evidence, or iterative research. Include cost and latency caps '
-                                'for each escalation.',
+                'instructions': ('1. Define a router that starts with standard RAG and escalates only on detected failure classes: relational/multi-hop, visual evidence, or iterative research.\n'
+                                 '2. Include cost and latency caps for each escalation.'),
                 'expected_output': 'A selective-routing policy showing default path, escalation '
                                    'triggers, and bounded advanced paths.',
                 'skill_tested': ['query-routing', 'selective-complexity'],
@@ -1683,11 +1661,8 @@ TOPIC = {'title': 'The Future of RAG',
                 'placement': 'after_section',
                 'description': 'Design an end-to-end architecture for the capstone enterprise and '
                                'explain why each advanced capability is or is not included.',
-                'instructions': 'Design ingestion, federated connectors, high-precision retrieval, '
-                                'optional graph/multimodal paths, bounded agents, context '
-                                'assembly, local/cloud model routing, provenance, deletion '
-                                'lineage, and evaluation gates. Explain every optional component '
-                                'in terms of a measured need.',
+                'instructions': ('1. Design ingestion, federated connectors, high-precision retrieval, optional graph/multimodal paths, bounded agents, context assembly, local/cloud model routing, provenance, deletion lineage, and evaluation gates.\n'
+                                 '2. Explain every optional component in terms of a measured need.'),
                 'expected_output': 'A complete future-RAG reference architecture with component '
                                    'responsibilities, routing logic, governance controls, and '
                                    'adoption rationale.',

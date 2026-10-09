@@ -3408,11 +3408,11 @@ No. Isolate each remote Server and test it independently before debugging orches
             "placement": "after_section",
             "description": "Design a robust state contract for a three-stage pipeline.",
             "instructions": (
-                "Create Intake -> Eligibility -> Recommendation agents.\n"
-                "Define required and produced state keys for each.\n"
-                "Add one before-agent guardrail to each stage.\n"
-                "Add one before-tool permission/validation rule.\n"
-                "Show state after each stage."
+                ('1. Create Intake -> Eligibility -> Recommendation agents.\n'
+                 '2. Define required and produced state keys for each.\n'
+                 '3. Add one before-agent guardrail to each stage.\n'
+                 '4. Add one before-tool permission/validation rule.\n'
+                 '5. Show state after each stage.')
             ),
             "expected_output": "State schema, guardrails, and stage-by-stage snapshots.",
             "difficulty": DifficultyLevel.beginner,
@@ -3426,10 +3426,10 @@ No. Isolate each remote Server and test it independently before debugging orches
             "placement": "after_section",
             "description": "Define the public contract of a remote Academic Research Agent.",
             "instructions": (
-                "Define its name, description, two skills, supported capabilities, and security needs.\n"
-                "Then define a long-running research Task with possible states.\n"
-                "Write example Messages for working, input-required, and auth-required.\n"
-                "Define the final Artifact and its Part types."
+                ('1. Define its name, description, two skills, supported capabilities, and security needs.\n'
+                 '2. Then define a long-running research Task with possible states.\n'
+                 '3. Write example Messages for working, input-required, and auth-required.\n'
+                 '4. Define the final Artifact and its Part types.')
             ),
             "expected_output": "An Agent Card sketch plus Task lifecycle and result contract.",
             "difficulty": DifficultyLevel.beginner,
@@ -3462,11 +3462,8 @@ No. Isolate each remote Server and test it independently before debugging orches
             "placement": "after_section",
             "description": "Combine internal orchestration with remote A2A collaboration.",
             "instructions": (
-                "Design a university assistant with one Live Agent, three internal specialists, "
-                "and one remote Research Agent built with another framework.\n"
-                "Define internal pattern, shared state, callbacks, remote Agent Card skills, "
-                "Task type, transport choice, returned Artifact, authentication, authorization, "
-                "TLS, and webhook verification where applicable."
+                ('1. Design a university assistant with one Live Agent, three internal specialists, and one remote Research Agent built with another framework.\n'
+                 '2. Define internal pattern, shared state, callbacks, remote Agent Card skills, Task type, transport choice, returned Artifact, authentication, authorization, TLS, and webhook verification where applicable.')
             ),
             "expected_output": "A complete architecture diagram and design specification.",
             "difficulty": DifficultyLevel.beginner,

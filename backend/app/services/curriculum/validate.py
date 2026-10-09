@@ -42,6 +42,7 @@ _TEST_REQUIRED_FIELDS = {
     "dataframe_shape": ("variable", "expected"),
     "dataframe_column_values": ("variable", "column", "expected"),
     "return_value_equals": ("function", "expected"), "function_exists": ("function",),
+    "expression_equals": ("expression", "expected"),
     "custom": ("checker",),
     "code_changed": ("starter_fingerprint",),
     "placeholders_removed": ("max_pass",),

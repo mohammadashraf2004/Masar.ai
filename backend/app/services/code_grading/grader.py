@@ -7,7 +7,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.services.code_execution import CodeRunner, ExecutionResult, LocalPythonRunner
-from .authoring import ast_fingerprint, ast_requirements, ast_satisfies, placeholders_are_removed
+from .authoring import (
+    ast_fingerprint, ast_requirements, ast_satisfies, count_python_blanks, placeholders_are_removed,
+)
 from .custom import CUSTOM_TESTS
 
 
@@ -16,7 +18,8 @@ SUPPORTED_TEST_TYPES = frozenset({
     "function_called", "function_not_called", "function_argument", "function_call_count",
     "expression_uses", "operator_used", "stdout_equals", "stdout_contains",
     "list_length", "dict_contains_key", "dataframe_exists", "dataframe_columns",
-    "dataframe_shape", "dataframe_column_values", "return_value_equals", "function_exists", "custom",
+    "dataframe_shape", "dataframe_column_values", "return_value_equals", "expression_equals",
+    "function_exists", "custom",
     "code_changed", "placeholders_removed", "ast_requirements", "ast_contains",
 })
 
@@ -25,6 +28,72 @@ STATIC_TEST_TYPES = frozenset({
     "expression_uses", "operator_used", "function_exists",
     "code_changed", "placeholders_removed", "ast_requirements", "ast_contains",
 })
+
+
+def is_static_only(tests: list[dict[str, Any]]) -> bool:
+    """True when every required test reads the program's structure, so the
+    exercise is graded without executing it (its libraries are not installed
+    in the restricted runner)."""
+    required = [test for test in tests if test.get("required", True)]
+    return bool(required) and all(
+        bool(test.get("static")) and test.get("type") in STATIC_TEST_TYPES
+        for test in required
+    )
+
+
+def first_blank_line(code: str) -> int | None:
+    try:
+        tree = ast.parse(code or "", mode="exec")
+    except SyntaxError:
+        return None
+    lines = [node.lineno for node in ast.walk(tree) if isinstance(node, ast.Name) and node.id == "___"]
+    return min(lines) if lines else None
+
+
+def blanks_remaining_feedback(count: int, line: int | None = None) -> dict[str, str]:
+    where_en = f" The first one is on line {line}." if line else ""
+    where_ar = f" أولها في السطر {line}." if line else ""
+    if count == 1:
+        return {
+            "en": f"One blank (`___`) is still empty.{where_en} Fill it in, then check your answer again.",
+            "ar": f"ما زال هناك فراغ واحد (`___`) لم يُملأ.{where_ar} أكمله ثم تحقّق من إجابتك مرة أخرى.",
+        }
+    return {
+        "en": f"{count} blanks (`___`) are still empty.{where_en} Fill them in, then check your answer again.",
+        "ar": f"ما زالت هناك {count} فراغات (`___`) لم تُملأ.{where_ar} أكملها ثم تحقّق من إجابتك مرة أخرى.",
+    }
+
+
+def execution_failure_feedback(execution: ExecutionResult) -> dict[str, str]:
+    """Name the kind of failure in the learner's language; the console keeps
+    the raw traceback, so only its last line is repeated here."""
+    lines = [line for line in (execution.stderr or "").strip().splitlines() if line.strip()]
+    detail = lines[-1].strip() if lines else ""
+    suffix = f" {detail}" if detail else ""
+    if execution.status == "timeout":
+        return {
+            "en": "Your code took too long and was stopped. Look for a loop that never ends or work on a smaller sample.",
+            "ar": "استغرق الكود وقتًا طويلًا فأُوقف. ابحث عن حلقة لا تنتهي أو اعمل على عينة أصغر.",
+        }
+    if execution.status == "forbidden_operation":
+        return {
+            "en": f"This operation is not available in the practice sandbox.{suffix}",
+            "ar": f"هذه العملية غير متاحة في بيئة التدريب.{suffix}",
+        }
+    if execution.status == "syntax_error":
+        return {
+            "en": f"Python could not read your code (syntax error).{suffix}",
+            "ar": f"تعذّر على Python قراءة الكود (خطأ في الصياغة).{suffix}",
+        }
+    if execution.status == "runtime_error":
+        return {
+            "en": f"Your code started but stopped with an error.{suffix}",
+            "ar": f"بدأ تشغيل الكود لكنه توقف بسبب خطأ.{suffix}",
+        }
+    return {
+        "en": execution.stderr or "Code execution failed.",
+        "ar": execution.stderr or "فشل تنفيذ الكود.",
+    }
 
 
 @dataclass
@@ -80,21 +149,42 @@ class PythonGrader:
                 "syntax_error", stderr=f"SyntaxError: {exc.msg} (line {exc.lineno})",
             )
             return GradingResult(
-                "syntax_error", False, "SYNTAX_ERROR",
-                {"en": execution.stderr, "ar": execution.stderr},
+                "syntax_error", False, "SYNTAX_ERROR", execution_failure_feedback(execution),
                 None, 0, len(required), execution,
             )
+        # An untouched ``___`` would only surface as a NameError at runtime.
+        # Say what is actually wrong instead, before anything executes.
+        remaining = count_python_blanks(code)
+        if remaining:
+            return GradingResult(
+                "incorrect", False, "BLANKS_REMAINING",
+                blanks_remaining_feedback(remaining, first_blank_line(code)),
+                "blanks_remaining", 0, len(required), ExecutionResult("success"),
+            )
         # Fill-in-the-blank checks run before learner code. This lets the
-        # grader identify the first incorrect field instead of executing an
-        # unresolved ``___`` name and returning an unhelpful NameError. Each
-        # check points to the exact AST slot authored for that blank.
+        # grader identify the first incorrect field instead of executing a
+        # program that cannot work. Each check points to the exact AST slot
+        # authored for that blank.
+        #
+        # An ``advisory`` blank check is the exception: its exercise also has
+        # behavioural tests that observe what the blank computes, so any
+        # equivalent expression (``tp / (fp + tp)``, ``reshape((6, 4))``) is
+        # accepted. Its AST is only consulted to point at the blank when a
+        # behavioural test fails.
         preflight_indexes: set[int] = set()
+        advisory_indexes: list[int] = []
         passed = 0
         preflight_execution = ExecutionResult("success")
+        # Without another required test nothing would observe the blank, so
+        # an advisory flag on its own never relaxes a check.
+        observed = any(test.get("type") != "ast_contains" for test in required)
         for index, test in enumerate(tests):
             if not test.get("required", True) or test.get("type") != "ast_contains":
                 continue
             preflight_indexes.add(index)
+            if test.get("advisory") and observed:
+                advisory_indexes.append(index)
+                continue
             if self._check(test, index, tree, preflight_execution):
                 passed += 1
                 continue
@@ -119,22 +209,21 @@ class PythonGrader:
                     "key": str(index), "function": test.get("function"),
                     "args": test.get("args", []), "kwargs": test.get("kwargs", {}),
                 })
+            elif test.get("type") == "expression_equals":
+                # An author's hidden check, evaluated after the learner's code.
+                calls.append({"key": str(index), "expression": str(test.get("expression", ""))})
         # Legacy framework exercises often demonstrate APIs that are not
         # installed in the restricted runner. Their migrated tests inspect
         # Python structure only, so submitting them must not import or invoke
         # those libraries. Mixed/runtime exercises retain normal execution
         # and its security/runtime precedence.
-        static_only = bool(required) and all(
-            bool(test.get("static")) and test.get("type") in STATIC_TEST_TYPES
-            for test in required
-        )
-        execution = ExecutionResult("success") if static_only else await self.runner.run(
+        execution = ExecutionResult("success") if is_static_only(tests) else await self.runner.run(
             code, pre_exercise_code=pre_exercise_code, variables=variable_names, calls=calls,
         )
         if not execution.succeeded:
             return GradingResult(
                 execution.status, False, execution.status.upper(),
-                {"en": execution.stderr or "Code execution failed.", "ar": execution.stderr or "فشل تنفيذ الكود."},
+                execution_failure_feedback(execution),
                 None, 0, len(required), execution,
             )
         # An executable program is not, by itself, a correct answer. Without
@@ -161,11 +250,22 @@ class PythonGrader:
                 continue
             if not test.get("required", True):
                 continue
+            # A wrong blank is the most precise thing to point at.
+            for blank_index in advisory_indexes:
+                blank = tests[blank_index]
+                if not self._check(blank, blank_index, tree, execution):
+                    return GradingResult(
+                        "incorrect", False, self._feedback_code("ast_contains"),
+                        blank.get("feedback") or self._default_feedback("ast_contains"),
+                        str(blank.get("id") or f"test_{blank_index + 1}"), passed, len(required), execution,
+                    )
             return GradingResult(
                 "incorrect", False, self._feedback_code(str(test.get("type"))),
                 test.get("feedback") or self._default_feedback(str(test.get("type"))),
                 str(test.get("id") or f"test_{index + 1}"), passed, len(required), execution,
             )
+        # Every behavioural test passed, so the advisory blanks are satisfied.
+        passed += len(advisory_indexes)
         return GradingResult(
             "correct", True, "CORRECT", {"en": "Correct!", "ar": "إجابة صحيحة!"},
             None, passed, len(required), execution,
@@ -224,7 +324,10 @@ class PythonGrader:
         if kind == "ast_requirements":
             return ast_satisfies(ast_requirements(ast.unparse(tree)), dict(test.get("requirements") or {}))
         if kind == "ast_contains":
-            expected = str(test.get("expected_ast", ""))
+            # ``expected_ast_any`` lists equivalent answers a static blank accepts.
+            accepted = {str(test.get("expected_ast", ""))} | {
+                str(item) for item in test.get("expected_ast_any") or []
+            }
             path = test.get("path")
             if isinstance(path, list):
                 node: Any = tree
@@ -233,13 +336,14 @@ class PythonGrader:
                         node = node[int(part)] if isinstance(node, list) else getattr(node, str(part))
                 except (AttributeError, IndexError, TypeError, ValueError):
                     return False
-                return isinstance(node, ast.AST) and ast.dump(node, include_attributes=False) == expected
+                return isinstance(node, ast.AST) and ast.dump(node, include_attributes=False) in accepted
             expected_count = int(test.get("expected_count", 1))
             return sum(
-                ast.dump(node, include_attributes=False) == expected
+                ast.dump(node, include_attributes=False) in accepted
                 for node in ast.walk(tree)
             ) >= expected_count
-        if kind == "return_value_equals": return _value(result.return_values.get(str(index))) == test.get("expected")
+        if kind in {"return_value_equals", "expression_equals"}:
+            return _value(result.return_values.get(str(index))) == test.get("expected")
         if kind == "custom":
             checker = CUSTOM_TESTS.get(str(test.get("checker", "")))
             return bool(checker and checker({"variables": result.variables, "stdout": result.stdout}, test))

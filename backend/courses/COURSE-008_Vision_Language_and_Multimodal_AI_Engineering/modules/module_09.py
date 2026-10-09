@@ -2762,12 +2762,12 @@ candidate set, and generate only over the evidence that matters.**
                 "Match video product requirements to the correct model-output family."
             ),
             "instructions": (
-                "Choose embedding model, generative video model, or hybrid pipeline for:\n"
-                "A. Search 2 million clips for 'person falling from a bicycle'.\n"
-                "B. Summarize one 20-second clip.\n"
-                "C. Answer questions over a 5,000-hour archive.\n"
-                "D. Cluster similar sports highlights.\n"
-                "For each, explain why the output type and serving cost fit the task."
+                ('1. Choose embedding model, generative video model, or hybrid pipeline for:\n'
+                 "   - A. Search 2 million clips for 'person falling from a bicycle'.\n"
+                 '   - B. Summarize one 20-second clip.\n'
+                 '   - C. Answer questions over a 5,000-hour archive.\n'
+                 '   - D. Cluster similar sports highlights.\n'
+                 '2. For each, explain why the output type and serving cost fit the task.')
             ),
             "expected_output": (
                 "A four-row table with model family, output, cost rationale, and main limitation."
@@ -2903,18 +2903,18 @@ candidate set, and generate only over the evidence that matters.**
                 "Synthesize temporal modeling, retrieval, generation, and efficiency choices."
             ),
             "instructions": (
-                "Design a system that answers questions about 2-hour factory-inspection videos.\n"
-                "Specify:\n"
-                "- segmentation strategy,\n"
-                "- embedding model role,\n"
-                "- vector index,\n"
-                "- reranking policy,\n"
-                "- generation stage,\n"
-                "- frame count policy,\n"
-                "- whether domain QLoRA is needed,\n"
-                "- one token-reduction strategy,\n"
-                "- evaluation metrics for retrieval and answers.\n"
-                "Justify every choice."
+                ('1. Design a system that answers questions about 2-hour factory-inspection videos.\n'
+                 '2. Specify:\n'
+                 '   - segmentation strategy,\n'
+                 '   - embedding model role,\n'
+                 '   - vector index,\n'
+                 '   - reranking policy,\n'
+                 '   - generation stage,\n'
+                 '   - frame count policy,\n'
+                 '   - whether domain QLoRA is needed,\n'
+                 '   - one token-reduction strategy,\n'
+                 '   - evaluation metrics for retrieval and answers.\n'
+                 '3. Justify every choice.')
             ),
             "expected_output": (
                 "An end-to-end architecture proposal grounded in the chapter's patterns."

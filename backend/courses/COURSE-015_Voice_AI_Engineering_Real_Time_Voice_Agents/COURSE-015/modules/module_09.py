@@ -2398,10 +2398,10 @@ No. It spans evaluation, registries, memory, governance, deployment, observabili
             "placement": "after_section",
             "description": "Design a state model that distinguishes speech, task, and session actions.",
             "instructions": (
-                "Create a state/control table for a live assistant.\n"
-                "Include listening, assistant_speaking, tool_running, agent_working, input_required, reconnecting, completed, and failed.\n"
-                "For each state define user-facing label, visual treatment, and allowed actions.\n"
-                "Then explain the difference between mute, interrupt speech, revise scope, cancel work, and stop session."
+                ('1. Create a state/control table for a live assistant.\n'
+                 '2. Include listening, assistant_speaking, tool_running, agent_working, input_required, reconnecting, completed, and failed.\n'
+                 '3. For each state define user-facing label, visual treatment, and allowed actions.\n'
+                 '4. Then explain the difference between mute, interrupt speech, revise scope, cancel work, and stop session.')
             ),
             "expected_output": "A live-state table plus control semantics.",
             "difficulty": DifficultyLevel.beginner,
@@ -2415,10 +2415,10 @@ No. It spans evaluation, registries, memory, governance, deployment, observabili
             "placement": "after_section",
             "description": "Replace weak live-agent UX patterns with durable workspace surfaces.",
             "instructions": (
-                "Start with a UI containing only transcript + spinner.\n"
-                "Add: status strip, task card, activity timeline, source drawer, approval card, artifact panel, recovery banner, and resumable session view.\n"
-                "For each component explain what user uncertainty it resolves.\n"
-                "Identify and remove three anti-patterns from the original design."
+                ('1. Start with a UI containing only transcript + spinner.\n'
+                 '2. Add: status strip, task card, activity timeline, source drawer, approval card, artifact panel, recovery banner, and resumable session view.\n'
+                 '3. For each component explain what user uncertainty it resolves.\n'
+                 '4. Identify and remove three anti-patterns from the original design.')
             ),
             "expected_output": "A before/after UX architecture with rationale.",
             "difficulty": DifficultyLevel.beginner,
@@ -2432,9 +2432,9 @@ No. It spans evaluation, registries, memory, governance, deployment, observabili
             "placement": "after_section",
             "description": "Extend a normal prompt catalog into an AgentOps evaluation catalog.",
             "instructions": (
-                "Create five evaluation records for a support agent.\n"
-                "For each include user input, expected tool, expected parameters, expected final answer behavior, latency target, and cost target.\n"
-                "Add one tool-unit-test requirement and one human/LLM-as-a-judge criterion."
+                ('1. Create five evaluation records for a support agent.\n'
+                 '2. For each include user input, expected tool, expected parameters, expected final answer behavior, latency target, and cost target.\n'
+                 '3. Add one tool-unit-test requirement and one human/LLM-as-a-judge criterion.')
             ),
             "expected_output": "A five-row augmented evaluation catalog.",
             "difficulty": DifficultyLevel.beginner,
@@ -2448,9 +2448,9 @@ No. It spans evaluation, registries, memory, governance, deployment, observabili
             "placement": "after_section",
             "description": "Combine production UX and AgentOps infrastructure into one architecture.",
             "instructions": (
-                "Design a platform with development, staging, and production environments.\n"
-                "Include Prompt/Evaluation Catalog, Tool Registry, Agent Registry, Agents as a Service, short-term memory, long-term memory, CI/CD, monitoring, governance, and user-facing task UX.\n"
-                "Explain how an agent version moves from development to production and how user feedback returns to evaluation."
+                ('1. Design a platform with development, staging, and production environments.\n'
+                 '2. Include Prompt/Evaluation Catalog, Tool Registry, Agent Registry, Agents as a Service, short-term memory, long-term memory, CI/CD, monitoring, governance, and user-facing task UX.\n'
+                 '3. Explain how an agent version moves from development to production and how user feedback returns to evaluation.')
             ),
             "expected_output": "An end-to-end AgentOps platform diagram and lifecycle explanation.",
             "difficulty": DifficultyLevel.beginner,
@@ -2483,10 +2483,10 @@ No. It spans evaluation, registries, memory, governance, deployment, observabili
             "placement": "after_section",
             "description": "Apply the source's three-step model-selection process.",
             "instructions": (
-                "Create an approved reference table with three candidate FMs.\n"
-                "Evaluate them on one custom use-case dataset using quality, latency, and cost.\n"
-                "Then select one based on stated business priorities rather than highest accuracy alone.\n"
-                "Explain why public leaderboard ranking was not sufficient."
+                ('1. Create an approved reference table with three candidate FMs.\n'
+                 '2. Evaluate them on one custom use-case dataset using quality, latency, and cost.\n'
+                 '3. Then select one based on stated business priorities rather than highest accuracy alone.\n'
+                 '4. Explain why public leaderboard ranking was not sufficient.')
             ),
             "expected_output": "A model-selection table plus decision rationale.",
             "difficulty": DifficultyLevel.beginner,

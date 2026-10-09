@@ -1,7 +1,7 @@
 """Present authored deterministic Python exercises as focused fill-in tasks."""
 from __future__ import annotations
 
-from app.services.code_grading.authoring import build_fill_in_blank_exercise
+from app.services.code_grading.authoring import build_fill_in_blank_exercise, count_python_blanks
 
 from .spec import CourseSpec
 
@@ -11,7 +11,9 @@ def apply_fill_in_blank_format(course: CourseSpec) -> None:
 
     Pending exercises have no trusted solution yet and are intentionally left
     alone. They cannot be submitted, so this transformation only touches fully
-    authored deterministic Python exercises.
+    authored deterministic Python exercises. A starter that already has its
+    own ``___`` blanks is a hand-authored guided scaffold (step comments,
+    behavioural tests, progressive hints) and is kept exactly as written.
     """
     for lesson in course.lessons:
         for exercise in lesson.exercises:
@@ -21,6 +23,7 @@ def apply_fill_in_blank_format(course: CourseSpec) -> None:
                 or not exercise.starter_code
                 or not exercise.solution_code
                 or not exercise.tests
+                or count_python_blanks(exercise.starter_code)
             ):
                 continue
             try:

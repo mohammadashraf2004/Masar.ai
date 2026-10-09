@@ -1737,9 +1737,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'description': 'Given five bad RAG outputs, classify each failure as ingestion, '
                                'retrieval, generation, or system-level and justify the '
                                'classification.',
-                'instructions': 'Given five bad RAG outputs, classify each failure as ingestion, '
-                                'retrieval, generation, or system-level and justify the '
-                                'classification.',
+                'instructions': '1. Use these five bad outputs from one HR assistant: (a) it cites a PDF page whose table was extracted as scrambled text; (b) the right policy exists in the index but is ranked 40th; (c) the correct chunk is retrieved, yet the answer contradicts it; (d) half the requests time out after a model-provider outage; (e) answers quote a 2022 policy that was replaced in 2024.\n'
+                                '2. Classify each failure as ingestion, retrieval, generation, or system-level.\n'
+                                '3. Write the evidence in the output that supports each classification.\n'
+                                '4. Name the first component you would inspect for each one.',
                 'expected_output': 'A table with failure category, evidence, and first component '
                                    'to inspect.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1751,8 +1752,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Create a query that requires two distinct chunks and describe how '
                                'you would detect a partial retrieval failure.',
-                'instructions': 'Create a query that requires two distinct chunks and describe how '
-                                'you would detect a partial retrieval failure.',
+                'instructions': '1. Write a question whose full answer needs facts from two different chunks (for example a leave-policy chunk and a payroll-calendar chunk).\n'
+                                '2. List the evidence each chunk must contribute.\n'
+                                '3. Describe what a partial retrieval looks like: only one of the two chunks appears in the top-k.\n'
+                                '4. Write a pass/fail rule, such as: pass only if both required chunks appear in the top 5.',
                 'expected_output': 'A query, required evidence list, and a pass/fail retrieval '
                                    'rule.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1764,8 +1767,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Write one example of a faithful-but-wrong answer caused by stale '
                                'source data and one unfaithful answer caused by the generator.',
-                'instructions': 'Write one example of a faithful-but-wrong answer caused by stale '
-                                'source data and one unfaithful answer caused by the generator.',
+                'instructions': '1. Write a question and an answer that faithfully repeats its retrieved source, but the source itself is out of date, so the answer is wrong.\n'
+                                '2. Write a second answer where the retrieved source is correct but the generator adds or changes a fact.\n'
+                                '3. For each answer, state the root cause in one sentence.\n'
+                                '4. Propose a different fix for each: one for the data, one for generation.',
                 'expected_output': 'Two examples with different root causes and remediation paths.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
@@ -1776,8 +1781,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Write a 1–5 rubric for factuality and answer relevance with '
                                'explicit definitions for scores 1, 3, and 5.',
-                'instructions': 'Write a 1–5 rubric for factuality and answer relevance with '
-                                'explicit definitions for scores 1, 3, and 5.',
+                'instructions': '1. Write a 1-5 scale for factuality and a separate 1-5 scale for answer relevance.\n'
+                                '2. Define scores 1, 3 and 5 for each scale with observable criteria, not adjectives alone.\n'
+                                '3. Add one short example answer for score 3 on each scale.\n'
+                                '4. Check that another evaluator could apply the definitions without asking you questions.',
                 'expected_output': 'A rubric precise enough that another evaluator could apply it '
                                    'consistently.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1790,9 +1797,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'description': 'Create a concise correct answer and a verbose partially wrong '
                                'answer, then describe how you would test whether a judge rewards '
                                'verbosity.',
-                'instructions': 'Create a concise correct answer and a verbose partially wrong '
-                                'answer, then describe how you would test whether a judge rewards '
-                                'verbosity.',
+                'instructions': '1. Write one question, a concise correct answer, and a long answer that contains one wrong fact.\n'
+                                '2. Describe how you would send both answers to the judge, swapping their order between runs.\n'
+                                '3. Define the result that would show verbosity bias.\n'
+                                '4. Propose one change to the judge prompt or rubric that reduces the bias.',
                 'expected_output': 'A controlled judge-calibration experiment.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
@@ -1803,9 +1811,11 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'For a top-5 relevance pattern [R, I, R, R, I], compute '
                                'precision@5.',
-                'instructions': 'For a top-5 relevance pattern [R, I, R, R, I], compute '
-                                'precision@5.',
-                'expected_output': 'Precision@5 = 3/5 = 0.6 with a one-sentence interpretation.',
+                'instructions': '1. Count the relevant results (R) among the top 5: [R, I, R, R, I].\n'
+                                '2. Divide that count by k = 5.\n'
+                                '3. Write the result as a fraction and as a decimal.\n'
+                                '4. Explain in one sentence what the number says about the results a user sees.',
+                'expected_output': 'Precision@5 as a fraction and a decimal, with a one-sentence interpretation.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
                {'id': 'M01.L06.EX07',
@@ -1815,9 +1825,11 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'If five relevant chunks exist and top-5 retrieval contains three '
                                'of them, compute recall@5.',
-                'instructions': 'If five relevant chunks exist and top-5 retrieval contains three '
-                                'of them, compute recall@5.',
-                'expected_output': 'Recall@5 = 3/5 = 0.6 with a completeness interpretation.',
+                'instructions': '1. Note how many relevant chunks exist in total (5).\n'
+                                '2. Note how many of them appear in the top 5 results (3).\n'
+                                '3. Compute recall@5 as found divided by total relevant, as a fraction and a decimal.\n'
+                                '4. Explain what the missing chunks could mean for the completeness of the answer.',
+                'expected_output': 'Recall@5 as a fraction and a decimal, with an interpretation of completeness.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
                {'id': 'M01.L06.EX08',
@@ -1827,9 +1839,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'If the first relevant result is at rank 4, calculate reciprocal '
                                'rank.',
-                'instructions': 'If the first relevant result is at rank 4, calculate reciprocal '
-                                'rank.',
-                'expected_output': 'RR = 1/4 = 0.25 and an explanation of what MRR rewards.',
+                'instructions': '1. Find the rank of the first relevant result (rank 4).\n'
+                                '2. Compute the reciprocal rank as 1 divided by that rank, as a fraction and a decimal.\n'
+                                '3. Explain what MRR (the mean of reciprocal ranks over many queries) rewards.',
+                'expected_output': 'The reciprocal rank as a fraction and a decimal, and an explanation of what MRR rewards.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
                {'id': 'M01.L06.EX09',
@@ -1839,8 +1852,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'For a search problem where passages have relevance grades 0–3, '
                                'explain why nDCG is more suitable than MRR.',
-                'instructions': 'For a search problem where passages have relevance grades 0–3, '
-                                'explain why nDCG is more suitable than MRR.',
+                'instructions': '1. Describe what MRR measures: only the position of the first relevant result.\n'
+                                '2. Describe what nDCG measures: graded relevance (0-3) across the whole ranking.\n'
+                                '3. Give a two-ranking example where MRR is the same but nDCG differs.\n'
+                                '4. Conclude which metric fits graded passages and why.',
                 'expected_output': 'A comparison that references graded relevance and full ranking '
                                    'quality.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1852,8 +1867,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Create four passages for one query and assign expected UMBRELA '
                                'scores 0, 1, 2, and 3.',
-                'instructions': 'Create four passages for one query and assign expected UMBRELA '
-                                'scores 0, 1, 2, and 3.',
+                'instructions': '1. Write one query, for example: "How many vacation days do new employees get?"\n'
+                                '2. Write four short passages: one unrelated (0), one on the topic but without the answer (1), one with a partial answer (2), and one that fully answers it (3).\n'
+                                '3. Assign each passage its UMBRELA score.\n'
+                                '4. Justify each score in one sentence.',
                 'expected_output': 'Four passages with justified relevance levels.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
@@ -1864,8 +1881,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'For a two-part policy question, create vital and optional nuggets '
                                'and evaluate whether a sample answer covers them.',
-                'instructions': 'For a two-part policy question, create vital and optional nuggets '
-                                'and evaluate whether a sample answer covers them.',
+                'instructions': '1. Use a two-part question, for example: "Can I carry over unused leave, and until when?"\n'
+                                '2. List the vital nuggets (facts any correct answer must contain) and the optional nuggets (helpful extras).\n'
+                                '3. Write a short sample answer.\n'
+                                '4. Mark each nugget as supported, partially supported, or missing in that answer.',
                 'expected_output': 'A nugget table with importance and support status.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
@@ -1876,8 +1895,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Write three claims with citations, including one misattribution, '
                                'then define how your evaluator should flag it.',
-                'instructions': 'Write three claims with citations, including one misattribution, '
-                                'then define how your evaluator should flag it.',
+                'instructions': '1. Write three short source passages, each with an ID such as [S1].\n'
+                                '2. Write three claims that cite them, making one claim cite a source that does not support it.\n'
+                                '3. Define how your evaluator checks each citation against its source.\n'
+                                '4. Write the pass/fail rule for citation precision.',
                 'expected_output': 'A small citation-audit dataset and pass/fail rule.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
@@ -1888,8 +1909,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Define a production interaction event schema that supports '
                                'satisfaction, topic analysis, and failure debugging.',
-                'instructions': 'Define a production interaction event schema that supports '
-                                'satisfaction, topic analysis, and failure debugging.',
+                'instructions': '1. List the fields of one interaction event: query, retrieved context IDs, answer, model version and timestamp.\n'
+                                '2. Add feedback fields: a rating and an optional comment.\n'
+                                '3. Add the metadata you need for topic analysis and debugging (for example a topic label and latency).\n'
+                                '4. Mark which fields contain personal data and how they are protected.',
                 'expected_output': 'A JSON-like schema containing query, contexts, answer, '
                                    'feedback, and metadata.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1901,8 +1924,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Define four quality and system thresholds that a changed reranker '
                                'must meet before deployment.',
-                'instructions': 'Define four quality and system thresholds that a changed reranker '
-                                'must meet before deployment.',
+                'instructions': '1. Choose two quality metrics the new reranker must not make worse (for example nDCG@10 and faithfulness).\n'
+                                '2. Choose two system metrics with limits (for example p95 latency and cost per 1,000 queries).\n'
+                                '3. Write a numeric threshold for each of the four metrics.\n'
+                                '4. State what happens when one threshold is missed.',
                 'expected_output': 'A no-regression policy including quality and latency '
                                    'requirements.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1914,8 +1939,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Sketch the components required to evaluate 10% of live traffic '
                                'without delaying user responses.',
-                'instructions': 'Sketch the components required to evaluate 10% of live traffic '
-                                'without delaying user responses.',
+                'instructions': '1. Show where each interaction is logged after the answer has already been sent to the user.\n'
+                                '2. Describe how 10% of interactions are sampled.\n'
+                                '3. Add a queue and a background worker that runs the evaluator.\n'
+                                '4. Show where the scores are stored and displayed on a dashboard.',
                 'expected_output': 'A flow containing logging, sampling, queue/background worker, '
                                    'evaluator, and dashboard.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1927,8 +1954,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Design an A/B test for a new reranker including primary quality '
                                'metric, latency metric, and user-feedback metric.',
-                'instructions': 'Design an A/B test for a new reranker including primary quality '
-                                'metric, latency metric, and user-feedback metric.',
+                'instructions': '1. Describe how traffic is split between the current reranker (champion) and the new one (challenger).\n'
+                                '2. Choose the primary quality metric, a latency metric and a user-feedback metric.\n'
+                                '3. Write a success criterion for each metric.\n'
+                                '4. State how long the test runs and when you would stop it early.',
                 'expected_output': 'An experiment plan with success criteria.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
@@ -1939,8 +1968,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Choose at least two metrics each for retrieval, generation, user '
                                'outcomes, and system health.',
-                'instructions': 'Choose at least two metrics each for retrieval, generation, user '
-                                'outcomes, and system health.',
+                'instructions': '1. Choose at least two retrieval metrics.\n'
+                                '2. Choose at least two generation metrics.\n'
+                                '3. Choose at least two user-outcome metrics and two system-health metrics.\n'
+                                '4. For each metric, write one sentence on the problem it would reveal.',
                 'expected_output': 'A grouped dashboard specification and rationale.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['rag-evaluation', 'analysis']},
@@ -1951,8 +1982,10 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'placement': 'after_section',
                 'description': 'Design an evaluation lifecycle for a production internal knowledge '
                                'assistant.',
-                'instructions': 'Design an evaluation lifecycle for a production internal '
-                                'knowledge assistant.',
+                'instructions': '1. Describe the offline benchmark: which questions it contains and how answers are scored.\n'
+                                '2. Define the release gate a change must pass before deployment.\n'
+                                '3. Describe online sampling and how user feedback is collected.\n'
+                                '4. Explain how and how often the benchmark is updated with new failures.',
                 'expected_output': 'A concise plan covering offline benchmark, release gate, '
                                    'online sampling, feedback, and benchmark updates.',
                 'difficulty': DifficultyLevel.intermediate,

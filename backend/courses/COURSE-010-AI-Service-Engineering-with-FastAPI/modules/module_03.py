@@ -2199,18 +2199,16 @@ Before continuing, make sure you can answer:
             ),
 
             "instructions": (
-                "You have two use cases:\n\n"
-                "A. A concise technical support assistant that should be relatively "
-                "consistent.\n"
-                "B. A brainstorming assistant where more variation is acceptable.\n\n"
-                "For each use case, propose qualitative settings for:\n"
-                "- `max_new_tokens`,\n"
-                "- `do_sample`,\n"
-                "- `temperature`,\n"
-                "- `top_k`,\n"
-                "- `top_p`.\n\n"
-                "You do not need to find one perfect numeric configuration. Explain "
-                "the direction of each choice and the expected behavior."
+                ('1. You have two use cases:\n'
+                 '   - A. A concise technical support assistant that should be relatively consistent.\n'
+                 '   - B. A brainstorming assistant where more variation is acceptable.\n'
+                 '2. For each use case, propose qualitative settings for:\n'
+                 '   - `max_new_tokens`,\n'
+                 '   - `do_sample`,\n'
+                 '   - `temperature`,\n'
+                 '   - `top_k`,\n'
+                 '   - `top_p`.\n'
+                 '3. You do not need to find one perfect numeric configuration. Explain the direction of each choice and the expected behavior.')
             ),
 
             "expected_output": (

@@ -842,9 +842,8 @@ IAP authenticates users; the source uses Cloud Armor to allow/deny based on IP c
             "placement": "after_section",
             "description": "Decide whether application state fits the source's serverless model.",
             "instructions": (
-                "Classify these as better fits for the chapter's Cloud Run model or VM-style deployment: "
-                "a stateless prediction API, a Streamlit UI, Jenkins with persistent plugin/job state, "
-                "and a scheduled ETL script. Explain the state/persistence reason for each."
+                ("1. Classify these as better fits for the chapter's Cloud Run model or VM-style deployment: a stateless prediction API, a Streamlit UI, Jenkins with persistent plugin/job state, and a scheduled ETL script.\n"
+                 '2. Explain the state/persistence reason for each.')
             ),
             "expected_output": "A four-row deployment-fit table with reasoning.",
             "difficulty": DifficultyLevel.intermediate,
@@ -858,8 +857,8 @@ IAP authenticates users; the source uses Cloud Armor to allow/deny based on IP c
             "placement": "after_section",
             "description": "Explain every object between Cloud Run and the load balancer.",
             "instructions": (
-                "For Flask and Streamlit separately, draw Cloud Run service → serverless NEG → backend service → "
-                "host rule → HTTPS frontend. Label the source names for each object."
+                ('1. For Flask and Streamlit separately, draw Cloud Run service → serverless NEG → backend service → host rule → HTTPS frontend.\n'
+                 '2. Label the source names for each object.')
             ),
             "expected_output": "Two parallel backend-routing diagrams.",
             "difficulty": DifficultyLevel.intermediate,
@@ -873,8 +872,8 @@ IAP authenticates users; the source uses Cloud Armor to allow/deny based on IP c
             "placement": "after_section",
             "description": "Reason about why DNS alone is not an access-control mechanism.",
             "instructions": (
-                "Draw the before and after request paths when direct Cloud Run URLs are public versus when ingress is "
-                "`internal-and-cloud-load-balancing`. Explain which security controls can now be centralized at the load balancer."
+                ('1. Draw the before and after request paths when direct Cloud Run URLs are public versus when ingress is `internal-and-cloud-load-balancing`.\n'
+                 '2. Explain which security controls can now be centralized at the load balancer.')
             ),
             "expected_output": "A before/after ingress diagram plus a short explanation.",
             "difficulty": DifficultyLevel.intermediate,
@@ -888,9 +887,9 @@ IAP authenticates users; the source uses Cloud Armor to allow/deny based on IP c
             "placement": "after_section",
             "description": "Select an access-control method for human and machine clients.",
             "instructions": (
-                "Scenario A: employees open a Streamlit dashboard in a browser. "
-                "Scenario B: one trusted external backend calls `/predict` from a fixed IP. "
-                "Choose IAP or Cloud Armor for each based on the source's recommendations and explain why."
+                ('1. Scenario A: employees open a Streamlit dashboard in a browser.\n'
+                 '2. Scenario B: one trusted external backend calls `/predict` from a fixed IP.\n'
+                 "3. Choose IAP or Cloud Armor for each based on the source's recommendations and explain why.")
             ),
             "expected_output": "A two-scenario security design.",
             "difficulty": DifficultyLevel.intermediate,

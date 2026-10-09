@@ -696,9 +696,8 @@ It validates several infrastructure layers simultaneously.
             "placement": "after_section",
             "description": "Distinguish install, start, enable, status, and inspect operations.",
             "instructions": (
-                "For each command in the source—docker --version, systemctl start docker, systemctl enable docker, "
-                "systemctl status docker, and docker info—write what question it answers. Then explain the difference "
-                "between 'running now' and 'starts automatically after reboot'."
+                ('1. For each command in the source—docker --version, systemctl start docker, systemctl enable docker, systemctl status docker, and docker info—write what question it answers.\n'
+                 "2. Then explain the difference between 'running now' and 'starts automatically after reboot'.")
             ),
             "expected_output": "A five-row command-purpose table and a boot-lifecycle explanation.",
             "difficulty": DifficultyLevel.beginner,
@@ -712,8 +711,8 @@ It validates several infrastructure layers simultaneously.
             "placement": "after_section",
             "description": "Separate EC2 access credentials from GitHub credentials.",
             "instructions": (
-                "Draw two connections: Local computer → EC2 and EC2 → GitHub. For each, identify the private key, "
-                "public-key destination, username/host, and what would fail if the wrong key were used."
+                ('1. Draw two connections: Local computer → EC2 and EC2 → GitHub.\n'
+                 '2. For each, identify the private key, public-key destination, username/host, and what would fail if the wrong key were used.')
             ),
             "expected_output": "A two-connection SSH trust diagram.",
             "difficulty": DifficultyLevel.beginner,
@@ -727,9 +726,9 @@ It validates several infrastructure layers simultaneously.
             "placement": "after_section",
             "description": "Use the source's test app to reason about every layer that must work.",
             "instructions": (
-                "Run through the deployment mentally or in your lab. List every dependency between typing "
-                "`streamlit run st_example.py` and seeing the page at the Elastic IP on port 8501. "
-                "Include process, port, security group, addressing, and Python environment."
+                ('1. Run through the deployment mentally or in your lab.\n'
+                 '2. List every dependency between typing `streamlit run st_example.py` and seeing the page at the Elastic IP on port 8501.\n'
+                 '3. Include process, port, security group, addressing, and Python environment.')
             ),
             "expected_output": "An end-to-end dependency chain from process startup to browser response.",
             "difficulty": DifficultyLevel.beginner,

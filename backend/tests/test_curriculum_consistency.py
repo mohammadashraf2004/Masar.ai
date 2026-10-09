@@ -290,75 +290,60 @@ def test_course_016_module_10_lessons_do_not_repeat_each_other(specs):
     assert not by_lesson["M10.L01"] & by_lesson["M10.L02"]
 
 
-def test_course_016_implementation_tasks_are_real_code_exercises(specs):
-    """Implementation prompts must not fall back to the legacy written-answer card."""
-    expected = {
-        "COURSE-016.M04.L01.EX04": 4,
-        "COURSE-016.M12.L01.EX02": 5,
-        "COURSE-016.M16.L01.EX02": 4,
-    }
+def _guided_python(specs, course_id, exercise_ids):
     exercises = {
         exercise.exercise_id: exercise
-        for lesson in specs["COURSE-016"].lessons
+        for lesson in specs[course_id].lessons
         for exercise in lesson.exercises
-        if exercise.exercise_id in expected
+        if exercise.exercise_id in exercise_ids
     }
-
-    assert set(exercises) == set(expected)
-    for exercise_id, test_count in expected.items():
-        exercise = exercises[exercise_id]
+    assert set(exercises) == set(exercise_ids)
+    for exercise in exercises.values():
         assert exercise.exercise_type == "code"
         assert exercise.language == "python"
         assert exercise.starter_code and exercise.solution_code
         assert exercise.starter_code != exercise.solution_code
-        blank_tests = [test for test in exercise.tests if test.get("type") == "ast_contains"]
-        assert len(exercise.tests) - len(blank_tests) == test_count
-        assert len(blank_tests) == count_python_blanks(exercise.starter_code)
-        assert 1 <= len(blank_tests) <= 5
+        assert 1 <= count_python_blanks(exercise.starter_code) <= 5
+        assert count_python_blanks(exercise.solution_code) == 0
+        # Hidden checks with feedback in both languages.
+        assert exercise.tests
+        assert all(test["feedback"]["en"] and test["feedback"]["ar"] for test in exercise.tests)
+        assert exercise.hint_ar and exercise.success_message_ar
+        assert "**التعليمات**" in exercise.description_ar
+
+
+def test_course_016_implementation_tasks_are_real_code_exercises(specs):
+    """Implementation prompts must not fall back to the legacy written-answer card."""
+    _guided_python(specs, "COURSE-016", {
+        "COURSE-016.M04.L01.EX04", "COURSE-016.M12.L01.EX02", "COURSE-016.M16.L01.EX02",
+    })
 
 
 def test_course_013_numpy_and_pandas_tasks_are_real_code_exercises(specs):
-    expected = {
-        "COURSE-013.M02.L01.EX01": 6,
-        "COURSE-013.M02.L01.EX02": 8,
-    }
-    exercises = {
-        exercise.exercise_id: exercise
-        for lesson in specs["COURSE-013"].lessons
-        for exercise in lesson.exercises
-        if exercise.exercise_id in expected
-    }
-
-    assert set(exercises) == set(expected)
-    for exercise_id, test_count in expected.items():
-        exercise = exercises[exercise_id]
-        assert exercise.exercise_type == "code"
-        assert exercise.language == "python"
-        assert exercise.starter_code and exercise.solution_code
-        assert exercise.starter_code != exercise.solution_code
-        blank_tests = [test for test in exercise.tests if test.get("type") == "ast_contains"]
-        assert len(exercise.tests) - len(blank_tests) == test_count
-        assert len(blank_tests) == count_python_blanks(exercise.starter_code)
-        assert 1 <= len(blank_tests) <= 5
+    _guided_python(specs, "COURSE-013", {"COURSE-013.M02.L01.EX01", "COURSE-013.M02.L01.EX02"})
 
 
 def test_reviewed_code_backlog_is_classified_without_fake_grading(specs):
-    from app.services.curriculum.code_classification import PENDING_BY_LANGUAGE
+    from app.services.curriculum.code_classification import PENDING_BY_LANGUAGE, REVIEWED_CODE_BY_LANGUAGE
+    from app.services.curriculum.guided import registry
 
-    pending = {
+    by_id = {
         exercise.exercise_id: exercise
         for course in specs.values()
         for lesson in course.lessons
         for exercise in lesson.exercises
-        if exercise.exercise_type == "code_pending"
     }
-    assert len(PENDING_BY_LANGUAGE) >= 190
-    assert set(pending) == set(PENDING_BY_LANGUAGE)
-    for exercise_id, exercise in pending.items():
-        assert exercise.language == PENDING_BY_LANGUAGE[exercise_id]
-        assert exercise.starter_code
-        assert not exercise.tests
-        assert not exercise.solution_code
+    # Every reviewed coding task now has a guided, graded definition: nothing
+    # is left in the Run-only state that blocks course completion.
+    assert len(REVIEWED_CODE_BY_LANGUAGE) >= 190
+    assert PENDING_BY_LANGUAGE == {}
+    assert not [eid for eid, exercise in by_id.items() if exercise.exercise_type == "code_pending"]
+    for exercise_id in REVIEWED_CODE_BY_LANGUAGE:
+        exercise = by_id[exercise_id]
+        # The guided definition decides the editor language (a review may
+        # have found, say, a Dockerfile task listed under Python).
+        assert (exercise.exercise_type, exercise.language) == ("code", registry()[exercise_id].language)
+        assert exercise.tests and exercise.solution_code
 
     # A workflow table/diagram is a written answer, even though its subject is
     # software. It must not become a fake code exercise just because its title

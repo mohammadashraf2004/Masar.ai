@@ -2411,14 +2411,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'description': 'Given a small notebook-based RAG POC, identify the production '
                                'capabilities that are missing and group them by quality, '
                                'operations, security, and scale.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Assume the POC is one notebook: it loads a folder of PDFs, embeds them in memory, and answers questions with one prompt.\n'
+                                '2. List at least eight capabilities a production version needs that the notebook lacks.\n'
+                                '3. Group them under quality, operations, security, and scale.\n'
+                                '4. Pick the three gaps you would close first and explain why.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2431,14 +2427,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Trace a low-quality answer through the four-part failure tree and '
                                'identify the first evidence you would inspect.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Take one low-quality answer and list the four branches of the failure tree from the lesson.\n'
+                                '2. For each branch, write the first piece of evidence you would inspect (for example the retrieved chunks, the source document, the prompt, the raw model output).\n'
+                                '3. Order the checks from cheapest and most likely to most expensive.\n'
+                                '4. State what result in each check would rule that branch out.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2451,14 +2443,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Design tests and promotion gates for adding a new document batch '
                                'without polluting the live index.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Describe how a new document batch is indexed into a staging index first, never directly into the live one.\n'
+                                '2. Define the tests the batch must pass (parsing quality, duplicate check, access labels, a regression set of known questions).\n'
+                                '3. Define the promotion gate: who or what approves the switch, and how it is performed.\n'
+                                '4. Explain how you roll back if problems appear after promotion.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2471,14 +2459,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Given noisy production retrieval, choose which retrieval upgrades '
                                'you would test and explain what failure each addresses.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Describe two symptoms of noisy retrieval you might see in production logs (for example relevant documents ranked below 20, or near-duplicate chunks filling the top results).\n'
+                                '2. Choose up to three upgrades to test (for example hybrid search, a reranker, better chunking, query rewriting, metadata filters).\n'
+                                '3. For each upgrade, name the failure it addresses.\n'
+                                '4. Define the offline metric and query set you would use to compare each upgrade with the current retriever.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2492,14 +2476,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'description': 'Given retrieved evidence and a partially supported answer, '
                                'identify which claims are grounded and which require refusal or '
                                'correction.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': "1. Evidence: 'Plan B includes 50 GB storage and email support. Price: $20 per month.' Answer: 'Plan B costs $20 per month, includes 50 GB storage, 24/7 phone support, and a free trial.'\n"
+                                '2. Split the answer into individual claims.\n'
+                                '3. Mark each claim supported, unsupported, or contradicted by the evidence.\n'
+                                '4. Rewrite the answer so it keeps only supported claims and says what the evidence does not cover.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2512,14 +2492,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Create a prompt that uses retrieved context, defines uncertainty '
                                'behavior, and avoids inventing missing facts.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Write a prompt with placeholders for the question and the retrieved context.\n'
+                                '2. Instruct the model to answer only from the context and to cite the chunk it used.\n'
+                                '3. Define the exact behavior when the context is incomplete or conflicting (for example a fixed sentence and what to ask next).\n'
+                                '4. Test the prompt mentally against one question the context cannot answer and show the expected response.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2533,14 +2509,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'description': 'Allocate an end-to-end latency target across embedding, retrieval, '
                                'reranking, generation, and guardrails, then identify the dominant '
                                'path.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Take an end-to-end target of 2,000 ms at p95.\n'
+                                '2. Allocate milliseconds to query embedding, retrieval, reranking, generation (time to first token and full answer), and guardrails, so they add up to the target.\n'
+                                '3. Identify the stage that dominates the budget and explain why.\n'
+                                '4. Propose one change that would reduce the dominant stage and the quality risk it carries.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2553,14 +2525,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Redesign a sequential semantic-plus-lexical retrieval path into '
                                'fan-out/gather form and explain the latency effect.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Start from the sequential path: semantic search (120 ms), then lexical search (80 ms), then merge (10 ms).\n'
+                                '2. Redraw it as fan-out/gather: both searches start together and a merge step waits for both.\n'
+                                '3. Compute the new latency of the retrieval step and compare it with the sequential version.\n'
+                                '4. Explain what the merge step must do when one search is slow or fails (timeout, partial results).',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2573,14 +2541,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Assign an appropriate scaling signal to orchestrator, retrieval, '
                                'and GPU model services.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. List the three services: the orchestrator API, the retrieval/vector service, and the GPU model server.\n'
+                                '2. Choose a scaling signal for each (for example request concurrency, query latency, GPU utilization or queue depth).\n'
+                                '3. Explain why CPU utilization alone is a poor signal for the GPU model server.\n'
+                                '4. State the cold-start risk for each service and how you would soften it.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2593,14 +2557,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Choose full-response, retrieval, and chunk caches for a support '
                                'assistant and explain which expensive work each cache avoids.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Define a full-response cache, a retrieval-results cache, and a chunk/embedding cache for a support assistant.\n'
+                                '2. For each cache, write the key, what it stores, and the expensive work it avoids.\n'
+                                '3. Choose a time-to-live for each and explain the staleness risk.\n'
+                                '4. State which requests must never be served from the full-response cache (for example personalized or permission-dependent answers).',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2613,14 +2573,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Reason about the failure modes of a semantic similarity threshold '
                                'that is too high or too low and propose an evaluation plan.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Describe what goes wrong when the similarity threshold is too low (wrong cached answers served to different questions).\n'
+                                '2. Describe what goes wrong when it is too high (almost no cache hits, no savings).\n'
+                                '3. Write two question pairs that look similar but need different answers.\n'
+                                '4. Propose an evaluation: a labeled set of question pairs, the hit rate and false-hit rate you measure, and how you choose the threshold.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2633,14 +2589,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Create a document-change-to-cache-purge workflow that prevents '
                                'stale policy answers.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Define the event emitted when a policy document changes, including the document ID and version.\n'
+                                '2. List every cache entry that depends on that document (responses, retrieval results, chunks) and how you find them.\n'
+                                '3. Describe the purge and re-index order so that no stale answer is served in between.\n'
+                                '4. State how you verify that the next question about the policy returns the new answer.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2653,14 +2605,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Map controls to ingestion, storage, retrieval, generation, and '
                                'monitoring for a sensitive enterprise RAG system.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Create a table with rows for ingestion, storage, retrieval, generation, and monitoring.\n'
+                                '2. Put at least one control in each row (for example malware and PII scanning, encryption, permission filtering, output redaction, audit alerts).\n'
+                                '3. For each control, name the threat it addresses.\n'
+                                '4. Explain which control still protects the system if the one before it fails.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2673,14 +2621,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Compare generic masking with typed masking for a sensitive '
                                'sentence and explain the impact on RAG usefulness.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': "1. Sentence: 'Maria Lopez (account 4417) disputed a $1,200 charge on 3 May.'\n"
+                                '2. Mask it generically (every sensitive span becomes [REDACTED]).\n'
+                                '3. Mask it with typed placeholders (for example [PERSON], [ACCOUNT_ID], [AMOUNT], [DATE]).\n'
+                                "4. Explain which version still lets RAG answer questions such as 'what kinds of disputes happen?' and why.",
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2693,14 +2637,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Design a metadata and query-time filtering scheme that prevents '
                                "confidential chunks from reaching an unauthorized user's prompt.",
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Define the access metadata stored on every chunk (for example department, sensitivity, allowed groups).\n'
+                                "2. Show how the user's groups become a filter applied inside the retrieval query, before any chunk is returned.\n"
+                                '3. Explain why filtering after generation is too late.\n'
+                                "4. Describe a test that proves a confidential chunk never reaches an unauthorized user's prompt.",
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2713,14 +2653,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Define the logging, reporting, and incident-review loop for unsafe '
                                'or noncompliant generated outputs.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Define what is logged when a guardrail blocks or flags an output (input, output, rule triggered, model version, user, time).\n'
+                                '2. Define the regular report: which counts and trends are reviewed and by whom.\n'
+                                '3. Describe the incident-review steps for one serious unsafe output, from detection to fix.\n'
+                                '4. Explain how a reviewed incident becomes a new test case or rule.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2733,14 +2669,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': "Use the chapter's vendor checklist to assess a hypothetical "
                                'managed reranker and identify unresolved risks.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Take a hypothetical managed reranker API and apply the vendor checklist from the lesson.\n'
+                                '2. For each checklist item, write what you would ask the vendor and what evidence would satisfy you.\n'
+                                '3. Mark the items that are still unresolved.\n'
+                                '4. Decide whether you would run a pilot, and state the exit plan if the vendor fails.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2753,14 +2685,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Classify several RAG components as differentiating or '
                                'nondifferentiating and justify which should be built internally.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. List the components: document parsing, embedding model, vector database, reranker, prompt and answer logic, evaluation suite, and access control.\n'
+                                '2. Mark each component differentiating (it makes your product better than competitors) or nondifferentiating.\n'
+                                '3. Decide build or buy for each and justify the decision.\n'
+                                '4. Name one component where buying now and building later makes sense.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2773,14 +2701,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Build a cost table that separates direct, indirect, HA, security, '
                                'and staffing costs for a production RAG deployment.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Create a table with rows for direct costs (compute, storage, API calls), indirect costs, high availability, security, and staffing.\n'
+                                '2. Fill in one estimate per row for a year, writing the assumption behind each number.\n'
+                                '3. Mark which costs grow with query volume and which stay fixed.\n'
+                                '4. Identify the largest cost and one assumption that would change the total the most if it were wrong.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',
@@ -2793,14 +2717,10 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'placement': 'after_section',
                 'description': 'Translate vague goals such as fast, reliable, and accurate into '
                                'measurable production requirements and acceptance tests.',
-                'instructions': '1. Review the relevant lesson section and identify the production '
-                                'constraint being tested.\n'
-                                '2. Apply the concept to the scenario rather than restating the '
-                                'definition.\n'
-                                '3. State the architecture, control, metric, or decision you would '
-                                'use.\n'
-                                '4. Explain at least one trade-off, failure mode, or operational '
-                                'consequence.',
+                'instructions': '1. Take three vague goals: fast, reliable, and accurate.\n'
+                                '2. Turn each into a measurable KPI with a number (for example p95 latency under 2 s, 99.9% monthly availability, 90% of answers supported by citations on the evaluation set).\n'
+                                '3. Write one acceptance test per KPI that must pass before launch.\n'
+                                '4. Explain how each KPI is monitored after launch and who acts when it is breached.',
                 'expected_output': 'A concise but technically justified design, table, workflow, '
                                    'calculation, prompt, or written analysis that could be '
                                    'reviewed by an engineering team.',

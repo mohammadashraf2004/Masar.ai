@@ -2785,13 +2785,12 @@ optimize the actual bottleneck, and measure again.**
                 "Decide whether prefill or decode is likely to dominate several VLM workloads."
             ),
             "instructions": (
-                "For each workload, classify the likely dominant phase and explain why:\n"
-                "A. 24K visual/text input tokens, 80-token answer.\n"
-                "B. 700-token image+prompt context, 1,000-token answer.\n"
-                "C. 8-image prompt producing a 20-token classification answer.\n"
-                "D. 500-token prompt producing a 10-token response.\n"
-                "Use the source's prefill/decode intuition but state that the real crossover "
-                "must be benchmarked."
+                ('1. For each workload, classify the likely dominant phase and explain why:\n'
+                 '   - A. 24K visual/text input tokens, 80-token answer.\n'
+                 '   - B. 700-token image+prompt context, 1,000-token answer.\n'
+                 '   - C. 8-image prompt producing a 20-token classification answer.\n'
+                 '   - D. 500-token prompt producing a 10-token response.\n'
+                 "2. Use the source's prefill/decode intuition but state that the real crossover must be benchmarked.")
             ),
             "expected_output": (
                 "A four-row table with input length, output length, predicted dominant phase, "
@@ -2841,11 +2840,9 @@ optimize the actual bottleneck, and measure again.**
                 "Apply component-wise precision reasoning to a production VLM."
             ),
             "instructions": (
-                "You have a 7B VLM composed of a 0.4B vision encoder, small projector, and "
-                "large LLM backbone. The target task is document OCR.\n"
-                "Propose precisions for each component and choose between an easy "
-                "bitsandbytes path and a production AWQ/GPTQ-style path.\n"
-                "Explain your choice in terms of memory, latency, kernel support, and task sensitivity."
+                ('1. You have a 7B VLM composed of a 0.4B vision encoder, small projector, and large LLM backbone. The target task is document OCR.\n'
+                 '2. Propose precisions for each component and choose between an easy bitsandbytes path and a production AWQ/GPTQ-style path.\n'
+                 '3. Explain your choice in terms of memory, latency, kernel support, and task sensitivity.')
             ),
             "expected_output": (
                 "A component/precision table and a short runtime recommendation."
@@ -2898,17 +2895,15 @@ optimize the actual bottleneck, and measure again.**
                 "Synthesize profiling, serving, caching, and security into one production design."
             ),
             "instructions": (
-                "Design a service for 1,000 active users who repeatedly ask questions about "
-                "the same uploaded images. Requirements: low TTFT, two images max per request, "
-                "streaming output, and protection against unsafe arbitrary URL fetching.\n"
-                "Choose a serving engine and specify:\n"
-                "- scheduler strategy,\n"
-                "- KV-cache management,\n"
-                "- prefix caching,\n"
-                "- image embedding caching,\n"
-                "- multimodal input limits,\n"
-                "- URL-fetch security,\n"
-                "- metrics to monitor."
+                ('1. Design a service for 1,000 active users who repeatedly ask questions about the same uploaded images. Requirements: low TTFT, two images max per request, streaming output, and protection against unsafe arbitrary URL fetching.\n'
+                 '2. Choose a serving engine and specify:\n'
+                 '   - scheduler strategy,\n'
+                 '   - KV-cache management,\n'
+                 '   - prefix caching,\n'
+                 '   - image embedding caching,\n'
+                 '   - multimodal input limits,\n'
+                 '   - URL-fetch security,\n'
+                 '   - metrics to monitor.')
             ),
             "expected_output": (
                 "An architecture diagram or structured production plan covering all seven areas."
@@ -2932,16 +2927,15 @@ optimize the actual bottleneck, and measure again.**
                 "Compare deployment architectures for a privacy-sensitive mobile VLM product."
             ),
             "instructions": (
-                "A mobile assistant must work offline for simple camera questions but can use "
-                "the cloud for difficult requests. Device memory is limited and images are sensitive.\n"
-                "Design a hybrid strategy including:\n"
-                "- local model size/quantization,\n"
-                "- local versus cloud responsibilities,\n"
-                "- when escalation occurs,\n"
-                "- whether raw images or embeddings leave the phone,\n"
-                "- adapter customization,\n"
-                "- cache behavior.\n"
-                "Explain the privacy, latency, and quality trade-offs."
+                ('1. A mobile assistant must work offline for simple camera questions but can use the cloud for difficult requests. Device memory is limited and images are sensitive.\n'
+                 '2. Design a hybrid strategy including:\n'
+                 '   - local model size/quantization,\n'
+                 '   - local versus cloud responsibilities,\n'
+                 '   - when escalation occurs,\n'
+                 '   - whether raw images or embeddings leave the phone,\n'
+                 '   - adapter customization,\n'
+                 '   - cache behavior.\n'
+                 '3. Explain the privacy, latency, and quality trade-offs.')
             ),
             "expected_output": (
                 "A local/cloud decision flow plus trade-off table."

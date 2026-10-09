@@ -2475,16 +2475,16 @@ Before continuing, make sure you can answer:
                 "Decide whether a persistent quality problem justifies weight adaptation."
             ),
             "instructions": (
-                "Evaluate these scenarios:\n\n"
-                "A. The system prompt is vague and has not been systematically improved.\n"
-                "B. A small model must follow a company-specific report style across millions of requests, and you have high-quality examples.\n"
-                "C. The application needs fresh policy documents that change every week.\n"
-                "D. A 200-class domain classifier remains unreliable after careful prompting and you have a large labeled dataset.\n\n"
-                "For each, choose one of:\n"
-                "- improve prompt,\n"
-                "- use retrieval/context,\n"
-                "- consider fine-tuning.\n\n"
-                "For any fine-tuning choice, list the required data, evaluation, and deployment steps."
+                ('1. Evaluate these scenarios:\n'
+                 '   - A. The system prompt is vague and has not been systematically improved.\n'
+                 '   - B. A small model must follow a company-specific report style across millions of requests, and you have high-quality examples.\n'
+                 '   - C. The application needs fresh policy documents that change every week.\n'
+                 '   - D. A 200-class domain classifier remains unreliable after careful prompting and you have a large labeled dataset.\n'
+                 '2. For each, choose one of:\n'
+                 '   - improve prompt,\n'
+                 '   - use retrieval/context,\n'
+                 '   - consider fine-tuning.\n'
+                 '3. For any fine-tuning choice, list the required data, evaluation, and deployment steps.')
             ),
             "expected_output": (
                 "Four optimization decisions plus a fine-tuning checklist where applicable."

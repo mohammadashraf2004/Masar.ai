@@ -844,9 +844,8 @@ TOPIC = {
             "placement": "after_section",
             "description": "Distinguish classification, detection, semantic segmentation, and instance segmentation.",
             "instructions": (
-                "For eight short scenarios—four from medical imaging and four from everyday vision—choose one of: "
-                "image classification, object detection, semantic segmentation, or instance segmentation. "
-                "For each choice, specify the desired output shape/structure and explain why another task type would be insufficient."
+                ('1. For eight short scenarios—four from medical imaging and four from everyday vision—choose one of: image classification, object detection, semantic segmentation, or instance segmentation.\n'
+                 '2. For each choice, specify the desired output shape/structure and explain why another task type would be insufficient.')
             ),
             "expected_output": "An eight-row comparison table with task, output, and justification.",
             "difficulty": DifficultyLevel.intermediate,
@@ -860,10 +859,10 @@ TOPIC = {
             "placement": "after_section",
             "description": "Build a precise mental model of SAM's three components.",
             "instructions": (
-                "Draw or describe the tensor/data flow for a single point-prompt segmentation request. "
-                "Start with the RGB image and point coordinates. Identify which information goes to the image encoder, "
-                "which goes to the prompt encoder, what the mask decoder receives, and what outputs are produced. "
-                "Then explain why one prompt can produce several plausible masks."
+                ('1. Draw or describe the tensor/data flow for a single point-prompt segmentation request.\n'
+                 '2. Start with the RGB image and point coordinates.\n'
+                 '3. Identify which information goes to the image encoder, which goes to the prompt encoder, what the mask decoder receives, and what outputs are produced.\n'
+                 '4. Then explain why one prompt can produce several plausible masks.')
             ),
             "expected_output": "A clear architecture trace and explanation of ambiguous/multiple masks.",
             "difficulty": DifficultyLevel.intermediate,
@@ -911,10 +910,9 @@ TOPIC = {
             "placement": "after_section",
             "description": "Connect the new segmentation model to the existing candidate classifier.",
             "instructions": (
-                "Design a pipeline that takes an unseen CT scan, runs 2D segmentation, converts predicted mask regions into candidate centers/crops, "
-                "and sends those candidates to the existing 3D classifier. Specify the data passed at each boundary, where coordinate conversion is needed, "
-                "how duplicate regions across adjacent slices might be handled conceptually, and what failure modes segmentation can introduce downstream. "
-                "Do not invent an exact merging algorithm not supplied by the chapter; mark unresolved design choices explicitly."
+                ('1. Design a pipeline that takes an unseen CT scan, runs 2D segmentation, converts predicted mask regions into candidate centers/crops, and sends those candidates to the existing 3D classifier.\n'
+                 '2. Specify the data passed at each boundary, where coordinate conversion is needed, how duplicate regions across adjacent slices might be handled conceptually, and what failure modes segmentation can introduce downstream.\n'
+                 '3. Do not invent an exact merging algorithm not supplied by the chapter; mark unresolved design choices explicitly.')
             ),
             "expected_output": "A system-interface diagram/table with known transformations, risks, and explicitly unresolved design decisions.",
             "difficulty": DifficultyLevel.intermediate,

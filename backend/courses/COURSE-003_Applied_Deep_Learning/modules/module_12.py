@@ -896,11 +896,10 @@ TOPIC = {
             "placement": "after_section",
             "description": "Turn the chapter's logging infrastructure into a reusable debugging plan.",
             "instructions": (
-                "Design a metric/logging table for this training application. Include at least: overall loss, positive loss, "
-                "negative loss, overall accuracy, positive accuracy, negative accuracy, samples processed, iteration rate, "
-                "dataset sample counts, and run identifier. For each metric, state where it is collected, whether it belongs "
-                "in console logs, TensorBoard, or both, and what failure it could reveal. Finally, identify which metric would "
-                "have exposed the chapter's 99.7%-accuracy failure fastest."
+                ('1. Design a metric/logging table for this training application.\n'
+                 '2. Include at least: overall loss, positive loss, negative loss, overall accuracy, positive accuracy, negative accuracy, samples processed, iteration rate, dataset sample counts, and run identifier.\n'
+                 '3. For each metric, state where it is collected, whether it belongs in console logs, TensorBoard, or both, and what failure it could reveal.\n'
+                 "4. Finally, identify which metric would have exposed the chapter's 99.7%-accuracy failure fastest.")
             ),
             "expected_output": "A structured observability table and a justified diagnosis priority.",
             "difficulty": DifficultyLevel.intermediate,

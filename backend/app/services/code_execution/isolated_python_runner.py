@@ -12,7 +12,7 @@ from typing import Any
 from app.services.project_lab.execution import WorkspaceSnapshot, get_execution_service
 
 from .base import CodeRunner, ExecutionResult
-from .python_runner import ForbiddenCode, validate_python_source
+from .python_runner import ForbiddenCode, validate_check_expressions, validate_python_source
 
 
 def _type_name(value: Any) -> str:
@@ -77,6 +77,7 @@ class IsolatedPythonRunner(CodeRunner):
             return ExecutionResult("forbidden_operation", stderr=str(exc), detail=str(exc))
         try:
             validate_python_source(pre_exercise_code)
+            validate_check_expressions(calls)
         except (SyntaxError, ForbiddenCode) as exc:
             return ExecutionResult("execution_error", stderr="Exercise setup is invalid.", detail=str(exc))
 
@@ -85,10 +86,20 @@ class IsolatedPythonRunner(CodeRunner):
         call_source: list[str] = []
         for request in calls or []:
             key = str(request.get("key", ""))
+            capture_name = f"masar_return_{len(return_names)}"
+            if "expression" in request:
+                # An exercise author's hidden check (validated above), evaluated after learner code.
+                call_source.extend([
+                    "try:",
+                    f"    {capture_name} = ({request['expression']})",
+                    "except Exception as masar_call_error:",
+                    f"    {capture_name} = {{'__masar_call_error__': type(masar_call_error).__name__}}",
+                ])
+                return_names.append((key, capture_name))
+                continue
             function = str(request.get("function", ""))
             if not function.isidentifier():
                 continue
-            capture_name = f"masar_return_{len(return_names)}"
             args = repr(list(request.get("args") or []))
             kwargs = repr(dict(request.get("kwargs") or {}))
             call_source.extend([

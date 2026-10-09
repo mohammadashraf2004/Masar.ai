@@ -1049,6 +1049,9 @@ def load_course_dir(root: Path) -> CourseSpec:
     # Arabic from the folder's `ar/` (absent = none yet); after the quizzes are consolidated, because
     # an Arabic question attaches to the English question it is the twin of.
     attach_arabic(spec, content_root, root)
+    # After the Arabic, whose source hash covers the authored English exercise text.
+    from app.services.curriculum.guided import apply_guided_exercises
+    apply_guided_exercises(spec)
     manifest_file = content_root / "course_manifest.json"
     manifest = read_json(manifest_file) if manifest_file.is_file() else {}
     file_modules = manifest.get("consolidated_file_modules") is True

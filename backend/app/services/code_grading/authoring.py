@@ -42,6 +42,14 @@ _INTERCHANGEABLE_CALLS = {
 }
 
 
+# Tests that observe what the learner's program computes once it has run.
+BEHAVIOURAL_TEST_TYPES = frozenset({
+    "value_equals", "value_approx", "type_equals", "list_length", "dict_contains_key",
+    "dataframe_exists", "dataframe_columns", "dataframe_shape", "dataframe_column_values",
+    "stdout_equals", "stdout_contains", "return_value_equals", "expression_equals", "custom",
+})
+
+
 @dataclass(frozen=True)
 class _BlankCandidate:
     start: int
@@ -277,6 +285,12 @@ def build_fill_in_blank_exercise(
     for candidate in reversed(selected):
         blanked = blanked[:candidate.start] + "___" + blanked[candidate.end:]
 
+    # With behavioural checks in place, an equivalent expression in a blank is
+    # accepted (see PythonGrader); static-only exercises keep the exact check
+    # because nothing else would observe what the blank computes.
+    advisory = any(
+        test.get("required", True) and test.get("type") in BEHAVIOURAL_TEST_TYPES for test in tests
+    )
     blank_tests: list[dict[str, Any]] = []
     labels: list[str] = []
     for index, candidate in enumerate(selected, start=1):
@@ -285,6 +299,7 @@ def build_fill_in_blank_exercise(
             "id": f"blank_{index}",
             "type": "ast_contains",
             "static": True,
+            "advisory": advisory,
             "expected_ast": candidate.expected_ast,
             "expected_count": candidate.expected_count,
             "path": list(candidate.path),

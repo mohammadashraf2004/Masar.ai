@@ -1655,8 +1655,9 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Given five systems, decide which are simple LLM calls, classic '
                                'RAG, or true agents, and justify each classification.',
-                'instructions': 'Given five systems, decide which are simple LLM calls, classic '
-                                'RAG, or true agents, and justify each classification.',
+                'instructions': '1. Use these five systems: (a) a tool that summarises one pasted email; (b) a chatbot that retrieves policy chunks and answers once; (c) an assistant that searches, reads results, and decides whether to search again before answering; (d) a classifier that labels support tickets; (e) a bot that books meetings by checking calendars, proposing times, and retrying on conflicts.\n'
+                                '2. Classify each one as a simple LLM call, classic RAG, or a true agent.\n'
+                                '3. Write the execution behaviour that justifies each classification.',
                 'expected_output': 'A table with classification and evidence from the execution '
                                    'behavior.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1668,8 +1669,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Evaluate three workflows and choose a single-agent or multi-agent '
                                'design based on tool surface, security domains, and ownership.',
-                'instructions': 'Evaluate three workflows and choose a single-agent or multi-agent '
-                                'design based on tool surface, security domains, and ownership.',
+                'instructions': '1. Use these workflows: (a) answering employee FAQs from one knowledge base; (b) an assistant that handles both HR records and finance approvals; (c) a research pipeline where separate teams own search, analysis and report writing.\n'
+                                '2. For each one, describe its tool surface, security domains and ownership.\n'
+                                '3. Choose a single-agent or multi-agent design.\n'
+                                '4. State the trade-off of each choice.',
                 'expected_output': 'Three architecture decisions with explicit trade-offs.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['ai-agents', 'agentic-rag', 'analysis']},
@@ -1680,8 +1683,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Define which coding-agent actions may run automatically and which '
                                'require human approval.',
-                'instructions': 'Define which coding-agent actions may run automatically and which '
-                                'require human approval.',
+                'instructions': '1. List the action types: read files, edit files, run tests, run shell commands, and deploy.\n'
+                                '2. Mark each action as automatic or requiring human approval.\n'
+                                '3. Add one condition that changes the decision (for example, shell commands that touch the network).\n'
+                                '4. Explain the risk behind each approval requirement.',
                 'expected_output': 'A permission matrix covering read, edit, test, shell, and '
                                    'deploy actions.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1694,9 +1699,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'description': 'For research, compliance QA, and exploratory analysis, decide '
                                'whether the agent should receive raw chunks or a grounded RAG '
                                'answer.',
-                'instructions': 'For research, compliance QA, and exploratory analysis, decide '
-                                'whether the agent should receive raw chunks or a grounded RAG '
-                                'answer.',
+                'instructions': '1. For research, decide whether the agent should get raw chunks or a grounded RAG answer.\n'
+                                '2. Make the same decision for compliance QA.\n'
+                                '3. Make the same decision for exploratory analysis.\n'
+                                '4. For each one, explain where the synthesis should happen and why.',
                 'expected_output': 'Three choices with reasoning about where synthesis should '
                                    'live.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1708,8 +1714,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Rewrite three vague tool names/descriptions so a model can '
                                'distinguish them reliably.',
-                'instructions': 'Rewrite three vague tool names/descriptions so a model can '
-                                'distinguish them reliably.',
+                'instructions': '1. Start from these vague tools: get_data(query), search(q), and lookup(id).\n'
+                                '2. Give each tool a specific name that says what it acts on.\n'
+                                '3. Write a one-sentence purpose that tells the model when to use it and when not to.\n'
+                                '4. Describe each argument with its type and an example value.',
                 'expected_output': 'Clear tool names, purposes, and typed argument descriptions.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['ai-agents', 'agentic-rag', 'analysis']},
@@ -1720,8 +1728,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Sketch how several agents can share a governed database capability '
                                'through one MCP server.',
-                'instructions': 'Sketch how several agents can share a governed database '
-                                'capability through one MCP server.',
+                'instructions': '1. Draw the host applications, their MCP clients, one MCP server, and the database behind it.\n'
+                                '2. List the tools the server exposes (for example read-only queries only).\n'
+                                '3. Explain how each agent authenticates to the server.\n'
+                                '4. Explain how authorization limits which data each agent may read.',
                 'expected_output': 'A host/client/server/tool diagram plus authentication and '
                                    'authorization notes.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1733,8 +1743,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Break a two-part document question into the tool calls a ReAct '
                                'agent should make.',
-                'instructions': 'Break a two-part document question into the tool calls a ReAct '
-                                'agent should make.',
+                'instructions': '1. Use the question: "What is the remote-work policy, and how did it change from 2023 to 2024?"\n'
+                                '2. Write the first action (a tool call) and the observation it returns.\n'
+                                '3. Write the second action and its observation.\n'
+                                '4. End with a synthesis step that combines both observations into the answer.',
                 'expected_output': 'A short action-observation sequence ending in synthesis.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['ai-agents', 'agentic-rag', 'analysis']},
@@ -1745,8 +1757,9 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Given a sequence of web-search and calculator events, identify the '
                                'purpose of each step and one possible failure point.',
-                'instructions': 'Given a sequence of web-search and calculator events, identify '
-                                'the purpose of each step and one possible failure point.',
+                'instructions': '1. Use this event stream for "What is 15% of last year\'s revenue of Company X?": (1) web_search("Company X annual revenue"); (2) observation: "$4.2B in 2023"; (3) calculator("4.2e9 * 0.15"); (4) observation: 630000000; (5) final answer: "$630M".\n'
+                                '2. Write the purpose of each step.\n'
+                                '3. Identify one point where the run could fail (for example, the wrong year is returned) and how you would detect it.',
                 'expected_output': 'An annotated execution timeline.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['ai-agents', 'agentic-rag', 'analysis']},
@@ -1757,8 +1770,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Create specialized roles and dependent tasks for producing a '
                                'technical market report.',
-                'instructions': 'Create specialized roles and dependent tasks for producing a '
-                                'technical market report.',
+                'instructions': '1. Define a researcher agent: its role, goal and tools.\n'
+                                '2. Define a writer agent: its role, goal and tools.\n'
+                                '3. Define two tasks: collect market data, then write the report.\n'
+                                "4. Show that the writing task depends on the research task's output.",
                 'expected_output': 'Two agent definitions, two task definitions, and their '
                                    'dependency.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1770,8 +1785,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Define what should be stored short-term, what should persist '
                                'long-term, and how relevant memories are selected.',
-                'instructions': 'Define what should be stored short-term, what should persist '
-                                'long-term, and how relevant memories are selected.',
+                'instructions': '1. List what belongs in short-term memory (for example the current conversation and task state).\n'
+                                '2. List what should persist long-term (for example user preferences and confirmed facts).\n'
+                                '3. Describe how relevant memories are selected for a new request (similarity, recency, or both).\n'
+                                '4. Name one thing that must never be stored.',
                 'expected_output': 'A memory policy with storage and retrieval rules.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['ai-agents', 'agentic-rag', 'analysis']},
@@ -1782,8 +1799,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Define creation, validation, expiration, deletion, and archival '
                                'rules for persistent agent memories.',
-                'instructions': 'Define creation, validation, expiration, deletion, and archival '
-                                'rules for persistent agent memories.',
+                'instructions': '1. Write a rule for when a memory is created and how it is validated.\n'
+                                '2. Write a rule for when a memory expires.\n'
+                                '3. Write rules for deleting a memory, including when a user asks for it.\n'
+                                '4. Write a rule for archiving memories, and who can access the archive.',
                 'expected_output': 'A lifecycle policy suitable for an enterprise assistant.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['ai-agents', 'agentic-rag', 'analysis']},
@@ -1794,8 +1813,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Inspect a flawed meeting-scheduling plan and reorder the actions '
                                'correctly.',
-                'instructions': 'Inspect a flawed meeting-scheduling plan and reorder the actions '
-                                'correctly.',
+                'instructions': "1. Use this plan: (1) send the meeting invitation; (2) choose a meeting time; (3) check every attendee's calendar; (4) book a room for the chosen time.\n"
+                                '2. Identify which step depends on the output of another step.\n'
+                                '3. Reorder the steps so every step has the information it needs.\n'
+                                '4. Explain the dependency error in the original plan.',
                 'expected_output': 'A corrected plan plus explanation of the dependency error.',
                 'difficulty': DifficultyLevel.intermediate,
                 'skill_tested': ['ai-agents', 'agentic-rag', 'analysis']},
@@ -1806,8 +1827,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Design least-privilege permissions for an agent that reads email '
                                'and drafts replies.',
-                'instructions': 'Design least-privilege permissions for an agent that reads email '
-                                'and drafts replies.',
+                'instructions': '1. List the tools the email agent needs: read messages and create drafts.\n'
+                                '2. List the tools it must not have: send and delete.\n'
+                                '3. Describe how a human sends a draft after reviewing it.\n'
+                                '4. Explain what a prompt injection hidden in an email could and could not do under this design.',
                 'expected_output': 'A tool-permission design that prevents unauthorized '
                                    'send/delete operations.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1819,8 +1842,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Select metrics for cost, latency, tool reliability, response '
                                'quality, and autonomy.',
-                'instructions': 'Select metrics for cost, latency, tool reliability, response '
-                                'quality, and autonomy.',
+                'instructions': '1. Choose one metric each for cost, latency, tool reliability, response quality, and autonomy.\n'
+                                '2. Write how each metric is measured.\n'
+                                '3. For each metric, name the failure it detects.\n'
+                                '4. Set one alert threshold for the metric you consider most critical.',
                 'expected_output': 'A dashboard specification with each metric and what failure it '
                                    'detects.',
                 'difficulty': DifficultyLevel.intermediate,
@@ -1832,8 +1857,10 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'placement': 'after_section',
                 'description': 'Review a hypothetical agent and identify missing controls before '
                                'deployment.',
-                'instructions': 'Review a hypothetical agent and identify missing controls before '
-                                'deployment.',
+                'instructions': '1. Use this agent: it answers customer billing questions, can issue refunds through an API, has no spending limit, no logging of tool calls, and no evaluation set.\n'
+                                '2. List the missing controls.\n'
+                                '3. Mark each one as a blocker or a non-blocker for deployment.\n'
+                                '4. Order the list by priority and justify the top item.',
                 'expected_output': 'A prioritized readiness checklist with blockers and '
                                    'non-blockers.',
                 'difficulty': DifficultyLevel.intermediate,

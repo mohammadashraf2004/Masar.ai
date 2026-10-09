@@ -6,5 +6,8 @@
 pandas==3.0.6
 numpy==2.4.6
 scikit-learn==1.7.2
+# Guided exercises import scipy (ndimage, signal, stats) directly; pinned to the
+# version scikit-learn 1.7.2 resolves to, against which they are all verified.
+scipy==1.17.1
 matplotlib==3.11.2
 duckdb==1.5.6

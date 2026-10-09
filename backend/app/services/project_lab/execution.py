@@ -140,12 +140,57 @@ class RunnerServiceBackend(ExecutionBackend):
         if not self.require_gvisor or (checked is not None and time.monotonic() - checked < 60):
             return True
         response = await client.get(f"{self._BASE}/healthz")
-        runtime = response.json().get("runtime") if response.status_code == 200 else None
-        if runtime != "gvisor":
-            logger.error("project runner reports runtime %r but PROJECT_LAB_REQUIRE_GVISOR is set", runtime)
+        raw = response.json() if response.status_code == 200 else {}
+        data = raw if isinstance(raw, dict) else {}
+        runtime = data.get("runtime")
+        if data.get("ok") is not True or runtime != "gvisor":
+            logger.error(
+                "project runner health/runtime attestation failed (HTTP %s, runtime %r)",
+                response.status_code,
+                runtime,
+            )
             return False
         self._runtime_checked_at = time.monotonic()
         return True
+
+    async def assert_ready(self, *, wait_seconds: float = 0) -> None:
+        """Prove that the configured runner is reachable and is really gVisor.
+
+        Production calls this during application startup.  A short retry
+        window tolerates the runner and API containers starting together;
+        an explicit non-gVisor response fails immediately.  No Docker socket
+        is mounted into the API: Docker runtime registration is checked by
+        the host verification script, while this attests the effective
+        runtime from inside the running sandbox.
+        """
+        deadline = time.monotonic() + max(0.0, wait_seconds)
+        last_error: Exception | None = None
+        while True:
+            try:
+                async with self._client() as client:
+                    response = await client.get(f"{self._BASE}/healthz")
+                raw = response.json() if response.status_code == 200 else {}
+                data = raw if isinstance(raw, dict) else {}
+                runtime = data.get("runtime")
+                if response.status_code == 200 and data.get("ok") is True and runtime == "gvisor":
+                    self._runtime_checked_at = time.monotonic()
+                    return
+                if runtime is not None and runtime != "gvisor":
+                    raise RuntimeError(
+                        f"project runner attested runtime {runtime!r}, not required runtime 'gvisor'"
+                    )
+                last_error = RuntimeError(
+                    f"project runner readiness returned HTTP {response.status_code} without a gVisor attestation"
+                )
+            except RuntimeError:
+                raise
+            except (httpx.HTTPError, OSError, ValueError) as exc:
+                last_error = exc
+            if time.monotonic() >= deadline:
+                raise RuntimeError(
+                    "project runner is unavailable; production learner execution requires a live gVisor attestation"
+                ) from last_error
+            await asyncio.sleep(min(1.0, max(0.0, deadline - time.monotonic())))
 
     async def execute(self, job: dict) -> JobOutcome:
         try:
@@ -192,6 +237,21 @@ def build_backend() -> ExecutionBackend:
             memory_mb=settings.PROJECT_LAB_LOCAL_MEMORY_MB,
         )
     return DisabledBackend()
+
+
+async def verify_production_runner(*, wait_seconds: float = 30.0) -> None:
+    """Fail application startup unless an enabled production runner is gVisor.
+
+    Disabled production execution deliberately returns without contacting a
+    runner, so the rest of Masar can start safely during installation,
+    incidents, and rollback.
+    """
+    if not settings.is_production or settings.project_lab_backend == "disabled":
+        return
+    backend = build_backend()
+    if not isinstance(backend, RunnerServiceBackend) or not backend.require_gvisor:
+        raise RuntimeError("production learner execution has no enforced gVisor runner")
+    await backend.assert_ready(wait_seconds=wait_seconds)
 
 
 def _clean_artifacts(raw: Any) -> list[dict]:

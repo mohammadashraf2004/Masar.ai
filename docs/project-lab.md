@@ -125,10 +125,11 @@ sockets. Derivation and regeneration: `seccomp/README.md`.
 
 ### gVisor
 
-**Status: supported and verified, not yet enabled on a production host,
-because no production host is provisioned yet** (`DEPLOYMENT.md` is the
-unprovisioned specification). The default stays `runc` so local development
-needs nothing extra.
+**Status: supported and verified locally, not yet verified on the production
+host. Learner Python execution must remain disabled there until the host
+runbook passes.** The base Compose default stays `runc` for local development,
+but production configuration accepts only `disabled`, or `runner` with the
+complete gVisor contract.
 
 Verified: gVisor `release-20260928.0` in Docker-in-Docker on Docker Desktop
 (WSL2 kernel 6.6): the runner started from `docker-compose.yml` under
@@ -141,12 +142,15 @@ Docker Desktop, WSL2 or Docker-in-Docker results are evidence that the
 configuration works, not that a given production host is safe — the runbook's
 check script must pass on the host itself.
 
-Production validation fails clearly at three levels: Docker refuses to start
-the runner with an unknown runtime; the runner exits at start-up with
+Production validation fails clearly at four levels: static API configuration
+rejects an enabled runner unless it names `runsc`, the gVisor seccomp profile,
+both require flags, and at least 512 host PIDs; Docker refuses to start the
+runner with an unknown runtime; the runner exits at start-up with
 `RUNNER_REQUIRE_GVISOR=1` unless it detects gVisor (`project_runner/runtime.py`);
-and with `PROJECT_LAB_REQUIRE_GVISOR=true` the API re-checks the runner's
-`/healthz` every minute and refuses to send any job (learners see "unavailable",
-the `ProjectLabRunnerFailing` alert fires) when it does not report gVisor.
+and the API refuses to finish startup unless the live runner reports gVisor.
+It re-checks `/healthz` every minute before jobs and refuses execution
+(learners see "unavailable", and `ProjectLabRunnerFailing` fires) if that
+attestation later changes. There is no production path from `runsc` to `runc`.
 
 Known differences under gVisor: the gVisor seccomp profile must allow `clone3`
 (gVisor ignores the `ENOSYS` return, so threads could not start); namespaces
@@ -162,7 +166,7 @@ memory cap, the wall clock and the per-job cleanup instead (probed).
 | Wall clock | 15 s per job (runner), 45 s per API request incl. queueing | runner `proc.wait(timeout)` + cleanup kill; httpx timeout | busy loop, multi-thread spin, `sleep(600)` |
 | CPU | 12 s CPU per job; 1 CPU per runner container | `RLIMIT_CPU`; compose `cpus` | ✓ |
 | Memory | 1 GB address space per job; 1.5 GB per container | `RLIMIT_AS`; compose `mem_limit` | 6 GB alloc, incremental exhaustion |
-| Processes | 32 per job uid; 128 per container | `RLIMIT_NPROC`; compose `pids_limit`; `tini` reaps | fork bomb, 200 `sleep`s, no zombies after |
+| Processes | 32 per job uid; 128 per local runc container, at least 512 for production gVisor host headroom | `RLIMIT_NPROC`; compose `pids_limit`; `tini` reaps | fork bomb, 200 `sleep`s, no zombies after |
 | Output | 65,536 chars each of stdout/stderr; result stream 24 MB | harness `BoundedBuffer`; raw fds 1/2 → `/dev/null` | flood + raw-fd flood; API returns `stdout_truncated`/`stderr_truncated` |
 | File size | 8 MB per file | `RLIMIT_FSIZE` | 64 MB write refused |
 | Generated files | 10 returned per run (`artifacts_truncated`); 2 MB per image; 30 kept per attempt | harness, execution service, `save_artifacts` | 40 files → 10 + flag |
@@ -258,8 +262,9 @@ Last results (2026-10-06): **96/96 under runc, 96/96 under gVisor.**
    `docker compose up` aborts until the env file is switched as in rollback
    step 10; containers already running keep running. Re-run
    `project_runner_production_check.sh` after any Docker or kernel upgrade.
-   The api no longer depends on the runner in Compose, so a targeted
-   `docker compose up -d api` still works in that state.
+   An API configured with `runner` also refuses application startup when the
+   runner is absent. Set `PROJECT_LAB_EXECUTION_BACKEND=disabled` to restore
+   the rest of Masar; never substitute `runc` while execution remains enabled.
 6. The host firewall, TLS proxy and the rest of `DEPLOYMENT.md` still apply.
 
 ### Production host runbook (gVisor)
@@ -317,7 +322,11 @@ do it in a maintenance window** (or with `"live-restore": true` already in
    "klogctl: Operation not permitted" even under gVisor. The runner detects
    gVisor from `/proc/version` the same way.)
 
-5. **Configure the Project Lab** in `/etc/masar/production.env`:
+5. **Configure the Project Lab** in `/etc/masar/production.env`. Start from
+   `PROJECT_LAB_EXECUTION_BACKEND=disabled` (also what `docker-compose.prod.yml`
+   uses when the variable is absent; only `docker-compose.yml` alone, for local
+   development, falls back to `runner`); change it to `runner` only after
+   steps 1–4 pass:
 
    ```sh
    PROJECT_LAB_EXECUTION_BACKEND=runner
@@ -336,18 +345,31 @@ do it in a maintenance window** (or with `"live-restore": true` already in
    (reproduced 2026-10-07). Learner processes stay capped at 32 per job by
    `RLIMIT_NPROC` inside the sandbox.
 
-6. **Start the runner, then recreate the API** so both read the new values:
+6. **Start the runner, then recreate the API** so both read the new values.
+   The API receives the runtime/profile/require settings for validation, but
+   never receives the Docker socket. Each API worker waits briefly for the
+   runner and then refuses startup unless `/healthz` attests `runtime=gvisor`:
 
    ```sh
    C="docker compose --env-file /etc/masar/production.env -f docker-compose.yml -f docker-compose.prod.yml"
-   $C up -d --build project-runner && $C up -d --force-recreate api
+   $C --profile project-lab up -d --build project-runner
+   $C up -d --force-recreate api
    ```
 
-7. **Check runner health**: `$C ps project-runner` shows `healthy`, and
+   The production overlay places `project-runner` behind the `project-lab`
+   profile. A normal production `$C up -d` therefore cannot accidentally
+   create a local-runc runner while execution is disabled. Explicitly targeting
+   the profiled service above is part of the controlled activation.
+
+7. **Check runner and API health**: `$C ps project-runner api` shows both as
+   `healthy`, and
    `docker inspect --format '{{.HostConfig.Runtime}}' $($C ps -q project-runner)`
    prints `runsc`. If the runner keeps restarting, `$C logs project-runner`
    shows `RUNNER_REQUIRE_GVISOR=1 but the runner is not running under gVisor`
-   — the fail-closed path, go to step 10.
+   — the fail-closed path, go to step 10. If the runner is healthy but the API
+   repeatedly exits, inspect `$C logs api`; a non-gVisor or unavailable-runner
+   startup error means the execution backend must be disabled until the host
+   configuration is repaired.
 
 8. **Run the full security probe suite under gVisor**:
    `backend/scripts/project_runner_security_check.sh --gvisor` (a throwaway
@@ -375,21 +397,34 @@ do it in a maintenance window** (or with `"live-restore": true` already in
       `$C up -d --force-recreate api && $C stop project-runner`.
     * **Remove the runtime** (if `runsc` itself breaks Docker). First, in the
       env file, set `PROJECT_LAB_EXECUTION_BACKEND=disabled` **and**
-      `PROJECT_RUNNER_RUNTIME=runc`, keeping both REQUIRE flags on — Compose
-      creates every container before starting any, so a service that names
-      an unregistered runtime makes a full `docker compose up` abort with
-      nothing started. Then restore `/etc/docker/daemon.json.pre-gvisor`,
-      `systemctl restart docker` (maintenance window) and `$C up -d`. The
-      runner then refuses to start (`RUNNER_REQUIRE_GVISOR=1 but this
-      container runs under 'runc'`) and the rest of Masar runs normally.
-    * **Return to runc** only as a recorded risk decision (weaker isolation —
-      see *Remaining production risks*): `PROJECT_RUNNER_RUNTIME=runc`,
-      `PROJECT_RUNNER_SECCOMP=runner-seccomp.json`,
-      `PROJECT_RUNNER_REQUIRE_GVISOR=0`, `PROJECT_LAB_REQUIRE_GVISOR=false`,
-      recreate `project-runner` and `api`, then run
-      `backend/scripts/project_runner_security_check.sh` (runc) before
-      re-enabling. Nothing switches to runc on its own: with the REQUIRE
-      flags set, a missing gVisor stops execution instead.
+      `PROJECT_RUNNER_RUNTIME=runc`. Then restore
+      `/etc/docker/daemon.json.pre-gvisor`, `systemctl restart docker`
+      (maintenance window), and run `$C up -d`. The production profile omits
+      the runner entirely, while the disabled API and the rest of Masar start
+      normally.
+    * **Do not return production learner execution to runc.** `runc` remains a
+      local-development runtime only. If gVisor cannot be restored, keep
+      `PROJECT_LAB_EXECUTION_BACKEND=disabled`; rendering, static grading,
+      SQL grading, and the rest of Masar remain available.
+
+### gVisor troubleshooting checklist
+
+* `unknown or invalid runtime name: runsc`: registration is absent or Docker
+  was not restarted. Re-check `/etc/docker/daemon.json`, `runsc --version`, and
+  `docker info --format '{{json .Runtimes}}'`.
+* Runner restart loop with `runs under 'runc'`: Compose did not receive the
+  intended env file or the container was not recreated. Confirm
+  `docker inspect ...HostConfig.Runtime` is `runsc`.
+* API startup failure saying the runner is unavailable: wait for runner health,
+  verify the shared socket volume and token, then recreate the API. Do not
+  weaken either require flag to make it boot.
+* gVisor worker failures around `clone3`: use
+  `runner-seccomp-gvisor.json`, not the runc profile.
+* gVisor sentry crashes under process-abuse probes: verify
+  `PROJECT_RUNNER_PIDS_LIMIT` is at least 512. The learner's in-sandbox limit
+  remains 32 processes.
+* Any unresolved failure: set the backend to `disabled`, recreate the API,
+  stop the runner, and keep the release blocker open.
 
 ### `local` backend: development and tests only, not a sandbox
 

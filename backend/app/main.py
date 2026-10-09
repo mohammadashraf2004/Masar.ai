@@ -58,6 +58,17 @@ app = FastAPI(
     openapi_url=None if settings.is_production else "/openapi.json",
 )
 
+
+@app.on_event("startup")
+async def _verify_production_project_runner() -> None:
+    # Static settings are rejected in app.core.config before this module is
+    # imported. This second gate validates the live sandbox: production does
+    # not begin serving when learner execution is enabled but the runner is
+    # absent, unhealthy, or running under anything other than gVisor.
+    from app.services.project_lab.execution import verify_production_runner
+
+    await verify_production_runner()
+
 # ─── Rate limiting ──────────────────────────────────────────────────────────
 # Probe the backend before serving. A rate limiter whose storage is
 # unreachable is not a degraded rate limiter, it is no rate limiter at

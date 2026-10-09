@@ -176,6 +176,15 @@ class Settings(BaseSettings):
     # (checked against the runner's /healthz). Set it when the runner is
     # deployed with runtime: runsc, so a misconfigured host fails loudly.
     PROJECT_LAB_REQUIRE_GVISOR: bool = False
+    # The API receives the runner container settings as well as its own flag.
+    # It cannot inspect Docker directly (and must never receive the Docker
+    # socket), but in production it can refuse a configuration that would ask
+    # Compose for runc, the runc seccomp profile, or insufficient gVisor pid
+    # headroom. The live runtime is attested separately at API startup.
+    PROJECT_RUNNER_RUNTIME: str = "runc"
+    PROJECT_RUNNER_SECCOMP: str = "runner-seccomp.json"
+    PROJECT_RUNNER_REQUIRE_GVISOR: bool = False
+    PROJECT_RUNNER_PIDS_LIMIT: int = 128
     # One execution at a time per learner. A lease older than this is treated
     # as abandoned (a crashed worker), so a learner is never locked out.
     PROJECT_LAB_EXECUTION_LEASE_SECONDS: int = 180
@@ -355,6 +364,29 @@ class Settings(BaseSettings):
                 "PROJECT_LAB_RUNNER_TOKEN must be a random value of 24+ characters (not the compose "
                 "default) when PROJECT_LAB_EXECUTION_BACKEND=runner"
             )
+        if self.is_production and backend == "runner":
+            if self.PROJECT_RUNNER_RUNTIME.strip() != "runsc":
+                problems.append(
+                    "PROJECT_RUNNER_RUNTIME must be runsc when learner execution is enabled in production"
+                )
+            if self.PROJECT_RUNNER_SECCOMP.strip() != "runner-seccomp-gvisor.json":
+                problems.append(
+                    "PROJECT_RUNNER_SECCOMP must be runner-seccomp-gvisor.json when learner execution "
+                    "is enabled in production"
+                )
+            if not self.PROJECT_RUNNER_REQUIRE_GVISOR:
+                problems.append(
+                    "PROJECT_RUNNER_REQUIRE_GVISOR must be true when learner execution is enabled in production"
+                )
+            if not self.PROJECT_LAB_REQUIRE_GVISOR:
+                problems.append(
+                    "PROJECT_LAB_REQUIRE_GVISOR must be true when learner execution is enabled in production"
+                )
+            if self.PROJECT_RUNNER_PIDS_LIMIT < 512:
+                problems.append(
+                    "PROJECT_RUNNER_PIDS_LIMIT must be at least 512 when learner execution is enabled "
+                    "under gVisor in production"
+                )
         return problems
 
     @property

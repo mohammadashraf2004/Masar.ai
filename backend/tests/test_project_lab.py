@@ -401,6 +401,7 @@ def test_run_infrastructure_failure_is_distinguished(client, lab, use_backend):
     assert body["status"] == "infrastructure_error"
 
 
+
 def test_run_sql_queries_the_project_datasets(client, lab):
     _, headers = _register(client)
     attempt_id = _start(client, headers, lab)
@@ -681,14 +682,29 @@ def test_production_never_uses_the_local_adapter(monkeypatch):
     problems = " ".join(Settings(APP_ENV="production", PROJECT_LAB_EXECUTION_BACKEND="runner").project_lab_problems())
     assert "PROJECT_LAB_RUNNER_SOCKET must be an absolute socket path" in problems
     assert "PROJECT_LAB_RUNNER_TOKEN must be a random value" in problems
+    assert "PROJECT_RUNNER_RUNTIME must be runsc" in problems
+    assert "PROJECT_RUNNER_SECCOMP must be runner-seccomp-gvisor.json" in problems
+    assert "PROJECT_RUNNER_REQUIRE_GVISOR must be true" in problems
+    assert "PROJECT_LAB_REQUIRE_GVISOR must be true" in problems
+    assert "PROJECT_RUNNER_PIDS_LIMIT must be at least 512" in problems
     ok = Settings(APP_ENV="production", PROJECT_LAB_EXECUTION_BACKEND="runner",
                   PROJECT_LAB_RUNNER_SOCKET="/run/project-runner/runner.sock",
-                  PROJECT_LAB_RUNNER_TOKEN="0123456789abcdef0123456789abcdef")
+                  PROJECT_LAB_RUNNER_TOKEN="0123456789abcdef0123456789abcdef",
+                  PROJECT_RUNNER_RUNTIME="runsc",
+                  PROJECT_RUNNER_SECCOMP="runner-seccomp-gvisor.json",
+                  PROJECT_RUNNER_REQUIRE_GVISOR=True,
+                  PROJECT_LAB_REQUIRE_GVISOR=True,
+                  PROJECT_RUNNER_PIDS_LIMIT=512)
     assert ok.project_lab_problems() == []
     default_token = Settings(APP_ENV="production", PROJECT_LAB_EXECUTION_BACKEND="runner",
                              PROJECT_LAB_RUNNER_SOCKET="/run/project-runner/runner.sock",
                              PROJECT_LAB_RUNNER_TOKEN="local-dev-runner-token-change-me")
     assert default_token.project_lab_problems()
+
+    # The kill switch remains available even when runsc is absent: none of
+    # the runner settings is required while learner execution is disabled.
+    disabled = Settings(APP_ENV="production", PROJECT_LAB_EXECUTION_BACKEND="disabled")
+    assert disabled.project_lab_problems() == []
 
     monkeypatch.setattr(execution.settings, "APP_ENV", "production")
     monkeypatch.setattr(execution.settings, "PROJECT_LAB_EXECUTION_BACKEND", "local")

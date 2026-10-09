@@ -23,6 +23,7 @@ import pytest
 from app.core.limiter import limiter
 from app.models.project_lab import LabArtifact, LabAttempt, LabExecutionLease, LabMilestone, LabProject, LabTask, LabTaskProgress
 from app.services.project_lab import service
+from app.services.project_lab import execution as execution_module
 from app.services.project_lab.definitions import MASAR_COMMERCE
 from app.services.project_lab.execution import (
     ExecutionBackend, JobOutcome, LocalSubprocessBackend, RunnerServiceBackend,
@@ -683,8 +684,62 @@ def test_runner_client_requires_gvisor_when_configured():
     assert refused.status == "infrastructure_error" and calls == ["/healthz"]
 
     calls.clear()
-    allowed = asyncio.run(_runner(handler).execute({"mode": "python"}))
-    assert allowed.status == "success" and calls == ["/v1/jobs"]
+    def gvisor_handler(request):
+        calls.append(request.url.path)
+        if request.url.path == "/healthz":
+            return httpx.Response(200, json={"ok": True, "runtime": "gvisor"})
+        return httpx.Response(200, json={"status": "success", "stdout": "hi"})
+
+    allowed = asyncio.run(_runner(gvisor_handler, require_gvisor=True).execute({"mode": "python"}))
+    assert allowed.status == "success" and calls == ["/healthz", "/v1/jobs"]
+
+
+def test_production_startup_attestation_rejects_invalid_or_unavailable_runner():
+    async def check(handler):
+        await _runner(handler, require_gvisor=True).assert_ready(wait_seconds=0)
+
+    with pytest.raises(RuntimeError, match="not required runtime 'gvisor'"):
+        asyncio.run(check(lambda request: httpx.Response(200, json={"ok": True, "runtime": "runc"})))
+
+    def unavailable(request):
+        raise httpx.ConnectError("no socket")
+
+    with pytest.raises(RuntimeError, match="requires a live gVisor attestation"):
+        asyncio.run(check(unavailable))
+
+
+def test_production_startup_attestation_accepts_live_gvisor_runner():
+    backend = _runner(
+        lambda request: httpx.Response(200, json={"ok": True, "runtime": "gvisor"}),
+        require_gvisor=True,
+    )
+    asyncio.run(backend.assert_ready(wait_seconds=0))
+    assert backend._runtime_checked_at is not None
+
+
+def test_production_kill_switch_starts_without_contacting_a_runner(monkeypatch):
+    monkeypatch.setattr(execution_module.settings, "APP_ENV", "production")
+    monkeypatch.setattr(execution_module.settings, "PROJECT_LAB_EXECUTION_BACKEND", "disabled")
+    monkeypatch.setattr(
+        execution_module,
+        "build_backend",
+        lambda: (_ for _ in ()).throw(AssertionError("disabled startup must not contact a runner")),
+    )
+
+    asyncio.run(execution_module.verify_production_runner(wait_seconds=0))
+
+
+def test_production_enabled_startup_requires_the_live_attestation(monkeypatch):
+    backend = _runner(
+        lambda request: httpx.Response(200, json={"ok": True, "runtime": "gvisor"}),
+        require_gvisor=True,
+    )
+    monkeypatch.setattr(execution_module.settings, "APP_ENV", "production")
+    monkeypatch.setattr(execution_module.settings, "PROJECT_LAB_EXECUTION_BACKEND", "runner")
+    monkeypatch.setattr(execution_module, "build_backend", lambda: backend)
+
+    asyncio.run(execution_module.verify_production_runner(wait_seconds=0))
+    assert backend._runtime_checked_at is not None
 
 
 def test_runner_client_maps_failures_to_infrastructure_errors():

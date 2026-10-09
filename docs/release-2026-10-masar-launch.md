@@ -136,11 +136,11 @@ unusable answer is refunded by its endpoint, and any other failed response is re
 by `AllowanceRequestMiddleware`. A reservation nobody settled within
 `PRO_AI_RESERVATION_TTL_SECONDS` (300; a worker killed mid-request) is released, not
 counted. A usage counts for 4 hours from its reservation; the window belongs to the
-account, so resubscribing does not refill it. Mentor v2's cap of 3 refunded
-(validation-failed) replies per day counts allowance releases too. No AI endpoint
-streams; a client that disconnects after the server answered keeps no refund - mentor
-chat, Mentor v2 (replayed free by `requestId`) and exercise feedback keep the answer
-server-side; code review, mock-interview questions, skill gap, roadmap and hints do not.
+account, so resubscribing does not refill it. The Mentor's validation-failure limit
+(below) counts allowance releases too. No AI endpoint streams; a client that disconnects
+after the server answered keeps no refund - Mentor v2 messages, code review and
+mock-interview questions (replayed free by their request id, migration **037**) and
+exercise feedback keep the answer server-side; skill gap, roadmap and hints do not.
 `GET /api/v1/billing/ai-allowance` reports plan, allowance, `ai_billing` and `trial`.
 
 ## Payments: Kashier (Paymob historical only)
@@ -177,6 +177,40 @@ Each wrong guess fails closed (no grant, no revocation; Kashier retries, staff r
 from the dashboard). Record the raw payloads (`subscription_payment_events.raw_payload`,
 `payment_transactions.raw_payload`) of one payment, one full and one partial refund.
 
+## AI Mentor hardening (migration 037, 2026-10-09)
+
+**Request idempotency.** `mentor_requests` (one row per user + action + client request id,
+unique) is claimed before anything is charged by `POST /mentor/message`,
+`/mentor/code-review` and `/mentor/mock-interview`. The same id again while the first is
+running gets `409 request_in_progress` with `Retry-After` - no charge, no provider call;
+after it finished, the stored answer (`replayed: true`, its original `creditCost`, charged
+once); after a refunded failure it may run again. A claim left `processing` by a killed
+worker is taken over after 120 s, and the learner's next mentor request of any kind refunds
+every wallet charge such claims still hold (Pro reservations are released by the 300 s
+TTL above). Finished claims older than a day are deleted on the learner's next claim.
+
+**Validation failures** are always refunded, wallet and Pro. After
+`MENTOR_VALIDATION_FAILURES_LIMIT` (5) in `MENTOR_VALIDATION_FAILURE_WINDOW_SECONDS`
+(3600), further model sends are refused with `429 mentor_validation_limit` before any
+charge or provider call. The old `MENTOR_VALIDATION_REFUNDS_PER_DAY` is gone (ignored if
+still set). One message has a 55 s budget (`MENTOR_MESSAGE_BUDGET_SECONDS`) under the
+browser's 65 s timeout.
+
+**Requests for hidden material** (the mentor's instructions, internal policies, hidden
+solutions, grading data), English or Arabic, get a fixed refusal: free, no provider call.
+
+**`POST /mentor/chat` is retired**: `410`, nothing charged, no provider call.
+
+**Browser privacy.** Exercise drafts and mock interviews are stored per account and removed
+at sign-out; another account on the same browser never reads or sends them. Drafts saved
+before this release under the old key are no longer read (learners see the starter once).
+
+Deploy: `alembic upgrade head` (036 -> 037, creates `mentor_requests` only; no data is
+touched). Check: `SELECT version_num FROM alembic_version;` is `037_mentor_requests`, and
+`\d mentor_requests` shows `uq_mentor_requests_user_action_request` and
+`ck_mentor_requests_status`. Rollback: `alembic downgrade 036_pro_ai_usage` drops only
+that table; deploy the previous image with it.
+
 ## Limits and policies introduced with this release
 
 * AI-reviewed project submissions: **10 per account per rolling 24 hours**
@@ -185,8 +219,9 @@ from the dashboard). Record the raw payloads (`subscription_payment_events.raw_p
   (not found, no access, validation) do not count.
 * Shared code runner: one execution per account at a time and 120 runner-seconds per
   10 minutes per account (`RUNNER_USER_SECONDS`, `RUNNER_USER_WINDOW_SECONDS`).
-* Mentor: rejected model replies are refunded up to 3 times per account per day
-  (`MENTOR_VALIDATION_REFUNDS_PER_DAY`); provider failures are always refunded.
+* Mentor: rejected model replies and provider failures are always refunded; after 5
+  rejected replies in an hour an account's model sends pause (`429
+  mentor_validation_limit`, nothing charged).
 * Quiz translations: only email-verified accounts trigger a model call; a failed
   translation is not retried for 6 hours.
 * Subscription refunds: a **partial refund keeps Pro**; a verified **full** refund ends

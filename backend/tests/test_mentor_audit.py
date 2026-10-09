@@ -467,6 +467,44 @@ def test_a_retried_send_is_answered_once_and_charged_once(api, db, monkeypatch):
     assert len(_txs(db, user_id, TransactionType.deduction)) == 1
 
 
+def test_a_pro_learner_pays_from_the_allowance_and_gets_it_back_when_the_mentor_fails(api, db, monkeypatch):
+    from app.models.billing import BillingPlan, ProAiUsage, UserSubscription
+
+    course, lessons = _course(db)
+    token, user_id = _register(api)
+    _enroll(db, user_id, course)
+    now = datetime.now(timezone.utc)
+    db.add(UserSubscription(
+        user_id=user_id, plan_id=db.query(BillingPlan).filter(BillingPlan.code == "pro").one().id,
+        status="active", billing_period="monthly", payment_provider="kashier",
+        provider_subscription_id=f"t-{uuid.uuid4().hex}",
+        current_period_start=now - timedelta(days=1), current_period_end=now + timedelta(days=30),
+    ))
+    db.commit()
+    wallet = _balance(db, user_id)
+
+    def usages():
+        db.expire_all()
+        return [row.status for row in db.query(ProAiUsage).filter(ProAiUsage.user_id == user_id).order_by(ProAiUsage.id)]
+
+    llm = _stub(monkeypatch, _reply(lessons[0].id))
+    assert _send(api, token, "Why scale the scores?", lesson=lessons[0]).status_code == 200
+    assert usages() == ["consumed"]
+
+    llm.replies = [TimeoutError("provider timed out")]
+    failed = _send(api, token, "And the softmax?", lesson=lessons[0])
+    assert failed.status_code == 503 and "refunded" in failed.json()["detail"]
+    assert usages() == ["consumed", "released"]
+
+    # Used up: refused before the provider is called, and never paid from the wallet instead.
+    monkeypatch.setattr(settings, "PRO_AI_CREDITS_PER_WINDOW", COST + 1)
+    calls = len(llm.calls)
+    limited = _send(api, token, "One more?", lesson=lessons[0])
+    assert limited.status_code == 429 and limited.json()["detail"]["error"] == "pro_ai_limit_reached"
+    assert len(llm.calls) == calls and usages() == ["consumed", "released"]
+    assert _balance(db, user_id) == wallet and _txs(db, user_id, TransactionType.deduction) == []
+
+
 def test_no_credits_means_no_model_call(api, db, monkeypatch):
     course, (lesson, *_rest) = _course(db)
     token, user_id = _register(api)
@@ -553,6 +591,39 @@ def test_weekly_plan_leaves_out_lessons_the_learner_cannot_open(api, db, monkeyp
     planned = {block.get("lessonId") for day in plan["days"] for block in day["blocks"]}
     assert planned == {str(lessons[0].id), str(lessons[1].id)}
     assert any("purchased" in reason for reason in plan["reasons"])
+
+
+def test_weekly_plan_and_interview_never_read_lesson_text(api, db, monkeypatch):
+    # They need each lesson's order, title and minutes; a real course's lesson text is
+    # ~1-1.5 MB, and four courses of it used to be read for every plan and interview question.
+    from sqlalchemy import event
+
+    _no_model(monkeypatch)
+    course, lessons = _course(db, lessons=3)
+    token, user_id = _register(api)
+    _enroll(db, user_id, course)
+    _complete(db, user_id, lessons[0])
+    engine = db.get_bind()
+    engine = getattr(engine, "engine", engine)
+    statements = []
+
+    def record(conn, cursor, statement, *args):
+        statements.append(statement)
+
+    event.listen(engine, "before_cursor_execute", record)
+    try:
+        plan = api.get("/api/v1/mentor/plan", headers=_auth(token), params={"weekStart": "2026-10-03", "language": "ar"})
+        llm = FakeLLM(QUESTION)
+        monkeypatch.setattr(mentor_controller, "get_llm", lambda: llm)
+        interview = api.post("/api/v1/mentor/mock-interview", headers=_auth(token), json={"topic": "NLP", "language": "ar"})
+    finally:
+        event.remove(engine, "before_cursor_execute", record)
+
+    assert plan.status_code == 200 and interview.status_code == 200, (plan.text, interview.text)
+    assert {block.get("lessonId") for day in plan.json()["days"] for block in day["blocks"]} >= {str(lessons[1].id)}
+    assert lessons[0].title_ar in llm.calls[-1]["messages"][-1]["content"]
+    reads_text = [s for s in statements if "FROM lessons" in s and ("lessons.content," in s or "lessons.content_ar" in s or "lessons.content " in s)]
+    assert statements and reads_text == []
 
 
 def test_learner_model_is_built_from_this_learners_evidence_only(api, db):

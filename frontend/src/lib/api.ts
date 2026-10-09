@@ -64,6 +64,8 @@ export interface BillingCatalogApi {
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+/** Longer than the API worker's 60 s limit (gunicorn --timeout 60), so the browser never gives up on a send the server is still answering. */
+export const MENTOR_MESSAGE_TIMEOUT_MS = 65_000
 
 /** A walkthrough record as the wire has it (docs/backend-requests.md §6); the tours feature
  *  translates this into its own local shape (frontend/src/features/tours/sync.ts). */
@@ -1100,8 +1102,11 @@ class ApiClient {
     },
     language: 'ar' | 'en',
   ) {
+    // One send can take the server up to its 60 s worker limit (intent call, reply, one corrected
+    // retry). Giving up at the default 30 s let the learner press "retry" while the first send was
+    // still running, so the server's same-request-id replay found nothing and both were charged.
     const res = await this.http.post<import('@/features/mentor/types').MentorMessageV2 & { sessionId: number }>(
-      '/mentor/message', { ...body, language },
+      '/mentor/message', { ...body, language }, { timeout: MENTOR_MESSAGE_TIMEOUT_MS },
     )
     return res.data
   }

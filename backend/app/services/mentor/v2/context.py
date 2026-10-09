@@ -100,6 +100,15 @@ def _module_lessons(db: Session, lesson: Lesson) -> List[Lesson]:
     return [lesson]
 
 
+def _module_lesson_ids(db: Session, lesson: Lesson):
+    """The ids of the lesson's module, without reading every lesson's text again."""
+    if lesson.topic_id:
+        return db.query(Lesson.id).filter(Lesson.topic_id == lesson.topic_id).all()
+    if lesson.tool_topic_id:
+        return db.query(Lesson.id).filter(Lesson.tool_topic_id == lesson.tool_topic_id).all()
+    return [(lesson.id,)]
+
+
 def _prerequisite_lessons(db: Session, lesson: Lesson) -> List[Lesson]:
     module = _module(lesson)
     ids = [value for value in (getattr(module, "prerequisite_ids", None) or []) if isinstance(value, int)]
@@ -165,7 +174,7 @@ def _recent_mistakes(db: Session, user_id: int, lesson: Lesson, language: str) -
         .all()
     )
     out: List[Source] = []
-    module_ids = {item.id for item in _module_lessons(db, lesson)}
+    module_ids = {lesson_id for (lesson_id,) in _module_lesson_ids(db, lesson)}
     quiz_ids = {row.quiz_id for row in rows if row.quiz_id}
     quizzes = {quiz.id: quiz for quiz in db.query(Quiz).filter(Quiz.id.in_(quiz_ids)).all()} if quiz_ids else {}
     for row in rows:

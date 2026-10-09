@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from sqlalchemy import or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 
 from app.models.billing import CourseEnrollment
 from app.models.learning import Lesson, Topic
@@ -53,6 +53,14 @@ def _title(course: Course, language: str) -> str:
     return arabic if language == "ar" and arabic else english
 
 
+# Callers here need a lesson's order, title and minutes, never its text. A course's lessons
+# are ~1-1.5 MB of markdown (English and Arabic), and four courses were read in full for
+# every weekly plan and every interview question. (Built per query: a loader option made at
+# import time configures the mappers before every model module is imported.)
+def _without_body():
+    return defer(Lesson.content), defer(Lesson.content_ar)
+
+
 def lesson_title(lesson: Lesson, language: str) -> str:
     return (lesson.title_ar if language == "ar" and lesson.title_ar else lesson.title) or ""
 
@@ -83,6 +91,7 @@ def enrolled_courses(db: Session, user_id: int, language: str = "en", limit: int
     if tool_ids:
         rows = (
             db.query(Lesson, ToolTopic.tool_course_id)
+            .options(*_without_body())
             .join(ToolTopic, Lesson.tool_topic_id == ToolTopic.id)
             .filter(ToolTopic.tool_course_id.in_(tool_ids))
             .order_by(ToolTopic.order, Lesson.order, Lesson.id)
@@ -95,6 +104,7 @@ def enrolled_courses(db: Session, user_id: int, language: str = "en", limit: int
     if level_ids:
         rows = (
             db.query(Lesson, Topic.level_id)
+            .options(*_without_body())
             .join(Topic, Lesson.topic_id == Topic.id)
             .filter(Topic.level_id.in_(level_ids))
             .order_by(Topic.order, Lesson.order, Lesson.id)

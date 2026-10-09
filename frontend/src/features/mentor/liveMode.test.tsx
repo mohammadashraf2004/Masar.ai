@@ -1,6 +1,6 @@
 import { act, render, renderHook, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { api, mentorV2 } from '@/lib/api'
+import { api, MENTOR_MESSAGE_TIMEOUT_MS, mentorV2 } from '@/lib/api'
 import { useAuthStore } from '@/lib/store'
 import { mentorV2Live, mentorV2MocksAllowed } from './flag'
 import { lessonHref, planBlockHref } from './links'
@@ -66,7 +66,15 @@ describe('the live mentor never serves a fixture', () => {
     expect(post).toHaveBeenCalledWith('/mentor/message', expect.objectContaining({
       intent: 'HINT', hintLevel: 2, requestId: 'rq-12345678', language: 'en',
       context: { exerciseId: '9007', attachCode: true, code: 'x = 1  # my draft' },
-    }))
+    }), { timeout: MENTOR_MESSAGE_TIMEOUT_MS })
+  })
+
+  it('waits for a send longer than the server may take, so a retry never races a send still running', async () => {
+    const post = vi.spyOn(http(), 'post').mockResolvedValue({ data: reply() })
+    await mentorV2.sendMessage({ text: 'Why sqrt(d_k)?', context: { lessonId: '42' }, requestId: 'rq-1' }, 'en')
+    const [, , config] = post.mock.calls[0] as [string, unknown, { timeout: number }]
+    // The API worker is killed at 60 s (gunicorn --timeout 60); the client default is 30 s.
+    expect(config.timeout).toBeGreaterThan(60_000)
   })
 
   it('gives the solution only after confirmation, from the exercise itself, free', async () => {

@@ -1,7 +1,6 @@
 'use client'
-import { ListChecks, PenLine } from 'lucide-react'
+import { PenLine } from 'lucide-react'
 import { DifficultyBadge } from '@/components/ui/index'
-import { MarkdownLesson } from '@/components/ui/MarkdownLesson'
 import { AnswerChat } from '@/components/ui/AnswerChat'
 import { useI18n } from '@/lib/i18n'
 import { pickText } from '@/lib/content-language'
@@ -10,7 +9,8 @@ import type { Exercise } from '@/types'
 // [code-cell]
 import { CodeCell } from '@/features/exercises/CodeCell/CodeCell'
 import { exerciseFiles, memorySaverImportLine } from '@/features/exercises/lessonExerciseFiles'
-import { runExerciseTests, showExerciseSolution, submitExercise } from '@/lib/api'
+import { ExerciseBrief } from '@/features/exercises/ExerciseBrief'
+import { getExerciseAttemptState, runExerciseTests, showExerciseSolution, submitExercise } from '@/lib/api'
 // [/code-cell]
 
 /**
@@ -109,14 +109,10 @@ export function ExerciseCard({
         )}
       </div>
 
-      {/* ── The task ── */}
-      <Section icon={<ListChecks size={13} />} label={t('exercise.task')}>
-        <MarkdownLesson
-          content={brief.text}
-          dir={brief.shownIn === 'ar' ? 'rtl' : 'ltr'}
-          compact
-        />
-      </Section>
+      {/* ── The task: goal, steps, expected output, reflection ── */}
+      <div className="px-5 py-4 border-b border-border">
+        <ExerciseBrief content={brief.text} dir={brief.shownIn === 'ar' ? 'rtl' : 'ltr'} />
+      </div>
 
       {/* ── Where to answer ──
           The starter code used to get a read-only Section of its own here.
@@ -141,6 +137,7 @@ export function ExerciseCard({
             gradingAvailable={exercise.grading_available !== false}
             hint={language === 'ar' ? exercise.hint_ar ?? exercise.hint : exercise.hint}
             onShowSolution={exercise.grading_available !== false ? () => showExerciseSolution(exercise.id) : undefined}
+            onLoadAttemptState={() => getExerciseAttemptState(exercise.id)}
           />
         ) : (
           <AnswerChat

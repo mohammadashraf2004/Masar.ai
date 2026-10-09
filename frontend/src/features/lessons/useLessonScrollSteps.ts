@@ -31,6 +31,40 @@ export function useLessonScrollSteps({
     onContentRead?.()
   }
 
+  // From lg up the page scrolls inside `containerRef`; below it the window
+  // scrolls (the container only clips sideways), so scrolling and the
+  // observer must use the window there.
+  const [ownScroll, setOwnScroll] = useState(true)
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+    const query = window.matchMedia('(min-width: 1024px)')
+    const update = () => setOwnScroll(query.matches)
+    update()
+    query.addEventListener?.('change', update)
+    return () => query.removeEventListener?.('change', update)
+  }, [])
+
+  // Where the sticky step bar ends once stuck, so a jump or a focused editor
+  // line lands below it rather than under it.
+  function stickyOffset() {
+    const container = containerRef.current
+    const bar = container?.querySelector<HTMLElement>('[data-testid="lesson-step-switcher"]')
+    if (!container || !bar) return 64
+    // Inside a scroll container a sticky element is offset from its padding
+    // edge, so the container's own top padding counts too.
+    const padding = ownScroll ? parseFloat(getComputedStyle(container).paddingTop) || 0 : 0
+    return padding + (parseFloat(getComputedStyle(bar).top) || 0) + bar.offsetHeight + 8
+  }
+
+  useEffect(() => {
+    if (!hasExercise || ownScroll) return
+    // The window scrolls here, so the scroll padding belongs to the document.
+    const html = document.documentElement
+    const previous = html.style.scrollPaddingTop
+    html.style.scrollPaddingTop = `${stickyOffset()}px`
+    return () => { html.style.scrollPaddingTop = previous }
+  }, [hasExercise, ownScroll])
+
   useEffect(() => {
     if (!hasExercise) return
     const root = containerRef.current
@@ -50,28 +84,33 @@ export function useLessonScrollSteps({
         setActive(entry.isIntersecting ? 'exercise' : 'content')
         if (entry.isIntersecting) markRead()
       },
-      { root, threshold: 0, rootMargin: '0px 0px -85% 0px' },
+      { root: ownScroll ? root : null, threshold: 0, rootMargin: '0px 0px -85% 0px' },
     )
     observer.observe(target)
     return () => observer.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasExercise])
+  }, [hasExercise, ownScroll])
 
   function scrollTo(step: LessonStep) {
     const root = containerRef.current
     if (!root) return
     setActive(step)
     if (step === 'content') {
-      root.scrollTo({ top: 0, behavior: 'smooth' })
+      if (ownScroll) root.scrollTo({ top: 0, behavior: 'smooth' })
+      else window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
     markRead()
     const el = dividerRef.current
     if (!el) return
-    const delta = el.getBoundingClientRect().top - root.getBoundingClientRect().top
     // Keep the divider below the sticky content/exercise switcher instead of
     // letting the switcher cover the exercise heading after the jump.
-    root.scrollTo({ top: root.scrollTop + delta - 56, behavior: 'smooth' })
+    if (!ownScroll) {
+      window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - stickyOffset(), behavior: 'smooth' })
+      return
+    }
+    const delta = el.getBoundingClientRect().top - root.getBoundingClientRect().top
+    root.scrollTo({ top: root.scrollTop + delta - stickyOffset(), behavior: 'smooth' })
   }
 
   return { containerRef, dividerRef, active, scrollTo }

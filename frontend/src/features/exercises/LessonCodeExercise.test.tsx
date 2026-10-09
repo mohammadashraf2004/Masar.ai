@@ -10,6 +10,7 @@ vi.mock('@/lib/api', async importOriginal => {
     ...actual,
     runExerciseTests: vi.fn(),
     submitExercise: vi.fn(),
+    getExerciseAttemptState: vi.fn().mockResolvedValue(null),
     showExerciseSolution: vi.fn(),
   }
 })
@@ -43,7 +44,7 @@ describe('LessonCodeExercise', () => {
 
     expect(await screen.findByRole('textbox', { name: 'solution.sh' })).toHaveValue('# TODO: enter the commands\n')
     expect(screen.getByText('Shell')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Submit Answer' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Check Answer' })).toBeDisabled()
     expect(screen.queryByRole('button', { name: 'Show solution' })).toBeNull()
   })
 })

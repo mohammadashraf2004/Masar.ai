@@ -1219,6 +1219,11 @@ class ApiClient {
     const res = await this.http.post<{ solution_code: string }>(`/practice/exercises/${id}/solution`)
     return res.data.solution_code
   }
+
+  async getCodeExerciseAttemptState(id: string | number) {
+    const res = await this.http.get<import('@/types').ExerciseAttemptState>(`/practice/exercises/${id}/progress`)
+    return res.data
+  }
   // [/mentor-v2]
 
   // [project-lab] Challenges › Projects. Deterministic and free: no credits are charged.
@@ -1350,6 +1355,12 @@ export async function submitExercise(
 
 export async function showExerciseSolution(id: string | number): Promise<string> {
   return api.revealCodeExerciseSolution(id)
+}
+
+/** Attempts and solution access as the server records them, so a reload or a
+ *  new device offers the same options. */
+export async function getExerciseAttemptState(id: string | number): Promise<import('@/types').ExerciseAttemptState> {
+  return api.getCodeExerciseAttemptState(id)
 }
 // [/code-cell]
 

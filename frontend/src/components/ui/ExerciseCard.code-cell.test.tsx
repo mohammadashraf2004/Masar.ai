@@ -10,7 +10,7 @@ vi.mock('@/components/ui/AnswerChat', () => ({
 
 vi.mock('@/lib/api', async importOriginal => {
   const actual = await importOriginal<typeof import('@/lib/api')>()
-  return { ...actual, runExerciseTests: vi.fn(), submitExercise: vi.fn() }
+  return { ...actual, runExerciseTests: vi.fn(), submitExercise: vi.fn(), getExerciseAttemptState: vi.fn().mockResolvedValue(null) }
 })
 
 const exercise = (overrides: Partial<Exercise> = {}): Exercise => ({
@@ -29,7 +29,7 @@ beforeEach(() => {
 describe('ExerciseCard code-cell rollout', () => {
   it('uses CodeCell for coding exercises in every course reader', async () => {
     render(<ExerciseCard exercise={exercise({ starter_code: 'value = None  # TODO\n' })} />)
-    expect(await screen.findByRole('textbox', { name: 'agent.py' })).toHaveValue('value = None  # TODO\n')
+    expect(await screen.findByRole('textbox', { name: 'complete_function.py' })).toHaveValue('value = None  # TODO\n')
     expect(screen.queryByRole('tab', { name: 'tests.py' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Run Code' })).toBeInTheDocument()
   })
@@ -42,7 +42,7 @@ describe('ExerciseCard code-cell rollout', () => {
 
   it('gives canonical course exercises a blank code cell even without starter code', async () => {
     render(<ExerciseCard exercise={exercise()} forceCodeCell />)
-    expect(await screen.findByRole('textbox', { name: 'agent.py' })).toHaveValue('# Write your solution here\n')
+    expect(await screen.findByRole('textbox', { name: 'complete_function.py' })).toHaveValue('# Write your solution here\n')
     expect(screen.queryByTestId('written-answer')).toBeNull()
   })
 

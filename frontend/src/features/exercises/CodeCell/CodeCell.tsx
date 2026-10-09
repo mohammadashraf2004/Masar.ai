@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Spinner } from '@/components/ui/index'
 import { cn } from '@/lib/utils'
 import { useExerciseI18n, useMentorV2I18n } from '@/lib/i18n'
-import type { ExerciseFile, ExerciseRunResult, GradeResult } from '@/types'
+import type { ExerciseAttemptState, ExerciseFile, ExerciseRunResult, GradeResult } from '@/types'
 import { exerciseDraftKey } from '../draftKeys'
 import { CodeEditor } from './CodeEditor'
 import { codeCellColors } from './codeCellTheme'
@@ -41,6 +41,9 @@ export type CodeCellProps = {
   onSubmit(files: ExerciseFile[]): Promise<GradeResult>
   hint?: string | null
   onShowSolution?(): Promise<string>
+  /** The server's record of this learner's attempts; it decides when the
+   *  worked solution may open, so the choice survives reloads and devices. */
+  onLoadAttemptState?(): Promise<ExerciseAttemptState>
   onPassed?(): void
   gradingAvailable?: boolean
   // [mentor-v2] where "ask for a review" goes (the mentor's code-review tab); omitted, the button is not shown
@@ -62,6 +65,7 @@ export function CodeCell({
   reviewHref,
   hint,
   onShowSolution,
+  onLoadAttemptState,
   gradingAvailable = true,
 }: CodeCellProps) {
   const tx = useExerciseI18n()
@@ -79,8 +83,16 @@ export function CodeCell({
     return visibleFiles[0]?.name ?? ''
   })
   const [menuOpen, setMenuOpen] = useState(false)
-  const [hintOpen, setHintOpen] = useState(false)
+  // Hints are a ladder: each paragraph of the authored hint is one rung,
+  // revealed on request so the first nudge never gives the answer away.
+  const hintSteps = useMemo(() => (hint ?? '').split(/\n\s*\n/).map(step => step.trim()).filter(Boolean), [hint])
+  const [hintsShown, setHintsShown] = useState(0)
+  // The worked solution opens after a pass or after several different wrong
+  // answers. The server decides (and enforces it); this mirrors its record.
+  const [attempt, setAttempt] = useState<ExerciseAttemptState | null>(null)
   const [solution, setSolution] = useState<string | null>(null)
+  // A solution already fetched (after a pass) stays available to toggle.
+  const solutionAvailable = (attempt?.solution_available ?? false) || solution !== null
   const [solutionOpen, setSolutionOpen] = useState(false)
   const [solutionLoading, setSolutionLoading] = useState(false)
   const solutionRequest = useRef<Promise<string> | null>(null)
@@ -98,7 +110,25 @@ export function CodeCell({
     setSolution(null)
     setSolutionOpen(false)
     setSolutionLoading(false)
+    setHintsShown(0)
+    setAttempt(null)
   }
+
+  useEffect(() => {
+    if (!onLoadAttemptState || !gradingAvailable) return
+    let live = true
+    void (async () => {
+      try {
+        const state = await onLoadAttemptState()
+        if (live && state) setAttempt(state)
+      } catch {
+        // Unknown state keeps the solution locked; the server enforces it anyway.
+      }
+    })()
+    return () => { live = false }
+    // Once per exercise: the loader is a new closure on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exerciseId, gradingAvailable])
 
   useEffect(() => {
     // Restore after hydration so a browser-only draft cannot make the server
@@ -174,6 +204,15 @@ export function CodeCell({
   async function submitAndReveal() {
     const submittedFor = exerciseId
     const grade = await runner.submit(currentFiles())
+    const state = grade?.attempt
+    if (state && activeExercise.current === submittedFor) {
+      setAttempt(state)
+      // From the second different wrong answer on, open one more (more
+      // specific) hint for each attempt; the third also opens the solution.
+      if (!grade.passed && state.failed_checks >= 2) {
+        setHintsShown(shown => Math.max(shown, Math.min(state.failed_checks, hintSteps.length)))
+      }
+    }
     if (!grade?.passed || !onShowSolution || autoRevealDone.current || activeExercise.current !== submittedFor) return
     autoRevealDone.current = true
     if (solution !== null) {
@@ -238,7 +277,7 @@ export function CodeCell({
                   file.name === current.name ? 'text-[#E2E8F0] after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#F59E0B]' : 'text-[#5C6678]',
                 )}
               >
-                {file.name}
+                {file.label ?? file.name}
               </button>
             ))}
           </div>
@@ -269,7 +308,7 @@ export function CodeCell({
             onChange={update}
             readOnly={current.readOnly}
             highlightLines={current.name === 'agent.py' ? highlightLines : []}
-            ariaLabel={`${current.name}${current.readOnly ? ' (read only)' : ''}`}
+            ariaLabel={`${current.label ?? current.name}${current.readOnly ? ' (read only)' : ''}`}
             language={language}
           />
         </div>
@@ -333,10 +372,17 @@ export function CodeCell({
         </section>
       )}
       {runner.status === 'done' && runner.grade && <GradeCard grade={runner.grade} labels={tx} />}
-      {(hint || onShowSolution) && (
+      {runner.status === 'done' && runner.grade?.passed && attempt?.passed && !attempt.completed_independently && (
+        <p className="text-xs text-ghost" dir="auto">{tx.passedWithSolution}</p>
+      )}
+      {(hintSteps.length > 0 || onShowSolution) && (
         <div className="flex flex-wrap items-center gap-2" dir="auto">
-          {hint && <button type="button" onClick={() => setHintOpen(open => !open)} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm text-bright"><Lightbulb size={14} />{tx.hint}</button>}
-          {onShowSolution && (
+          {hintSteps.length > 0 && hintsShown === 0 && (
+            <button type="button" onClick={() => setHintsShown(1)} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm text-bright">
+              <Lightbulb size={14} />{tx.hint}
+            </button>
+          )}
+          {onShowSolution && solutionAvailable && (
             <button
               type="button"
               disabled={solutionLoading}
@@ -347,9 +393,38 @@ export function CodeCell({
               {solutionOpen ? tx.hideSolution : tx.showSolution}
             </button>
           )}
+          {onShowSolution && !solutionAvailable && gradingAvailable && (
+            <span className="text-xs text-ghost">{tx.solutionLocked(attempt?.checks_until_solution ?? 3)}</span>
+          )}
         </div>
       )}
-      {hintOpen && hint && <div role="note" className="rounded-xl border border-amber/30 bg-amber/5 p-4 text-sm text-bright" dir="auto">{hint}</div>}
+      {hintsShown > 0 && (
+        <div role="note" aria-live="polite" className="space-y-3 rounded-xl border border-amber/30 bg-amber/5 p-4 text-sm leading-6 text-bright" dir="auto">
+          <ol className="space-y-2">
+            {hintSteps.slice(0, hintsShown).map((step, index) => (
+              <li key={index} className="flex gap-2">
+                <Lightbulb size={14} className="mt-1 shrink-0 text-amber-text" />
+                <span>
+                  {hintSteps.length > 1 && (
+                    <span className="me-1.5 text-xs font-semibold text-amber-text">{tx.hintCount(index + 1, hintSteps.length)}</span>
+                  )}
+                  {step}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <div className="flex flex-wrap gap-2">
+            {hintsShown < hintSteps.length && (
+              <button type="button" onClick={() => setHintsShown(count => count + 1)} className="min-h-9 rounded-lg border border-amber/40 px-3 text-sm text-bright">
+                {tx.nextHint}
+              </button>
+            )}
+            <button type="button" onClick={() => setHintsShown(0)} className="min-h-9 rounded-lg px-3 text-sm text-dim hover:text-bright">
+              {tx.hideHints}
+            </button>
+          </div>
+        </div>
+      )}
       {solutionOpen && solution && (
         <section className="overflow-hidden rounded-xl border border-border bg-[#090D13]">
           <h4 className="border-b border-border px-4 py-2 text-sm font-semibold text-bright" dir="auto">{tx.completedSolution}</h4>
@@ -360,24 +435,53 @@ export function CodeCell({
   )
 }
 
+/** What kind of result this is, so a learner can tell "Python could not read
+ * it" from "it ran but the answer is wrong" at a glance. */
+export function gradeOutcome(grade: GradeResult, labels: ReturnType<typeof useExerciseI18n>) {
+  if (grade.passed) return { label: labels.status.correct, scored: true }
+  if (grade.feedback.code === 'BLANKS_REMAINING') return { label: labels.status.blanks, scored: false }
+  switch (grade.status) {
+    case 'incorrect': return { label: labels.status.incorrect, scored: true }
+    case 'syntax_error': return { label: labels.status.syntax, scored: false }
+    case 'runtime_error': return { label: labels.status.runtime, scored: false }
+    case 'timeout': case 'memory_limit': return { label: labels.status.timeout, scored: false }
+    case 'forbidden_operation': return { label: labels.status.forbidden, scored: false }
+    default: return { label: labels.status.error, scored: false }
+  }
+}
+
 function GradeCard({ grade, labels }: { grade: GradeResult; labels: ReturnType<typeof useExerciseI18n> }) {
+  const outcome = gradeOutcome(grade, labels)
   return (
-    <section className="rounded-xl border border-[#1E2535] bg-[#0D1117] p-4 text-[#E2E8F0]" dir="auto">
+    <section
+      aria-live="polite"
+      className={cn(
+        'rounded-xl border bg-[#0D1117] p-4 text-[#E2E8F0]',
+        grade.passed ? 'border-emerald-500/40' : 'border-[#1E2535]',
+      )}
+      dir="auto"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs text-[#5C6678]">{labels.result}</p>
-          <p className="font-mono text-lg font-semibold" dir="ltr">{grade.tests_passed} / {grade.tests_total} {labels.tests}</p>
+          <p className="text-lg font-semibold">{outcome.label}</p>
         </div>
-        <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', grade.passed ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300')}>
-          {grade.passed ? labels.passed : labels.failed}
-        </span>
+        {outcome.scored && grade.tests_total > 0 && (
+          <span
+            className={cn('rounded-full px-2.5 py-1 font-mono text-xs font-semibold', grade.passed ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300')}
+            dir="ltr"
+          >
+            {grade.tests_passed} / {grade.tests_total} {labels.tests}
+          </span>
+        )}
       </div>
-      <p className="mt-4 flex items-start gap-2 border-t border-[#1E2535] pt-3 text-sm leading-6 text-[#A0AEC0]">
+      <p className="mt-4 flex items-start gap-2 border-t border-[#1E2535] pt-3 text-sm leading-6 text-[#CBD5E1]">
         <span className={cn('mt-1 flex size-4 shrink-0 items-center justify-center rounded-full', grade.passed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300')}>
           {grade.passed ? <Check size={10} /> : <X size={10} />}
         </span>
-        {grade.feedback.message}
+        <span>{grade.feedback.message}</span>
       </p>
+      {!grade.passed && <p className="mt-2 ps-6 text-xs text-[#8B98AD]">{labels.tryAgain}</p>}
     </section>
   )
 }

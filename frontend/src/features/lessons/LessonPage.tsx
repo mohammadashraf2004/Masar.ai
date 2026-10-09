@@ -95,7 +95,10 @@ export function LessonPage({ courseSlug, lessonParam }: { courseSlug: string; le
         data-testid="lesson-scroll-container"
         data-mentor-open={mentorPanelOpen || undefined}
         className={cn(
-          'min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8',
+          // Below lg the window scrolls: `clip` (unlike `hidden`) does not make
+          // this a scroll container, so the sticky step bar sticks to the viewport.
+          'min-h-0 min-w-0 flex-1 px-4 py-6 max-lg:overflow-x-clip sm:px-6 lg:overflow-y-auto lg:overflow-x-hidden lg:px-8',
+          hasExercise && 'lg:scroll-pt-28',
           mentorPanelOpen && 'min-[1280px]:pe-[392px]',
         )}
       >
@@ -139,9 +142,13 @@ export function LessonPage({ courseSlug, lessonParam }: { courseSlug: string; le
           </header>
 
           {hasExercise && (
+            // A full-width opaque bar, not a floating pill: content (the code
+            // editor included) scrolls beneath it instead of showing around it,
+            // and the scroll container's scroll-padding keeps a focused line
+            // or the caret below it.
             <div
               data-testid="lesson-step-switcher"
-              className="sticky top-2 z-20 w-fit max-w-full rounded-full bg-void/95 p-1 shadow-[0_8px_24px_rgb(0_0_0/0.22)] backdrop-blur"
+              className="sticky top-14 z-20 -mx-4 border-b border-border bg-void/95 px-4 py-1.5 backdrop-blur sm:-mx-6 sm:px-6 lg:top-0 lg:-mx-8 lg:px-8"
             >
               <LessonStepSwitch active={active} hasExercise={hasExercise} onSelect={scrollTo} />
             </div>

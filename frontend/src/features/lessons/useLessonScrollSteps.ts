@@ -2,6 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 
 export type LessonStep = 'content' | 'exercise'
 
+// Where the sticky step bar ends once stuck, so a jump or a focused editor
+// line lands below it rather than under it. A plain function of the DOM (not
+// a closure over render state), so effects can call it without depending on it.
+function measureStickyOffset(container: HTMLElement | null, ownScroll: boolean) {
+  const bar = container?.querySelector<HTMLElement>('[data-testid="lesson-step-switcher"]')
+  if (!container || !bar) return 64
+  // Inside a scroll container a sticky element is offset from its padding
+  // edge, so the container's own top padding counts too.
+  const padding = ownScroll ? parseFloat(getComputedStyle(container).paddingTop) || 0 : 0
+  return padding + (parseFloat(getComputedStyle(bar).top) || 0) + bar.offsetHeight + 8
+}
+
 /**
  * Scroll wiring for the content/exercise step switch. Everything scrolls
  * inside the page's own container (`containerRef`), never the window — the
@@ -44,16 +56,8 @@ export function useLessonScrollSteps({
     return () => query.removeEventListener?.('change', update)
   }, [])
 
-  // Where the sticky step bar ends once stuck, so a jump or a focused editor
-  // line lands below it rather than under it.
   function stickyOffset() {
-    const container = containerRef.current
-    const bar = container?.querySelector<HTMLElement>('[data-testid="lesson-step-switcher"]')
-    if (!container || !bar) return 64
-    // Inside a scroll container a sticky element is offset from its padding
-    // edge, so the container's own top padding counts too.
-    const padding = ownScroll ? parseFloat(getComputedStyle(container).paddingTop) || 0 : 0
-    return padding + (parseFloat(getComputedStyle(bar).top) || 0) + bar.offsetHeight + 8
+    return measureStickyOffset(containerRef.current, ownScroll)
   }
 
   useEffect(() => {
@@ -61,7 +65,7 @@ export function useLessonScrollSteps({
     // The window scrolls here, so the scroll padding belongs to the document.
     const html = document.documentElement
     const previous = html.style.scrollPaddingTop
-    html.style.scrollPaddingTop = `${stickyOffset()}px`
+    html.style.scrollPaddingTop = `${measureStickyOffset(containerRef.current, ownScroll)}px`
     return () => { html.style.scrollPaddingTop = previous }
   }, [hasExercise, ownScroll])
 

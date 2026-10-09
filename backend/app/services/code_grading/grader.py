@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.services.code_execution import CodeRunner, ExecutionResult, LocalPythonRunner
+from app.services.code_execution.messages import platform_message
 from .authoring import (
     ast_fingerprint, ast_requirements, ast_satisfies, count_python_blanks, placeholders_are_removed,
 )
@@ -92,7 +93,7 @@ def execution_failure_feedback(execution: ExecutionResult) -> dict[str, str]:
         }
     return {
         "en": execution.stderr or "Code execution failed.",
-        "ar": execution.stderr or "فشل تنفيذ الكود.",
+        "ar": platform_message(execution.stderr, "ar") or "فشل تنفيذ الكود.",
     }
 
 

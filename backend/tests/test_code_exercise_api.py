@@ -373,6 +373,25 @@ def test_disabled_execution_fails_closed_for_run_and_check(client, db, code_exer
     assert db.query(UserProgress).filter(UserProgress.user_id == user_id).first() is None
 
 
+def test_disabled_execution_message_follows_the_interface_language(client, code_exercise, execution_disabled):
+    _, headers = _register(client)
+    base = f"/api/v1/practice/exercises/{code_exercise.id}"
+    code = "value = 3.14159\nresult = round(value, 2)"
+    english, arabic = "Project execution is not available right now.", "تشغيل الكود غير متاح الآن."
+
+    # English is unchanged, with or without the language field.
+    assert client.post(f"{base}/run", headers=headers, json={"code": code}).json()["stderr"] == english
+    assert client.post(f"{base}/run", headers=headers, json={"code": code, "language": "en"}).json()["stderr"] == english
+    assert client.post(f"{base}/run", headers=headers, json={"code": code, "language": "ar"}).json()["stderr"] == arabic
+
+    check = client.post(f"{base}/submit", headers=headers, json={"code": code, "language": "ar"}).json()
+    assert check["status"] == "execution_error" and check["stderr"] == arabic
+    assert check["feedback"]["message"] == arabic
+    assert check["feedback"]["messages"] == {"en": english, "ar": arabic}
+    check = client.post(f"{base}/submit", headers=headers, json={"code": code}).json()
+    assert check["stderr"] == english and check["feedback"]["message"] == english
+
+
 def test_production_never_selects_the_in_process_backend(monkeypatch):
     from app.core.config import settings
     from app.services.project_lab import execution

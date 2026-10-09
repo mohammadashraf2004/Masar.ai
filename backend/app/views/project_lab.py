@@ -165,6 +165,11 @@ class PathRequest(BaseModel):
     path: str = Field(..., min_length=1, max_length=255)
 
 
+class RunRequest(PathRequest):
+    # Interface language for Masar's own message when nothing could run (as CheckRequest).
+    language: Literal["en", "ar"] = "en"
+
+
 class GeneratedFile(BaseModel):
     path: str
     size: int

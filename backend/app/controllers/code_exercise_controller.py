@@ -15,6 +15,7 @@ from app.services.code_exercises import (
     attempt_state, feedback_messages, mark_complete, record_attempt,
 )
 from app.services.code_execution import ExecutionResult
+from app.services.code_execution.messages import platform_message
 from app.services.code_grading.authoring import count_python_blanks
 from app.services.code_grading.grader import blanks_remaining_feedback, first_blank_line, is_static_only
 from app.services.execution_fairness import runner_turn
@@ -95,8 +96,13 @@ async def run_code(
         status=result.status, execution_time_ms=result.execution_time_ms,
     )
     db.commit()
+    # When nothing ran, stderr holds Masar's own message (runner off or unavailable), not the
+    # learner's output: give it in the interface language.
+    stderr = result.stderr
+    if result.status == "execution_error":
+        stderr = platform_message(stderr, payload.language)
     return RunResponse(
-        status=result.status, stdout=result.stdout, stderr=result.stderr,
+        status=result.status, stdout=result.stdout, stderr=stderr,
         execution_time_ms=result.execution_time_ms,
     )
 
@@ -136,9 +142,12 @@ async def submit_code(
     db.commit()
     if course is not None:
         course_enrollment.sync_lifecycle(db, current_user.id, course)
+    stderr = grade.execution.stderr
+    if grade.status == "execution_error":  # Masar's own message, as in run_code
+        stderr = platform_message(stderr, payload.language)
     return SubmitResponse(
         status=grade.status, passed=grade.passed, stdout=grade.execution.stdout,
-        stderr=grade.execution.stderr, execution_time_ms=grade.execution.execution_time_ms,
+        stderr=stderr, execution_time_ms=grade.execution.execution_time_ms,
         feedback=FeedbackResponse(
             code=grade.feedback_code, message=messages[payload.language],
             messages=messages, test_id=grade.failed_test_id,

@@ -105,10 +105,17 @@ class Settings(BaseSettings):
     # offline scripts that build a provider themselves keep their own.
     GENERATION_TIMEOUT_SECONDS: float = 25.0
     GENERATION_MAX_RETRIES: int = 0
-    # Mentor replies that fail validation fall back to a safe answer and are
-    # refunded - this many times per account per 24 h. Beyond it the send is
-    # charged: each one already cost up to three provider calls.
-    MENTOR_VALIDATION_REFUNDS_PER_DAY: int = 3
+    # A mentor reply that fails validation falls back to a safe answer and is
+    # always refunded: a learner never pays for unusable output. Each such send
+    # still cost up to three provider calls, so after this many in the window
+    # further model sends are refused (429, nothing charged, no provider call)
+    # until the oldest leaves the window.
+    MENTOR_VALIDATION_FAILURES_LIMIT: int = 5
+    MENTOR_VALIDATION_FAILURE_WINDOW_SECONDS: int = 3600
+    # Wall-clock budget for one /mentor/message: no provider call is started that
+    # could end after it (each may take GENERATION_TIMEOUT_SECONDS). Below the
+    # browser's 65 s timeout for this request (frontend MENTOR_MESSAGE_TIMEOUT_MS).
+    MENTOR_MESSAGE_BUDGET_SECONDS: float = 55.0
     # AI-reviewed project submissions (/tracks/projects/{id}/submit) per account
     # in any rolling 24 hours, on top of that route's per-IP limit.
     PROJECT_REVIEW_LIMIT_PER_DAY: int = 10

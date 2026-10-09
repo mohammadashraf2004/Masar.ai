@@ -412,10 +412,10 @@ def test_the_allowance_endpoint_during_a_trial(client, db):
                     "ai_billing": "wallet", "trial": True}
 
 
-def test_mentor_v2_validation_refund_cap_counts_pro_releases(db, pro):
-    """The daily cap on refunded (validation-failed) mentor replies used to read only the
-    wallet ledger, which a Pro send never touches - so for Pro it never applied."""
-    from app.services.mentor.v2.message import VALIDATION_REFUND, _validation_refunds_today
+def test_mentor_v2_validation_limit_counts_pro_releases(db, pro):
+    """The limit on validation-failed mentor replies used to read only the wallet ledger,
+    which a Pro send never touches - so for Pro it never applied."""
+    from app.services.mentor.v2.message import VALIDATION_REFUND, validation_failures_since
 
     user, sub = pro
     for _ in range(2):
@@ -423,4 +423,4 @@ def test_mentor_v2_validation_refund_cap_counts_pro_releases(db, pro):
         pro_ai.release(db, usage.id, reason=VALIDATION_REFUND)
     usage = pro_ai.reserve(db, user.id, sub, "mentor_message", 2)
     pro_ai.release(db, usage.id, reason="Refund: mentor message failed")      # a provider error: not capped
-    assert _validation_refunds_today(db, user.id) == 2
+    assert len(validation_failures_since(db, user.id, datetime.now(timezone.utc) - timedelta(hours=1))) == 2

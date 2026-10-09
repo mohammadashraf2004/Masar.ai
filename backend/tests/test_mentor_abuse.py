@@ -2,8 +2,9 @@
 Provider spend a learner can trigger must stay bounded (audit findings #6 and #7).
 
 #7: a learner who keeps asking for quiz answers gets every model reply rejected by validation.
-Each such send costs up to three provider calls; refunding every one made model use unlimited
-and unbilled. Refunds for rejected replies are now a small daily allowance per account.
+Each such send costs up to three provider calls. The learner never pays for a rejected reply -
+every one is refunded - so the bound is on sending: after a few rejections in the window,
+further model sends are refused (429) before any charge or provider call.
 
 #6: quiz translation is unmetered. It must not call the model for unverified accounts, and a
 question that cannot be translated must not cost two provider calls on every reload.
@@ -32,8 +33,8 @@ def _always_leaks(lesson, quiz):
     }]})
 
 
-def test_rejected_replies_are_refunded_only_a_few_times_a_day(api, db, monkeypatch):
-    monkeypatch.setattr(settings, "MENTOR_VALIDATION_REFUNDS_PER_DAY", 2)
+def test_rejected_replies_are_always_refunded_and_repeated_ones_pause_model_sends(api, db, monkeypatch):
+    monkeypatch.setattr(settings, "MENTOR_VALIDATION_FAILURES_LIMIT", 2)
     lesson, exercise, quiz, _ = _curriculum(db)
     token, user_id = _register(api)
     llm = FakeLLM(_always_leaks(lesson, quiz))
@@ -42,21 +43,48 @@ def test_rejected_replies_are_refunded_only_a_few_times_a_day(api, db, monkeypat
     context = {"lessonId": str(lesson.id), "exerciseId": str(exercise.id)}
 
     costs = []
-    for _ in range(4):
+    for _ in range(2):
         response = _post_message(api, token, intent="HINT", context=context)
         assert response.status_code == 200, response.text
         assert "private-correct-token" not in response.text  # the fallback, never the leak
         costs.append(response.json()["creditCost"])
+    assert costs == [0, 0]
+    assert len(llm.calls) == 4  # explicit intent: two reply attempts per send, no classification
 
-    assert costs == [0, 0, COST, COST]
-    assert _balance(db, user_id) == start - 2 * COST
-    assert len(llm.calls) == 8  # explicit intent: two reply attempts per send, no classification
+    # The limit is reached: refused before the charge and before the provider.
+    for _ in range(2):
+        refused = _post_message(api, token, intent="HINT", context=context)
+        assert refused.status_code == 429, refused.text
+        assert refused.json()["detail"]["error"] == "mentor_validation_limit"
+        assert int(refused.headers["Retry-After"]) > 0
+    assert len(llm.calls) == 4
+    assert _balance(db, user_id) == start
+    assert len(_txs(db, user_id, TransactionType.deduction)) == 2
     refunds = _txs(db, user_id, TransactionType.refund)
     assert len(refunds) == 2 and all(r.description == message_service.VALIDATION_REFUND for r in refunds)
 
+    # Free replies (an authored quiz question) still work while model sends are paused.
+    assert _post_message(api, token, intent="QUIZ", context={"lessonId": str(lesson.id)}).status_code == 200
+
+
+def test_old_rejections_leave_the_window(api, db, monkeypatch):
+    monkeypatch.setattr(settings, "MENTOR_VALIDATION_FAILURES_LIMIT", 1)
+    lesson, exercise, quiz, _ = _curriculum(db)
+    token, user_id = _register(api)
+    llm = FakeLLM(_always_leaks(lesson, quiz))
+    monkeypatch.setattr(message_service, "get_llm", lambda: llm)
+    context = {"lessonId": str(lesson.id), "exerciseId": str(exercise.id)}
+    assert _post_message(api, token, intent="HINT", context=context).json()["creditCost"] == 0
+    assert _post_message(api, token, intent="HINT", context=context).status_code == 429
+
+    for refund in _txs(db, user_id, TransactionType.refund):
+        refund.created_at = refund.created_at - timedelta(seconds=settings.MENTOR_VALIDATION_FAILURE_WINDOW_SECONDS + 5)
+    db.commit()
+    assert _post_message(api, token, intent="HINT", context=context).status_code == 200
+
 
 def test_provider_failures_are_still_always_refunded(api, db, monkeypatch):
-    monkeypatch.setattr(settings, "MENTOR_VALIDATION_REFUNDS_PER_DAY", 0)
+    monkeypatch.setattr(settings, "MENTOR_VALIDATION_FAILURES_LIMIT", 1)
     lesson, _, _, _ = _curriculum(db)
     token, user_id = _register(api)
     before = _balance(db, user_id)

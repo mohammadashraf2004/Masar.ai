@@ -108,7 +108,8 @@ describe('the stage', () => {
     await renderStage()
     expect(await screen.findByRole('heading', { level: 2, name: 'What is retrieval-augmented generation?' })).toBeInTheDocument()
     // The interview's own language goes with the request; the server adds what the learner studied.
-    expect(nextQuestion).toHaveBeenCalledWith('AI Developer technical concepts', 'intermediate', [], 'en')
+    // The turn's id goes too: a retry of the same turn is answered and charged once.
+    expect(nextQuestion).toHaveBeenCalledWith('AI Developer technical concepts', 'intermediate', [], 'en', 'iv-iv1-q1')
     expect(screen.getByText('AI Developer')).toHaveAttribute('dir', 'ltr')
     expect(screen.getByText('Technical')).toBeInTheDocument()
     expect(screen.getByText('Question 1 of 2')).toBeInTheDocument()
@@ -144,7 +145,7 @@ describe('the stage', () => {
     expect(screen.getByText('Question 2 of 2')).toBeInTheDocument()
     expect(nextQuestion).toHaveBeenLastCalledWith('AI Developer technical concepts', 'intermediate', [
       { question: 'First?', answer: 'It retrieves documents first. Then it generates from them. We cut errors by 30 percent.' },
-    ], 'en')
+    ], 'en', 'iv-iv1-q2')
     // The panel: a score out of 10, the three bars, and the note.
     await screen.findByText(STRINGS.en['interview.dim.accuracy'])
     expect(screen.getAllByRole('meter')).toHaveLength(3)
@@ -162,7 +163,7 @@ describe('the stage', () => {
     await user.click(await screen.findByRole('button', { name: STRINGS.en['interview.skip'] }))
     expect(await screen.findByText('Second?')).toBeInTheDocument()
     expect(interviewStore.get('iv1')?.questions[0]).toMatchObject({ skipped: true, answer: '', score: null })
-    expect(nextQuestion).toHaveBeenLastCalledWith(expect.any(String), 'intermediate', [{ question: 'First?', answer: '' }], 'en')
+    expect(nextQuestion).toHaveBeenLastCalledWith(expect.any(String), 'intermediate', [{ question: 'First?', answer: '' }], 'en', 'iv-iv1-q2')
   })
 
   it('finishing the last question ends the interview once its score is in, and opens the report', async () => {
@@ -205,6 +206,8 @@ describe('the stage', () => {
     await user.click(screen.getByRole('button', { name: STRINGS.en['common.retry'] }))
     expect(await screen.findByText('Now it works?')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    // The retry is the same turn: same request id, so the server can never charge it twice.
+    expect(nextQuestion.mock.calls.map((call) => call[4])).toEqual(['iv-iv1-q1', 'iv-iv1-q1'])
   })
 
   it('ending asks first, then ends with what was answered and opens the report', async () => {

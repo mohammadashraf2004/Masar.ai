@@ -106,7 +106,7 @@ describe('the interview store', () => {
     expect(listener).toHaveBeenCalledTimes(2)
   })
   it('survives corrupt storage', () => {
-    window.localStorage.setItem('masar:mock-interviews:v1', '{not json')
+    window.localStorage.setItem('masar:mock-interviews:v1:anon', '{not json')
     expect(new MockInterviewStore().list()).toEqual([])
   })
 })

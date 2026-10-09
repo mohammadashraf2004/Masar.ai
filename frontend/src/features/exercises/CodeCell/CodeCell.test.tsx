@@ -19,13 +19,13 @@ describe('CodeCell', () => {
   it('keeps and restores drafts while hiding private test files', async () => {
     // An unversioned draft from the previous free-form starter must not hide
     // a newly published fill-in-the-blank scaffold.
-    window.localStorage.setItem('exercise:7:agent.py', 'stale = True\n')
+    window.localStorage.setItem('exercise:anon:7:agent.py', 'stale = True\n')
     const first = render(<Cell />)
 
     const agent = await screen.findByRole('textbox', { name: 'agent.py' })
     await waitFor(() => expect(agent).toHaveValue(FILES[0].content))
     fireEvent.change(agent, { target: { value: 'edited = True\n' } })
-    expect(window.localStorage.getItem('exercise:7:agent.py')).toBe('edited = True\n')
+    expect(window.localStorage.getItem('exercise:anon:7:agent.py')).toBe('edited = True\n')
     first.unmount()
 
     render(<Cell />)
@@ -51,7 +51,7 @@ describe('CodeCell', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Reset to starter code' }))
     await userEvent.click(screen.getAllByRole('button', { name: 'Reset to starter code' })[1])
     expect(screen.getByRole('textbox', { name: 'agent.py' })).toHaveValue(FILES[0].content)
-    expect(window.localStorage.getItem('exercise:7:agent.py')).toBeNull()
+    expect(window.localStorage.getItem('exercise:anon:7:agent.py')).toBeNull()
   })
 
   it('runs code without grading and renders stdout, syntax errors, and runtime errors in the console', async () => {

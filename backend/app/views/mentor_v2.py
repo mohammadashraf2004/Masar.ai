@@ -81,7 +81,8 @@ class MentorMessageOut(BaseModel):
     # because the model's answer did not pass validation (the charge is returned).
     creditCost: int
     sessionId: int
-    # True when this is the stored reply to a send already answered (same requestId).
+    # True when this is the stored reply to a send already answered (same requestId). Its
+    # creditCost is what that send cost - charged once, by the original, never again.
     replayed: bool = False
 
 

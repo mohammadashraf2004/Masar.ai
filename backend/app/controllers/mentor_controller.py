@@ -5,15 +5,13 @@ from pydantic import ValidationError
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime
 
 from app.db.session import get_db
 from app.models.user import User
-from app.models.learning import Exercise, Lesson, Topic
+from app.models.learning import Exercise, Lesson
 from app.models.progress import MentorSession, UserSkillScore
 from app.models.learning_path import CareerRole, LearningProfile
 from app.views.mentor import (
-    MentorMessage, MentorResponse,
     MentorSessionResponse,
     CodeReviewRequest, CodeReviewResponse,
     SkillGapRequest, SkillGapResponse,
@@ -23,17 +21,16 @@ from app.core.limiter import limiter
 from app.core.security import get_current_user
 from app.services import (
     get_llm,
-    mentor_service,
     code_review_service,
     skill_gap_service,
     interview_service,
     roadmap_service,
 )
 from app.services.wallet.wallet_service import CREDIT_COSTS as CREDIT_COST, deduct_credits, refund_credits
-from app.services.billing.access_service import course_for_track_topic, require_content_access, require_course_access
+from app.services.billing.access_service import require_content_access
 from app.services.code_review.code_review_service import UnusableReview
 from app.services.interview.interview_service import UnusableQuestion
-from app.services.mentor import learner_state
+from app.services.mentor import idempotency, learner_state
 from app.services.mentor.observability import mentor_event
 
 logger = logging.getLogger(__name__)
@@ -47,7 +44,7 @@ router = APIRouter(prefix="/mentor", tags=["AI Mentor"])
 MENTOR_UNAVAILABLE = "The mentor is unavailable right now. Your credits were refunded."
 
 
-def _fail_ai_call(user_id: int, action: str, db: Session) -> None:
+def _fail_ai_call(user_id: int, action: str, db: Session, claim: idempotency.Claim | None = None) -> None:
     """End a billable mentor request whose provider call failed: log it,
     reverse the charge, and answer 503. Call it from inside an `except`.
 
@@ -64,6 +61,8 @@ def _fail_ai_call(user_id: int, action: str, db: Session) -> None:
         # refund on top of that would fail for a reason unrelated to the money.
         db.rollback()
         refund_credits(user_id, action, db, reason=f"Refund: {action} failed")
+        if claim is not None:
+            idempotency.refunded(db, claim)
     except Exception:
         # The charge stands and we could not reverse it. Loud, because this is
         # the one path that leaves a user out of pocket and only the log says so.
@@ -81,93 +80,16 @@ def _fail_ai_call(user_id: int, action: str, db: Session) -> None:
 # provider calls and exhaust our rate budget with the upstream vendor.
 
 
-@router.post("/chat", response_model=MentorResponse)
-@limiter.limit("20/minute")
-def chat_with_mentor(
-    request: Request,
-    payload: MentorMessage,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    with mentor_event("legacy_chat", current_user.id) as event:
-        response = _legacy_chat(payload, current_user, db)
-        event.set(credits_charged=CREDIT_COST["mentor_chat"], topic_id=payload.topic_id)
-        return response
-
-
-def _legacy_chat(payload: MentorMessage, current_user: User, db: Session) -> MentorResponse:
-    # context_topic_id is a foreign key. Checked here, before anything is
-    # charged: an id that does not exist used to fail at INSERT, after the
-    # deduction and after the provider had already been paid to answer.
-    if payload.topic_id is not None and not db.query(Topic.id).filter(Topic.id == payload.topic_id).first():
-        raise HTTPException(status_code=404, detail="Topic not found")
-    if payload.topic_id is not None:
-        course = course_for_track_topic(db, payload.topic_id)
-        if course:
-            require_course_access(db, current_user.id, course)
-
-    # ── Deduct credits before calling LLM ─────────────────────────────────────
-    deduct_credits(current_user.id, "mentor_chat", db)
-
-    session = (
-        db.query(MentorSession)
-        .filter(MentorSession.user_id == current_user.id)
-        .order_by(MentorSession.updated_at.desc())
-        .first()
+@router.post("/chat", status_code=410, include_in_schema=False)
+def chat_with_mentor(current_user: User = Depends(get_current_user)):
+    """Retired. The first mentor chat had none of what the mentor now guarantees - no lesson
+    grounding, no reply validation, no leak checks, no request idempotency - and it sent the
+    learner's name to the provider. Every mentor message goes through POST /mentor/message.
+    Answered for signed-in callers only, and nothing is charged or sent to a provider."""
+    raise HTTPException(
+        status_code=410,
+        detail={"error": "endpoint_retired", "message": "This mentor endpoint was retired. Use POST /mentor/message."},
     )
-
-    history = [
-        {"role": msg["role"], "content": msg["content"]}
-        for msg in ((session.messages if session else None) or [])[-10:]
-    ]
-    user_context = {
-        "name": current_user.full_name,
-        "experience_level": current_user.experience_level,
-        "readiness_score": current_user.overall_readiness_score,
-    }
-
-    # The deduction has committed, so a failure from here on leaves the
-    # student out of pocket for nothing — the same bargain get_roadmap
-    # documents below, and the same answer: refund, and tell them only that
-    # the mentor is unavailable. Everything that can go wrong sits in this
-    # block: an unconfigured or unreachable provider, a timeout, and an
-    # answer with no text in it. Never why — an exception message is
-    # internal, and can carry key fragments.
-    try:
-        llm = get_llm()
-        reply, suggested_actions = mentor_service.get_mentor_reply(
-            llm=llm,
-            conversation_history=history,
-            user_message=payload.content,
-            user_context=user_context,
-            language=payload.language,
-            terminology_mode=payload.terminology_mode,
-        )
-    except Exception:
-        _fail_ai_call(current_user.id, "mentor_chat", db)
-
-    # Created only now that there is an answer to store, so a failed call
-    # leaves no empty session behind (and nothing pending for the refund's
-    # commit to write out).
-    if not session:
-        session = MentorSession(
-            user_id=current_user.id,
-            title=payload.content[:50],
-            context_topic_id=payload.topic_id,
-            messages=[],
-        )
-        db.add(session)
-        db.flush()
-
-    new_messages = list(session.messages or [])
-    new_messages.append({"role": "user", "content": payload.content, "timestamp": datetime.utcnow().isoformat()})
-    new_messages.append({"role": "assistant", "content": reply, "timestamp": datetime.utcnow().isoformat()})
-    session.messages = new_messages
-    session.updated_at = datetime.utcnow()
-    db.commit()
-    db.refresh(session)
-
-    return MentorResponse(session_id=session.id, reply=reply, suggested_actions=suggested_actions)
 
 
 @router.post("/new-session", response_model=MentorSessionResponse)
@@ -221,18 +143,25 @@ def review_code(
             code_language = exercise.language or code_language
             event.set(exercise_id=exercise.id, lesson_id=exercise.lesson_id)
         event.set(language=payload.ui_language, code_chars=len(payload.code))
-        deduct_credits(current_user.id, "code_review", db)
-        try:
-            result = code_review_service.review_code(
-                llm=get_llm(), code=payload.code, language=code_language, context=context,
-                ui_language=payload.ui_language or "en",
-            )
-            response = CodeReviewResponse(**result)
+        # One charge and one review per request id, however often it is sent (idempotency.py).
+        claim = idempotency.claim(db, current_user.id, "code_review", payload.request_id)
+        if claim.replay is not None:
+            event.set(replayed=True, credits_charged=0)
+            return CodeReviewResponse(**claim.replay)
+        with idempotency.guard(db, claim):
+            idempotency.charged(db, claim, deduct_credits(current_user.id, "code_review", db))
+            try:
+                result = code_review_service.review_code(
+                    llm=get_llm(), code=payload.code, language=code_language, context=context,
+                    ui_language=payload.ui_language or "en",
+                )
+                response = CodeReviewResponse(**result)
+            except Exception as exc:
+                event.fail("validation_failed" if isinstance(exc, (UnusableReview, ValidationError)) else "provider_error")
+                _fail_ai_call(current_user.id, "code_review", db, claim)
+            idempotency.done(db, claim, response.model_dump(mode="json"))
             event.set(credits_charged=CREDIT_COST["code_review"])
             return response
-        except Exception as exc:
-            event.fail("validation_failed" if isinstance(exc, (UnusableReview, ValidationError)) else "provider_error")
-            _fail_ai_call(current_user.id, "code_review", db)
 
 
 def _exercise_review_context(db: Session, exercise: Exercise, ui_language) -> str:
@@ -304,18 +233,26 @@ def mock_interview(
             learner_state.enrolled_courses(db, current_user.id, language), language,
         )
         event.set(language=language, studied_lessons=len(studied), previous_questions=len(payload.previous_qa))
-        deduct_credits(current_user.id, "mock_interview", db)
-        try:
-            result = interview_service.generate_question(
-                llm=get_llm(), topic=payload.topic, difficulty=payload.difficulty, previous_qa=payload.previous_qa,
-                studied=studied, language=language,
-            )
-            response = MockInterviewResponse(**result)
+        # One question per interview turn: the client names the turn, and a retry of it gets the
+        # same question back without a second charge (idempotency.py).
+        claim = idempotency.claim(db, current_user.id, "mock_interview", payload.request_id)
+        if claim.replay is not None:
+            event.set(replayed=True, credits_charged=0)
+            return MockInterviewResponse(**claim.replay)
+        with idempotency.guard(db, claim):
+            idempotency.charged(db, claim, deduct_credits(current_user.id, "mock_interview", db))
+            try:
+                result = interview_service.generate_question(
+                    llm=get_llm(), topic=payload.topic, difficulty=payload.difficulty, previous_qa=payload.previous_qa,
+                    studied=studied, language=language,
+                )
+                response = MockInterviewResponse(**result)
+            except Exception as exc:
+                event.fail("validation_failed" if isinstance(exc, (UnusableQuestion, ValidationError)) else "provider_error")
+                _fail_ai_call(current_user.id, "mock_interview", db, claim)
+            idempotency.done(db, claim, response.model_dump(mode="json"))
             event.set(credits_charged=CREDIT_COST["mock_interview"])
             return response
-        except Exception as exc:
-            event.fail("validation_failed" if isinstance(exc, (UnusableQuestion, ValidationError)) else "provider_error")
-            _fail_ai_call(current_user.id, "mock_interview", db)
 
 
 @router.get("/roadmap")

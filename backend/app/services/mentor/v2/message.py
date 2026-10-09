@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple
@@ -28,13 +29,15 @@ from app.models.user import User
 from app.models.wallet import TransactionType, UserWallet, WalletTransaction
 from app.services import get_llm
 from app.core.authz import is_email_verified
-from app.services.billing import pro_ai_allowance as pro_ai
+from app.models.billing import ProAiUsage
 from app.services.billing.access_service import require_content_access
+from app.services.mentor import idempotency
 from app.services.mentor.observability import MentorEvent, mentor_event
 from app.services.mentor.v2 import intent as intent_service
 from app.services.mentor.v2.blocks import fallback_blocks, parse_blocks, serialize_for_session, validate_blocks
 from app.services.mentor.v2.context import ServerContext, build_context
 from app.services.mentor.v2.excerpt import lesson_excerpt
+from app.services.mentor.v2 import leak
 from app.services.mentor.v2.quiz import pick_question, quiz_block
 from app.services.utils import require_text
 from app.services.wallet.wallet_service import CREDIT_COSTS, deduct_credits, refund_credits
@@ -195,14 +198,17 @@ Return JSON only, using these exact keys for a prose reply:
 {"blocks":[{"kind":"text","text":"your answer","grounding":"lesson","sourceLessonId":"123"}]}.
 Use `kind`, never `type`; use `text`, never `content`. Every block MUST have grounding: lesson, extra, or general.
 For lesson/extra grounding include sourceLessonId from the supplied sources. Keep the
-whole reply under 1800 characters and at most 6 blocks. Supported kinds are text, concept_chain
+whole reply under 1800 characters (about 250 words) and at most 6 blocks. Supported kinds are text, concept_chain
 ({"nodes":[...],"focus":0}), code ({"code":"...","lang":"python"}), hint ({"level":1,"label":"...","text":"..."})
-and check ({"question":"..."}). A hint must guide without giving final code or the answer. Never reveal a
-quiz's correct option."""
+and check ({"question":"..."}); every one of them carries grounding too, for example
+{"kind":"hint","level":1,"label":"...","text":"...","grounding":"general"}. A hint must guide without giving
+final code or the answer. Never reveal a quiz's correct option."""
 
 HINT_LEVELS = (
-    "\nThe learner asked for a hint of level {level}: give exactly one hint block with \"level\": {level}."
-    " Level 1 is a conceptual nudge, level 2 a specific direction, level 3 detailed step-by-step"
+    "\nThe learner asked for a hint of level {level}: give exactly one hint block,"
+    " {{\"kind\":\"hint\",\"level\":{level},\"label\":\"<a short caption>\",\"text\":\"...\",\"grounding\":...}},"
+    " grounded on the lesson (with sourceLessonId) when the hint rests on it, else general."
+    " Level 1 is a conceptual nudge that names the idea but no function, method or code, level 2 a specific direction, level 3 detailed step-by-step"
     " guidance - still without the complete solution."
 )
 
@@ -248,6 +254,25 @@ def _rule_reply(db: Session, user: User, context: ServerContext, chosen_intent: 
     return [block]
 
 
+HINT_LABELS = {
+    1: ("تلميح مفاهيمي", "Conceptual nudge"),
+    2: ("اتجاه محدد", "A specific direction"),
+    3: ("إرشاد مفصّل", "Detailed guidance"),
+}
+
+
+def _hint_label(level: int, language: str) -> str:
+    return HINT_LABELS.get(level, HINT_LABELS[1])[0 if language == "ar" else 1]
+
+
+def _label_hints(blocks: List[Dict], language: str) -> List[Dict]:
+    """A hint block the model left without a caption is named by its level."""
+    for block in blocks:
+        if block.get("kind") == "hint" and not block.get("label"):
+            block["label"] = _hint_label(block.get("level") or 1, language)
+    return blocks
+
+
 def _as_hint(blocks: List[Dict], level: int, language: str) -> List[Dict]:
     """A requested hint level always comes back as a hint block the ladder can show."""
     if any(block.get("kind") == "hint" for block in blocks):
@@ -255,12 +280,7 @@ def _as_hint(blocks: List[Dict], level: int, language: str) -> List[Dict]:
             if block.get("kind") == "hint":
                 block["level"] = level
         return blocks
-    labels = {
-        1: ("تلميح مفاهيمي", "Conceptual nudge"),
-        2: ("اتجاه محدد", "A specific direction"),
-        3: ("إرشاد مفصّل", "Detailed guidance"),
-    }
-    label = labels[level][0 if language == "ar" else 1]
+    label = _hint_label(level, language)
     out = []
     converted = False
     for block in blocks:
@@ -307,14 +327,16 @@ def _save(
 VALIDATION_REFUND = "Refund: mentor reply failed validation"
 
 
-def _validation_refunds_today(db: Session, user_id: int) -> int:
-    """Validation-failure refunds this account received in the last 24 hours, read from the
-    ledgers so every API worker sees the same count: wallet refunds, plus Pro allowance
-    charges given back for the same reason (a Pro send never touches the wallet, so
-    without this the cap would never apply to Pro)."""
-    since = datetime.now(timezone.utc) - timedelta(days=1)
-    return pro_ai.released_since(db, user_id, ACTION, VALIDATION_REFUND, since) + (
-        db.query(WalletTransaction.id)
+def _aware(value: datetime) -> datetime:
+    return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+
+
+def validation_failures_since(db: Session, user_id: int, since: datetime) -> List[datetime]:
+    """When this account's mentor replies failed validation since `since`, oldest first, read
+    from the ledgers so every API worker sees the same: wallet refunds, plus Pro allowance
+    charges given back for the same reason (a Pro send never touches the wallet)."""
+    wallet = (
+        db.query(WalletTransaction.created_at)
         .join(UserWallet, UserWallet.id == WalletTransaction.wallet_id)
         .filter(
             UserWallet.user_id == user_id,
@@ -323,13 +345,70 @@ def _validation_refunds_today(db: Session, user_id: int) -> int:
             WalletTransaction.description == VALIDATION_REFUND,
             WalletTransaction.created_at >= since,
         )
-        .count()
+        .all()
+    )
+    pro = (
+        db.query(ProAiUsage.released_at)
+        .filter(
+            ProAiUsage.user_id == user_id, ProAiUsage.action_type == ACTION, ProAiUsage.status == "released",
+            ProAiUsage.release_reason == VALIDATION_REFUND[:120], ProAiUsage.released_at >= since,
+        )
+        .all()
+    )
+    return sorted(_aware(stamp) for (stamp,) in wallet + pro if stamp is not None)
+
+
+def _check_validation_limit(db: Session, user_id: int) -> None:
+    """Refuse a model send - before any charge or provider call - while this account's recent
+    replies keep failing validation. The failed replies themselves were all refunded; this only
+    bounds what they cost us in provider calls."""
+    now = datetime.now(timezone.utc)
+    window = timedelta(seconds=settings.MENTOR_VALIDATION_FAILURE_WINDOW_SECONDS)
+    limit = settings.MENTOR_VALIDATION_FAILURES_LIMIT
+    failures = validation_failures_since(db, user_id, now - window)
+    if len(failures) < limit:
+        return
+    retry_at = failures[len(failures) - limit] + window      # when one fewer is in the window
+    wait = max(1, int((retry_at - now).total_seconds()) + 1)
+    raise HTTPException(
+        status_code=429,
+        detail={
+            "error": "mentor_validation_limit",
+            "message": "The mentor could not give a verified answer several times in a row. "
+                       "Nothing was charged. Please try again later or rephrase the question.",
+            "retry_at": retry_at.isoformat(),
+        },
+        headers={"Retry-After": str(wait)},
     )
 
 
-def _refund(db: Session, user_id: int, reason: str) -> None:
+def _refund(db: Session, user_id: int, reason: str, claim: idempotency.Claim) -> None:
     db.rollback()
     refund_credits(user_id, ACTION, db, reason=reason)
+    idempotency.refunded(db, claim)
+
+
+def _time_for_a_call(started: float) -> bool:
+    """Whether a provider call started now would end inside the request's budget."""
+    elapsed = time.monotonic() - started
+    return elapsed + settings.GENERATION_TIMEOUT_SECONDS <= settings.MENTOR_MESSAGE_BUDGET_SECONDS
+
+
+# What the corrected second attempt is told about the first. Only format, length and attribution
+# problems are named; a reply rejected for leaking (solution, quiz answer, prompt) gets the
+# generic note, which tells the model nothing about what was detected.
+RETRY_NOTES = {
+    "too_long": "Your previous reply was too long. Keep the whole reply under 1800 characters - about 200 words, shorter than before.",
+    "grounding": "Your previous reply had a block without a valid grounding. Give every block grounding lesson, extra or general.",
+    "fields": "Your previous reply did not follow the block format. Use exactly the keys shown for each kind.",
+    "shape": "Your previous reply did not follow the block format. Return JSON with 1 to 6 blocks.",
+    "source_unsupported": "Your previous reply attributed to a lesson something its text does not support. Use grounding general for that.",
+    "source_unknown": "Your previous reply cited a lesson that is not among the sources. Cite only the sourceLessonId values supplied.",
+}
+
+
+def _retry_note(reason: str) -> str:
+    return "\n" + RETRY_NOTES.get(reason, "Your previous reply failed validation.") + " Correct it without discussing validation."
 
 
 def _out(session: MentorSession, blocks, chosen: str, cost: int, event: MentorEvent, **extra) -> MentorMessageOut:
@@ -345,11 +424,11 @@ def send_message(db: Session, user: User, payload: MentorMessageIn) -> MentorMes
 
 
 def _send(db: Session, user: User, payload: MentorMessageIn, event: MentorEvent) -> MentorMessageOut:
+    started = time.monotonic()
     language = payload.language if payload.language in {"ar", "en"} else "ar"
     event.set(language=language, requested_intent=payload.intent, trigger=payload.trigger,
               lesson_id=payload.context.lessonId, exercise_id=payload.context.exerciseId)
     context = build_context(db, user.id, payload.context, language)
-    text = (payload.text or "").strip()
     key = scope_key(context)
     event.set(course_id=context.course_slug, scope=key,
               has_selection=bool(context.selected_text or context.learner_quote),
@@ -360,9 +439,29 @@ def _send(db: Session, user: User, payload: MentorMessageIn, event: MentorEvent)
     if stored is not None:
         # The same send again (a retry after a timeout the server survived): the stored reply,
         # with no second charge and no second provider call.
-        event.set(replayed=True)
-        return _out(scoped, stored.get("blocks") or [], stored.get("intent") or payload.intent or "GENERAL_QUESTION",
-                    0, event, replayed=True)
+        # It carries what the send cost (charged once, by the original) so a browser that never
+        # received the original counts it; nothing is charged now.
+        out = _out(scoped, stored.get("blocks") or [], stored.get("intent") or payload.intent or "GENERAL_QUESTION",
+                   int(stored.get("creditCost") or 0), event, replayed=True)
+        event.set(replayed=True, credits_charged=0)
+        return out
+
+    # The same send while it is still running: 409, nothing charged (see idempotency.py).
+    claim = idempotency.claim(db, user.id, ACTION, payload.requestId)
+    if claim.replay is not None:
+        event.set(replayed=True, credits_charged=0)
+        return MentorMessageOut(**{**claim.replay, "replayed": True})
+    with idempotency.guard(db, claim):
+        out = _answer(db, user, payload, event, context, key, scoped, language, claim, started)
+        idempotency.done(db, claim, out.model_dump(mode="json"))
+        return out
+
+
+def _answer(
+    db: Session, user: User, payload: MentorMessageIn, event: MentorEvent, context: ServerContext, key: str,
+    scoped: Optional[MentorSession], language: str, claim: idempotency.Claim, started: float,
+) -> MentorMessageOut:
+    text = (payload.text or "").strip()
     now = datetime.now(timezone.utc)
     session = scoped if scoped is not None and not payload.fresh and is_live(scoped, now) else None
 
@@ -376,6 +475,15 @@ def _send(db: Session, user: User, payload: MentorMessageIn, event: MentorEvent)
         session = _save(db, user, payload, context, blocks, chosen, session=session, key=key, credit_cost=0)
         return _out(session, blocks, chosen, 0, event, proactive={"trigger": payload.trigger})
 
+    # Asking for the mentor's instructions, policies, hidden solutions or grading data: a fixed
+    # refusal in the learner's language, free, and the model never sees the request.
+    if leak.asks_for_hidden(text):
+        chosen = payload.intent or "GENERAL_QUESTION"
+        event.set(leak_request=True)
+        blocks = [{"kind": "text", "text": leak.refusal(language), "grounding": "general"}]
+        session = _save(db, user, payload, context, blocks, chosen, session=session, key=key, credit_cost=0)
+        return _out(session, blocks, chosen, 0, event)
+
     decided_without_model = intent_service.explicit_or_rules(payload.intent, text)
     if decided_without_model == "QUIZ":
         blocks = _rule_reply(db, user, context, decided_without_model, language)
@@ -383,7 +491,8 @@ def _send(db: Session, user: User, payload: MentorMessageIn, event: MentorEvent)
             session = _save(db, user, payload, context, blocks, decided_without_model, session=session, key=key, credit_cost=0)
             return _out(session, blocks, decided_without_model, 0, event)
 
-    deduct_credits(user.id, ACTION, db)
+    _check_validation_limit(db, user.id)
+    idempotency.charged(db, claim, deduct_credits(user.id, ACTION, db))
     charged = True
     try:
         llm = get_llm()
@@ -404,30 +513,38 @@ def _send(db: Session, user: User, payload: MentorMessageIn, event: MentorEvent)
             system += HINT_LEVELS.format(level=payload.hintLevel)
         learner_text = "\n".join(filter(None, [text, context.selected_text, context.learner_quote]))
         blocks = None
+        rejected: List[str] = []           # why each attempt failed validation: codes only, for the log
         for attempt in range(2):
-            retry_note = "\nYour previous reply failed validation. Correct it without discussing validation." if attempt else ""
+            if not _time_for_a_call(started):
+                # No call is started that could outlast the request's budget: the browser would
+                # give up on it, and the learner retry a send that is still running.
+                if attempt == 0:
+                    raise TimeoutError("no time left for the reply call")
+                event.set(budget_exhausted=True)
+                break
+            retry_note = _retry_note(rejected[-1] if rejected else "") if attempt else ""
             raw = require_text(llm.chat(
                 system=system + retry_note,
                 messages=history + [{"role": "user", "content": prompt}],
                 max_tokens=700,
             ))
-            blocks = validate_blocks(parse_blocks(raw), context=context, intent=chosen, learner_text=learner_text)
+            blocks = validate_blocks(parse_blocks(raw), context=context, intent=chosen, learner_text=learner_text,
+                                     reasons=rejected)
             if blocks is not None:
                 break
+            event.set(validation_retries=attempt + 1, validation_rejected=list(rejected))
         if blocks is None:
-            # A safe fallback is useful, but an unverified model answer is not something the
-            # learner should pay for - a few times. A learner can steer replies into rejection
-            # on purpose (e.g. by asking for quiz answers), and each such send cost up to three
-            # provider calls; refunding every one made model use unlimited and unbilled.
+            # A safe answer, and a full refund: a learner never pays for output that failed
+            # validation. What such sends cost us in provider calls is bounded instead by
+            # _check_validation_limit, which refuses further model sends for a while.
             event.outcome, event.error_category = "fallback", "validation_failed"
-            if _validation_refunds_today(db, user.id) < settings.MENTOR_VALIDATION_REFUNDS_PER_DAY:
-                charged = False
-                _refund(db, user.id, VALIDATION_REFUND)
-            else:
-                event.set(refund_withheld=True)
+            charged = False
+            _refund(db, user.id, VALIDATION_REFUND, claim)
             blocks = fallback_blocks(context, chosen, language)
         elif chosen == "HINT" and payload.hintLevel:
-            blocks = _as_hint(blocks, payload.hintLevel, language)
+            blocks = _label_hints(_as_hint(blocks, payload.hintLevel, language), language)
+        else:
+            blocks = _label_hints(blocks, language)
 
         cost = CREDIT_COSTS[ACTION] if charged else 0
         session = _save(db, user, payload, context, blocks, chosen, session=session, key=key, credit_cost=cost)
@@ -442,7 +559,7 @@ def _send(db: Session, user: User, payload: MentorMessageIn, event: MentorEvent)
         if charged:
             charged = False
             try:
-                _refund(db, user.id, "Refund: mentor message failed")
+                _refund(db, user.id, "Refund: mentor message failed", claim)
             except Exception:
                 logger.critical("mentor_message refund FAILED", extra={"user_id": user.id})
         raise HTTPException(status_code=503, detail=UNAVAILABLE)

@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError } from 'axios'
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios'
 import type {
   TokenResponse, User,
   CareerTrack, CareerTrackSummary, Enrollment,
@@ -66,6 +66,8 @@ export interface BillingCatalogApi {
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 /** Longer than the API worker's 60 s limit (gunicorn --timeout 60), so the browser never gives up on a send the server is still answering. */
 export const MENTOR_MESSAGE_TIMEOUT_MS = 65_000
+/** How long a paid AI request keeps asking about the same request id while its first attempt runs. */
+export const AI_REQUEST_PATIENCE_MS = 70_000
 
 /** A walkthrough record as the wire has it (docs/backend-requests.md §6); the tours feature
  *  translates this into its own local shape (frontend/src/features/tours/sync.ts). */
@@ -123,6 +125,29 @@ function clearDeadSession() {
 
 class ApiClient {
   private http: AxiosInstance
+
+  /**
+   * POST a paid AI request that carries a client request id. The server charges and answers each
+   * id once (backend app/services/mentor/idempotency.py). While the first attempt of an id is still
+   * running - a retry after a timeout or a dropped connection - it answers 409
+   * `request_in_progress`; this waits the time it asks for and asks again with the same id, never
+   * a second charge, until the stored answer comes back or AI_REQUEST_PATIENCE_MS runs out.
+   */
+  private async postAiOnce<T>(url: string, body: unknown, config?: AxiosRequestConfig): Promise<T> {
+    const started = Date.now()
+    for (;;) {
+      try {
+        return (await this.http.post<T>(url, body, config)).data
+      } catch (error) {
+        const resp = (error as { response?: { status?: number; data?: { detail?: { error?: unknown; retry_after?: unknown } } } }).response
+        const detail = resp?.data?.detail
+        if (resp?.status !== 409 || typeof detail !== 'object' || detail === null || detail.error !== 'request_in_progress') throw error
+        const wait = Math.min(10, Math.max(1, Number(detail.retry_after) || 3)) * 1000
+        if (Date.now() - started + wait > AI_REQUEST_PATIENCE_MS) throw error
+        await new Promise((resolve) => setTimeout(resolve, wait))
+      }
+    }
+  }
 
   constructor() {
     this.http = axios.create({
@@ -434,11 +459,12 @@ class ApiClient {
     return res.data
   }
 
-  async reviewCode(code: string, language: string, context?: string, uiLanguage?: 'ar' | 'en', exerciseId?: string) {
-    const res = await this.http.post<CodeReviewResult>('/mentor/code-review', {
+  /** `requestId` names this review: a retry of it with the same id is answered and charged once. */
+  async reviewCode(code: string, language: string, context?: string, uiLanguage?: 'ar' | 'en', exerciseId?: string, requestId?: string) {
+    return this.postAiOnce<CodeReviewResult>('/mentor/code-review', {
       code, language, context, ui_language: uiLanguage, exercise_id: exerciseId ? Number(exerciseId) : undefined,
+      ...(requestId ? { request_id: requestId } : {}),
     })
-    return res.data
   }
 
   async analyzeSkillGap(data: { target_role: string; current_skills: string[]; cv_text?: string; github_url?: string }) {
@@ -446,12 +472,15 @@ class ApiClient {
     return res.data
   }
 
-  /** `language` is the interview's language; the server adds what the learner has studied itself. */
-  async getMockInterviewQuestion(topic: string, difficulty: string, previousQa: Array<{ question: string; answer: string }> = [], language?: 'ar' | 'en') {
-    const res = await this.http.post<InterviewQuestion>('/mentor/mock-interview', {
-      topic, difficulty, previous_qa: previousQa, ...(language ? { language } : {}),
+  /**
+   * `language` is the interview's language; the server adds what the learner has studied itself.
+   * `requestId` names the interview turn: asking again for the same turn returns the same question
+   * and is charged once.
+   */
+  async getMockInterviewQuestion(topic: string, difficulty: string, previousQa: Array<{ question: string; answer: string }> = [], language?: 'ar' | 'en', requestId?: string) {
+    return this.postAiOnce<InterviewQuestion>('/mentor/mock-interview', {
+      topic, difficulty, previous_qa: previousQa, ...(language ? { language } : {}), ...(requestId ? { request_id: requestId } : {}),
     })
-    return res.data
   }
 
   async getRoadmap(track?: string, language?: 'ar' | 'en') {
@@ -1105,10 +1134,10 @@ class ApiClient {
     // One send can take the server up to its 60 s worker limit (intent call, reply, one corrected
     // retry). Giving up at the default 30 s let the learner press "retry" while the first send was
     // still running, so the server's same-request-id replay found nothing and both were charged.
-    const res = await this.http.post<import('@/features/mentor/types').MentorMessageV2 & { sessionId: number }>(
+    // A retry that does arrive while the first is running is told so (409) and waits for it.
+    return this.postAiOnce<import('@/features/mentor/types').MentorMessageV2 & { sessionId: number }>(
       '/mentor/message', { ...body, language }, { timeout: MENTOR_MESSAGE_TIMEOUT_MS },
     )
-    return res.data
   }
 
   async getMentorV2Context(
@@ -1393,8 +1422,8 @@ export const mentorV2 = {
     if (mentorV2EndpointLive('quiz')) return api.answerMentorV2Quiz(body, lang)
     return (await mentorMock()).mockAnswerQuiz(body, lang)
   },
-  async review(body: { exerciseId?: string; code?: string; lang: string }, lang: MentorV2Lang) {
-    const result = await api.reviewCode(body.code ?? '', body.lang, undefined, lang, body.exerciseId)
+  async review(body: { exerciseId?: string; code?: string; lang: string; requestId?: string }, lang: MentorV2Lang) {
+    const result = await api.reviewCode(body.code ?? '', body.lang, undefined, lang, body.exerciseId, body.requestId)
     return {
       executed: false as const,
       summary: result.summary,

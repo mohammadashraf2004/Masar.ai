@@ -1,4 +1,6 @@
 import type { InterviewSession } from '@/lib/mentor/interview'
+import { accountScope } from '@/lib/privateStorage'
+import { useAuthStore } from '@/lib/store'
 
 /**
  * Where mock interviews are kept, for the report page, the "your earlier interviews" list and
@@ -21,7 +23,8 @@ export interface InterviewStore {
   snapshot(): string
 }
 
-const KEY = 'masar:mock-interviews:v1'
+/** The learner's answers are private: kept per account, and cleared on sign-out (lib/privateStorage.ts). */
+const key = () => `masar:mock-interviews:v1:${accountScope(useAuthStore.getState().user?.id)}`
 const KEEP = 20
 const EMPTY = '[]'
 
@@ -45,7 +48,7 @@ export class MockInterviewStore implements InterviewStore {
 
   snapshot(): string {
     try {
-      return window.localStorage.getItem(KEY) ?? EMPTY
+      return window.localStorage.getItem(key()) ?? EMPTY
     } catch {
       return EMPTY
     }
@@ -69,7 +72,7 @@ export class MockInterviewStore implements InterviewStore {
       .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
       .slice(0, KEEP)
     try {
-      window.localStorage.setItem(KEY, JSON.stringify(next))
+      window.localStorage.setItem(key(), JSON.stringify(next))
     } catch {
       return
     }
@@ -79,7 +82,7 @@ export class MockInterviewStore implements InterviewStore {
   subscribe(listener: () => void): () => void {
     this.listeners.add(listener)
     const onStorage = (e: StorageEvent) => {
-      if (e.key === KEY || e.key === null) listener()
+      if (e.key === key() || e.key === null) listener()
     }
     window.addEventListener('storage', onStorage)
     return () => {

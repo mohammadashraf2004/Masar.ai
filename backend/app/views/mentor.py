@@ -49,6 +49,9 @@ class CodeReviewRequest(BaseModel):
     ui_language: Optional[str] = Field(None, pattern="^(ar|en)$")
     exercise_id: Optional[int] = Field(None, gt=0)
     context: Optional[str] = Field(None, max_length=2_000)  # what the code is supposed to do
+    # Client-made id of this request: a retry of the same request carries the same id and is
+    # answered once and charged once (app/services/mentor/idempotency.py).
+    request_id: Optional[str] = Field(None, pattern=r"^[A-Za-z0-9_-]{8,64}$")
 
 
 class CodeReviewResponse(BaseModel):
@@ -82,6 +85,9 @@ class MockInterviewRequest(BaseModel):
     previous_qa: List[dict] = Field(default_factory=list, max_length=50)  # ongoing interview
     # The interview's language. Only selects prompt text, like MentorMessage.language.
     language: Optional[str] = Field(None, pattern="^(ar|en)$")
+    # Client-made id of this interview turn: a retry of the same turn carries the same id and is
+    # answered once and charged once (app/services/mentor/idempotency.py).
+    request_id: Optional[str] = Field(None, pattern=r"^[A-Za-z0-9_-]{8,64}$")
 
 
 class MockInterviewResponse(BaseModel):

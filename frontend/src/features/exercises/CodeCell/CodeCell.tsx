@@ -7,6 +7,7 @@ import { Spinner } from '@/components/ui/index'
 import { cn } from '@/lib/utils'
 import { useExerciseI18n, useMentorV2I18n } from '@/lib/i18n'
 import type { ExerciseFile, ExerciseRunResult, GradeResult } from '@/types'
+import { exerciseDraftKey } from '../draftKeys'
 import { CodeEditor } from './CodeEditor'
 import { codeCellColors } from './codeCellTheme'
 import { useExerciseRun } from './useExerciseRun'
@@ -21,11 +22,11 @@ function starterVersion(content: string) {
 }
 
 function draftKey(exerciseId: string | number, file: ExerciseFile) {
-  return `exercise:${exerciseId}:${file.name}:starter-${starterVersion(file.content)}`
+  return exerciseDraftKey(exerciseId, file.name, starterVersion(file.content))
 }
 
 function legacyDraftKey(exerciseId: string | number, fileName: string) {
-  return `exercise:${exerciseId}:${fileName}`
+  return exerciseDraftKey(exerciseId, fileName)
 }
 
 export type CodeCellProps = {

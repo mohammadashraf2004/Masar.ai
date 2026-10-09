@@ -160,9 +160,9 @@ def test_billable_endpoint_returns_403_for_unverified_user(client, db):
     before = _balance(db, user_id)
 
     resp = client.post(
-        "/api/v1/mentor/chat",
+        "/api/v1/mentor/message",
         headers=_auth(token),
-        json={"content": "hello"},
+        json={"text": "hello"},
     )
     assert resp.status_code == 403, resp.text
     assert resp.json()["detail"]["error"] == EMAIL_VERIFICATION_REQUIRED
@@ -175,7 +175,7 @@ def test_403_not_401_so_the_client_does_not_bounce_to_login(client, db):
     _, token, user_id = _register(client)
     _fund(db, user_id)
 
-    resp = client.post("/api/v1/mentor/chat", headers=_auth(token), json={"content": "hi"})
+    resp = client.post("/api/v1/mentor/message", headers=_auth(token), json={"text": "hi"})
     assert resp.status_code != 401
 
 
@@ -249,7 +249,7 @@ def test_verifying_then_spending_works_end_to_end(client, db):
     _fund(db, user_id)
 
     # Refused while unverified.
-    first = client.post("/api/v1/mentor/chat", headers=_auth(token), json={"content": "hi"})
+    first = client.post("/api/v1/mentor/message", headers=_auth(token), json={"text": "hi"})
     assert first.status_code == 403
 
     # Verify through the real endpoint, using the token registration issued.
@@ -268,5 +268,5 @@ def test_verifying_then_spending_works_end_to_end(client, db):
     # Now the gate is out of the way. The provider is not configured in
     # tests, so anything other than a 403 proves the gate stopped being
     # the thing that blocks this call.
-    second = client.post("/api/v1/mentor/chat", headers=_auth(token), json={"content": "hi"})
+    second = client.post("/api/v1/mentor/message", headers=_auth(token), json={"text": "hi"})
     assert second.status_code != 403, second.text

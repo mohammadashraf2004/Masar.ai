@@ -1005,8 +1005,8 @@ def test_https_urls_are_still_accepted(client):
 def test_oversized_llm_input_rejected_before_it_reaches_the_provider(client):
     """Prompt size is a direct multiplier on our inference bill."""
     _, token, _ = _register(client)
-    resp = client.post("/api/v1/mentor/chat", headers=_auth(token),
-                       json={"content": "A" * 200_000})
+    resp = client.post("/api/v1/mentor/message", headers=_auth(token),
+                       json={"text": "A" * 200_000})
     assert resp.status_code == 422
 
 

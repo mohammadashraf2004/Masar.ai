@@ -183,6 +183,67 @@ describe('a retried send', () => {
     expect(result.current.messages.map((m) => m.role)).toEqual(['learner', 'mentor'])
   })
 
+  it('counts the cost of a replayed reply: its own response never arrived, so it was never counted', async () => {
+    vi.spyOn(mentorV2, 'sendMessage')
+      .mockRejectedValueOnce(new Error('Network Error'))
+      .mockResolvedValueOnce({ ...reply(), replayed: true } as MentorMessageV2 & { sessionId: number })
+    const { result } = renderHook(() => useMentorV2({ base: { courseId: 'course-004', lessonId: '12' } }))
+
+    await act(async () => { await result.current.send('Explain this') })
+    expect(result.current.spent).toBe(0)
+    await act(async () => { await result.current.retry() })
+    expect(result.current.spent).toBe(2)
+  })
+
+  it('that reaches the server while the first is still running waits for it, with the same id', async () => {
+    vi.useFakeTimers()
+    try {
+      const inProgress = { response: { status: 409, data: { detail: { error: 'request_in_progress', retry_after: 3 } } } }
+      const post = vi.spyOn(http(), 'post')
+        .mockRejectedValueOnce(inProgress)
+        .mockRejectedValueOnce(inProgress)
+        .mockResolvedValueOnce({ data: reply({ replayed: true } as Partial<MentorMessageV2>) })
+      const sent = mentorV2.sendMessage({ text: 'Why?', context: { lessonId: '42' }, requestId: 'rq-same-0001' }, 'en')
+      await vi.advanceTimersByTimeAsync(6_000)
+      expect((await sent).replayed).toBe(true)
+      expect(post).toHaveBeenCalledTimes(3)
+      expect(post.mock.calls.map((call) => (call[1] as { requestId: string }).requestId)).toEqual(['rq-same-0001', 'rq-same-0001', 'rq-same-0001'])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('gives up on a send still running after a while, and any other 409 at once', async () => {
+    vi.useFakeTimers()
+    try {
+      const inProgress = { response: { status: 409, data: { detail: { error: 'request_in_progress', retry_after: 3 } } } }
+      const post = vi.spyOn(http(), 'post').mockRejectedValue(inProgress)
+      const sent = mentorV2.sendMessage({ text: 'Why?', context: { lessonId: '42' }, requestId: 'rq-stuck-0001' }, 'en')
+      const outcome = sent.catch((error) => error)
+      await vi.advanceTimersByTimeAsync(80_000)
+      expect(await outcome).toBe(inProgress)
+      expect(post.mock.calls.length).toBeLessThanOrEqual(25)
+
+      post.mockReset()
+      const stale = { response: { status: 409, data: { detail: 'Proactive trigger is no longer current' } } }
+      post.mockRejectedValueOnce(stale)
+      await expect(mentorV2.sendMessage({ text: 'Why?', context: { lessonId: '42' }, requestId: 'rq-other-0001' }, 'en')).rejects.toBe(stale)
+      expect(post).toHaveBeenCalledTimes(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('names Code Review and interview requests too, so a retry of either is charged once', async () => {
+    const post = vi.spyOn(http(), 'post').mockResolvedValue({ data: { summary: '', issues: [], improvements: [] } })
+    await mentorV2.review({ exerciseId: '9007', code: 'x = 1', lang: 'python', requestId: 'rq-review-0001' }, 'en')
+    expect(post).toHaveBeenLastCalledWith('/mentor/code-review', expect.objectContaining({ request_id: 'rq-review-0001', exercise_id: 9007 }), undefined)
+
+    post.mockResolvedValue({ data: { question: 'Q?', question_type: 'theoretical', hints: [] } })
+    await api.getMockInterviewQuestion('NLP', 'intermediate', [], 'en', 'iv-abc-q1')
+    expect(post).toHaveBeenLastCalledWith('/mentor/mock-interview', expect.objectContaining({ request_id: 'iv-abc-q1' }), undefined)
+  })
+
   it('starts a new server conversation after "new conversation"', async () => {
     const send = vi.spyOn(mentorV2, 'sendMessage').mockResolvedValue(reply())
     const { result } = renderHook(() => useMentorV2({ base: { lessonId: '12' } }))

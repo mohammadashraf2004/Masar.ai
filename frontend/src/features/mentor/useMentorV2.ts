@@ -99,7 +99,9 @@ export function useMentorV2({ base = DEFAULT_CONTEXT, proactive = false }: Optio
 
   const append = useCallback((message: MentorMessageV2) => {
     update((prev) => [...prev, message])
-    setSpent((n) => n + (message.replayed ? 0 : message.creditCost))
+    // A replayed reply answers a send whose own response never arrived here (a timeout, a dropped
+    // connection), so its cost - charged once, by the server - has not been counted yet.
+    setSpent((n) => n + message.creditCost)
   }, [update])
 
   const call = useCallback(async (text: string, chosen: MentorIntent | null, requestId: string) => {

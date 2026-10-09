@@ -43,6 +43,7 @@ from app.models.user_tour import UserTour  # noqa: F401
 
 from app.models.mentor_evidence import MentorEvidence  # noqa: F401
 from app.models.mentor_translation import MentorQuizTranslation  # noqa: F401
+from app.models.mentor_request import MentorRequest  # noqa: F401
 from app.models.code_exercise import CodeExerciseAttempt  # noqa: F401
 from app.models.project_lab import (  # noqa: F401
     LabArtifact,

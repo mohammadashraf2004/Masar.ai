@@ -16,10 +16,11 @@ from sqlalchemy.orm import Session
 
 from app.core import security_log
 from app.models.challenge import ExamPayment
-from app.models.wallet import TransactionStatus, UserWallet, WalletTransaction
+from app.models.wallet import TransactionStatus, TransactionType, UserWallet, WalletTransaction
 from app.services.billing.course_billing import settle_course_notice
 from app.services.billing.subscriptions import settle_subscription_notice
 from app.services.payments.notice import PaymentNotice
+from app.services.wallet.credit_purchases import REFUND, ReversalRejected, reverse_purchase
 from app.services.wallet.wallet_service import confirm_pending_topup
 
 logger = logging.getLogger("app.payments")
@@ -82,6 +83,47 @@ def settle_wallet_topup(db: Session, notice: PaymentNotice) -> Optional[dict]:
     return {"status": "processed", "kind": "wallet_topup", "success": True}
 
 
+def settle_wallet_reversal(db: Session, notice: PaymentNotice) -> Optional[dict]:
+    """A verified refund/void of a credit purchase that was already paid: take the credits
+    back (see credit_purchases.reverse_purchase). Returns None for anything else, so the
+    notice falls through to the other kinds."""
+    if notice.kind != "reversal":
+        return None
+    tx = (
+        db.query(WalletTransaction)
+        .filter(WalletTransaction.payment_ref == notice.merchant_order_id,
+                WalletTransaction.transaction_type == TransactionType.topup)
+        .with_for_update()
+        .first()
+    )
+    if tx is None:
+        return None
+    ref = notice.merchant_order_id
+    wallet = db.query(UserWallet).filter(UserWallet.id == tx.wallet_id).one()
+    if not notice.event_id:
+        db.rollback()
+        raise ValueError("Missing provider transaction id")
+    # The reversal must come from the provider that took this order, for its own EGP session.
+    if tx.provider_order_id is None or not notice.binds(tx.provider_order_id):
+        db.rollback()
+        security_log.payment_event(kind="wallet_reversal_provider_order_mismatch", ref=ref, success=False, user_id=wallet.user_id)
+        return {"status": "rejected", "kind": "wallet_reversal", "success": False}
+    if notice.currency != "EGP":
+        db.rollback()
+        security_log.payment_event(kind="wallet_reversal_currency_mismatch", ref=ref, success=False, user_id=wallet.user_id)
+        return {"status": "rejected", "kind": "wallet_reversal", "success": False}
+    if not notice.success or notice.pending:
+        db.rollback()
+        return {"status": "processed", "kind": "wallet_reversal", "success": False}
+    try:
+        result = reverse_purchase(db, tx, amount_minor=notice.amount, event_id=notice.event_id, kind=REFUND)
+    except ReversalRejected as exc:
+        db.rollback()
+        security_log.payment_event(kind=f"wallet_reversal_{exc.code}", ref=ref, success=False, user_id=wallet.user_id)
+        return {"status": "rejected", "kind": "wallet_reversal", "success": False}
+    return {"status": result["status"], "kind": "wallet_reversal", "success": False}
+
+
 def settle_exam_payment(db: Session, notice: PaymentNotice) -> Optional[dict]:
     payment = (
         db.query(ExamPayment)
@@ -120,7 +162,8 @@ def settle_exam_payment(db: Session, notice: PaymentNotice) -> Optional[dict]:
 def settle_notice(db: Session, notice: PaymentNotice) -> dict:
     """Settle `notice` against the order it names. Raises ValueError for a notice
     that names a subscription or course order but carries no transaction id."""
-    for settle in (settle_subscription_notice, settle_course_notice, settle_wallet_topup, settle_exam_payment):
+    for settle in (settle_subscription_notice, settle_course_notice, settle_wallet_topup,
+                   settle_wallet_reversal, settle_exam_payment):
         result = settle(db, notice)
         if result is not None:
             return result

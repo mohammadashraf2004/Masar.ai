@@ -45,6 +45,34 @@ export interface AiAllowanceResponse {
   trial: boolean
 }
 
+/** The wallet as the server reports it. `purchased_credits` were bought (they never expire);
+ *  `included_credits` is the rest of the balance (signup and promo credits). */
+export interface WalletInfo {
+  credit_balance: number
+  lifetime_purchased?: number
+  lifetime_spent?: number
+  promo_credits_remaining?: number
+  promo_expires_at?: string | null
+  purchased_credits?: number
+  included_credits?: number
+}
+
+export type CreditPurchaseStatus =
+  | 'pending' | 'expired' | 'failed' | 'paid' | 'partially_refunded' | 'refunded' | 'chargeback'
+
+export interface CreditPurchase {
+  reference: string
+  package: string | null
+  package_code: string | null
+  credits: number
+  price: number | null
+  currency: string
+  status: CreditPurchaseStatus
+  credits_reversed: number
+  created_at: string | null
+  paid_at: string | null
+}
+
 export interface BillingCatalogApi {
   currency: string
   vat_rate: number
@@ -563,8 +591,14 @@ class ApiClient {
   // ─── Wallet ───────────────────────────────────────────────────────────
 
   async getWallet() {
-    const res = await this.http.get('/wallet/')
+    const res = await this.http.get<WalletInfo>('/wallet/')
     return res.data
+  }
+
+  /** The learner's credit purchases and where each stands. Server-recorded state only. */
+  async getCreditPurchases(limit = 30) {
+    const res = await this.http.get<{ orders: CreditPurchase[] }>('/wallet/purchases', { params: { limit } })
+    return res.data.orders
   }
 
   async getWalletTransactions(limit = 20) {
@@ -593,7 +627,7 @@ class ApiClient {
    * Kashier confirms payment, not by this call. */
   async initWalletTopUp(data: { package_id: number; method: 'card' | 'wallet'; phone_number?: string }) {
     const res = await this.http.post('/payments/wallet/topup/init', data)
-    return res.data as { checkout_url: string; merchant_order_id: string }
+    return res.data as { checkout_url: string; merchant_order_id: string; reference: string }
   }
 
  // ─── Challenges ───────────────────────────────────────────────────────
@@ -671,7 +705,12 @@ class ApiClient {
    * — only ever reflects what the server-side webhook has confirmed. */
   async getPaymentStatus(merchantOrderId: string) {
     const res = await this.http.get(`/payments/status/${merchantOrderId}`)
-    return res.data as { kind: 'wallet_topup' | 'exam_payment'; status: 'pending' | 'confirmed' | 'failed' }
+    return res.data as {
+      kind: 'wallet_topup' | 'exam_payment'
+      status: 'pending' | 'confirmed' | 'failed'
+      /** For a credit purchase: its learner-facing state and the credits it added. */
+      order?: CreditPurchase | null
+    }
   }
 
   async getChallengeHint(

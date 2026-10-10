@@ -11,6 +11,7 @@ import type { BillingCycle, Plan } from '@/lib/billing/types'
  * One plan. The card is not itself a button: its call to action is, stretched to cover the
  * card, so the whole card selects it while there is still exactly one control to tab to.
  * The current plan is shown but cannot be chosen (nothing is bought to stay on it).
+ * Free is informational too: ending Pro is a subscription action, never a zero-value order.
  */
 export function PlanCard({
   plan, currency, cycle, selected, current, onChoose,
@@ -24,6 +25,8 @@ export function PlanCard({
 }) {
   const { t, tf } = useI18n()
   const free = plan.monthly === 0
+  const selectable = !current && !free
+  const chosen = selectable && selected
   const price = cycle === 'yearly' ? plan.yearly : plan.monthly
   const { money, label: currencyName } = useMoney(currency)
   const name = t(`billing.plan.${plan.id}.name` as StringKey)
@@ -45,9 +48,9 @@ export function PlanCard({
     <article
       className={cn(
         'relative flex flex-col gap-3 rounded-xl border bg-surface p-[22px]',
-        selected ? 'border-amber' : 'border-border',
+        chosen ? 'border-amber' : 'border-border',
       )}
-      style={selected ? { boxShadow: '0 0 0 4px rgb(var(--acc) / var(--acc-soft-a))' } : undefined}
+      style={chosen ? { boxShadow: '0 0 0 4px rgb(var(--acc) / var(--acc-soft-a))' } : undefined}
     >
       <div className="flex items-center justify-between gap-2.5">
         <h3 className="text-lg font-bold text-white">{title}</h3>
@@ -80,19 +83,25 @@ export function PlanCard({
           stays in the tab order and reads at full strength instead of at a disabled 40%. */}
       <button
         type="button"
-        onClick={current ? undefined : onChoose}
-        aria-disabled={current || undefined}
-        aria-pressed={current ? undefined : selected}
+        onClick={selectable ? onChoose : undefined}
+        aria-disabled={!selectable || undefined}
+        aria-pressed={selectable ? chosen : undefined}
         className={cn(
-          buttonStyles({ variant: selected ? 'amber' : 'ghost', size: 'lg' }),
+          buttonStyles({ variant: chosen ? 'amber' : 'ghost', size: 'lg' }),
           'mt-auto h-11',
-          current
+          !selectable
             ? 'cursor-default text-ghost hover:border-border hover:bg-transparent hover:text-ghost'
             // the stretched hit area: the whole card, one control
             : "after:absolute after:inset-0 after:content-['']",
         )}
       >
-        {current ? t('billing.cta.current') : selected ? t('billing.cta.selected') : tf('billing.cta.choose', { name })}
+        {current
+          ? t('billing.cta.current')
+          : free
+            ? t('billing.cta.included')
+            : chosen
+              ? t('billing.cta.selected')
+              : tf('billing.cta.choose', { name })}
       </button>
     </article>
   )

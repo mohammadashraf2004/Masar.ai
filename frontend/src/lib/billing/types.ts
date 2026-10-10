@@ -73,6 +73,11 @@ export interface Plan {
 
 export interface CreditPack {
   id: string
+  /** Stable key from the server's catalogue ("starter", "standard", "plus", "power"). */
+  code?: string | null
+  name?: string
+  /** The one the catalogue recommends. */
+  popular?: boolean
   credits: number
   /** Extra credits given free with the pack. */
   bonus: number

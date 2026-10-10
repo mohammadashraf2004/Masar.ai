@@ -15,6 +15,7 @@ class TransactionType(str, enum.Enum):
     refund    = "refund"      # admin refund
     bonus     = "bonus"       # free credits granted
     expiry    = "expiry"      # promo credits removed after their window closed
+    reversal  = "reversal"    # purchased credits taken back after a refund or chargeback
 
 
 class TransactionStatus(str, enum.Enum):
@@ -51,6 +52,13 @@ class UserWallet(Base):
     # Server-set only: no request schema exposes either column, so a client
     # cannot extend its own promo or mint credits.
     promo_credits_remaining = Column(Integer, default=0, nullable=False, server_default="0")
+    # ─── Purchased credits ────────────────────────────────────────────────
+    # The part of credit_balance that was bought (always <= credit_balance).
+    # It never expires and survives every plan change. Spending draws on the
+    # rest of the balance (signup and promo credits) first and on this last;
+    # a Pro subscriber whose included allowance is used up can still spend it
+    # (and only it). Server-set only, like the promo columns.
+    purchased_credits       = Column(Integer, default=0, nullable=False, server_default="0")
     promo_expires_at        = Column(DateTime(timezone=True), nullable=True)
     is_active           = Column(Boolean, default=True)
     created_at          = Column(DateTime(timezone=True), server_default=func.now())
@@ -67,6 +75,10 @@ class WalletTransaction(Base):
         Index(
             "uq_wallet_transactions_provider_txn", "provider_transaction_id", unique=True,
             postgresql_where=text("provider_transaction_id IS NOT NULL"),
+        ),
+        Index(
+            "ix_wallet_transactions_request_key", "wallet_id", "request_key",
+            postgresql_where=text("request_key IS NOT NULL"),
         ),
     )
 
@@ -86,15 +98,31 @@ class WalletTransaction(Base):
     action_type      = Column(String, nullable=True)          # "mentor_chat", "code_review", etc.
     balance_after    = Column(Integer, nullable=False)        # snapshot for audit trail
     created_at       = Column(DateTime(timezone=True), server_default=func.now())
+    # ─── Purchase ledger links (migration 039) ────────────────────────────
+    package_id       = Column(Integer, nullable=True)         # which credit pack a top-up order bought
+    # How much of this row moved in (+) or out (-) of the wallet's purchased bucket: a
+    # confirmed top-up adds its credits, a deduction records what it took from purchased
+    # credits, a refund puts back what its deduction took, a reversal takes back what
+    # it could recover.
+    purchased_delta  = Column(Integer, nullable=False, default=0, server_default="0")
+    related_tx_id    = Column(Integer, nullable=True, index=True)   # the row a refund or reversal answers
+    reversed_credits = Column(Integer, nullable=False, default=0, server_default="0")  # of an order: credits reversed so far
+    settled_at       = Column(DateTime(timezone=True), nullable=True)  # when the payment was confirmed
+    request_key      = Column(String(160), nullable=True)     # Idempotency-Key a deduction was made under
 
     wallet = relationship("UserWallet", back_populates="transactions")
 
 
 class CreditPackage(Base):
     __tablename__ = "credit_packages"
+    __table_args__ = (Index("uq_credit_packages_code", "code", unique=True),)
 
     id           = Column(Integer, primary_key=True, index=True)
-    name         = Column(String, nullable=False)             # "Starter", "Standard", "Pro"
+    # Stable key ("starter", "standard", "plus", "power"); packs without one are the old
+    # seed's and are not sold. Prices live here and only here - a request never carries one.
+    code         = Column(String(32), nullable=True)
+    sort_order   = Column(Integer, nullable=False, default=0, server_default="0")
+    name         = Column(String, nullable=False)             # "Starter", "Standard", "Plus", "Power"
     credits      = Column(Integer, nullable=False)
     egp_price    = Column(Float, nullable=False)
     bonus_credits = Column(Integer, default=0)               # extra credits as promo

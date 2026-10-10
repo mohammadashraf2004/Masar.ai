@@ -217,6 +217,11 @@ class Settings(BaseSettings):
     # released, not counted - nothing was delivered. Well above the longest
     # request (gunicorn --timeout 60).
     PRO_AI_RESERVATION_TTL_SECONDS: int = 300
+    # Purchased credits are the one thing a Pro subscriber can still spend once the
+    # included allowance is used up. They carry their own safety limit so that path
+    # is not an unbounded way round the allowance: at most this many purchased
+    # credits per rolling 24 hours, whatever the balance.
+    PURCHASED_CREDITS_DAILY_LIMIT: int = 500
 
     # ─── CORS ─────────────────────────────────────────────────────────────
     FRONTEND_URL: str = "http://localhost:3000"

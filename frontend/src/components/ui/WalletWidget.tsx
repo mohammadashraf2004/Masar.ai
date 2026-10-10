@@ -365,7 +365,7 @@ export function WalletWidget() {
   const [showHistory, setShowHistory] = useState(false)
 
   const loadWallet = useCallback(() => {
-    api.getWallet().then(setWallet).catch(() => {})
+    api.getWallet().then((w) => setWallet(w as Wallet)).catch(() => {})
   }, [])
 
   useEffect(() => { loadWallet() }, [loadWallet])

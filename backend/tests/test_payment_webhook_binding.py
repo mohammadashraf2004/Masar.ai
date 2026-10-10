@@ -24,6 +24,7 @@ from app.models.user import User
 from app.models.wallet import PaymentMethod, TransactionStatus, TransactionType, UserWallet, WalletTransaction
 from app.services.payments import paymob_service
 from app.services.wallet.wallet_service import get_or_create_wallet
+from tests.kashier_fixtures import kashier  # noqa: F401
 
 SECRET = "binding-webhook-secret"
 
@@ -296,12 +297,7 @@ def _register(client):
     return body["user"]["id"], {"Authorization": f"Bearer {body['access_token']}"}
 
 
-def _fake_init(**kwargs):
-    return {"checkout_url": "https://accept.paymob.test/x", "paymob_order_id": _id()}
-
-
-def test_an_abandoned_checkout_stops_blocking_once_its_payment_key_expired(client, db, monkeypatch):
-    monkeypatch.setattr(paymob_service, "init_payment_minor", _fake_init)
+def test_an_abandoned_checkout_stops_blocking_once_its_payment_key_expired(client, db, kashier):
     user_id, headers = _register(client)
     user = db.get(User, user_id)
     body = {"plan": "pro", "billing_period": "monthly"}
@@ -317,8 +313,7 @@ def test_an_abandoned_checkout_stops_blocking_once_its_payment_key_expired(clien
     assert db.get(SubscriptionOrder, fresh.id).status == "cancelled"
 
 
-def test_a_checkout_whose_provider_call_never_finished_does_not_block(client, db, monkeypatch):
-    monkeypatch.setattr(paymob_service, "init_payment_minor", _fake_init)
+def test_a_checkout_whose_provider_call_never_finished_does_not_block(client, db, kashier):
     user_id, headers = _register(client)
     user = db.get(User, user_id)
     _subscription_order(db, user, provider_order=None,
@@ -328,11 +323,8 @@ def test_a_checkout_whose_provider_call_never_finished_does_not_block(client, db
     assert response.status_code == 200, response.text
 
 
-def test_an_unexpected_provider_error_fails_the_order_instead_of_leaving_it_pending(client, db, monkeypatch):
-    def broken(**kwargs):
-        raise KeyError("token")
-
-    monkeypatch.setattr(paymob_service, "init_payment_minor", broken)
+def test_an_unexpected_provider_error_fails_the_order_instead_of_leaving_it_pending(client, db, kashier):
+    kashier.create_fails = KeyError("token")
     user_id, headers = _register(client)
     response = client.post("/api/v1/billing/subscriptions/checkout",
                            json={"plan": "pro", "billing_period": "monthly"}, headers=headers)

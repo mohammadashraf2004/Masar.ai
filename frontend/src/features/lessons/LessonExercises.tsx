@@ -29,10 +29,10 @@ export function LessonExercises({
   return (
     <section aria-labelledby="lesson-practice-heading" className="max-w-[760px] space-y-5">
       <div className="space-y-1">
-        <h2 id="lesson-practice-heading" className="font-display text-xl font-bold text-bright">
+        <h2 id="lesson-practice-heading" className="ui-section-title">
           {t('lessons.practiceExercises')}
         </h2>
-        <p className="text-sm text-soft">{t('lessons.practiceDescription')}</p>
+        <p className="ui-description">{t('lessons.practiceDescription')}</p>
       </div>
 
       {exercises.map((exercise, offset) => (

@@ -9,14 +9,14 @@ from app.db.session import get_db
 from app.models.user import User
 from app.services.mentor import learner_state
 from app.services.mentor.observability import mentor_event
-from app.services.mentor.v2.context import context_reference
+from app.services.mentor.v2.context import ENROLLED_COURSES, context_reference, enrolled_course
 from app.services.mentor.v2.plan import weekly_plan
 from app.services.mentor.v2.message import is_live, scoped_session
 from app.models.learning import Lesson
 from app.services.billing.access_service import require_lesson_access
 from app.services.mentor.v2.message import send_message
 from app.services.mentor.v2.quiz import answer_quiz, block_for_reference
-from app.views.mentor_v2 import MentorContextOut, MentorMessageIn, MentorMessageOut, QuizAnswerIn, QuizAnswerOut
+from app.views.mentor_v2 import MentorContextOut, MentorCoursesOut, MentorMessageIn, MentorMessageOut, QuizAnswerIn, QuizAnswerOut
 
 router = APIRouter(prefix="/mentor", tags=["AI Mentor"])
 
@@ -25,13 +25,31 @@ router = APIRouter(prefix="/mentor", tags=["AI Mentor"])
 def mentor_context(
     lesson_id: str | None = Query(None, alias="lessonId", pattern=r"^\d{1,9}$"),
     exercise_id: str | None = Query(None, alias="exerciseId", pattern=r"^\d{1,9}$"),
+    course_id: str | None = Query(None, alias="courseId", max_length=120),
     language: str = Query("ar", pattern="^(ar|en)$"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     return context_reference(
-        db, current_user.id, lesson_id=lesson_id, exercise_id=exercise_id, language=language,
+        db, current_user.id, lesson_id=lesson_id, exercise_id=exercise_id, course_id=course_id, language=language,
     )
+
+
+@router.get("/courses", response_model=MentorCoursesOut)
+@limiter.limit("60/minute")
+def mentor_courses(
+    request: Request,
+    language: str = Query("ar", pattern="^(ar|en)$"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """The courses the learner is enrolled in - what the hub's course picker offers - most
+    recently active first. Free: no model is called."""
+    states = learner_state.enrolled_courses(db, current_user.id, language, limit=ENROLLED_COURSES)
+    return {"courses": [
+        {"courseId": state.course.slug, "title": state.title, "lessonsDone": state.done, "lessonsTotal": len(state.lessons)}
+        for state in states
+    ]}
 
 
 @router.post("/message", response_model=MentorMessageOut)
@@ -137,18 +155,24 @@ def mentor_learner(
 def mentor_thread(
     request: Request,
     lesson_id: str | None = Query(None, alias="lessonId", pattern=r"^\d{1,9}$"),
+    course_id: str | None = Query(None, alias="courseId", max_length=120),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """The conversation the mentor is continuing in this scope (the lesson, or general) - the
-    same turns it sends the model as history - so another device shows what the mentor
-    remembers. Only this learner's own sessions, only lessons they may open. Free."""
+    """The conversation the mentor is continuing in this scope (the lesson, the chosen course, or
+    general) - the same turns it sends the model as history - so another device shows what the
+    mentor remembers. Only this learner's own sessions, only lessons they may open and courses
+    they are enrolled in. Free."""
     if lesson_id:
         lesson = db.query(Lesson).filter(Lesson.id == int(lesson_id)).first()
         if lesson is None:
             raise HTTPException(status_code=404, detail="Lesson not found")
         require_lesson_access(db, current_user.id, lesson)
-    key = f"lesson:{int(lesson_id)}" if lesson_id else "general"
+        key = f"lesson:{int(lesson_id)}"
+    elif course_id:
+        key = f"course:{enrolled_course(db, current_user.id, course_id).slug}"
+    else:
+        key = "general"
     session = scoped_session(db, current_user.id, key)
     if session is None or not is_live(session, datetime.now(timezone.utc)):
         return {"messages": []}

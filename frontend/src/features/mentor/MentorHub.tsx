@@ -8,26 +8,40 @@ import { Spinner } from '@/components/ui/index'
 import { useAuth } from '@/hooks/useAuth'
 import { useI18n, useMentorV2I18n, type MentorV2Key } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
-import { CodeReview } from './CodeReview'
 import { api } from '@/lib/api'
-import type { MentorContextSelection } from './types'
+import type { MentorContextSelection, MentorCourseOption } from './types'
+import { wholeCourse } from './context'
 import { InterviewMode } from './InterviewTab'
+import { mockInterviewAvailable } from './flag'
 import { MentorChat } from './MentorChat'
 import { StudyPlan } from './StudyPlan'
 
-export const TABS = ['chat', 'review', 'plan', 'interview'] as const
+/** "General" in the course picker: the mentor sees no course and no lesson. */
+const NOTHING_ATTACHED: MentorContextSelection = {}
+
+export const TABS = ['chat', 'plan', 'interview'] as const
 export type MentorTab = (typeof TABS)[number]
 
-/** `?tab=` wins; the old `?mode=interview` link still lands on the interview. */
+/** `?tab=` wins; the old `?mode=interview` link still lands on the interview. An unknown tab (the
+ * removed `?tab=review` included) opens the chat. */
 export function tabFromParams(params: { get(name: string): string | null }): MentorTab {
   const tab = params.get('tab')
   if ((TABS as readonly string[]).includes(tab ?? '')) return tab as MentorTab
   return params.get('mode') === 'interview' ? 'interview' : 'chat'
 }
 
+/** The "Soon" tag on a tab whose feature is not open yet. */
+export function SoonPill({ label }: { label: string }) {
+  return (
+    <span className="ms-1.5 rounded-full border border-border bg-muted/40 px-1.5 py-px text-[10px] font-medium text-ghost">
+      {label}
+    </span>
+  )
+}
+
 /**
- * The mentor hub (Mentor v2 §2): four tabs, kept in `?tab=`. Chat, code review and the weekly plan are
- * the new ones; the interview tab is the existing mock interview, unchanged.
+ * The mentor hub (Mentor v2 §2): three tabs, kept in `?tab=`. Chat and the weekly plan are the new
+ * ones; the interview tab is the existing mock interview, unchanged.
  */
 export function MentorHub() {
   const { isLoading } = useAuth()
@@ -38,21 +52,41 @@ export function MentorHub() {
   const params = useSearchParams()
   const tab = tabFromParams(params)
 
-  // The lesson the mentor starts from: the server's last-active one, or the ids a link carries
-  // (the exercise's "ask for a review" button opens `?tab=review&exerciseId=…`).
+  // The course the mentor talks about: the one a lesson link (`?lessonId=` / `?exerciseId=`) belongs
+  // to, the one chosen in the picker (`?courseId=slug`; an empty `?courseId=` is "General"), else the
+  // server's default - the learner's most active course. Always the whole course: the lesson the
+  // server resolves is only how it finds the course, and is not attached.
   const lessonId = params.get('lessonId') ?? undefined
   const exerciseId = params.get('exerciseId') ?? undefined
-  const requested = useMemo(() => ({ lessonId, exerciseId }), [lessonId, exerciseId])
+  const courseParam = params.get('courseId')
+  const general = courseParam === '' && !lessonId && !exerciseId
+  const requested = useMemo(
+    () => (lessonId || exerciseId ? { lessonId, exerciseId } : { courseId: courseParam || undefined }),
+    [lessonId, exerciseId, courseParam],
+  )
   const [base, setBase] = useState<MentorContextSelection>({})
+  const [courses, setCourses] = useState<MentorCourseOption[] | undefined>(undefined)
+
+  useEffect(() => {
+    if (isLoading || general) return
+    let stale = false
+    api.getMentorV2Context(requested, language)
+      .then((context) => { if (!stale) setBase(wholeCourse(context)) })
+      .catch(() => { if (!stale) setBase({}) })
+    return () => { stale = true }
+  }, [isLoading, requested, general, language])
 
   useEffect(() => {
     if (isLoading) return
     let stale = false
-    api.getMentorV2Context(requested, language)
-      .then((context) => { if (!stale) setBase(context) })
-      .catch(() => { if (!stale) setBase({}) })
+    // No picker when the list cannot be read: never an empty "enrol in a course" that is not true.
+    api.getMentorCourses(language)
+      .then((list) => { if (!stale) setCourses(list) })
+      .catch(() => { if (!stale) setCourses(undefined) })
     return () => { stale = true }
-  }, [isLoading, requested, language])
+  }, [isLoading, language])
+
+  const attached = general ? NOTHING_ATTACHED : base
 
   if (isLoading) {
     return <div className="flex min-h-dvh items-center justify-center bg-void"><Spinner announce className="h-6 w-6" /></div>
@@ -61,10 +95,18 @@ export function MentorHub() {
   function go(next: MentorTab) {
     const query = new URLSearchParams()
     if (next !== 'chat') query.set('tab', next)
-    if (next === 'review' && exerciseId) query.set('exerciseId', exerciseId)
     if (lessonId) query.set('lessonId', lessonId)
+    if (courseParam !== null) query.set('courseId', courseParam)
     const qs = query.toString()
     router.replace(qs ? `/mentor?${qs}` : '/mentor', { scroll: false })
+  }
+
+  /** The picker: a course the learner is enrolled in (its next lesson attached), or general. */
+  function selectCourse(courseId: string | null) {
+    const query = new URLSearchParams()
+    if (tab !== 'chat') query.set('tab', tab)
+    query.set('courseId', courseId ?? '')
+    router.replace(`/mentor?${query.toString()}`, { scroll: false })
   }
 
   return (
@@ -77,6 +119,7 @@ export function MentorHub() {
           <div
             role="group"
             aria-label={t('mentor.v2.tabs.label')}
+            data-tour="mentor-tabs"
             className="flex max-w-full flex-none gap-1 overflow-x-auto rounded-[10px] border border-border bg-surface p-1 [scrollbar-width:none]"
           >
             {TABS.map((value) => (
@@ -93,6 +136,7 @@ export function MentorHub() {
                 )}
               >
                 {t(`mentor.v2.tabs.${value}` as MentorV2Key)}
+                {value === 'interview' && !mockInterviewAvailable() && <SoonPill label={tOld('interview.soon.badge')} />}
               </button>
             ))}
           </div>
@@ -100,8 +144,14 @@ export function MentorHub() {
       />
       <PageBody footer={false}>
         <div className="flex flex-wrap items-start gap-5">
-          {tab === 'chat' && <MentorChat key={`${base.courseId ?? ''}:${base.lessonId ?? ''}:${base.exerciseId ?? ''}`} base={base} />}
-          {tab === 'review' && <div className="w-full"><CodeReview key={exerciseId ?? 'default'} exerciseId={exerciseId} /></div>}
+          {tab === 'chat' && (
+            <MentorChat
+              key={attached.courseId ?? ''}
+              base={attached}
+              courses={courses}
+              onSelectCourse={selectCourse}
+            />
+          )}
           {tab === 'plan' && <div className="w-full"><StudyPlan /></div>}
           {tab === 'interview' && <InterviewMode />}
         </div>

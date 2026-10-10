@@ -69,7 +69,7 @@ export function StudyPlan({ now = new Date() }: { now?: Date }) {
     return (
       <Card className="flex flex-col items-start gap-3 p-6" data-testid="plan-empty">
         <p dir="auto" className="text-sm leading-relaxed text-bright">{t('mentor.v2.plan.empty')}</p>
-        <Link href="/learn" className={buttonStyles({ size: 'sm' })}>{t('mentor.v2.plan.browse')}</Link>
+        <Link href="/explore" className={buttonStyles({ size: 'sm' })}>{t('mentor.v2.plan.browse')}</Link>
       </Card>
     )
   }
@@ -128,7 +128,7 @@ export function StudyPlan({ now = new Date() }: { now?: Date }) {
                   href={planBlockHref(block)}
                   className="flex min-h-[44px] flex-col gap-1 rounded-lg bg-panel p-2.5 hover:bg-panel/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
                 >
-                  <span className="flex items-center justify-between gap-2 text-[11px]">
+                  <span className="flex items-center justify-between gap-2 text-xs">
                     <span className={cn('font-semibold', TYPE_TONE[block.type])}>{t(`mentor.v2.plan.type.${block.type}` as MentorV2Key)}</span>
                     <span dir="ltr" className="font-mono text-ghost">{tf('mentor.v2.plan.minutes', { n: block.minutes })}</span>
                   </span>
@@ -143,7 +143,7 @@ export function StudyPlan({ now = new Date() }: { now?: Date }) {
       </ul>
 
       <Card className="flex flex-col gap-3 p-5">
-        <h2 className="text-sm font-semibold text-white">{t('mentor.v2.plan.why')}</h2>
+        <h2 className="ui-card-title">{t('mentor.v2.plan.why')}</h2>
         <ol className="flex flex-col gap-2.5">
           {plan.reasons.map((reason, i) => (
             <li key={reason} className="flex gap-2.5 text-[13px] leading-[1.7] text-bright">

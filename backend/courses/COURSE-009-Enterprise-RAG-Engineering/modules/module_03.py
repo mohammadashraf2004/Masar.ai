@@ -1757,10 +1757,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Diagnose which scaling dimension is causing each symptom in a '
                                'hypothetical RAG deployment.',
-                'instructions': '1. Review the lesson section on scale diagnosis.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Use these symptoms from one RAG deployment: (a) nightly re-indexing no longer finishes before morning; (b) p95 query latency doubles at lunchtime while off-peak latency is fine; (c) answers about policies added last week are missing; (d) the monthly bill grows faster than usage.\n'
+                                '2. For each symptom, name the scaling dimension it points to - corpus size, query volume, freshness, or cost.\n'
+                                '3. Write the first measurement you would take to confirm each diagnosis.\n'
+                                '4. Propose one remedy per symptom and the trade-off it introduces.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1773,11 +1773,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Design a refresh workflow for new, updated, and deleted documents '
                                'without full reindexing.',
-                'instructions': '1. Review the lesson section on design an incremental refresh '
-                                'plan.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Define how a changed document is detected (for example a content hash or modified timestamp) and the stable document ID you key it by.\n'
+                                '2. Describe what happens to the index for a new document, an updated document, and a deleted document.\n'
+                                '3. Explain how old chunks of an updated document are removed so stale text cannot be retrieved.\n'
+                                '4. State how you would verify after each run that the index matches the source, and when a full rebuild is still justified.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1790,10 +1789,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Classify costs into corpus-driven, query-driven, and operational '
                                'categories and identify the likely dominant recurring cost.',
-                'instructions': '1. Review the lesson section on build a rag cost model.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. List at least eight cost items of a RAG service (for example parsing, embedding the corpus, vector storage, query embedding, reranking, LLM generation, monitoring, on-call).\n'
+                                '2. Label each item corpus-driven, query-driven, or operational.\n'
+                                "3. Write the variable that drives each item's cost (documents, chunks, queries per day, tokens per answer, hours).\n"
+                                '4. Identify the item most likely to dominate the recurring bill at high query volume, and one lever that reduces it.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1806,10 +1805,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Design stable IDs and retry semantics that prevent duplicate '
                                'chunks after task retries.',
-                'instructions': '1. Review the lesson section on make ingestion restartable.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Define a deterministic chunk ID built from stable inputs (for example document ID, version and chunk position) instead of a random UUID.\n'
+                                '2. Explain why writing chunks as upserts keyed by that ID makes a retried task safe.\n'
+                                '3. Describe what happens when a task fails halfway through a document and is retried.\n'
+                                '4. Add one check that would detect duplicate chunks if they ever appear.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1822,10 +1821,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Given mixed native PDFs, scans, HTML, and corrupted encodings, '
                                'design a triage and cleaning decision tree.',
-                'instructions': '1. Review the lesson section on route dirty documents.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Write the first check that separates the four inputs: native PDF, scanned PDF, HTML, and text with a corrupted encoding.\n'
+                                '2. For each branch, name the extraction or cleaning step (text extraction, OCR, HTML boilerplate removal, encoding repair).\n'
+                                '3. Define a quality gate after extraction (for example the share of readable characters) and what happens when a document fails it.\n'
+                                '4. Explain why a document should be quarantined rather than indexed when cleaning fails.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1838,10 +1837,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Design a streamed ingestion plan that bounds memory while '
                                'preserving cross-page structures.',
-                'instructions': '1. Review the lesson section on process a giant document safely.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Describe how you read a 5,000-page document in bounded page windows instead of loading it whole.\n'
+                                '2. Explain how a table or section that spans two windows is kept together (for example overlapping windows or carrying an open section forward).\n'
+                                '3. State the memory limit you would enforce and what the pipeline does when a single page exceeds it.\n'
+                                '4. Explain how progress is checkpointed so a crash resumes from the last finished window.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1854,10 +1853,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Separate upload acknowledgement from background indexing and '
                                'define observable state transitions.',
-                'instructions': '1. Review the lesson section on design near-real-time indexing.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Split the upload request from the indexing work: what the API returns immediately, and what is placed on a queue.\n'
+                                '2. Define the document states (for example uploaded, parsing, embedding, indexed, failed) and what moves a document between them.\n'
+                                '3. Explain how the user or client sees the current state without waiting on the upload request.\n'
+                                '4. Define what happens on failure and how long a document may stay in each state before an alert fires.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1870,11 +1869,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Explain why stage 1 should favor recall and stage 2 should favor '
                                'precision, then select evaluation metrics.',
-                'instructions': '1. Review the lesson section on choose stage-1 and stage-2 '
-                                'goals.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Explain what stage 1 (candidate retrieval) is optimizing and why a missed document there can never be recovered later.\n'
+                                '2. Explain what stage 2 (reranking) is optimizing and why it can afford a slower model.\n'
+                                '3. Choose one metric for each stage (for example recall@100 for stage 1 and nDCG@5 or precision@5 for stage 2).\n'
+                                '4. State how many candidates stage 1 passes on and the trade-off of making that number larger.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1887,11 +1885,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Classify example queries by which retrieval mode they need and '
                                'justify the choice.',
-                'instructions': '1. Review the lesson section on choose semantic, lexical, or '
-                                'hybrid.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': "1. Classify these queries as semantic, lexical, or hybrid: (a) 'error code E-4021'; (b) 'how do I calm an angry customer?'; (c) 'refund policy for SKU 88-B'; (d) 'what is our stance on remote work?'; (e) 'invoice INV-2024-117 late fee'.\n"
+                                '2. For each, name the part of the query that exact matching handles and the part that meaning-based matching handles.\n'
+                                '3. Explain the failure you would expect if only semantic search were used for (a).\n'
+                                '4. State when hybrid retrieval is worth its extra complexity.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1904,10 +1901,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Compute a small rank-fusion example and explain why rank-based '
                                'fusion avoids raw-score incompatibility.',
-                'instructions': '1. Review the lesson section on fuse two ranked lists with rrf.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Lexical ranking: D1, D2, D3, D4. Semantic ranking: D3, D1, D5, D2.\n'
+                                '2. Compute the RRF score of every document with k = 60: score = sum of 1 / (60 + rank) over the lists that contain it.\n'
+                                '3. Write the fused ranking from highest to lowest score.\n'
+                                '4. Explain why fusing ranks avoids comparing a BM25 score with a cosine similarity directly.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1920,10 +1917,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Reorder a candidate set so the direct answer outranks merely '
                                'topic-related chunks.',
-                'instructions': '1. Review the lesson section on rerank noisy candidates.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': "1. Query: 'How many vacation days do new employees get?' Candidates: (A) the history of the vacation policy; (B) 'New employees receive 15 vacation days per year.'; (C) how to request vacation in the HR portal; (D) the company holiday calendar.\n"
+                                '2. Rank the four candidates from most to least useful for answering the question.\n'
+                                '3. Explain what a cross-encoder reranker sees that the first-stage embedding similarity does not.\n'
+                                '4. State which candidates should reach the generator and why passing all four could hurt the answer.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1936,10 +1933,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Choose between pure relevance and diversity-oriented selection for '
                                'two different RAG tasks.',
-                'instructions': '1. Review the lesson section on balance relevance and diversity.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': "1. Task A: answer a precise question such as 'What is the refund window?'. Task B: summarize 'all known risks of the migration'.\n"
+                                '2. Choose pure relevance ranking or a diversity-aware method such as MMR for each task.\n'
+                                '3. Explain what goes wrong in Task B when the top five chunks repeat the same risk.\n'
+                                '4. Explain how the MMR lambda setting shifts the balance between relevance and diversity.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1952,10 +1949,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Place validation, retrieval filtering, generation constraints, and '
                                'output auditing in a query pipeline.',
-                'instructions': '1. Review the lesson section on design layered guardrails.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Draw the query pipeline: input, retrieval, generation, output.\n'
+                                '2. Place one guardrail at each point: input validation, retrieval filtering, generation constraints, output auditing.\n'
+                                '3. For each guardrail, name the specific failure it stops (for example injection text, unauthorized chunks, unsupported claims, sensitive data in the answer).\n'
+                                '4. Explain why a single guardrail at the output is not enough.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1968,10 +1965,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Identify direct and indirect injection paths in a RAG application '
                                'and propose non-destructive mitigations.',
-                'instructions': '1. Review the lesson section on threat-model prompt injection.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Identify one direct injection path (text the user types) and two indirect paths (text hidden in indexed documents or tool results).\n'
+                                '2. For each path, describe what the injected text tries to make the model do.\n'
+                                '3. Propose a mitigation for each that does not delete or alter the source documents (for example marking retrieved text as data, isolating instructions, filtering at retrieval, limiting tool permissions).\n'
+                                '4. State how you would test that the mitigations work.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -1984,11 +1981,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Given three bad answers, decide whether the root cause is '
                                'retrieval, data quality, or generation.',
-                'instructions': '1. Review the lesson section on trace a hallucination to its '
-                                'layer.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': "1. Answer 1 cites a 2021 price list although a 2024 list exists in the corpus. Answer 2 says 'no information found' although the right document exists. Answer 3 cites the right chunk but states a number that chunk does not contain.\n"
+                                '2. For each answer, decide whether the root cause is data quality, retrieval, or generation.\n'
+                                '3. Name the evidence you would inspect to confirm each diagnosis.\n'
+                                '4. Propose one fix per answer at the layer where the failure started.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -2001,10 +1997,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Define when to return, warn, regenerate, correct, or refuse based '
                                'on faithfulness risk.',
-                'instructions': '1. Review the lesson section on design a correction policy.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Define three faithfulness-risk levels (low, medium, high) and the signal you use to measure them.\n'
+                                '2. Assign one action to each level: return, warn, regenerate, correct, or refuse.\n'
+                                '3. Explain when correcting an answer is better than refusing it, and when it is not.\n'
+                                '4. State what is logged for every warned, corrected, or refused answer.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -2017,11 +2013,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Sketch a response layout that combines answer, citations, '
                                'provenance, and confidence without overwhelming the user.',
-                'instructions': '1. Review the lesson section on design an evidence-first answer '
-                                'card.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Sketch the card: where the answer goes and where citations, source dates, and a confidence signal appear.\n'
+                                '2. Decide what is visible immediately and what is one click away (for example full source passages).\n'
+                                '3. Show how each claim links to the passage that supports it.\n'
+                                '4. Explain how the card looks when evidence is weak or missing.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -2034,11 +2029,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Define what backend fields should be saved when a user marks a RAG '
                                'answer as unhelpful.',
-                'instructions': '1. Review the lesson section on turn feedback into evaluation '
-                                'data.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. List the fields to save when a user marks an answer unhelpful: query, rewritten query, retrieved chunk IDs and scores, prompt and model version, answer, user reason, and timestamp.\n'
+                                '2. Mark which fields need redaction or access control before storage.\n'
+                                '3. Explain how a saved record becomes a test case in the evaluation set.\n'
+                                '4. Describe how you would keep one noisy user from distorting the evaluation data.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',
@@ -2051,10 +2045,10 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'placement': 'after_section',
                 'description': 'Draw an end-to-end architecture for a high-volume RAG service and '
                                'justify each major stage.',
-                'instructions': '1. Review the lesson section on architect a production rag path.\n'
-                                '2. Apply the concept to the scenario described in the exercise.\n'
-                                '3. State the design choice or result clearly.\n'
-                                '4. Explain the trade-off or failure mode your choice addresses.',
+                'instructions': '1. Draw the path from user request to answer: query processing, retrieval, reranking, generation, guardrails, response.\n'
+                                '2. Add the offline side: ingestion, indexing, and evaluation.\n'
+                                '3. For each major stage, write one sentence justifying why it exists at high volume.\n'
+                                '4. Mark where caching, monitoring, and access control sit in the diagram.',
                 'expected_output': 'A concise design, table, calculation, diagram, or written '
                                    'analysis that applies the section concept and justifies the '
                                    'reasoning.',

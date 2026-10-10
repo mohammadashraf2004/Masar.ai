@@ -31,7 +31,7 @@ export function SubmissionPanel({ submission, submitting, failed, onSubmit, summ
   return (
     <section aria-labelledby="lab-submission-heading" data-testid="lab-submission"
       className="rounded-lg border border-emerald/30 bg-emerald/5 p-3">
-      <h2 id="lab-submission-heading" className="flex items-center gap-2 text-sm font-semibold text-bright">
+      <h2 id="lab-submission-heading" className="ui-card-title flex items-center gap-2">
         <Award size={16} aria-hidden="true" className="shrink-0 text-emerald" />
         {submittedOn ? t('lab.submit.doneTitle') : t('lab.submit.title')}
       </h2>

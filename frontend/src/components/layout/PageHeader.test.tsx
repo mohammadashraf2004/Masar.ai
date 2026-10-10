@@ -59,6 +59,12 @@ describe('PageHeader', () => {
     expect(sub.className).not.toMatch(/truncate/)
   })
 
+  it('uses the shared page-title and description typography roles', () => {
+    render(<PageHeader title="Career tracks" subtitle="Choose a path." />)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveClass('ui-page-title')
+    expect(screen.getByText('Choose a path.')).toHaveClass('ui-description')
+  })
+
   // The header and the content under it share ONE container, so the title's edge is the
   // content's edge at every width (they used to differ on /tracks, /tools and /learn).
   describe('contained', () => {

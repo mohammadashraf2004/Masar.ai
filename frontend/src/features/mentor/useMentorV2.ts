@@ -8,11 +8,11 @@ import { exerciseDraft } from './draft'
 import { mentorV2Live } from './flag'
 import { loadThread, saveThread, scopeOf } from './threadStore'
 import { NEEDS_NO_TEXT } from './ActionChips'
-import type { MentorContextRef, MentorIntent, MentorMessageV2 } from './types'
+import type { MentorContextRef, MentorContextSelection, MentorIntent, MentorMessageV2 } from './types'
 
 interface Options {
   /** The lesson/exercise the conversation starts from (the server's "last active"). */
-  base?: MentorContextRef
+  base?: MentorContextSelection
   /** Fetch the proactive card on arrival (the hub does; the lesson panel does not). */
   proactive?: boolean
 }
@@ -75,12 +75,12 @@ export function useMentorV2({ base = DEFAULT_CONTEXT, proactive = false }: Optio
   useEffect(() => {
     if (!mentorV2Live() || loadThread(scope).length > 0) return
     let alive = true
-    api.getMentorThread(context.lessonId).then((server) => {
+    api.getMentorThread(context.lessonId, context.courseId).then((server) => {
       if (!alive || server.length === 0) return
       setThread((prev) => (prev.scope === scope && prev.messages.length > 0 ? prev : { scope, messages: server }))
     }, () => { /* nothing to show: the thread starts empty */ })
     return () => { alive = false }
-  }, [scope, context.lessonId])
+  }, [scope, context.lessonId, context.courseId])
 
   const update = useCallback((change: (prev: MentorMessageV2[]) => MentorMessageV2[]) => {
     setThread((prev) => (prev.scope === scope ? { scope, messages: change(prev.messages) } : { scope, messages: change(loadThread(scope)) }))
@@ -99,7 +99,9 @@ export function useMentorV2({ base = DEFAULT_CONTEXT, proactive = false }: Optio
 
   const append = useCallback((message: MentorMessageV2) => {
     update((prev) => [...prev, message])
-    setSpent((n) => n + (message.replayed ? 0 : message.creditCost))
+    // A replayed reply answers a send whose own response never arrived here (a timeout, a dropped
+    // connection), so its cost - charged once, by the server - has not been counted yet.
+    setSpent((n) => n + message.creditCost)
   }, [update])
 
   const call = useCallback(async (text: string, chosen: MentorIntent | null, requestId: string) => {

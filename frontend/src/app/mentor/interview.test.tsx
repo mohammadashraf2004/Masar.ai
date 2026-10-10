@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import MentorPage from '@/app/mentor/page'
@@ -19,6 +19,7 @@ vi.mock('@/hooks/useAuth', () => ({
     isAuthenticated: true,
     isLoading: false,
   }),
+  useNextParam: () => null,
 }))
 vi.mock('@/components/layout/AppShell', async () => {
   const { createElement } = await import('react')
@@ -86,6 +87,8 @@ class FakeRecognition {
 }
 
 beforeEach(() => {
+  // The interview itself: until it opens, learners get "coming soon" (the last describe).
+  vi.stubEnv('NEXT_PUBLIC_MOCK_INTERVIEW', '1')
   Element.prototype.scrollTo = vi.fn()
   vi.mocked(api.getMentorSessions).mockResolvedValue([])
   listTracks.mockResolvedValue([
@@ -108,7 +111,8 @@ describe('the stage', () => {
     await renderStage()
     expect(await screen.findByRole('heading', { level: 2, name: 'What is retrieval-augmented generation?' })).toBeInTheDocument()
     // The interview's own language goes with the request; the server adds what the learner studied.
-    expect(nextQuestion).toHaveBeenCalledWith('AI Developer technical concepts', 'intermediate', [], 'en')
+    // The turn's id goes too: a retry of the same turn is answered and charged once.
+    expect(nextQuestion).toHaveBeenCalledWith('AI Developer technical concepts', 'intermediate', [], 'en', 'iv-iv1-q1')
     expect(screen.getByText('AI Developer')).toHaveAttribute('dir', 'ltr')
     expect(screen.getByText('Technical')).toBeInTheDocument()
     expect(screen.getByText('Question 1 of 2')).toBeInTheDocument()
@@ -144,7 +148,7 @@ describe('the stage', () => {
     expect(screen.getByText('Question 2 of 2')).toBeInTheDocument()
     expect(nextQuestion).toHaveBeenLastCalledWith('AI Developer technical concepts', 'intermediate', [
       { question: 'First?', answer: 'It retrieves documents first. Then it generates from them. We cut errors by 30 percent.' },
-    ], 'en')
+    ], 'en', 'iv-iv1-q2')
     // The panel: a score out of 10, the three bars, and the note.
     await screen.findByText(STRINGS.en['interview.dim.accuracy'])
     expect(screen.getAllByRole('meter')).toHaveLength(3)
@@ -162,7 +166,7 @@ describe('the stage', () => {
     await user.click(await screen.findByRole('button', { name: STRINGS.en['interview.skip'] }))
     expect(await screen.findByText('Second?')).toBeInTheDocument()
     expect(interviewStore.get('iv1')?.questions[0]).toMatchObject({ skipped: true, answer: '', score: null })
-    expect(nextQuestion).toHaveBeenLastCalledWith(expect.any(String), 'intermediate', [{ question: 'First?', answer: '' }], 'en')
+    expect(nextQuestion).toHaveBeenLastCalledWith(expect.any(String), 'intermediate', [{ question: 'First?', answer: '' }], 'en', 'iv-iv1-q2')
   })
 
   it('finishing the last question ends the interview once its score is in, and opens the report', async () => {
@@ -205,6 +209,8 @@ describe('the stage', () => {
     await user.click(screen.getByRole('button', { name: STRINGS.en['common.retry'] }))
     expect(await screen.findByText('Now it works?')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    // The retry is the same turn: same request id, so the server can never charge it twice.
+    expect(nextQuestion.mock.calls.map((call) => call[4])).toEqual(['iv-iv1-q1', 'iv-iv1-q1'])
   })
 
   it('ending asks first, then ends with what was answered and opens the report', async () => {
@@ -635,5 +641,31 @@ describe('the interview loading state, from the handoff', () => {
     const bar = await screen.findByTestId('mentor-upsell')
     expect(within(bar).getByText(STRINGS.en['interview.upsell.credits.body'])).toBeInTheDocument()
     expect(within(bar).getByRole('link', { name: STRINGS.en['mentor.upsell.credits.cta'] })).toHaveAttribute('href', '/billing')
+  })
+})
+
+describe('before the mock interview opens', () => {
+  beforeEach(() => vi.stubEnv('NEXT_PUBLIC_MOCK_INTERVIEW', ''))
+
+  it('the tab says coming soon, offers no way to start, and starts nothing', async () => {
+    seed({}, false)
+    await renderStage()
+    expect(screen.getByTestId('interview-coming-soon')).toHaveTextContent(STRINGS.en['interview.soon.title'])
+    expect(screen.queryByRole('link', { name: STRINGS.en['interview.report.new'] })).not.toBeInTheDocument()
+    expect(screen.queryByText(STRINGS.en['interview.none.title'])).not.toBeInTheDocument()
+    expect(api.getMockInterviewQuestion).not.toHaveBeenCalled()
+  })
+
+  it('a link to the setup or a report lands on the same notice, with the way back', async () => {
+    await act(async () => { render(<SetupPage />) })
+    expect(screen.getByTestId('interview-coming-soon')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: STRINGS.en['interview.report.back'] })).toHaveAttribute('href', '/mentor')
+    expect(screen.queryByRole('button', { name: STRINGS.en['interview.start'] })).not.toBeInTheDocument()
+    expect(listTracks).not.toHaveBeenCalled()
+    cleanup()
+
+    setParams({ id: 'iv1' })
+    await act(async () => { render(<ReportPage />) })
+    expect(screen.getByTestId('interview-coming-soon')).toBeInTheDocument()
   })
 })

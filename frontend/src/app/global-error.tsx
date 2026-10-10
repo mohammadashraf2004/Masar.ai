@@ -35,7 +35,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
             500
           </p>
           <div className="max-w-md space-y-3">
-            <h1 className="text-2xl font-bold text-white">حدث خطأ ما</h1>
+            <h1 className="ui-section-title">حدث خطأ ما</h1>
             <p className="text-sm leading-relaxed text-dim">تعذّر تحميل مسار. حاول مرة أخرى بعد قليل.</p>
             <p dir="ltr" lang="en" className="text-sm leading-relaxed text-dim">
               Something went wrong. Please try again in a moment.

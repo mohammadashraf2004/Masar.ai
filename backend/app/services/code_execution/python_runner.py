@@ -22,8 +22,11 @@ from .base import CodeRunner, ExecutionResult
 _ALLOWED_IMPORT_ROOTS = {
     "math", "statistics", "decimal", "fractions", "random", "re", "json",
     "collections", "itertools", "functools", "datetime", "string", "typing",
-    "numpy", "pandas", "sklearn",
+    "dataclasses", "enum",
+    "numpy", "pandas", "sklearn", "scipy",
 }
+# Read-only view for callers that explain what the sandbox can run.
+ALLOWED_IMPORT_ROOTS = frozenset(_ALLOWED_IMPORT_ROOTS)
 _BLOCKED_CALLS = {
     "open", "exec", "eval", "compile", "__import__", "input", "breakpoint",
     "globals", "locals", "vars", "dir", "getattr", "setattr", "delattr",
@@ -81,6 +84,16 @@ def validate_python_source(source: str) -> ast.AST:
     return tree
 
 
+def validate_check_expressions(calls: list[dict[str, Any]] | None) -> None:
+    """Hidden checks come from exercise definitions, not from learners, but
+    they run beside learner code and obey the same source rules."""
+    for request in calls or []:
+        if "expression" in request:
+            expression = str(request["expression"])
+            ast.parse(expression, mode="eval")
+            validate_python_source(expression)
+
+
 _CHILD = r'''
 import contextlib, io, json, traceback
 
@@ -100,7 +113,9 @@ class LimitedBuffer(io.StringIO):
 def safe(value, depth=0):
     if depth > 5: return {"kind": "repr", "type": type(value).__name__, "repr": "<depth limit>"}
     if value is None or isinstance(value, (bool, int, float, str)):
-        return {"kind": "value", "type": type(value).__name__, "value": value}
+        # numpy.float64 subclasses float: report (and store) the plain type, as production does.
+        base = next((t for t in (bool, int, float, str) if isinstance(value, t)), type(value))
+        return {"kind": "value", "type": base.__name__ if value is not None else "NoneType", "value": value if value is None else base(value)}
     if isinstance(value, (list, tuple)):
         return {"kind": "value", "type": type(value).__name__, "value": [safe(v, depth+1).get("value", safe(v, depth+1).get("repr")) for v in value[:100]]}
     if isinstance(value, dict):
@@ -111,6 +126,20 @@ def safe(value, depth=0):
         try: data["column_values"] = {str(c): value[c].tolist()[:100] for c in value.columns}
         except Exception: pass
         return {"kind": "dataframe", "type": type(value).__name__, "value": data}
+    # The same conversions as the production runner's harness, so a check
+    # observes identical values in development, tests and production.
+    item = getattr(value, "item", None)
+    if callable(item) and getattr(value, "shape", None) == ():
+        try: return safe(item(), depth+1)
+        except Exception: pass
+    if isinstance(value, (set, frozenset)):
+        return safe(sorted(value, key=repr), depth+1)
+    if hasattr(value, "to_dict") and hasattr(value, "index"):
+        try: return safe(value.to_dict(), depth+1)
+        except Exception: pass
+    if hasattr(value, "tolist"):
+        try: return safe(value.tolist(), depth+1)
+        except Exception: pass
     return {"kind": "repr", "type": type(value).__name__, "repr": repr(value)[:2000]}
 
 payload = json.loads(input())
@@ -123,6 +152,10 @@ try:
         for request in payload.get("calls", []):
             key = request["key"]
             try:
+                if "expression" in request:
+                    # An exercise author's hidden check (validated by the parent), not learner code.
+                    result["return_values"][key] = safe(eval(compile(request["expression"], "<check>", "eval"), ns, ns))
+                    continue
                 fn = ns.get(request["function"])
                 result["return_values"][key] = safe(fn(*request.get("args", []), **request.get("kwargs", {}))) if callable(fn) else {"missing": True}
             except Exception as exc:
@@ -134,7 +167,7 @@ except SyntaxError as exc:
 except Exception as exc:
     result["status"] = "runtime_error"; err.write("".join(traceback.format_exception_only(type(exc), exc)))
 result["stdout"], result["stderr"] = out.result(), err.result()
-print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+print(json.dumps(result, ensure_ascii=False, allow_nan=False, default=str))
 '''
 
 
@@ -167,6 +200,7 @@ class LocalPythonRunner(CodeRunner):
             return ExecutionResult("forbidden_operation", stderr=str(exc), detail=str(exc))
         try:
             validate_python_source(pre_exercise_code)
+            validate_check_expressions(calls)
         except (SyntaxError, ForbiddenCode) as exc:
             return ExecutionResult("execution_error", stderr="Exercise setup is invalid.", detail=str(exc))
 
@@ -186,11 +220,19 @@ class LocalPythonRunner(CodeRunner):
             try:
                 process = await asyncio.create_subprocess_exec(
                     sys.executable, "-I", "-c", _CHILD, cwd=workdir,
-                    env={"PATH": os.environ.get("PATH", ""), "PYTHONIOENCODING": "utf-8"}, **kwargs,
+                    # One BLAS thread: each extra thread reserves an address-space
+                    # arena that the memory limit above would refuse.
+                    env={
+                        "PATH": os.environ.get("PATH", ""), "PYTHONIOENCODING": "utf-8",
+                        "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1",
+                    }, **kwargs,
                 )
                 stdout, stderr = await asyncio.wait_for(process.communicate(payload + b"\n"), self.timeout_seconds)
             except asyncio.TimeoutError:
-                process.kill()
+                try:
+                    process.kill()
+                except ProcessLookupError:
+                    pass  # the CPU-time limit already ended it
                 await process.wait()
                 return ExecutionResult("timeout", stderr="Execution exceeded the time limit.", execution_time_ms=int((time.perf_counter()-started)*1000))
             except Exception as exc:

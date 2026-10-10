@@ -30,6 +30,8 @@ import {
   type InterviewType,
 } from '@/lib/mentor/interview'
 import { interviewStore, newInterviewId } from '@/lib/mentor/interviewStore'
+import { InterviewComingSoonPage } from '@/features/mentor/InterviewTab'
+import { mockInterviewAvailable } from '@/features/mentor/flag'
 import type { CareerTrackSummary } from '@/types'
 
 /**
@@ -39,6 +41,7 @@ import type { CareerTrackSummary } from '@/types'
  * interview again, and then the role, type and length are that interview's.
  */
 export default function InterviewSetupPage() {
+  if (!mockInterviewAvailable()) return <InterviewComingSoonPage />
   return (
     <Suspense fallback={null}>
       <Setup />
@@ -194,7 +197,7 @@ function Setup() {
           <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-5">
             <Card className="flex flex-col gap-4 p-5">
               <div>
-                <h2 className="text-sm font-semibold text-white">{t('interview.check.title')}</h2>
+                <h2 className="ui-card-title">{t('interview.check.title')}</h2>
                 <p className="mt-1 text-xs leading-relaxed text-ghost">{t('interview.check.optional')}</p>
               </div>
               <CameraTile camera={camera} label={t('interview.check.camera')} />

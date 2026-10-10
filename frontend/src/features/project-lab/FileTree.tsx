@@ -59,7 +59,7 @@ export function FileTree({ workspace, selectedPath, dirtyPaths, onSelect }: {
 
   return (
     <nav aria-label={t('lab.files')} className="min-h-0 overflow-y-auto p-2">
-      <p className="px-2 pb-2 font-mono text-[11px] uppercase tracking-wide text-ghost" dir="ltr">{workspace.root}/</p>
+      <p className="px-2 pb-2 font-mono text-xs uppercase tracking-wide text-ghost" dir="ltr">{workspace.root}/</p>
       <ul className="space-y-0.5">
         {dirs.map(dir => {
           const children = workspace.entries.filter(e => e.kind === 'file' && e.path.startsWith(`${dir}/`)

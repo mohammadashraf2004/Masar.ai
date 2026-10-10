@@ -1087,8 +1087,9 @@ One pasted command uses a different profile name. Use the profile you actually c
             "placement": "after_section",
             "description": "Separate IAM identity, local profiles, commands, and source control.",
             "instructions": (
-                "Draw IAM user → access keys → local AWS profile → `--profile` command usage. "
-                "Mark which data must never enter Git. Then explain how a profile-name mismatch can cause a deployment command to authenticate as the wrong identity or fail."
+                ('1. Draw IAM user → access keys → local AWS profile → `--profile` command usage.\n'
+                 '2. Mark which data must never enter Git.\n'
+                 '3. Then explain how a profile-name mismatch can cause a deployment command to authenticate as the wrong identity or fail.')
             ),
             "expected_output": "A secure credential-flow diagram and profile troubleshooting explanation.",
             "difficulty": DifficultyLevel.intermediate,
@@ -1102,8 +1103,8 @@ One pasted command uses a different profile name. Use the profile you actually c
             "placement": "after_section",
             "description": "Explain why Fargate backends cannot depend on static task IPs.",
             "instructions": (
-                "Trace service launch → task ENI/IP allocation → automatic target-group registration → task replacement → old target deregistration → new target registration. "
-                "Explain why the target group starts empty."
+                ('1. Trace service launch → task ENI/IP allocation → automatic target-group registration → task replacement → old target deregistration → new target registration.\n'
+                 '2. Explain why the target group starts empty.')
             ),
             "expected_output": "A dynamic target-registration lifecycle.",
             "difficulty": DifficultyLevel.intermediate,
@@ -1117,8 +1118,10 @@ One pasted command uses a different profile name. Use the profile you actually c
             "placement": "after_section",
             "description": "Distinguish ECS cluster, task definition, task, and service.",
             "instructions": (
-                "Create a hierarchy for the Flask workload using the source values: cluster, flask-app task definition, "
-                "2 vCPU/4 GB, port 5000, one or more running tasks, Flask service, flask-tg, and ALB."
+                ('1. Put the cluster at the top of the hierarchy.\n'
+                 '2. Place the flask-app task definition with its settings: 2 vCPU / 4 GB and port 5000.\n'
+                 '3. Show the one or more running tasks created from it, and the Flask service that keeps them running.\n'
+                 '4. Connect the service to the flask-tg target group and the ALB.')
             ),
             "expected_output": "An ECS runtime object hierarchy.",
             "difficulty": DifficultyLevel.intermediate,
@@ -1132,8 +1135,8 @@ One pasted command uses a different profile name. Use the profile you actually c
             "placement": "after_section",
             "description": "Understand the difference between task size and replica count.",
             "instructions": (
-                "Using the source's Flask task size of 2 vCPU/4 GB, calculate conceptual total reserved capacity for 1, 2, and 4 tasks. "
-                "Then explain how target-tracking CPU autoscaling changes task count without changing the task definition."
+                ("1. Using the source's Flask task size of 2 vCPU/4 GB, calculate conceptual total reserved capacity for 1, 2, and 4 tasks.\n"
+                 '2. Then explain how target-tracking CPU autoscaling changes task count without changing the task definition.')
             ),
             "expected_output": "A capacity table plus autoscaling explanation.",
             "difficulty": DifficultyLevel.intermediate,

@@ -1,18 +1,45 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useSyncExternalStore } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/store'
+import { authHref, currentPath, nextFromLocation } from '@/lib/authRedirect'
 
-export function useAuth(redirectTo = '/auth/login') {
+/**
+ * For pages that need an account (a lesson, the dashboard, the mentor). A
+ * signed-out visitor is sent to sign in, and brought back here afterwards
+ * (`?next=` is this page). Pages anyone may browse use `useSession` instead.
+ */
+export function useAuth(redirectTo?: string) {
   const router = useRouter()
   const { user, token, _hasHydrated } = useAuthStore()
 
   useEffect(() => {
     if (!_hasHydrated) return
-    if (!token) router.replace(redirectTo)
+    if (!token) router.replace(redirectTo ?? authHref('login', currentPath()))
   }, [token, _hasHydrated, router, redirectTo])
 
   return { user, isAuthenticated: !!token, isLoading: !_hasHydrated }
+}
+
+/**
+ * For pages anyone may browse (catalogues, course and challenge overviews,
+ * plans): who is signed in, if anyone, with no redirect. A signed-out visitor
+ * sees the page; reaching for something that needs an account opens the
+ * sign-in prompt (see components/auth/AuthPrompt).
+ */
+export function useSession() {
+  const { user, token, _hasHydrated } = useAuthStore()
+  return { user, isAuthenticated: !!token, isLoading: !_hasHydrated }
+}
+
+const noSubscribe = () => () => {}
+
+/**
+ * The safe `?next=` this page was opened with, or null. Read after hydration
+ * (the server has no address bar), so links that carry it never mismatch.
+ */
+export function useNextParam(): string | null {
+  return useSyncExternalStore(noSubscribe, nextFromLocation, () => null)
 }
 
 /**
@@ -38,6 +65,8 @@ export function useGuest(redirectTo = '/dashboard') {
       arrivedSignedIn.current = false // signed out here: the next sign-in is the page's to route
       return
     }
-    if (arrivedSignedIn.current) router.replace(redirectTo)
+    // Someone already signed in who followed a "sign in to continue" link goes
+    // straight on to where they were headed.
+    if (arrivedSignedIn.current) router.replace(nextFromLocation() ?? redirectTo)
   }, [token, _hasHydrated, router, redirectTo])
 }

@@ -95,8 +95,12 @@ export function LessonPage({ courseSlug, lessonParam }: { courseSlug: string; le
         data-testid="lesson-scroll-container"
         data-mentor-open={mentorPanelOpen || undefined}
         className={cn(
-          'min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8',
-          mentorPanelOpen && 'min-[1280px]:pe-[392px]',
+          // Below lg the window scrolls: `clip` (unlike `hidden`) does not make
+          // this a scroll container, so the sticky step bar sticks to the viewport.
+          'min-h-0 min-w-0 flex-1 px-4 py-6 max-lg:overflow-x-clip sm:px-6 lg:overflow-y-auto lg:overflow-x-hidden lg:px-8',
+          hasExercise && 'lg:scroll-pt-28',
+          // The mentor panel's width (LessonMentorPanel's clamp) plus its 1rem inset and a 1rem gap.
+          mentorPanelOpen && 'min-[1280px]:pe-[calc(clamp(340px,28vw,480px)+2rem)]',
         )}
       >
         <div className="mx-auto max-w-5xl space-y-5">
@@ -107,7 +111,7 @@ export function LessonPage({ courseSlug, lessonParam }: { courseSlug: string; le
           {/* [/code-cell] */}
           {/* ── Header ── */}
           <header className="space-y-2.5">
-            <nav aria-label="breadcrumb" className="flex flex-wrap items-center gap-1.5 text-xs text-ghost" dir="auto">
+            <nav aria-label="breadcrumb" className="ui-caption flex flex-wrap items-center gap-1.5" dir="auto">
               {data.track && (
                 <>
                   <Link href={`/tracks/${data.track.slug}`} className="hover:text-bright">
@@ -123,9 +127,9 @@ export function LessonPage({ courseSlug, lessonParam }: { courseSlug: string; le
               <span className="text-amber-text">{tf('lessons.of', { n: data.lessonNumber, total: data.lessonTotal })}</span>
             </nav>
 
-            <h1 dir="auto" className="font-display text-[28px] font-bold leading-[1.35] text-white">{title}</h1>
+            <h1 dir="auto" className="ui-page-title">{title}</h1>
 
-            <div className="flex flex-wrap items-center gap-2 text-xs text-dim" dir="auto">
+            <div className="ui-caption flex flex-wrap items-center gap-2" dir="auto">
               {data.lesson.estimated_minutes != null && <span>{tf('lesson.readTime', { n: Math.round(data.lesson.estimated_minutes) })}</span>}
               {hasExercise && (
                 <>
@@ -139,9 +143,13 @@ export function LessonPage({ courseSlug, lessonParam }: { courseSlug: string; le
           </header>
 
           {hasExercise && (
+            // A full-width opaque bar, not a floating pill: content (the code
+            // editor included) scrolls beneath it instead of showing around it,
+            // and the scroll container's scroll-padding keeps a focused line
+            // or the caret below it.
             <div
               data-testid="lesson-step-switcher"
-              className="sticky top-2 z-20 w-fit max-w-full rounded-full bg-void/95 p-1 shadow-[0_8px_24px_rgb(0_0_0/0.22)] backdrop-blur"
+              className="sticky top-14 z-20 -mx-4 border-b border-border bg-void/95 px-4 py-1.5 backdrop-blur sm:-mx-6 sm:px-6 lg:top-0 lg:-mx-8 lg:px-8"
             >
               <LessonStepSwitch active={active} hasExercise={hasExercise} onSelect={scrollTo} />
             </div>
@@ -149,7 +157,7 @@ export function LessonPage({ courseSlug, lessonParam }: { courseSlug: string; le
 
           {/* ── Body: article + module aside ── */}
           <div className="flex flex-wrap items-start gap-8">
-            <article ref={articleRef} className="min-w-0 max-w-[760px] flex-[1_1_560px] space-y-[18px] text-[16px] leading-[1.95] text-bright [text-wrap:pretty]">
+            <article ref={articleRef} className="min-w-0 max-w-[760px] flex-[1_1_560px] space-y-[18px] [text-wrap:pretty]">
               {data.lesson.is_locked ? (
                 <Card className="space-y-3 p-8 text-center">
                   <p className="text-sm font-medium text-bright">Purchase this course to unlock this content.</p>

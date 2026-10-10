@@ -9,6 +9,9 @@ import { Avatar } from '@/components/layout/AccountMenu'
 import { useMobileNav } from '@/components/layout/MobileNavContext'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { isActive, navFor } from '@/components/layout/nav'
+import { GatedLink } from '@/components/auth/AuthPrompt'
+import { buttonStyles } from '@/components/ui/Button'
+import { authHref, currentPath } from '@/lib/authRedirect'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { useTours } from '@/features/tours/TourProvider'
 
@@ -57,7 +60,7 @@ export function MobileMenu() {
             const active = isActive(pathname, href)
             return (
               <li key={href} className={groupStart ? 'mt-2 border-t border-border pt-2' : undefined}>
-                <Link
+                <GatedLink
                   href={href}
                   onClick={close}
                   aria-current={active ? 'page' : undefined}
@@ -68,13 +71,24 @@ export function MobileMenu() {
                 >
                   <Icon size={18} strokeWidth={1.8} className="shrink-0" />
                   <span className="min-w-0 flex-1">{t(label)}</span>
-                </Link>
+                </GatedLink>
               </li>
             )
           })}
         </ul>
 
         <div className="mt-2.5 flex flex-col gap-2 border-t border-border pt-3.5">
+          {!user && (
+            // The menu opens from a click, so the page address is known here.
+            <div className="flex gap-2">
+              <Link href={authHref('login', currentPath())} onClick={close} className={buttonStyles({ variant: 'ghost', className: 'flex-1' })}>
+                {t('gate.signIn')}
+              </Link>
+              <Link href={authHref('register', currentPath())} onClick={close} className={buttonStyles({ variant: 'amber', className: 'flex-1' })}>
+                {t('gate.signUp')}
+              </Link>
+            </div>
+          )}
           <div className="flex items-center justify-between gap-3">
             {user ? (
               <Link href="/profile" onClick={close} className="flex min-h-[44px] min-w-0 items-center gap-2.5">
@@ -111,8 +125,8 @@ export function MobileMenu() {
             {t('nav.billing')}
           </Link>
 
-          {/* The help menu: for now, the walkthrough. */}
-          {tours && (
+          {/* The help menu: for now, the walkthrough (a signed-in learner's; it records per account). */}
+          {tours && user && (
             <button
               type="button"
               onClick={() => { close(); tours.replay() }}

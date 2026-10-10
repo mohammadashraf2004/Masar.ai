@@ -1,17 +1,16 @@
 import type { ComponentType } from 'react'
 import type { BillingCycle, CartItem, PaymentMethodId } from '@/lib/billing/types'
 import { MockPaymentProvider, mockOutcomeFromUrl } from '@/lib/billing/mockPayments'
-import { PaymobProvider } from '@/lib/billing/paymobProvider'
+import { KashierProvider } from '@/lib/billing/kashierProvider'
 
 /**
  * The seam between the billing page and whatever takes the money.
  *
- * No gateway has been chosen. The page talks only to `PaymentProvider`; the one
- * implementation in use is `MockPaymentProvider`, which moves no money. `PaymobProvider` is a
- * stub for the gateway the backend already integrates: it lists its methods and throws "not
- * configured" for everything else, and is deliberately NOT returned below. A real gateway is
- * one implementation of this interface plus one line in `getPaymentProvider`, and nothing in
- * the page changes.
+ * The gateway is Kashier: `KashierProvider` asks the backend for a checkout and redirects to
+ * Kashier's hosted page, and is used when the build sets NEXT_PUBLIC_PAYMENTS_PROVIDER=kashier.
+ * `MockPaymentProvider` moves no money and is for development and staging only. Another gateway
+ * would be one implementation of this interface plus one line in `getPaymentProvider`, and
+ * nothing in the page changes.
  *
  * Card data never touches a field of ours: a provider that takes cards supplies the
  * `CardFields` component (its own hosted fields), and the page mounts it.
@@ -75,7 +74,7 @@ export interface PaymentProvider {
  * open yet instead of showing "payment successful" for a payment that never happened.
  */
 export function getPaymentProvider(): PaymentProvider | null {
-  if (process.env.NEXT_PUBLIC_PAYMENTS_PROVIDER === 'paymob') return new PaymobProvider()
+  if (process.env.NEXT_PUBLIC_PAYMENTS_PROVIDER === 'kashier') return new KashierProvider()
   const mockAllowed = process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_PAYMENTS_MOCK === '1'
   return mockAllowed ? new MockPaymentProvider({ outcome: mockOutcomeFromUrl }) : null
 }

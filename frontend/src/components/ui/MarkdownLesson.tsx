@@ -138,13 +138,13 @@ function MarkdownBody({
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="font-display font-semibold text-amber-text">
+            <h3 className="font-display font-semibold text-bright">
               {annotate(children)}
             </h3>
           ),
           p: ({ children }) => <p className="text-soft">{annotate(children)}</p>,
           strong: ({ children }) => (
-            <strong className="text-amber-text2 font-semibold">{annotate(children)}</strong>
+            <strong className="text-bright font-semibold">{annotate(children)}</strong>
           ),
           em: ({ children }) => <em className="text-dim">{annotate(children)}</em>,
           ul: ({ children }) => <ul className="list-disc list-outside">{children}</ul>,

@@ -8,8 +8,9 @@ import { fieldLabel, labelText, roleLabel, skillLabel, titleLabel } from '@/lib/
 import type { CatalogCourseDetail } from '@/types'
 import { LearningLabel, useLabelContext } from './LearningLabel'
 import { SkillChips } from './SkillChips'
+import { GatedLink } from '@/components/auth/AuthPrompt'
 
-const HEADING = 'mb-3 text-xs font-medium uppercase tracking-widest text-soft'
+const HEADING = 'mb-3 text-card-title font-semibold text-bright'
 
 /**
  * Everything the course page says about a course before its lessons: what it is
@@ -32,7 +33,7 @@ export function CourseOutline({ course }: { course: CatalogCourseDetail }) {
   return (
     <div className="space-y-4">
       <Card className="space-y-4 p-5">
-        <div className="flex flex-wrap items-center gap-2 text-xs text-soft">
+        <div className="ui-caption flex flex-wrap items-center gap-2">
           <DifficultyBadge level={course.level.slug} />
           {course.estimated_hours > 0 && (
             <span className="inline-flex items-center gap-1">
@@ -52,14 +53,14 @@ export function CourseOutline({ course }: { course: CatalogCourseDetail }) {
         {description && (
           <div>
             <h2 className={HEADING}>{t('cp.about')}</h2>
-            <p className="text-sm leading-relaxed text-bright" dir="auto">{description}</p>
+            <p className="ui-body-copy" dir="auto">{description}</p>
           </div>
         )}
 
         {objectives.length > 0 && (
           <div>
             <h2 className={HEADING}>{t('card.objectives')}</h2>
-            <ul className="list-disc space-y-1 ps-5 text-sm text-soft">
+            <ul className="list-disc space-y-1 ps-5 text-body-copy text-soft">
               {objectives.map((o) => <li key={o} dir="auto">{o}</li>)}
             </ul>
           </div>
@@ -140,6 +141,36 @@ export function CourseOutline({ course }: { course: CatalogCourseDetail }) {
                 </div>
                 {m.completion_pct != null && m.completion_pct > 0 && m.status !== 'completed' && (
                   <ProgressBar value={m.completion_pct} className="mt-2" />
+                )}
+                {/* The outline: lesson names, folded so a long module does not bury the
+                    page. A lesson opens through sign-in for a visitor; for a learner the
+                    lesson page and the server apply the course's own Free/Pro rules. */}
+                {(m.lessons?.length ?? 0) > 0 && (
+                  <details className="group mt-2">
+                    <summary className="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-1 text-xs text-soft hover:text-bright lg:min-h-0 [&::-webkit-details-marker]:hidden">
+                      <span aria-hidden="true" className="inline-block transition-transform group-open:rotate-90 rtl:-scale-x-100">›</span>
+                      {t('cp.lessonList')}
+                    </summary>
+                    <ol className="mt-1 space-y-0.5 ps-4">
+                      {m.lessons!.map((lesson) => {
+                        const title = pick(lesson.title, lesson.title_ar, language)
+                        return (
+                          <li key={lesson.id} className="text-sm" dir="auto">
+                            {course.kind === 'tool_course' ? (
+                              <GatedLink
+                                href={`/courses/${course.slug}/lessons/${lesson.id}`}
+                                className="inline-flex min-h-[44px] items-center text-soft hover:text-amber-text lg:min-h-0 lg:py-0.5"
+                              >
+                                {title}
+                              </GatedLink>
+                            ) : (
+                              <span className="inline-flex min-h-[44px] items-center text-soft lg:min-h-0 lg:py-0.5">{title}</span>
+                            )}
+                          </li>
+                        )
+                      })}
+                    </ol>
+                  </details>
                 )}
               </li>
             ))}

@@ -62,7 +62,7 @@ export function ReadinessCheck({ slug, onResult, onClose }: ReadinessCheckProps)
 
   return (
     <Card className="space-y-4 p-5" aria-label={t('rd.check.title')}>
-      <h2 className="text-sm font-semibold text-bright">{t('rd.check.title')}</h2>
+      <h2 className="ui-card-title">{t('rd.check.title')}</h2>
 
       {loadFailed ? (
         <p role="alert" className="text-sm text-rose">{t('rd.check.loadError')}</p>

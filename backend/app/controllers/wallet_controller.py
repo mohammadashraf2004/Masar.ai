@@ -263,7 +263,7 @@ def confirm_payment(
     if not tx:
         raise HTTPException(status_code=404, detail="Pending transaction not found")
 
-    # Same authoritative payout path as the Paymob webhook — see
+    # Same authoritative payout path as the payment webhooks — see
     # wallet_service.confirm_pending_topup. It takes the wallet row lock
     # and is idempotent on a row that is no longer pending.
     wallet = confirm_pending_topup(tx, db)

@@ -39,8 +39,8 @@ export default function TracksPage() {
       <PageBody className="pt-1" footer={false}>
         <section className="flex flex-col gap-5 font-sans">
           <header className="flex flex-col gap-1.5">
-            <h1 className="text-[26px] font-bold leading-tight text-white">{t('tracks.title')}</h1>
-            <p className="max-w-4xl text-sm leading-[1.6] text-dim [text-wrap:pretty]">
+            <h1 className="ui-page-title">{t('tracks.title')}</h1>
+            <p className="ui-description max-w-4xl">
               {t('tracks.subtitle')}
             </p>
           </header>

@@ -46,7 +46,7 @@ export function TrackCard({ track, index }: { track: CareerTrackSummary; index: 
       <div className="pointer-events-none flex items-center justify-between">
         <span dir="ltr" className="font-mono text-xs text-amber-text">{String(index + 1).padStart(2, '0')}</span>
         <span className={cn(
-          'rounded-full border px-2.5 py-0.5 text-[11px] whitespace-nowrap',
+          'rounded-full border px-2.5 py-0.5 text-xs whitespace-nowrap',
           item.status === 'done' && 'border-emerald text-emerald',
           item.status === 'current' && 'border-amber text-amber-text',
           item.status === 'open' && 'border-border text-ghost',
@@ -54,19 +54,19 @@ export function TrackCard({ track, index }: { track: CareerTrackSummary; index: 
       </div>
 
       <div className="pointer-events-none flex flex-col gap-1">
-        <h2 dir="auto" className="font-display text-xl font-bold text-white">{title}</h2>
+        <h2 dir="auto" className="ui-card-title">{title}</h2>
       </div>
 
-      <p dir="auto" className="pointer-events-none text-[13px] leading-[1.7] text-dim [text-wrap:pretty]">{description}</p>
+      <p dir="auto" className="ui-description pointer-events-none">{description}</p>
 
       <div dir="ltr" className="pointer-events-none flex flex-wrap justify-end gap-1.5">
         {item.stack.map((name) => (
-          <span key={name} className="rounded border border-border px-2 py-[3px] font-mono text-[11px] text-bright">{name}</span>
+          <span key={name} className="rounded border border-border px-2 py-[3px] font-mono text-xs text-bright">{name}</span>
         ))}
       </div>
 
       <footer className="pointer-events-none mt-auto flex flex-col gap-2.5 border-t border-border pt-3.5">
-        <div className="flex justify-between gap-3 text-xs text-dim">
+        <div className="ui-caption flex justify-between gap-3">
           <span>{tf('tracks.courseCount', { n: item.course_count })} · {tf('tracks.hourCount', { n: item.hours })}</span>
           <span dir="ltr" className="font-mono">{Math.round(item.progress)}%</span>
         </div>

@@ -41,6 +41,13 @@ x-logging: &logging
     max-file: "5"
 
 services:
+  # Learner execution is an explicit production activation, never part of a
+  # normal stack start. `docker compose up` therefore omits this service while
+  # PROJECT_LAB_EXECUTION_BACKEND=disabled. The gVisor runbook starts it with
+  # `--profile project-lab` only after the host runtime checks pass.
+  project-runner:
+    profiles: ["project-lab"]
+
   # ─── The only public entry point ──────────────────────────────────
   caddy:
     image: caddy:2.8-alpine

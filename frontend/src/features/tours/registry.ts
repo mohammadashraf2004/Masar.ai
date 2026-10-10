@@ -1,3 +1,4 @@
+import { mockInterviewAvailable } from '@/features/mentor/flag'
 import type { StringKey } from '@/lib/i18n'
 
 /**
@@ -5,7 +6,7 @@ import type { StringKey } from '@/lib/i18n'
  * `data-tour="…"` on the element it points at; there is no layout work.
  */
 
-export type TourId = 'onboarding' | 'mentor-interview' | 'language'
+export type TourId = 'onboarding' | 'mentor' | 'mentor-interview' | 'language'
 export type TourKind = 'onboarding' | 'feature'
 export type Device = 'desktop' | 'mobile'
 export type Placement = 'side' | 'bottom' | 'top' | 'left' | 'right'
@@ -38,6 +39,8 @@ export interface TourDef {
   audience?: 'new-accounts'
   /** Tours that come first. Met once they have a saved record, or do not apply to the account. */
   after?: readonly TourId[]
+  /** Whether what it shows is open yet. A tour of something not available never runs. */
+  available?: () => boolean
 }
 
 /**
@@ -75,10 +78,34 @@ export const TOURS: readonly TourDef[] = [
     ],
   },
   {
+    // How to use the mentor hub, before its newer feature tours (the first tour on a route runs).
+    id: 'mentor',
+    version: 1,
+    route: '/mentor',
+    kind: 'feature',
+    steps: [
+      { target: 'mentor-course', placement: 'bottom', titleKey: 'tour.mentor.course.title', bodyKey: 'tour.mentor.course.body' },
+      { target: 'mentor-context', placement: 'bottom', titleKey: 'tour.mentor.context.title', bodyKey: 'tour.mentor.context.body' },
+      { target: 'mentor-actions', placement: 'top', titleKey: 'tour.mentor.actions.title', bodyKey: 'tour.mentor.actions.body' },
+      { target: 'mentor-composer', placement: 'top', titleKey: 'tour.mentor.composer.title', bodyKey: 'tour.mentor.composer.body' },
+      // Beside the chat on a desktop; a phone has no room for it, so the step is skipped there.
+      { target: 'mentor-learner', titleKey: 'tour.mentor.learner.title', bodyKey: 'tour.mentor.learner.body' },
+      // On a phone the chat covers the whole screen and the tabs sit under it: there is nothing
+      // to point at (`mentor-tabs-phone` is on no element), so the step is skipped.
+      {
+        target: { desktop: 'mentor-tabs', mobile: 'mentor-tabs-phone' },
+        placement: 'bottom',
+        titleKey: 'tour.mentor.tabs.title',
+        bodyKey: 'tour.mentor.tabs.body',
+      },
+    ],
+  },
+  {
     id: 'mentor-interview',
     version: 1,
     route: '/mentor',
     kind: 'feature',
+    available: mockInterviewAvailable,
     steps: [
       { target: 'interview-tab', titleKey: 'tour.interview.tab.title', bodyKey: 'tour.interview.tab.body' },
       { target: 'credits', titleKey: 'tour.interview.credits.title', bodyKey: 'tour.interview.credits.body' },
@@ -105,6 +132,10 @@ export const TOURS: readonly TourDef[] = [
     ],
   },
 ]
+
+export function tourAvailable(tour: TourDef): boolean {
+  return tour.available?.() ?? true
+}
 
 export function tourById(id: TourId): TourDef {
   const tour = TOURS.find((t) => t.id === id)

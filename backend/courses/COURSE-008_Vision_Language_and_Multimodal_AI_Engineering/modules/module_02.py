@@ -2089,14 +2089,12 @@ model, evaluation method, and deployment strategy that fit that task.**
             ),
 
             "instructions": (
-                "For each scenario, choose the most appropriate task: captioning, VQA, "
-                "visual reasoning, retrieval, multimodal RAG, temporal grounding, "
-                "zero-shot detection, counting, or segmentation.\n"
-                "A. Find the page containing a specific clause in 5,000 scanned PDFs.\n"
-                "B. Find the exact 30-second segment where a player scores.\n"
-                "C. Draw a precise mask around every damaged panel in a photo.\n"
-                "D. Answer 'How much tax is shown on this invoice?'.\n"
-                "E. Find all 'red safety helmets' in a warehouse image."
+                ('1. For each scenario, choose the most appropriate task: captioning, VQA, visual reasoning, retrieval, multimodal RAG, temporal grounding, zero-shot detection, counting, or segmentation.\n'
+                 '   - A. Find the page containing a specific clause in 5,000 scanned PDFs.\n'
+                 '   - B. Find the exact 30-second segment where a player scores.\n'
+                 '   - C. Draw a precise mask around every damaged panel in a photo.\n'
+                 "   - D. Answer 'How much tax is shown on this invoice?'.\n"
+                 "   - E. Find all 'red safety helmets' in a warehouse image.")
             ),
 
             "expected_output": (

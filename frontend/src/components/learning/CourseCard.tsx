@@ -1,6 +1,7 @@
 'use client'
 import { useId, useState } from 'react'
 import Link from 'next/link'
+import { GatedLink } from '@/components/auth/AuthPrompt'
 import { ChevronDown, Clock } from 'lucide-react'
 import { Badge, Card, ProgressBar } from '@/components/ui/index'
 import { ReadinessBadge } from './CourseReadiness'
@@ -14,7 +15,7 @@ import { SkillChips } from './SkillChips'
 
 const LEVEL_BADGE = { beginner: 'beginner', intermediate: 'intermediate', advanced: 'advanced' } as const
 const MAX_SKILLS = 4
-const EYEBROW = 'text-xs font-medium uppercase tracking-widest text-soft'
+const EYEBROW = 'ui-eyebrow'
 
 interface CourseCardProps {
   course: CatalogCourse | CatalogCourseDetail
@@ -47,7 +48,7 @@ export function CourseCard({ course, defaultOpen = false, className, showCourseL
   return (
     <Card className={cn('flex flex-col p-4', !course.is_available && 'border-dashed', className)}>
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-sm font-medium leading-snug text-bright">
+        <h3 className="ui-card-title">
           <Link href={`/courses/${course.slug}`} className="hover:text-amber-text transition-colors">
             <LearningLabel parts={title} />
           </Link>
@@ -65,7 +66,7 @@ export function CourseCard({ course, defaultOpen = false, className, showCourseL
       </div>
 
       {course.fields.length > 0 && (
-        <p className="mt-1.5 text-xs text-soft">
+        <p className="ui-caption mt-1.5">
           {course.fields.map((f, i) => (
             <span key={f.slug}>
               {i > 0 && ' · '}
@@ -76,7 +77,7 @@ export function CourseCard({ course, defaultOpen = false, className, showCourseL
       )}
 
       {(course.estimated_hours > 0 || course.module_count) && (
-        <p className="mt-1.5 flex flex-wrap gap-x-3 text-xs text-soft">
+        <p className="ui-caption mt-1.5 flex flex-wrap gap-x-3">
           {course.module_count ? <span>{tf('card.modules', { n: course.module_count })}</span> : null}
           {course.estimated_hours > 0 && <span>{tf('card.hours', { n: Math.round(course.estimated_hours) })}</span>}
         </p>
@@ -90,7 +91,7 @@ export function CourseCard({ course, defaultOpen = false, className, showCourseL
       )}
 
       {course.roles.length > 0 && (
-        <p className="mt-3 text-xs leading-relaxed text-bright">
+        <p className="mt-3 text-caption leading-relaxed text-bright">
           <span className="text-soft">{t('card.relevantFor')}: </span>
           {course.roles.map((r, i) => (
             <span key={r.slug}>
@@ -104,7 +105,7 @@ export function CourseCard({ course, defaultOpen = false, className, showCourseL
       {course.enrollment ? (
         <div className="mt-3 space-y-1">
           <ProgressBar value={course.enrollment.progress_percentage} />
-          <p className="text-xs text-soft">
+          <p className="ui-caption">
             {course.enrollment.status === 'completed'
               ? t('enr.completed')
               : tf('enr.percent', { n: Math.round(course.enrollment.progress_percentage) })}
@@ -112,7 +113,7 @@ export function CourseCard({ course, defaultOpen = false, className, showCourseL
         </div>
       ) : (
         course.readiness && course.readiness.state !== 'not_assessed' && course.is_available && (
-          <p className="mt-3 flex flex-wrap items-center gap-2 text-xs text-soft">
+          <p className="ui-caption mt-3 flex flex-wrap items-center gap-2">
             {t('rd.title')}: <ReadinessBadge state={course.readiness.state} />
           </p>
         )
@@ -123,15 +124,15 @@ export function CourseCard({ course, defaultOpen = false, className, showCourseL
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={panelId}
-        className="mt-3 inline-flex min-h-[44px] items-center gap-1 self-start text-xs text-amber-text hover:text-amber-text2 lg:min-h-0"
+        className="mt-3 inline-flex min-h-[44px] items-center gap-1 self-start text-caption text-amber-text hover:text-amber-text2 lg:min-h-0"
       >
         {open ? t('card.less') : t('card.details')}
         <ChevronDown size={12} className={cn('transition-transform', open && 'rotate-180')} aria-hidden="true" />
       </button>
 
       {open && (
-        <div id={panelId} className="mt-1 space-y-3 border-t border-border pt-3 text-xs leading-relaxed text-soft">
-          {description && <p dir="auto">{description}</p>}
+        <div id={panelId} className="mt-1 space-y-3 border-t border-border pt-3 text-caption leading-relaxed text-soft">
+          {description && <p className="ui-description" dir="auto">{description}</p>}
           {objectives.length > 0 && (
             <div>
               <p className={cn(EYEBROW, 'mb-1')}>{t('card.objectives')}</p>
@@ -161,19 +162,20 @@ export function CourseCard({ course, defaultOpen = false, className, showCourseL
             </p>
           )}
           {showCourseLink && course.is_available && course.href && (
-            <Link
+            // `href` may be the lessons themselves: a visitor is asked to sign in first.
+            <GatedLink
               href={course.href}
               className="inline-flex min-h-[44px] items-center text-amber-text hover:text-amber-text2 lg:min-h-0"
             >
               {t('learn.openCourse')}
-            </Link>
+            </GatedLink>
           )}
         </div>
       )}
 
       <Link
         href={`/courses/${course.slug}`}
-        className="mt-auto inline-flex min-h-[44px] items-center pt-3 text-xs font-medium text-amber-text hover:text-amber-text2 lg:min-h-0"
+        className="mt-auto inline-flex min-h-[44px] items-center pt-3 text-caption font-medium text-amber-text hover:text-amber-text2 lg:min-h-0"
       >
         {course.enrollment && course.enrollment.status !== 'completed'
           ? t('curriculum.continue')

@@ -782,8 +782,8 @@ Chapter 8 changes DNS to the load balancer IP.
             "placement": "after_section",
             "description": "Clarify the three layers of reusable compute configuration.",
             "instructions": (
-                "Create a table for custom image, instance template, and managed instance group. "
-                "For each, state what it stores, what consumes it, and the source-specific name used in Chapter 8."
+                ('1. Create a table for custom image, instance template, and managed instance group.\n'
+                 '2. For each, state what it stores, what consumes it, and the source-specific name used in Chapter 8.')
             ),
             "expected_output": "A three-layer reusable-infrastructure table.",
             "difficulty": DifficultyLevel.intermediate,
@@ -797,9 +797,9 @@ Chapter 8 changes DNS to the load balancer IP.
             "placement": "after_section",
             "description": "Distinguish load-driven capacity management from failure recovery.",
             "instructions": (
-                "Scenario A: utilization reaches the source target while all instances are healthy. "
-                "Scenario B: utilization is low but one VM fails three consecutive health checks. "
-                "Explain what autoscaling versus autohealing should do in each scenario."
+                ('1. Scenario A: utilization reaches the source target while all instances are healthy.\n'
+                 '2. Scenario B: utilization is low but one VM fails three consecutive health checks.\n'
+                 '3. Explain what autoscaling versus autohealing should do in each scenario.')
             ),
             "expected_output": "A two-scenario explanation separating scaling from healing.",
             "difficulty": DifficultyLevel.intermediate,
@@ -813,9 +813,8 @@ Chapter 8 changes DNS to the load balancer IP.
             "placement": "after_section",
             "description": "Trace one request through the final multi-region architecture.",
             "instructions": (
-                "Trace `https://flask.example.com` through DNS → global load-balancer IP → HTTPS frontend/certificate → "
-                "backend service → one healthy Europe or US instance-group member → application stack. "
-                "Mark where health checks and autoscaling influence the path."
+                ('1. Trace `https://flask.example.com` through DNS → global load-balancer IP → HTTPS frontend/certificate → backend service → one healthy Europe or US instance-group member → application stack.\n'
+                 '2. Mark where health checks and autoscaling influence the path.')
             ),
             "expected_output": "A full global request-path diagram with control loops.",
             "difficulty": DifficultyLevel.intermediate,

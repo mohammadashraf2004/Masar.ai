@@ -2426,10 +2426,9 @@ No. The source's final model is an Infinity Loop of continuous improvement.
             "placement": "after_section",
             "description": "Build the lightweight pipeline used during active development.",
             "instructions": (
-                "Design a feature-branch pipeline for a Tutor Agent.\n"
-                "Include repository validation, lint/static checks, unit tests, container build, "
-                "temporary Development deployment, localized tool deployment, and cleanup when the branch is deleted.\n"
-                "Explain what is intentionally NOT included yet and why."
+                ('1. Design a feature-branch pipeline for a Tutor Agent.\n'
+                 '2. Include repository validation, lint/static checks, unit tests, container build, temporary Development deployment, localized tool deployment, and cleanup when the branch is deleted.\n'
+                 '3. Explain what is intentionally NOT included yet and why.')
             ),
             "expected_output": "A lightweight feature CI/CD pipeline with rationale.",
             "difficulty": DifficultyLevel.beginner,
@@ -2443,10 +2442,8 @@ No. The source's final model is an Infinity Loop of continuous improvement.
             "placement": "after_section",
             "description": "Design the automated AI evaluation path between main branch and Production.",
             "instructions": (
-                "Design the Staging stage for a Math Tutor.\n"
-                "Include production-like IAM/networking, protected representative data, golden tests, "
-                "Simulator personas, Autorater criteria, trajectory metrics, cost/latency limits, "
-                "Registration as Code, first/final manual gates, and failure behavior."
+                ('1. Design the Staging stage for a Math Tutor.\n'
+                 '2. Include production-like IAM/networking, protected representative data, golden tests, Simulator personas, Autorater criteria, trajectory metrics, cost/latency limits, Registration as Code, first/final manual gates, and failure behavior.')
             ),
             "expected_output": "A Staging quality-gate specification.",
             "difficulty": DifficultyLevel.beginner,
@@ -2478,9 +2475,8 @@ No. The source's final model is an Infinity Loop of continuous improvement.
             "placement": "after_section",
             "description": "Connect production feedback to independent team pipelines.",
             "instructions": (
-                "Design separate repositories and pipelines for Data/ETL, Tools/APIs, Frontend, and Agent.\n"
-                "Add one contract shared by each dependency, define Dev/Staging/Prod for each layer, "
-                "show how production feedback is triaged, and explain how MCP/A2A/API schemas prevent breaking changes."
+                ('1. Design separate repositories and pipelines for Data/ETL, Tools/APIs, Frontend, and Agent.\n'
+                 '2. Add one contract shared by each dependency, define Dev/Staging/Prod for each layer, show how production feedback is triaged, and explain how MCP/A2A/API schemas prevent breaking changes.')
             ),
             "expected_output": "A multi-team Infinity Loop architecture.",
             "difficulty": DifficultyLevel.beginner,
@@ -2494,10 +2490,9 @@ No. The source's final model is an Infinity Loop of continuous improvement.
             "placement": "after_section",
             "description": "Define what CI/CD should publish to governance systems.",
             "instructions": (
-                "Design the metadata registered for Math Tutor v2.3 after Staging.\n"
-                "Include Agent Card reference, version, environment, endpoint, owner, evaluation scores, "
-                "approval state, tool dependencies, release status, and deprecation field.\n"
-                "Explain which fields are updated again after Production deployment."
+                ('1. Design the metadata registered for Math Tutor v2.3 after Staging.\n'
+                 '2. Include Agent Card reference, version, environment, endpoint, owner, evaluation scores, approval state, tool dependencies, release status, and deprecation field.\n'
+                 '3. Explain which fields are updated again after Production deployment.')
             ),
             "expected_output": "A Registry update schema and lifecycle.",
             "difficulty": DifficultyLevel.beginner,
@@ -2511,9 +2506,8 @@ No. The source's final model is an Infinity Loop of continuous improvement.
             "placement": "after_section",
             "description": "Balance compatibility with the cost of running multiple agent versions.",
             "instructions": (
-                "Assume Web Portal uses Tutor v1, Mobile uses v2, and a partner API uses v3.\n"
-                "Define version pinning, support window, deprecation notice, migration deadline, "
-                "shutdown behavior, archive metadata, and emergency exceptions."
+                ('1. Assume Web Portal uses Tutor v1, Mobile uses v2, and a partner API uses v3.\n'
+                 '2. Define version pinning, support window, deprecation notice, migration deadline, shutdown behavior, archive metadata, and emergency exceptions.')
             ),
             "expected_output": "A version-retention and migration policy.",
             "difficulty": DifficultyLevel.beginner,

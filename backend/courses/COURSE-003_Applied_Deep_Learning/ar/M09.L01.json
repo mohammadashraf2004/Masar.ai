@@ -27,7 +27,7 @@
     {
       "id": "COURSE-003.M09.L01.EX05",
       "title": "خريطة قرار معمار Transformer",
-      "description": "اربط تصميمات decoder-only وencoder-only وencoder-decoder وVision Transformer بمتطلبات تدفق المعلومات فيها.\n\n**المخرَج المتوقع**\n\nجدول مقارنة من أربعة صفوف يغطي المعمار والإخفاء ومعلومات الموضع ونوع attention."
+      "description": "اربط تصميمات decoder-only وencoder-only وencoder-decoder وVision Transformer بمتطلبات تدفق المعلومات فيها.\n\n**التعليمات**\n\nاختر لكل مهمة أدناه عائلة البنى الأنسب مفاهيميًا من الفصل، وبرّر اختيارك:\n1. توليد تتمة لموجّه نصي،\n2. تصنيف مراجعة إلى إيجابية أو سلبية،\n3. ترجمة جملة إنجليزية إلى لغة أخرى،\n4. تصنيف صورة باستخدام patch tokens.\nحدّد لكل حالة هل يلزم causal masking، وأين تُطلب المعلومات الموضعية، وهل يدخل في الأمر self-attention أم cross-attention.\n\n**المخرَج المتوقع**\n\nجدول مقارنة من أربعة صفوف يغطي المعمار والإخفاء ومعلومات الموضع ونوع attention."
     }
   ],
   "questions": [

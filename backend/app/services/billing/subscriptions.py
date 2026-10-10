@@ -16,6 +16,7 @@ from app.models.billing import (
     UserSubscription,
 )
 from app.services.payments import paymob_service
+from app.services.payments.notice import PaymentNotice
 
 logger = logging.getLogger("app.billing.subscriptions")
 
@@ -26,8 +27,9 @@ ACCESS_STATUSES = {"trialing", "active", "cancelled"}
 # checkout that a new one replaced; if the learner did pay it after all, the
 # payment is honoured rather than lost.
 OPEN_ORDER_STATUSES = {"pending", "failed", "cancelled"}
-# Paymob payment keys live for an hour (paymob_service.request_payment_key);
-# after this an unpaid checkout no longer blocks a new one.
+# Checkout sessions live for an hour (Kashier `expireAt`, set by
+# payments.checkout; Paymob payment keys likewise); after this an unpaid
+# checkout no longer blocks a new one.
 PENDING_ORDER_TTL = timedelta(minutes=75)
 
 
@@ -87,28 +89,28 @@ def _period_end(start: datetime, period: str) -> datetime:
 
 
 def process_paymob_subscription_webhook(db: Session, obj: dict) -> Optional[dict]:
-    """Settle a subscription order, returning None for another payment kind."""
-    provider_order = obj.get("order") if isinstance(obj.get("order"), dict) else {}
-    merchant_order_id = provider_order.get("merchant_order_id")
-    if not merchant_order_id:
-        return None
+    """A verified Paymob callback for a subscription order (see settle_subscription_notice)."""
+    notice = paymob_service.to_notice(obj)
+    return settle_subscription_notice(db, notice) if notice else None
 
+
+def settle_subscription_notice(db: Session, notice: PaymentNotice) -> Optional[dict]:
+    """Settle a subscription order, returning None for another payment kind."""
     order = (
         db.query(SubscriptionOrder)
-        .filter(SubscriptionOrder.merchant_order_id == str(merchant_order_id))
+        .filter(SubscriptionOrder.merchant_order_id == notice.merchant_order_id)
         .with_for_update()
         .first()
     )
     if order is None:
         return None
 
-    raw_event_id = obj.get("id")
-    if raw_event_id is None:
+    if not notice.event_id:
         raise ValueError("Missing provider transaction id")
-    event_id = str(raw_event_id)
-    incoming_pending = bool(obj.get("pending"))
+    event_id = notice.event_id
+    incoming_pending = notice.pending
     event = db.query(SubscriptionPaymentEvent).filter(
-        SubscriptionPaymentEvent.provider == "paymob",
+        SubscriptionPaymentEvent.provider == notice.provider,
         SubscriptionPaymentEvent.provider_event_id == event_id,
     ).first()
     if event and event.order_id != order.id:
@@ -116,17 +118,15 @@ def process_paymob_subscription_webhook(db: Session, obj: dict) -> Optional[dict
     if event and (not event.pending or incoming_pending):
         return {"status": "already_processed", "kind": "subscription", "success": order.status == "paid"}
 
-    try:
-        amount = int(obj.get("amount_cents"))
-    except (TypeError, ValueError):
-        amount = -1
-    currency = str(obj.get("currency") or "").upper()
-    kind = paymob_service.classify_transaction(obj)
+    amount = notice.amount
+    currency = notice.currency
+    kind = notice.kind
     # A payment must be for exactly the order's amount; a refund may return
     # part of it (staff-issued partial refund), never more.
     amount_ok = 0 < amount <= order.amount if kind == "reversal" else amount == order.amount
     error_code = None
-    if not paymob_service.provider_order_matches(obj, order.provider_order_id):
+    # The provider that took the order is the only one whose callbacks bind to it.
+    if order.provider != notice.provider or not notice.binds(order.provider_order_id):
         error_code = "provider_order_mismatch"
     elif not amount_ok:
         error_code = "amount_mismatch"
@@ -135,15 +135,15 @@ def process_paymob_subscription_webhook(db: Session, obj: dict) -> Optional[dict
 
     values = dict(
         amount=max(amount, 0), currency=currency[:3] or "N/A",
-        success=bool(obj.get("success")), pending=incoming_pending,
-        response_code=error_code or (kind if kind != "payment" else None), raw_payload=obj,
+        success=notice.success, pending=incoming_pending,
+        response_code=error_code or (kind if kind != "payment" else None), raw_payload=notice.raw,
     )
     if event:
         for key, value in values.items():
             setattr(event, key, value)
     else:
         event = SubscriptionPaymentEvent(
-            order_id=order.id, provider="paymob", provider_event_id=event_id, **values,
+            order_id=order.id, provider=notice.provider, provider_event_id=event_id, **values,
         )
         db.add(event)
 
@@ -160,21 +160,22 @@ def process_paymob_subscription_webhook(db: Session, obj: dict) -> Optional[dict
     if kind == "reversal":
         # A verified refund/void never grants. Provider truth completes the
         # audited refund exactly once and ends the period that payment bought:
-        # staff usually refund in the Paymob dashboard while the request is
-        # "processing", and this callback lands before anyone clicks
+        # staff usually refund in the provider's dashboard (Kashier; Paymob for
+        # its older orders) while the request is "processing", and this
+        # callback lands before anyone clicks
         # "refunded" - after which no workflow step could revoke it any more.
         if order.status in {"paid", "refunded"} and not incoming_pending:
             from app.services.billing.refunds import reconcile_provider_refund
 
             reconcile_provider_refund(
                 db, order=order, provider_event_id=event_id,
-                amount=amount, success=bool(obj.get("success")),
+                amount=amount, success=notice.success,
             )
         db.commit()
         logger.warning("billing.subscription.reversal", extra={"order_id": order.id, "user_id": order.user_id})
         return {"status": "processed", "kind": "subscription", "success": False}
 
-    provider_success = bool(obj.get("success")) and not incoming_pending and kind == "payment"
+    provider_success = notice.settles
     if not provider_success:
         if open_order:
             order.status = "pending" if incoming_pending or kind == "authorization" else "failed"
@@ -203,7 +204,7 @@ def process_paymob_subscription_webhook(db: Session, obj: dict) -> Optional[dict
             subscription.status = "expired"
         subscription = UserSubscription(
             user_id=order.user_id, plan_id=order.plan_id, status="active",
-            billing_period=order.billing_period, payment_provider="paymob",
+            billing_period=order.billing_period, payment_provider=notice.provider,
             provider_subscription_id=event_id,
             current_period_start=now, current_period_end=_period_end(now, order.billing_period),
         )

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { User } from '@/types'
 import { blockedRoute, isNewAccount, modalOpen, pickTour, showsNewTag } from './eligibility'
 import { TOURS_STORAGE_KEY, getRecord, saveRecord } from './records'
@@ -11,7 +11,11 @@ const OLD: User = student({ id: 8, created_at: OLD_ACCOUNT })
 const seenOnce = (user: User, id: Parameters<typeof saveRecord>[1], version = 1) =>
   saveRecord(user.id, id, { status: 'done', version })
 
-beforeEach(() => resetTourSession())
+beforeEach(() => {
+  vi.stubEnv('NEXT_PUBLIC_MOCK_INTERVIEW', '1')
+  resetTourSession()
+})
+afterEach(() => vi.unstubAllEnvs())
 
 describe('who is new', () => {
   it('splits accounts at the release date', () => {
@@ -37,10 +41,20 @@ describe('which tour is due', () => {
     expect(pickTour('/dashboard', OLD, false)).toBeNull()
   })
 
-  it('runs a feature tour the first time its route opens', () => {
+  it('runs a feature tour the first time its route opens: on the mentor, how to use it first', () => {
+    expect(pickTour('/mentor', OLD, false)?.id).toBe('mentor')
+    expect(pickTour('/mentor', NEW, false)?.id).toBe('mentor')
+    seenOnce(OLD, 'mentor')
+    seenOnce(NEW, 'mentor')
     expect(pickTour('/mentor', OLD, false)?.id).toBe('mentor-interview')
     expect(pickTour('/mentor', NEW, false)?.id).toBe('mentor-interview')
     expect(pickTour('/glossary', OLD, false)).toBeNull()
+  })
+
+  it('skips the interview tour while the mock interview is not open yet', () => {
+    vi.stubEnv('NEXT_PUBLIC_MOCK_INTERVIEW', '')
+    seenOnce(OLD, 'mentor')
+    expect(pickTour('/mentor', OLD, false)?.id).toBe('language')
   })
 
   it('does not show a tour again once there is a record for its version', () => {
@@ -71,6 +85,7 @@ describe('which tour is due', () => {
 
 describe('the language tour comes after the onboarding', () => {
   it('waits for a new account to finish (or skip) the onboarding', () => {
+    seenOnce(NEW, 'mentor')
     seenOnce(NEW, 'mentor-interview')
     expect(pickTour('/mentor', NEW, false)).toBeNull()
     saveRecord(NEW.id, 'onboarding', { status: 'skipped', version: 1 })
@@ -78,6 +93,7 @@ describe('the language tour comes after the onboarding', () => {
   })
 
   it('does not wait for the onboarding an existing account is never given', () => {
+    seenOnce(OLD, 'mentor')
     seenOnce(OLD, 'mentor-interview')
     expect(pickTour('/mentor', OLD, false)?.id).toBe('language')
   })

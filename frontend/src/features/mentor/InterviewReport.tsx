@@ -55,7 +55,7 @@ export function InterviewReport({ id }: { id: string }) {
 
       <div className="flex flex-wrap items-start gap-5">
         <Card className="flex min-w-0 flex-[2_1_420px] flex-col p-5">
-          <h2 className="mb-3 text-sm font-semibold text-white">{t('mentor.v2.report.questions')}</h2>
+          <h2 className="ui-card-title mb-3">{t('mentor.v2.report.questions')}</h2>
           <ul className="flex flex-col">
             {report.questions.map((q, i) => {
               const expanded = open === i
@@ -90,7 +90,7 @@ export function InterviewReport({ id }: { id: string }) {
 
         <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-5">
           <Card className="flex flex-col gap-3 p-5">
-            <h2 className="text-sm font-semibold text-white">{t('mentor.v2.report.strengths')}</h2>
+            <h2 className="ui-card-title">{t('mentor.v2.report.strengths')}</h2>
             <ul className="flex flex-col gap-2">
               {report.strengths.map((s) => (
                 <li key={s} className="flex items-start gap-2.5 text-[13px] leading-[1.7] text-bright">
@@ -99,7 +99,7 @@ export function InterviewReport({ id }: { id: string }) {
                 </li>
               ))}
             </ul>
-            <h2 className="mt-1 text-sm font-semibold text-white">{t('mentor.v2.report.gaps')}</h2>
+            <h2 className="ui-card-title mt-1">{t('mentor.v2.report.gaps')}</h2>
             <ul className="flex flex-col gap-2">
               {report.gaps.map((g) => (
                 <li key={g} className="flex items-start gap-2.5 text-[13px] leading-[1.7] text-bright">
@@ -111,7 +111,7 @@ export function InterviewReport({ id }: { id: string }) {
           </Card>
 
           <Card className="flex flex-col gap-1 p-5">
-            <h2 className="mb-1 text-sm font-semibold text-white">{t('mentor.v2.report.recommended')}</h2>
+            <h2 className="ui-card-title mb-1">{t('mentor.v2.report.recommended')}</h2>
             {report.recommended.map((r) => (
               <Link
                 key={r.title}

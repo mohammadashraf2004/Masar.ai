@@ -5,6 +5,7 @@ import { X, Check, BookOpen, ArrowRight } from 'lucide-react'
 import { Badge, Spinner } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
+import { useRequireAuth } from '@/components/auth/AuthPrompt'
 import { useI18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import type { VocabularyTermDetail } from '@/types'
@@ -28,6 +29,7 @@ export function VocabularyTermModal({
   const [term, setTerm] = useState<VocabularyTermDetail | null>(null)
   const [failed, setFailed] = useState(false)
   const [saving, setSaving] = useState(false)
+  const requireAuth = useRequireAuth()
 
   if (slug !== slugState) {
     setSlugState(slug)
@@ -46,6 +48,11 @@ export function VocabularyTermModal({
   }, [slug])
 
   async function setStatus(status: 'learning' | 'mastered') {
+    // Reading a term is public; tracking it is the learner's own progress.
+    if (!requireAuth()) {
+      onClose()
+      return
+    }
     setSaving(true)
     try {
       const updated = await api.recordVocabularyTermProgress(slug, status)
@@ -157,7 +164,7 @@ export function VocabularyTermModal({
             {term.aliases.length > 0 && (
               <div className="flex flex-wrap gap-1.5" dir="ltr">
                 {term.aliases.map((a) => (
-                  <span key={a} className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] text-dim">{a}</span>
+                  <span key={a} className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-xs text-dim">{a}</span>
                 ))}
               </div>
             )}

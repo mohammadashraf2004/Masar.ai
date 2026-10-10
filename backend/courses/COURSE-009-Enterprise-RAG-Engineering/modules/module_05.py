@@ -2088,10 +2088,9 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'platform-purpose',
                 'placement': 'after_section',
                 'description': 'Compare ownership boundaries',
-                'instructions': 'You are designing an internal support assistant. Draw two '
-                                'architectures: DIY and managed platform. Mark which team owns '
-                                'parsing, embedding, storage, retrieval, generation, security '
-                                'updates, and observability in each.',
+                'instructions': ('1. You are designing an internal support assistant.\n'
+                                 '2. Draw two architectures: DIY and managed platform.\n'
+                                 '3. Mark which team owns parsing, embedding, storage, retrieval, generation, security updates, and observability in each.'),
                 'expected_output': 'A side-by-side architecture with explicit ownership for each '
                                    'RAG stage.',
                 'difficulty': 'intermediate',
@@ -2102,9 +2101,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'decision-framework',
                 'placement': 'after_section',
                 'description': 'Identify migration risks',
-                'instructions': 'List five platform-specific decisions that could make a future '
-                                'migration difficult. For each, state one design choice that could '
-                                'reduce the dependency.',
+                'instructions': ('1. List five platform-specific decisions that could make a future migration difficult.\n'
+                                 '2. For each, state one design choice that could reduce the dependency.'),
                 'expected_output': 'A risk table pairing platform dependency with a portability '
                                    'mitigation.',
                 'difficulty': 'intermediate',
@@ -2115,9 +2113,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'byo-embeddings',
                 'placement': 'after_section',
                 'description': 'Plan a model replacement',
-                'instructions': 'Assume the current embedding model is weak in a new language. '
-                                'Design a safe migration plan that accounts for re-embedding, '
-                                'index rebuild, quality comparison, and cutover.',
+                'instructions': ('1. Assume the current embedding model is weak in a new language.\n'
+                                 '2. Design a safe migration plan that accounts for re-embedding, index rebuild, quality comparison, and cutover.'),
                 'expected_output': 'A staged migration plan from old embedding space to new '
                                    'embedding space.',
                 'difficulty': 'intermediate',
@@ -2128,9 +2125,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'vector-db-diy',
                 'placement': 'after_section',
                 'description': 'Expose hidden operations',
-                'instructions': 'For a DIY vector database, enumerate the operational '
-                                'responsibilities beyond vector search itself. Classify each as '
-                                'deployment, reliability, security, performance, or maintenance.',
+                'instructions': ('1. For a DIY vector database, enumerate the operational responsibilities beyond vector search itself.\n'
+                                 '2. Classify each as deployment, reliability, security, performance, or maintenance.'),
                 'expected_output': 'A categorized operations inventory.',
                 'difficulty': 'beginner',
                 'skill_tested': 'vector infrastructure'},
@@ -2140,9 +2136,10 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'hybrid-reranking-platform',
                 'placement': 'after_section',
                 'description': 'Evaluate retrieval controls',
-                'instructions': 'Create a vendor scorecard for semantic search, lexical search, '
-                                'fusion, metadata filtering, reranking, multilingual support, and '
-                                'result observability.',
+                'instructions': ('1. List the criteria: semantic search, lexical search, fusion, metadata filtering, reranking, multilingual support, and result observability.\n'
+                                 '2. For each criterion, write one question you would ask a vendor.\n'
+                                 '3. Define what a weak, acceptable and strong answer looks like.\n'
+                                 '4. Mark which criteria are must-haves for your use case.'),
                 'expected_output': 'A retrieval-focused platform evaluation scorecard.',
                 'difficulty': 'intermediate',
                 'skill_tested': 'retrieval evaluation'},
@@ -2152,9 +2149,10 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'prompt-governance',
                 'placement': 'after_section',
                 'description': 'Centralize prompt policy',
-                'instructions': 'Design a process in which teams can customize application prompts '
-                                'while central security controls mandatory grounding and '
-                                'injection-defense instructions.',
+                'instructions': ('1. Separate the prompt into the parts application teams may customize and the parts central security owns.\n'
+                                 '2. Make grounding and injection-defense instructions mandatory parts that teams cannot remove.\n'
+                                 '3. Describe how a team proposes a change and who reviews it.\n'
+                                 '4. Explain how you would detect an application that bypasses the mandatory parts.'),
                 'expected_output': 'A governance workflow separating mandatory policy from '
                                    'application customization.',
                 'difficulty': 'intermediate',
@@ -2165,9 +2163,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'model-behavior-change',
                 'placement': 'after_section',
                 'description': 'Test model drift',
-                'instructions': 'A platform upgrades its default LLM. Define what you would '
-                                'evaluate before accepting the change, including quality, '
-                                'instruction following, latency, and domain-specific failures.',
+                'instructions': ('1. A platform upgrades its default LLM.\n'
+                                 '2. Define what you would evaluate before accepting the change, including quality, instruction following, latency, and domain-specific failures.'),
                 'expected_output': 'A regression checklist and acceptance criteria.',
                 'difficulty': 'intermediate',
                 'skill_tested': 'model lifecycle'},
@@ -2177,9 +2174,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'hallucination-controls',
                 'placement': 'after_section',
                 'description': 'Design an application response policy',
-                'instructions': 'Define how an application should react to high, medium, and low '
-                                'factual-consistency signals. Include when to return, warn, '
-                                'correct, or escalate.',
+                'instructions': ('1. Define how an application should react to high, medium, and low factual-consistency signals.\n'
+                                 '2. Include when to return, warn, correct, or escalate.'),
                 'expected_output': 'A decision table for factual-consistency handling.',
                 'difficulty': 'intermediate',
                 'skill_tested': 'hallucination controls'},
@@ -2189,9 +2185,9 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'connector-due-diligence',
                 'placement': 'after_section',
                 'description': 'Inspect connector depth',
-                'instructions': 'Choose one enterprise source and write ten questions covering '
-                                'object coverage, attachments, refresh, deletions, permissions, '
-                                'failure recovery, deployment, and monitoring.',
+                'instructions': ('1. Choose one enterprise source, for example a wiki, a ticketing system or a shared drive.\n'
+                                 '2. Write ten questions that together cover object coverage, attachments, refresh, deletions, permissions, failure recovery, deployment and monitoring.\n'
+                                 '3. Next to each question, note what a risky answer would be.'),
                 'expected_output': 'A connector acceptance checklist grounded in operational '
                                    'behavior.',
                 'difficulty': 'intermediate',
@@ -2202,10 +2198,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'golden-path',
                 'placement': 'after_section',
                 'description': 'Design a golden path',
-                'instructions': 'Your company has five teams using different vector stores and '
-                                'LLMs. Design a minimum platform policy that standardizes security '
-                                'and governance without forcing all teams into identical '
-                                'applications.',
+                'instructions': ('1. Your company has five teams using different vector stores and LLMs.\n'
+                                 '2. Design a minimum platform policy that standardizes security and governance without forcing all teams into identical applications.'),
                 'expected_output': 'A platform baseline defining shared controls and allowed '
                                    'customization.',
                 'difficulty': 'intermediate',
@@ -2216,9 +2210,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'true-diy-cost',
                 'placement': 'after_section',
                 'description': 'Compare direct and indirect cost',
-                'instructions': 'Build a TCO worksheet comparing DIY and managed platform RAG. '
-                                'Include engineering, infrastructure, model APIs, monitoring, '
-                                'support, security, and ongoing upgrades.',
+                'instructions': ('1. Build a TCO worksheet comparing DIY and managed platform RAG.\n'
+                                 '2. Include engineering, infrastructure, model APIs, monitoring, support, security, and ongoing upgrades.'),
                 'expected_output': 'A cost model that does not compare only subscription fees.',
                 'difficulty': 'intermediate',
                 'skill_tested': 'TCO analysis'},
@@ -2228,9 +2221,10 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'deployment-spectrum',
                 'placement': 'after_section',
                 'description': 'Map requirements to SaaS/VPC/on-prem',
-                'instructions': 'For three organizations—a startup with public documentation, a '
-                                'regulated bank, and an air-gapped defense environment—choose a '
-                                'plausible deployment model and justify it from constraints.',
+                'instructions': ('1. Consider three organizations: a startup with public documentation, a regulated bank, and an air-gapped defense environment.\n'
+                                 '2. List the main constraint of each (data sensitivity, regulation, network access).\n'
+                                 '3. Choose SaaS, VPC or on-prem for each one.\n'
+                                 '4. Justify each choice from its constraints.'),
                 'expected_output': 'Three requirement-based deployment decisions without assuming '
                                    'one model fits all.',
                 'difficulty': 'intermediate',
@@ -2241,9 +2235,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'corpus-document-model',
                 'placement': 'after_section',
                 'description': 'Partition knowledge intentionally',
-                'instructions': 'You have HR policies, public product docs, and support tickets. '
-                                'Propose corpus boundaries and explain access, metadata, and '
-                                'application reasons for your design.',
+                'instructions': ('1. You have HR policies, public product docs, and support tickets.\n'
+                                 '2. Propose corpus boundaries and explain access, metadata, and application reasons for your design.'),
                 'expected_output': 'A corpus architecture with clear isolation rationale.',
                 'difficulty': 'intermediate',
                 'skill_tested': 'knowledge architecture'},
@@ -2253,9 +2246,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'api-key-scope',
                 'placement': 'after_section',
                 'description': 'Scope platform credentials',
-                'instructions': 'Assign credentials to a query API, an ingestion worker, and an '
-                                'administrative automation job. Explain why they should not share '
-                                'one full-access key.',
+                'instructions': ('1. Assign credentials to a query API, an ingestion worker, and an administrative automation job.\n'
+                                 '2. Explain why they should not share one full-access key.'),
                 'expected_output': 'A least-privilege credential map.',
                 'difficulty': 'beginner',
                 'skill_tested': 'API security'},
@@ -2265,9 +2257,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'file-upload',
                 'placement': 'after_section',
                 'description': 'Explain platform abstraction',
-                'instructions': 'Starting from an uploaded PDF, trace the hidden stages until the '
-                                'document becomes retrievable. For each stage, name one possible '
-                                'failure symptom visible at query time.',
+                'instructions': ('1. Starting from an uploaded PDF, trace the hidden stages until the document becomes retrievable.\n'
+                                 '2. For each stage, name one possible failure symptom visible at query time.'),
                 'expected_output': 'An ingestion trace connecting hidden platform stages to '
                                    'observable failures.',
                 'difficulty': 'intermediate',
@@ -2278,9 +2269,10 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'direct-ingestion',
                 'placement': 'after_section',
                 'description': 'Preserve hierarchy and metadata',
-                'instructions': 'Represent a policy manual with chapters, sections, dates, '
-                                'departments, and sensitivity labels using nested sections and '
-                                'metadata.',
+                'instructions': ('1. Take a policy manual with chapters, sections, dates, departments and sensitivity labels.\n'
+                                 '2. Represent the chapters and sections as nested sections.\n'
+                                 '3. Attach the dates, departments and sensitivity labels as metadata on the right level.\n'
+                                 '4. Show one retrieved chunk together with the hierarchy and metadata it keeps.'),
                 'expected_output': 'A structured document object that preserves hierarchy and '
                                    'useful retrieval metadata.',
                 'difficulty': 'intermediate',
@@ -2291,9 +2283,10 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'search-parameters',
                 'placement': 'after_section',
                 'description': 'Reason about retrieval knobs',
-                'instructions': 'For a query with an exact product code plus a natural-language '
-                                'problem description, explain how you would think about lexical '
-                                'interpolation, candidate limit, context expansion, and reranking.',
+                'instructions': ('1. Use a query that combines an exact product code with a natural-language description of a problem.\n'
+                                 '2. Explain how much weight lexical matching should get through interpolation, and why.\n'
+                                 '3. Choose a candidate limit and say what happens if it is too small.\n'
+                                 '4. Decide whether to expand the context and whether to rerank, and explain the effect of each.'),
                 'expected_output': 'A justified query configuration based on retrieval behavior.',
                 'difficulty': 'intermediate',
                 'skill_tested': 'query tuning'},
@@ -2303,9 +2296,8 @@ TOPIC = {'title': 'The RAG Platform',
                 'section_id': 'hallucination-correction',
                 'placement': 'after_section',
                 'description': 'Use correction safely',
-                'instructions': 'A generated answer contains two unsupported claims. Define the '
-                                'data you would send to a correction service and the correction '
-                                'information you would log for later analysis.',
+                'instructions': ('1. A generated answer contains two unsupported claims.\n'
+                                 '2. Define the data you would send to a correction service and the correction information you would log for later analysis.'),
                 'expected_output': 'An evidence-aware correction and audit record design.',
                 'difficulty': 'intermediate',
                 'skill_tested': 'hallucination correction'}],

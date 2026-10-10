@@ -558,9 +558,9 @@ They have different network roles.
             "placement": "after_section",
             "description": "Map the source's root, IAM user, group, and policy model.",
             "instructions": (
-                "Draw the access chain Root → 2FA → IAM user → IAM group → policies. "
-                "Then explain why routine deployment work should use the IAM identity rather than root. "
-                "List the three managed policies used by the source and label them as exercise-specific."
+                ('1. Draw the access chain Root → 2FA → IAM user → IAM group → policies.\n'
+                 '2. Then explain why routine deployment work should use the IAM identity rather than root.\n'
+                 '3. List the three managed policies used by the source and label them as exercise-specific.')
             ),
             "expected_output": "An identity/permission diagram plus a short security explanation.",
             "difficulty": DifficultyLevel.beginner,
@@ -574,9 +574,9 @@ They have different network roles.
             "placement": "after_section",
             "description": "Translate the source's inbound access design into a clear rule table.",
             "instructions": (
-                "Create a table for ports 22, 8501, 8502, and 8504. Include service, protocol, source CIDR, "
-                "and why each port exists. Then explain the difference between allowing one /32 address "
-                "and exposing the same port broadly."
+                ('1. Create a table for ports 22, 8501, 8502, and 8504.\n'
+                 '2. Include service, protocol, source CIDR, and why each port exists.\n'
+                 '3. Then explain the difference between allowing one /32 address and exposing the same port broadly.')
             ),
             "expected_output": "A four-row inbound-rule table plus an exposure comparison.",
             "difficulty": DifficultyLevel.beginner,
@@ -590,9 +590,9 @@ They have different network roles.
             "placement": "after_section",
             "description": "Differentiate the Elastic IP from the instance private IP.",
             "instructions": (
-                "Explain what happens to external SSH configuration if the public address changes, "
-                "how the Elastic IP solves that problem, and why the instance private IP is still important "
-                "for later AWS networking."
+                ("1. Explain what happens to your external SSH configuration when the instance's public address changes.\n"
+                 '2. Explain how an Elastic IP solves that problem.\n'
+                 "3. Explain why the instance's private IP still matters for later AWS networking.")
             ),
             "expected_output": "A public/private addressing explanation with a small network diagram.",
             "difficulty": DifficultyLevel.beginner,

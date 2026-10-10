@@ -612,8 +612,8 @@ The source updates Jenkins Location manually.
             "placement": "after_section",
             "description": "Map the source's old and new public-routing designs.",
             "instructions": (
-                "Create a before/after table for Streamlit, Flask, and Jenkins. Include old URL, new subdomain, "
-                "old external port, new external port, and unchanged internal upstream port."
+                ('1. Create a before/after table for Streamlit, Flask, and Jenkins.\n'
+                 '2. Include old URL, new subdomain, old external port, new external port, and unchanged internal upstream port.')
             ),
             "expected_output": "A three-service port-to-host routing table.",
             "difficulty": DifficultyLevel.beginner,
@@ -642,8 +642,8 @@ The source updates Jenkins Location manually.
             "placement": "after_section",
             "description": "Connect DNS, AWS networking, TLS, Nginx, and the application.",
             "instructions": (
-                "Trace `https://flask.example.com` from DNS A record → load balancer → port 443 → EC2/Nginx → "
-                "matching `server_name` → Flask service port 8502. Identify where the certificate is presented."
+                ('1. Trace `https://flask.example.com` from DNS A record → load balancer → port 443 → EC2/Nginx → matching `server_name` → Flask service port 8502.\n'
+                 '2. Identify where the certificate is presented.')
             ),
             "expected_output": "An end-to-end secure subdomain request flow.",
             "difficulty": DifficultyLevel.beginner,

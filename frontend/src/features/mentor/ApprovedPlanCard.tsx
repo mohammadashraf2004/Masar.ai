@@ -44,7 +44,7 @@ export function ApprovedPlanCard({ now = new Date() }: { now?: Date }) {
           {day.blocks.map((b, i) => (
             <Link key={`${b.refId}-${i}`} href={planBlockHref(b)} className="flex min-h-[44px] items-center justify-between gap-3 rounded-lg bg-panel px-3 py-2 text-[13px] text-bright hover:text-white">
               <span dir="auto" className="min-w-0 flex-1">{b.title}</span>
-              <span className="text-[11px] text-dim">{t(`mentor.v2.plan.type.${b.type}` as MentorV2Key)} · <span dir="ltr" className="font-mono">{tf('mentor.v2.plan.minutes', { n: b.minutes })}</span></span>
+              <span className="text-xs text-dim">{t(`mentor.v2.plan.type.${b.type}` as MentorV2Key)} · <span dir="ltr" className="font-mono">{tf('mentor.v2.plan.minutes', { n: b.minutes })}</span></span>
             </Link>
           ))}
         </div>

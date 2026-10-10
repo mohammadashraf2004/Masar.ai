@@ -16,7 +16,7 @@ from app.models.learning import Lesson
 from app.models.learning_path import Course, LearningProfile, ReadinessAssessment
 from app.models.progress import Enrollment
 from app.models.tool_course import ToolTopic
-from app.services.payments import paymob_service
+from app.services.payments import kashier_service
 from tests.curriculum_fixtures import correct_answers, finish_topics, import_small_courses, topic_ids
 from tests.learning_fixtures import learn_catalog, learn_client, learn_db, logs_enabled, register  # noqa: F401
 
@@ -520,8 +520,8 @@ def test_a_free_enrollment_never_opens_a_course_that_is_later_made_paid(learn_cl
     locked = learn_client.get(f"/api/v1/tool-courses/topics/{topic}", headers=who["headers"]).json()
     assert all(l["is_locked"] for l in locked["lessons"]) and all(not l["content"] for l in locked["lessons"])
 
-    monkeypatch.setattr(paymob_service, "init_payment_minor",
-                        lambda **kw: {"checkout_url": "https://accept.paymob.test/x", "paymob_order_id": 91})
+    monkeypatch.setattr(kashier_service, "create_session",
+                        lambda **kw: {"session_id": "sess-91", "checkout_url": "https://checkout.kashier.test/sess-91"})
     checkout = learn_client.post("/api/v1/billing/checkout", headers=who["headers"], json={"course_id": "course-013"})
     assert checkout.status_code == 200, checkout.text                       # not "already owned"
 

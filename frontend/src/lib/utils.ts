@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { proAiLimitMessage } from '@/lib/aiErrors'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -100,6 +101,10 @@ export function getErrorMessage(error: unknown): string {
     if (typeof detail === 'string') return detail
     // 422 validation errors arrive as an array of field problems.
     if (Array.isArray(detail)) return formatValidationErrors(detail)
+    // Pro's included AI credits are used up: the agreed message, in the reader's language
+    // (the server's own message is English only).
+    const proLimit = proAiLimitMessage(error)
+    if (proLimit) return proLimit
     // 402 insufficient-credits returns a structured detail object.
     if (detail && typeof detail === 'object' && 'message' in detail) {
       return String((detail as { message: unknown }).message)

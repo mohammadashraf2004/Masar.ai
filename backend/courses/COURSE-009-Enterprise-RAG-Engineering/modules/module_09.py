@@ -1661,10 +1661,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'description': 'Given three queries, classify whether standard semantic retrieval '
                                'is likely sufficient or whether explicit graph relationships are '
                                'needed.',
-                'instructions': 'For each query, identify whether the answer depends on semantic '
-                                'similarity, exact constraints, temporal validity, or traversal '
-                                'across relationships. Route it to standard/hybrid RAG or a '
-                                'graph-enhanced path and explain why.',
+                'instructions': ('1. For each query, identify whether the answer depends on semantic similarity, exact constraints, temporal validity, or traversal across relationships.\n'
+                                 '2. Route it to standard/hybrid RAG or a graph-enhanced path and explain why.'),
                 'expected_output': 'A classification table with query type, chosen retrieval path, '
                                    'and the failure mode avoided.',
                 'skill_tested': ['retrieval-diagnosis', 'knowledge-graphs'],
@@ -1676,9 +1674,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Design nodes, properties, and typed relationships for a university '
                                'course-prerequisite domain.',
-                'instructions': 'Model courses, students, departments, and prerequisites. Define '
-                                'at least four node types or labels, five relationship types, key '
-                                'properties, and one relationship direction constraint.',
+                'instructions': ('1. Model courses, students, departments, and prerequisites.\n'
+                                 '2. Define at least four node types or labels, five relationship types, key properties, and one relationship direction constraint.'),
                 'expected_output': 'A compact university KG design showing entities, properties, '
                                    'typed edges, and one example path query.',
                 'skill_tested': ['knowledge-graphs', 'data-modeling'],
@@ -1691,9 +1688,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'description': 'Explain in plain language what a supplied Person-DIRECTED-Movie '
                                'Cypher pattern retrieves, then modify the filter to select a '
                                'release year.',
-                'instructions': 'Translate the MATCH pattern into plain English, then add a '
-                                'release-year filter and return both director and movie title. '
-                                'Explain how directionality affects the match.',
+                'instructions': ('1. Translate the MATCH pattern into plain English, then add a release-year filter and return both director and movie title.\n'
+                                 '2. Explain how directionality affects the match.'),
                 'expected_output': 'A plain-language interpretation plus a corrected Cypher query '
                                    'with the added year constraint.',
                 'skill_tested': ['cypher', 'graph-querying'],
@@ -1719,9 +1715,10 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'For a product domain, write two ontology rules and show how each '
                                'becomes a concrete graph schema element.',
-                'instructions': 'Define two domain-level truths independent of storage, then '
-                                'implement each as labels/properties/relationship constraints in a '
-                                'concrete graph schema.',
+                'instructions': ('1. Choose a product domain.\n'
+                                 '2. Write two domain-level truths (ontology rules) that do not depend on how data is stored.\n'
+                                 '3. Implement each rule as labels, properties or relationship constraints in a concrete graph schema.\n'
+                                 '4. Explain how each schema element enforces its rule.'),
                 'expected_output': 'Two ontology rules paired with their database-schema '
                                    'implementation.',
                 'skill_tested': ['ontology', 'schema'],
@@ -1733,9 +1730,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Specify the identifiers and metadata needed to join a chunk stored '
                                'in a vector DB with the same chunk represented in a graph.',
-                'instructions': 'Specify source_document_id, chunk_id, version, checksum, '
-                                'offsets/page, and graph-node ID. Explain how these fields let you '
-                                'detect stale or orphaned representations across stores.',
+                'instructions': ('1. Specify source_document_id, chunk_id, version, checksum, offsets/page, and graph-node ID.\n'
+                                 '2. Explain how these fields let you detect stale or orphaned representations across stores.'),
                 'expected_output': 'A stable chunk identity contract and two integrity checks '
                                    'between vector and graph systems.',
                 'skill_tested': ['chunk-identity', 'data-integrity'],
@@ -1747,9 +1743,9 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Take a thin chunk that mentions only a character name and design '
                                'the graph lookups required to add actor and movie context.',
-                'instructions': 'Identify the entity mention in the thin chunk, list the graph '
-                                'traversals required to reach actor and movie facts, then show the '
-                                'enriched context packet supplied to generation.',
+                'instructions': ('1. Identify the entity mentioned in the thin chunk (the character name).\n'
+                                 '2. List the graph traversals needed to reach the actor and the movie facts.\n'
+                                 '3. Show the enriched context packet that is passed to generation.'),
                 'expected_output': 'A traversal plan and enriched chunk containing both original '
                                    'text and graph-derived facts with provenance.',
                 'skill_tested': ['chunk-enrichment', 'graph-rag'],
@@ -1761,10 +1757,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'For four query types, choose chunk enrichment or hybrid graph '
                                'retrieval and justify the choice.',
-                'instructions': 'Classify quote lookup, entity metadata lookup, multi-hop '
-                                'relationship discovery, and aggregate relationship queries. '
-                                'Explain why enrichment or graph-first discovery is the lower-risk '
-                                'choice in each case.',
+                'instructions': ('1. Classify quote lookup, entity metadata lookup, multi-hop relationship discovery, and aggregate relationship queries.\n'
+                                 '2. Explain why enrichment or graph-first discovery is the lower-risk choice in each case.'),
                 'expected_output': 'Four routing decisions with latency, reliability, and '
                                    'reasoning-complexity justification.',
                 'skill_tested': ['graph-rag', 'architecture'],
@@ -1776,9 +1770,11 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Design a safety layer for LLM-generated Cypher including '
                                'permissions, validation, timeout, and result limits.',
-                'instructions': 'Constrain the LLM to a read-only graph schema, validate generated '
-                                'syntax/labels, enforce parameterization, add timeout/result '
-                                'limits, and define retry/fallback behavior for rejected queries.',
+                'instructions': ('1. Constrain the LLM to a read-only graph schema.\n'
+                                 "2. Validate the generated query's syntax and labels before it runs.\n"
+                                 '3. Enforce parameterized queries.\n'
+                                 '4. Add a timeout and a result limit.\n'
+                                 '5. Define what happens when a query is rejected: retry or fall back.'),
                 'expected_output': 'A guarded text-to-Cypher execution pipeline with controls '
                                    'before and during database execution.',
                 'skill_tested': ['text-to-cypher', 'security'],
@@ -1790,9 +1786,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Design a nightly integrity check that detects orphaned chunks and '
                                'version mismatches between a vector index and graph DB.',
-                'instructions': 'Compare chunk IDs, document versions, checksums, and deletion '
-                                'status across both systems. Define alerts and repair actions for '
-                                'vector-only and graph-only chunks.',
+                'instructions': ('1. Compare chunk IDs, document versions, checksums, and deletion status across both systems.\n'
+                                 '2. Define alerts and repair actions for vector-only and graph-only chunks.'),
                 'expected_output': 'A reconciliation job specification with mismatch classes and '
                                    'remediation actions.',
                 'skill_tested': ['vector-graph-sync', 'data-integrity'],
@@ -1804,9 +1799,10 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Given aliases for a company, drug, and product, propose canonical '
                                'records and the evidence needed before merging.',
-                'instructions': 'Normalize each alias set, generate candidate matches, evaluate '
-                                'contextual/domain evidence, and define the confidence required '
-                                'for automatic merge versus human review.',
+                'instructions': ('1. Normalize each alias set (company, drug, product).\n'
+                                 '2. Generate candidate matches for each canonical record.\n'
+                                 '3. Evaluate the contextual and domain evidence for each match.\n'
+                                 '4. Define the confidence needed for an automatic merge and when a human must review it.'),
                 'expected_output': 'Three canonical entity records with alias mappings, confidence '
                                    'evidence, and merge/review decisions.',
                 'skill_tested': ['entity-linking', 'data-quality'],
@@ -1818,10 +1814,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Define confidence thresholds and what information a reviewer '
                                'should see for ambiguous entity matches.',
-                'instructions': 'Define high-confidence auto-merge, medium-confidence review, and '
-                                'low-confidence reject thresholds. Specify the source text, '
-                                'candidate entities, conflicting attributes, and provenance a '
-                                'reviewer needs.',
+                'instructions': ('1. Define high-confidence auto-merge, medium-confidence review, and low-confidence reject thresholds.\n'
+                                 '2. Specify the source text, candidate entities, conflicting attributes, and provenance a reviewer needs.'),
                 'expected_output': 'A triage policy and reviewer payload for ambiguous entity '
                                    'linking.',
                 'skill_tested': ['human-in-the-loop', 'entity-resolution'],
@@ -1833,9 +1827,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Classify a set of detailed and sensemaking queries as local or '
                                'global GraphRAG search and explain why.',
-                'instructions': 'Route entity-neighborhood questions to local search and '
-                                'corpus-wide theme/sensemaking questions to global search. Explain '
-                                'which graph artifacts each path relies on.',
+                'instructions': ('1. Route entity-neighborhood questions to local search and corpus-wide theme/sensemaking questions to global search.\n'
+                                 '2. Explain which graph artifacts each path relies on.'),
                 'expected_output': 'A query-routing table distinguishing local neighborhood '
                                    'retrieval from community-summary synthesis.',
                 'skill_tested': ['graphrag', 'query-routing'],
@@ -1847,9 +1840,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Evaluate whether GraphRAG fits a rapidly changing support-ticket '
                                'corpus and propose an alternative architecture.',
-                'instructions': 'Assess update frequency, need for verbatim evidence, '
-                                'response-latency target, corpus size, and dominant query type. '
-                                'Then choose standard RAG, KG-hybrid, or GraphRAG.',
+                'instructions': ('1. Assess update frequency, need for verbatim evidence, response-latency target, corpus size, and dominant query type.\n'
+                                 '2. Then choose standard RAG, KG-hybrid, or GraphRAG.'),
                 'expected_output': 'A suitability assessment showing why GraphRAG is or is not '
                                    'appropriate and a lower-cost alternative when rejected.',
                 'skill_tested': ['graphrag', 'architecture'],
@@ -1861,9 +1853,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Design an idempotent batched ingestion workflow that can resume '
                                'after a failure without duplicating graph entities.',
-                'instructions': 'Use canonical IDs and MERGE semantics, process bounded batches, '
-                                'checkpoint each batch, and make retries safe after partial '
-                                'failure. Explain how duplicate creation is prevented.',
+                'instructions': ('1. Use canonical IDs and MERGE semantics, process bounded batches, checkpoint each batch, and make retries safe after partial failure.\n'
+                                 '2. Explain how duplicate creation is prevented.'),
                 'expected_output': 'A restartable KG ingestion sequence with idempotency keys, '
                                    'batching, checkpoints, and retry behavior.',
                 'skill_tested': ['kg-etl', 'idempotency'],
@@ -1875,9 +1866,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': 'Choose CDC or event-driven updates for three source systems and '
                                'describe how deletes and updates propagate.',
-                'instructions': 'For Postgres, uploaded PDFs, and application events, choose CDC '
-                                'or event-driven updates. Specify create/update/delete mapping '
-                                'into the graph and how entity versions are maintained.',
+                'instructions': ('1. For Postgres, uploaded PDFs, and application events, choose CDC or event-driven updates.\n'
+                                 '2. Specify create/update/delete mapping into the graph and how entity versions are maintained.'),
                 'expected_output': 'Three source-specific update flows including propagation of '
                                    'updates and deletions.',
                 'skill_tested': ['cdc', 'event-driven'],
@@ -1889,10 +1879,10 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'placement': 'after_section',
                 'description': "Apply the chapter's ROI criteria to a hypothetical compliance "
                                'assistant and decide whether a graph pilot is justified.',
-                'instructions': 'Score the compliance assistant against recurring graph-worthy '
-                                'failures, deterministic grounding needs, available ontology '
-                                'assets, data connectivity, team ownership, and measurable '
-                                'business ROI.',
+                'instructions': ('1. Score the compliance assistant on recurring graph-worthy failures and on the need for deterministic grounding.\n'
+                                 '2. Score the available ontology assets and how connected the data is.\n'
+                                 '3. Score team ownership and measurable business ROI.\n'
+                                 '4. Decide whether a graph pilot is justified, based on the scores.'),
                 'expected_output': 'A completed ROI checklist with a justified pilot/no-pilot '
                                    'decision and success metrics.',
                 'skill_tested': ['knowledge-graphs', 'roi'],
@@ -1905,10 +1895,8 @@ TOPIC = {'title': 'Knowledge-Enhanced RAG',
                 'description': 'Trace a wrong answer through graph construction, entity linking, '
                                'query generation, retrieval merge, and generation to identify the '
                                'most likely failing layer.',
-                'instructions': 'Trace the answer backward through generation, merged evidence, '
-                                'graph query, entity linking, relation extraction, and source '
-                                'ingestion. Identify what logs or graph inspections would confirm '
-                                'each hypothesis.',
+                'instructions': ('1. Trace the answer backward through generation, merged evidence, graph query, entity linking, relation extraction, and source ingestion.\n'
+                                 '2. Identify what logs or graph inspections would confirm each hypothesis.'),
                 'expected_output': 'A root-cause debugging plan that isolates the most likely '
                                    'failing layer with observable evidence.',
                 'skill_tested': ['observability', 'graph-rag'],

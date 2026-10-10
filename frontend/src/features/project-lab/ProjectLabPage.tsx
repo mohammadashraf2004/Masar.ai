@@ -10,6 +10,9 @@ import {
 import { Button, buttonStyles } from '@/components/ui/Button'
 import { Badge, Card, ProgressBar, Spinner } from '@/components/ui/index'
 import { api } from '@/lib/api'
+import { useI18n } from '@/lib/i18n'
+import { useAuthStore } from '@/lib/store'
+import { useRequireAuth } from '@/components/auth/AuthPrompt'
 import { CompletionSummary } from './CompletionSummary'
 import { labProjectHref } from './LabProjectsSection'
 import { ProjectLab } from './ProjectLab'
@@ -50,7 +53,7 @@ function Fact({ icon: Icon, label, value }: { icon: typeof Clock; label: string;
     <div className="flex items-start gap-2.5">
       <Icon size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-amber-text" />
       <div className="min-w-0">
-        <dt className="text-[11px] font-semibold uppercase text-ghost">{label}</dt>
+        <dt className="ui-eyebrow">{label}</dt>
         <dd className="text-sm text-bright">{value}</dd>
       </div>
     </div>
@@ -64,6 +67,10 @@ export function ProjectLabPage({ slug }: { slug: string }) {
   const { t, tf, pick, n } = useLabI18n()
   const router = useRouter()
   const { project, state } = useProject(slug)
+  // The overview is public; starting a project needs an account.
+  const signedIn = useAuthStore((s) => !!s.token)
+  const requireAuth = useRequireAuth()
+  const { t: tApp } = useI18n()
   const [starting, setStarting] = useState(false)
   const [startError, setStartError] = useState(false)
   const [completion, setCompletion] = useState<LabCompletion | null>(null)
@@ -83,6 +90,7 @@ export function ProjectLabPage({ slug }: { slug: string }) {
   }, [attempt, submitted])
 
   const start = async () => {
+    if (!requireAuth(labProjectHref(slug))) return
     setStarting(true)
     setStartError(false)
     try {
@@ -112,7 +120,7 @@ export function ProjectLabPage({ slug }: { slug: string }) {
     : project.estimated_hours ? tf('lab.card.hours', { n: project.estimated_hours }) : null
   const action = !attempt ? (
     <Button onClick={start} loading={starting} className="w-full sm:w-auto">
-      <Play size={14} aria-hidden="true" />{t('lab.overview.start')}
+      <Play size={14} aria-hidden="true" />{signedIn ? t('lab.overview.start') : tApp('gate.startProject')}
     </Button>
   ) : (
     <Link href={labWorkspaceHref(slug)} className={buttonStyles({ className: 'w-full sm:w-auto' })}>
@@ -136,7 +144,7 @@ export function ProjectLabPage({ slug }: { slug: string }) {
           <Badge variant="emerald">{t('lab.card.free')}</Badge>
         </div>
         <p className="text-xs font-semibold uppercase text-amber-text">{t('lab.overview.kicker')}</p>
-        <h1 className="font-display text-2xl font-bold leading-tight text-bright sm:text-3xl">
+        <h1 className="ui-page-title">
           {pick(project.title, project.title_ar)}
         </h1>
         <p className="max-w-3xl text-sm leading-relaxed text-soft">{pick(project.summary, project.summary_ar)}</p>
@@ -177,13 +185,13 @@ export function ProjectLabPage({ slug }: { slug: string }) {
         <div className="space-y-6">
           {overview.scenario && (
             <section aria-labelledby="lab-scenario">
-              <h2 id="lab-scenario" className="mb-2 font-display text-base font-bold text-bright">{t('lab.overview.scenario')}</h2>
+              <h2 id="lab-scenario" className="ui-card-title mb-2">{t('lab.overview.scenario')}</h2>
               <p className="text-sm leading-relaxed text-soft">{pick(overview.scenario, overview.scenario_ar)}</p>
             </section>
           )}
           {overview.deliverables.length > 0 && (
             <section aria-labelledby="lab-deliverables">
-              <h2 id="lab-deliverables" className="mb-2 font-display text-base font-bold text-bright">{t('lab.overview.deliverables')}</h2>
+              <h2 id="lab-deliverables" className="ui-card-title mb-2">{t('lab.overview.deliverables')}</h2>
               <ul className="space-y-2">
                 {overview.deliverables.map(item => (
                   <li key={item.en} className="flex items-start gap-2 text-sm text-soft">
@@ -196,7 +204,7 @@ export function ProjectLabPage({ slug }: { slug: string }) {
           )}
           {overview.skills.length > 0 && (
             <section aria-labelledby="lab-skills">
-              <h2 id="lab-skills" className="mb-2 font-display text-base font-bold text-bright">{t('lab.overview.skills')}</h2>
+              <h2 id="lab-skills" className="ui-card-title mb-2">{t('lab.overview.skills')}</h2>
               <ul className="flex flex-wrap gap-2">
                 {overview.skills.map(item => (
                   <li key={item.en} className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-soft">{pick(item.en, item.ar)}</li>
@@ -205,7 +213,7 @@ export function ProjectLabPage({ slug }: { slug: string }) {
             </section>
           )}
           <section aria-labelledby="lab-environment">
-            <h2 id="lab-environment" className="mb-1 font-display text-base font-bold text-bright">{t('lab.overview.environment')}</h2>
+            <h2 id="lab-environment" className="ui-card-title mb-1">{t('lab.overview.environment')}</h2>
             <p className="mb-3 text-sm text-ghost">{t('lab.overview.environmentBody')}</p>
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {environment.map(({ icon: Icon, key }) => (
@@ -218,7 +226,7 @@ export function ProjectLabPage({ slug }: { slug: string }) {
         </div>
 
         <section aria-labelledby="lab-structure">
-          <h2 id="lab-structure" className="mb-3 font-display text-base font-bold text-bright">{t('lab.overview.milestones')}</h2>
+          <h2 id="lab-structure" className="ui-card-title mb-3">{t('lab.overview.milestones')}</h2>
           <ol className="space-y-2">
             {project.milestones.map((milestone, index) => (
               <li key={milestone.slug} className="flex gap-3 rounded-lg border border-border bg-surface p-3">
@@ -228,7 +236,7 @@ export function ProjectLabPage({ slug }: { slug: string }) {
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-bright">{pick(milestone.title, milestone.title_ar)}</p>
                   {milestone.summary && <p className="mt-0.5 text-xs leading-relaxed text-ghost">{pick(milestone.summary, milestone.summary_ar)}</p>}
-                  <p className="mt-1 text-[11px] text-ghost">{tf('lab.overview.tasks', { n: milestone.tasks.length })}</p>
+                  <p className="mt-1 text-xs text-ghost">{tf('lab.overview.tasks', { n: milestone.tasks.length })}</p>
                 </div>
               </li>
             ))}

@@ -115,7 +115,7 @@ export function ExamPickerModal({ onClose }: { onClose: () => void }) {
                 <ShieldCheck size={14} className="text-amber-text" />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-bright">Get Verified</h2>
+                <h2 className="ui-card-title">Get Verified</h2>
                 <p className="text-xs text-ghost">Choose a certification exam to take</p>
               </div>
             </div>
@@ -196,7 +196,7 @@ export function ExamPickerModal({ onClose }: { onClose: () => void }) {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-sm font-medium text-bright mb-1">{exam.title}</h3>
+                <h3 className="ui-card-title mb-1">{exam.title}</h3>
                 <p className="text-xs text-ghost leading-relaxed mb-3 line-clamp-2">{exam.description}</p>
 
                 {/* Meta row */}

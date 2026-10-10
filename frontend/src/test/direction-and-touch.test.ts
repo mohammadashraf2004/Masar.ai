@@ -57,7 +57,7 @@ describe('right-to-left safety of the learning screens', () => {
     expect(names).toEqual(expect.arrayContaining([
       'components/learning/OnboardingFlow.tsx',
       'components/learning/CourseCard.tsx', 'components/learning/Pickers.tsx',
-      'app/learn/page.tsx', 'app/explore/page.tsx', 'app/paths/page.tsx', 'app/paths/[slug]/page.tsx',
+      'app/explore/page.tsx', 'app/paths/page.tsx', 'app/paths/[slug]/page.tsx',
       'app/courses/[slug]/page.tsx', 'app/onboarding/learning-profile/page.tsx', 'app/profile/learning/page.tsx',
       'components/learning/SkillPicker.tsx', 'components/learning/SkillsStep.tsx', 'components/learning/MySkills.tsx',
       'components/learning/YourMasarCard.tsx', 'components/legal/LegalDocumentPage.tsx',

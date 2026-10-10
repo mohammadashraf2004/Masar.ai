@@ -246,7 +246,7 @@ export function CourseViewer({ slug, curriculum = false }: { slug: string; curri
             <div className="shrink-0 border-b border-border px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 dir="auto" className="font-display font-bold text-white text-xl mb-2">
+                  <h2 dir="auto" className="ui-section-title mb-2">
                     {localizedTitle(activeTopic, language)}
                   </h2>
                   <div className="flex items-center gap-2 flex-wrap">
@@ -430,7 +430,7 @@ function JobRolePanel({ terms, industrySkills }: { terms: string[]; industrySkil
     <div className="pt-6">
       <div className="flex items-center gap-2 mb-3">
         <Briefcase size={14} className="text-sky" />
-        <h3 className="text-sm font-medium text-bright">{t('term.seenIn')}</h3>
+        <h3 className="ui-card-title">{t('term.seenIn')}</h3>
       </div>
 
       {industrySkills.length > 0 && (

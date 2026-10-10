@@ -172,14 +172,31 @@ def test_fill_in_blank_authoring_checks_each_field_before_execution():
         async def run(self, *args, **kwargs):
             raise AssertionError("an unresolved blank must fail before execution")
 
+    # Unfilled blanks are reported as such, in both languages, before anything runs.
     grader = PythonGrader(RunnerThatMustNotRun())
     first = run(grader.grade(blanked, tests))
-    assert (first.failed_test_id, first.tests_passed, first.feedback_code) == ("blank_1", 0, "BLANK_INCORRECT")
+    assert (first.failed_test_id, first.tests_passed, first.feedback_code) == ("blanks_remaining", 0, "BLANKS_REMAINING")
+    first_line = blanked.splitlines().index("total = ___") + 1
+    assert "2 blanks" in first.feedback["en"] and f"line {first_line}" in first.feedback["en"]
+    assert f"السطر {first_line}" in first.feedback["ar"]
 
     first_completed = blanked.replace("___", "sum(numbers)", 1)
     second = run(grader.grade(first_completed, tests))
-    assert (second.failed_test_id, second.tests_passed) == ("blank_2", 1)
-    assert "Blank 2" in second.feedback["en"]
+    assert second.feedback_code == "BLANKS_REMAINING"
+    assert "One blank" in second.feedback["en"] and f"line {first_line + 1}" in second.feedback["en"]
+
+    # With behavioural checks the blanks are advisory: an equivalent expression
+    # passes, and a wrong value is pointed at the blank that computed it.
+    equivalent = blanked.replace("___", "numbers[0] + numbers[1] + numbers[2] + numbers[3]", 1).replace(
+        "___", "sum(numbers) / 4", 1,
+    )
+    accepted = run(PythonGrader().grade(equivalent, tests))
+    assert accepted.passed and accepted.tests_passed == accepted.tests_total
+
+    wrong = blanked.replace("___", "max(numbers)", 1).replace("___", "total / len(numbers)", 1)
+    rejected = run(PythonGrader().grade(wrong, tests))
+    assert (rejected.passed, rejected.failed_test_id) == (False, "blank_1")
+    assert "Blank 1" in rejected.feedback["en"]
 
     assert run(PythonGrader().grade(solution, tests)).passed
 

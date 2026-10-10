@@ -25,7 +25,7 @@ export function CompletionSummary({ completion, action }: { completion: LabCompl
           <Award size={22} aria-hidden="true" className="mt-0.5 shrink-0 text-emerald" />
           <div>
             <p className="text-xs font-semibold uppercase text-emerald">{t('lab.completion.status')}</p>
-            <h2 className="font-display text-lg font-bold text-bright">{pick(completion.project.title, completion.project.title_ar)}</h2>
+            <h2 className="ui-section-title">{pick(completion.project.title, completion.project.title_ar)}</h2>
             <p className="mt-1 text-sm text-soft">
               {tf('lab.completion.tasks', { done: completion.completed_tasks, total: completion.total_tasks })}
               {date && <> · {tf('lab.submit.submittedOn', { date })}</>}
@@ -40,7 +40,7 @@ export function CompletionSummary({ completion, action }: { completion: LabCompl
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
         <section aria-labelledby="lab-completion-skills">
-          <h3 id="lab-completion-skills" className="mb-2 text-sm font-semibold text-bright">{t('lab.submit.skills')}</h3>
+          <h3 id="lab-completion-skills" className="ui-card-title mb-2">{t('lab.submit.skills')}</h3>
           <ul className="flex flex-wrap gap-1.5">
             {completion.skills.map(skill => (
               <li key={skill.en} className="rounded-full border border-emerald/30 bg-emerald/5 px-2.5 py-0.5 text-xs text-soft">{pick(skill.en, skill.ar)}</li>
@@ -48,7 +48,7 @@ export function CompletionSummary({ completion, action }: { completion: LabCompl
           </ul>
         </section>
         <section aria-labelledby="lab-completion-milestones">
-          <h3 id="lab-completion-milestones" className="mb-2 text-sm font-semibold text-bright">{t('lab.submit.milestones')}</h3>
+          <h3 id="lab-completion-milestones" className="ui-card-title mb-2">{t('lab.submit.milestones')}</h3>
           <ul className="space-y-1">
             {completion.milestones.map(milestone => (
               <li key={milestone.slug} className="flex items-center gap-1.5 text-xs text-soft">
@@ -59,7 +59,7 @@ export function CompletionSummary({ completion, action }: { completion: LabCompl
           </ul>
         </section>
         <section aria-labelledby="lab-completion-artifacts">
-          <h3 id="lab-completion-artifacts" className="mb-2 text-sm font-semibold text-bright">{t('lab.submit.artifacts')}</h3>
+          <h3 id="lab-completion-artifacts" className="ui-card-title mb-2">{t('lab.submit.artifacts')}</h3>
           <ul className="space-y-1">
             {completion.artifacts.map(artifact => {
               const Icon = ARTIFACT_ICON[artifact.kind] ?? FileText

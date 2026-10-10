@@ -11,6 +11,7 @@ describe('mentorErrorKey — what the learner is told, by what actually failed',
     ['an empty wallet, whatever the status', failed(400, { error: 'insufficient_credits' }), 'mentor.error.credits'],
     ['an unverified email', failed(403, { error: 'email_verification_required', message: 'x' }), 'mentor.error.verify'],
     ['a rate limit', failed(429, 'Too many requests'), 'mentor.error.rateLimit'],
+    ["Pro's included AI credits for the 4-hour window are used up", failed(429, { error: 'pro_ai_limit_reached', remaining: 0 }), 'mentor.error.proLimit'],
     ['input over the length limit', failed(422, [{ loc: ['body', 'content'], msg: 'too long' }]), 'mentor.error.invalid'],
     ['the provider failing (503, credits refunded)', failed(503, 'The mentor is unavailable right now. Your credits were refunded.'), 'mentor.error.unavailable'],
     ['an unhandled server error', failed(500, 'Internal server error'), 'mentor.error.unavailable'],
@@ -44,7 +45,7 @@ describe('mentorErrorKey — what the learner is told, by what actually failed',
     const keys = [
       'mentor.error.unavailable', 'mentor.error.credits', 'mentor.error.verify',
       'mentor.error.rateLimit', 'mentor.error.network', 'mentor.error.invalid',
-      'mentor.error.locked', 'mentor.error.notFound',
+      'mentor.error.locked', 'mentor.error.notFound', 'mentor.error.proLimit',
     ] as const
     for (const key of keys) {
       expect(STRINGS.en[key], `en ${key}`).toBeTruthy()
@@ -52,5 +53,14 @@ describe('mentorErrorKey — what the learner is told, by what actually failed',
       expect(STRINGS.ar[key]).not.toBe(STRINGS.en[key])
       expect(STRINGS.ar[key]).toMatch(/[؀-ۿ]/)
     }
+  })
+
+  it('the Pro limit says course access stays open and never claims everything resets at once', () => {
+    expect(STRINGS.en['mentor.error.proLimit']).toBe(
+      "You've used your 50 included AI credits for the current 4-hour window. Your course access remains available. " +
+      'More AI credits will become available as earlier usage leaves the window.',
+    )
+    expect(STRINGS.en['mentor.error.proLimit']).not.toMatch(/reset/i)
+    expect(STRINGS.ar['mentor.error.proLimit']).toContain('يظل وصولك إلى الدورات متاحًا')
   })
 })

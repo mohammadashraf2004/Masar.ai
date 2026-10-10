@@ -106,7 +106,7 @@ export default function DashboardPage() {
             walkthrough's "practice" step points at this on a phone. */}
         <Card data-tour="practice" className="flex items-center justify-between gap-3 p-4 lg:hidden">
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-bright">{t('nav.challenges')}</h2>
+            <h2 className="ui-card-title">{t('nav.challenges')}</h2>
             <p className="mt-0.5 text-xs leading-relaxed text-soft">{t('dash.challenges.body')}</p>
           </div>
           <Link href="/challenges" className={buttonStyles({ variant: 'outline', size: 'sm', className: 'shrink-0' })}>
@@ -144,7 +144,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tracks + roadmap */}
           <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">{t('dash.yourTracks')}</h2>
+            <h2 className="ui-eyebrow">{t('dash.yourTracks')}</h2>
 
             {dataLoading ? (
               <Card className="p-8 flex items-center justify-center">
@@ -185,7 +185,7 @@ export default function DashboardPage() {
             {enrollments.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">{t('dash.weeklyPlan')}</h2>
+                  <h2 className="ui-eyebrow">{t('dash.weeklyPlan')}</h2>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -193,7 +193,7 @@ export default function DashboardPage() {
                     onClick={() => void generateRoadmap()}
                   >
                     {roadmap.length > 0 ? t('dash.regenerate') : t('dash.generateRoadmap')}
-                    <span className="ms-1.5 text-[10px] text-ghost">{tf('dash.creditsCost', { n: ROADMAP_CREDITS })}</span>
+                    <span className="ms-1.5 text-xs text-ghost">{tf('dash.creditsCost', { n: ROADMAP_CREDITS })}</span>
                   </Button>
                 </div>
 
@@ -234,7 +234,7 @@ export default function DashboardPage() {
                 between understanding it and being hireable for it. */}
             <VocabularyProgress limit={6} />
 
-            <h2 className="text-xs font-medium text-ghost uppercase tracking-widest">{t('dash.skillScores')}</h2>
+            <h2 className="ui-eyebrow">{t('dash.skillScores')}</h2>
             <Card className="p-4">
               {dataLoading ? (
                 <div className="flex justify-center py-4"><Spinner announce /></div>

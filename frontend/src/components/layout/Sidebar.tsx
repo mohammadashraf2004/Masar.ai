@@ -7,6 +7,7 @@ import { useI18n } from '@/lib/i18n'
 import { LogoMark, Wordmark } from '@/components/layout/Logo'
 import { Avatar } from '@/components/layout/AccountMenu'
 import { isActive, navFor } from '@/components/layout/nav'
+import { GatedLink } from '@/components/auth/AuthPrompt'
 
 /** Who is signed in, and the way to their profile. */
 function UserRow() {
@@ -20,7 +21,7 @@ function UserRow() {
       <Avatar name={user.full_name} size={32} />
       <span className="flex min-w-0 flex-col gap-0.5">
         <span className="truncate text-[13px] font-semibold text-white">{user.full_name}</span>
-        <span className="truncate text-[11px] capitalize text-ghost">{user.experience_level}</span>
+        <span className="truncate text-xs capitalize text-ghost">{user.experience_level}</span>
       </span>
     </Link>
   )
@@ -58,7 +59,9 @@ export function Sidebar() {
             const active = isActive(pathname, href)
             return (
               <li key={href} className={groupStart ? 'mt-3 border-t border-border pt-3' : undefined}>
-                <Link
+                {/* Account destinations (Your Masar, Mentor, Community) open the
+                    sign-in prompt for a signed-out visitor instead of a redirect. */}
+                <GatedLink
                   href={href}
                   data-tour={tour}
                   aria-current={active ? 'page' : undefined}
@@ -71,7 +74,7 @@ export function Sidebar() {
                 >
                   <Icon size={18} strokeWidth={1.8} className="shrink-0" />
                   <span className="min-w-0 flex-1">{t(label)}</span>
-                </Link>
+                </GatedLink>
               </li>
             )
           })}

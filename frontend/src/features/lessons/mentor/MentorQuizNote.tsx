@@ -28,7 +28,7 @@ export function MentorQuizNote({ quizId, optionId }: { quizId: string; optionId:
       <LogoMark size={26} label={null} className="mt-0.5" />
       <div className="flex min-w-0 flex-1 flex-col gap-2 text-[13px] leading-[1.7] text-bright">
         <MentorBlocks blocks={result.feedback} />
-        <span className="text-[11px] text-ghost">{t('mentor.v2.quizNote')}</span>
+        <span className="text-xs text-ghost">{t('mentor.v2.quizNote')}</span>
       </div>
     </div>
   )

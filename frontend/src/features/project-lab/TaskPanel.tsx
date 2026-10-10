@@ -45,7 +45,7 @@ export function TaskPanel({ attempt, selectedTask, onSelectTask, onOpenFile, foo
     <div className="flex min-h-0 flex-col gap-5 overflow-y-auto p-4">
       <div>
         <p className="text-xs text-ghost">{pick(attempt.project.track.title, attempt.project.track.title_ar)}</p>
-        <h1 className="mt-1 font-display text-lg font-bold leading-snug text-bright">
+        <h1 className="ui-section-title mt-1">
           {pick(attempt.project.title, attempt.project.title_ar)}
         </h1>
         <div className="mt-3">
@@ -79,7 +79,7 @@ export function TaskPanel({ attempt, selectedTask, onSelectTask, onOpenFile, foo
                   <span className={cn('font-mono', done ? 'text-emerald' : 'text-ghost')}>{index + 1}.</span>
                   <span className="min-w-0 flex-1">{pick(milestone.title, milestone.title_ar)}</span>
                   {count && (
-                    <span className={cn('shrink-0 font-mono text-[11px] font-normal', done ? 'text-emerald' : 'text-ghost')}>
+                    <span className={cn('shrink-0 font-mono text-xs font-normal', done ? 'text-emerald' : 'text-ghost')}>
                       {tf('lab.milestone.count', { done: count.completed_tasks, total: count.total_tasks })}
                     </span>
                   )}
@@ -112,8 +112,8 @@ export function TaskPanel({ attempt, selectedTask, onSelectTask, onOpenFile, foo
 
       {task && (
         <section aria-labelledby="lab-task-heading" className="border-t border-border pt-4">
-          <p className="text-[11px] font-semibold uppercase text-ghost">{t('lab.task.instructions')}</p>
-          <h2 id="lab-task-heading" className="mt-1 text-base font-semibold text-bright">{pick(task.title, task.title_ar)}</h2>
+          <p className="ui-eyebrow">{t('lab.task.instructions')}</p>
+          <h2 id="lab-task-heading" className="ui-card-title mt-1">{pick(task.title, task.title_ar)}</h2>
           <div className="lab-markdown mt-3 space-y-3 text-sm leading-relaxed text-soft [&_code]:rounded [&_code]:bg-surface [&_code]:px-1 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-bright [&_li]:ms-5 [&_ol]:list-decimal [&_strong]:text-bright [&_table]:w-full [&_table]:text-xs [&_td]:border [&_td]:border-border [&_td]:p-1.5 [&_th]:border [&_th]:border-border [&_th]:p-1.5 [&_th]:text-start [&_ul]:list-disc">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}

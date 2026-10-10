@@ -35,12 +35,47 @@ describe('CodeReview', () => {
   })
 
   it('uses the learner’s saved draft, not just the starter', async () => {
-    window.localStorage.setItem('exercise:9007:agent.py', 'graph = builder.compile(checkpointer=MemorySaver())\n')
+    window.localStorage.setItem('exercise:anon:9007:agent.py', 'graph = builder.compile(checkpointer=MemorySaver())\n')
     expect(exerciseCode('9007')).toContain('checkpointer=MemorySaver()')
     render(<CodeReview exerciseId="9007" />)
     await requestReview()
     await screen.findByText('Review notes')
     expect(screen.queryByRole('button', { name: /compile without a checkpointer/ })).toBeNull()
+  })
+
+  it('retries the same code under the same request id, and names every new review afresh', async () => {
+    vi.mocked(mentorV2.review)
+      .mockRejectedValueOnce(new Error('timeout of 30000ms exceeded'))
+      .mockImplementation(mockReview as typeof mentorV2.review)
+    render(<CodeReview exerciseId="9007" />)
+    await requestReview()
+    await screen.findByRole('alert')
+    await requestReview()
+    await screen.findByRole('button', { name: /L3: compile without a checkpointer/ })
+    await userEvent.click(screen.getByRole('button', { name: 'One more hint' }))
+    await waitFor(() => expect(mentorV2.review).toHaveBeenCalledTimes(3))
+
+    const ids = vi.mocked(mentorV2.review).mock.calls.map((call) => call[0].requestId)
+    expect(ids[0]).toMatch(/^rq-/)
+    expect(ids[1]).toBe(ids[0])          // the timed-out review again: answered and charged once
+    expect(ids[2]).not.toBe(ids[0])      // a deliberate new review after an answer
+  })
+
+  it('never reviews a draft another account left in this browser', async () => {
+    const { useAuthStore } = await import('@/lib/store')
+    const { exerciseDraftKey } = await import('@/features/exercises/draftKeys')
+    useAuthStore.setState({ user: { id: 1 } as never })
+    window.localStorage.setItem(exerciseDraftKey('9007', 'agent.py'),'account_a_secret = True\n')
+    useAuthStore.setState({ user: { id: 2 } as never })
+    try {
+      render(<CodeReview exerciseId="9007" />)
+      await requestReview()
+      await waitFor(() => expect(mentorV2.review).toHaveBeenCalled())
+      expect(vi.mocked(mentorV2.review).mock.calls[0][0].code).not.toContain('account_a_secret')
+      expect(vi.mocked(mentorV2.review).mock.calls[0][0].code).toContain('graph = builder.compile()')
+    } finally {
+      useAuthStore.setState({ user: null })
+    }
   })
 
   it('keeps a backend-fetched starter when asking for another hint', async () => {

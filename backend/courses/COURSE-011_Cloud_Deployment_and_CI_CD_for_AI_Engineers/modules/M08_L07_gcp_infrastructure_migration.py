@@ -627,8 +627,8 @@ It is an incremental validation step before TLS and subdomains.
             "placement": "after_section",
             "description": "Turn the source bootstrap script into a reproducibility model.",
             "instructions": (
-                "List each category automated by the startup script: OS updates, Python, Docker, service enablement, "
-                "Docker group, Compose, Git, and version verification. Explain what manual failure each automation avoids."
+                ('1. List each category automated by the startup script: OS updates, Python, Docker, service enablement, Docker group, Compose, Git, and version verification.\n'
+                 '2. Explain what manual failure each automation avoids.')
             ),
             "expected_output": "A bootstrap-task table with purpose and reproducibility benefit.",
             "difficulty": DifficultyLevel.beginner,
@@ -642,8 +642,9 @@ It is an incremental validation step before TLS and subdomains.
             "placement": "after_section",
             "description": "Understand network-tag-based firewall targeting.",
             "instructions": (
-                "Trace a request from your trusted /32 IP to STATIC_IP:8501. Identify source range, firewall target tag, "
-                "VM network tag, protocol/port, and Streamlit process. Then explain what would happen if the VM lost the tag."
+                ('1. Trace a request from your trusted /32 IP to STATIC_IP:8501.\n'
+                 '2. Identify source range, firewall target tag, VM network tag, protocol/port, and Streamlit process.\n'
+                 '3. Then explain what would happen if the VM lost the tag.')
             ),
             "expected_output": "A tagged-firewall traffic path and failure explanation.",
             "difficulty": DifficultyLevel.beginner,
@@ -657,8 +658,8 @@ It is an incremental validation step before TLS and subdomains.
             "placement": "after_section",
             "description": "Make the chapter's incremental architecture explicit.",
             "instructions": (
-                "Create a comparison table for Level 1, Level 2, and Level 3. Include services, public ports, DNS style, "
-                "TLS, Docker Compose, Nginx, and firewall configuration."
+                ('1. Create a comparison table for Level 1, Level 2, and Level 3.\n'
+                 '2. Include services, public ports, DNS style, TLS, Docker Compose, Nginx, and firewall configuration.')
             ),
             "expected_output": "A three-level architecture comparison table.",
             "difficulty": DifficultyLevel.beginner,

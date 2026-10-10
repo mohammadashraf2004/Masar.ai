@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
+import { useAuth } from '@/hooks/useAuth'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PageBody } from '@/components/layout/PageContainer'
 import { Button, buttonStyles } from '@/components/ui/Button'
@@ -20,6 +21,8 @@ const statusKey: Record<RefundStatus, 'notRequested' | 'requested' | 'underRevie
 }
 
 export default function SubscriptionOrderPage() {
+  // The account's own order: signed-out visitors are sent to sign in.
+  useAuth()
   const params = useParams<{ reference: string }>()
   const reference = decodeURIComponent(params.reference)
   const { language, t } = useRefundI18n()

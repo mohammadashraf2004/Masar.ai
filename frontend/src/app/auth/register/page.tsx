@@ -2,7 +2,8 @@
 import { useId, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useGuest } from '@/hooks/useAuth'
+import { useGuest, useNextParam } from '@/hooks/useAuth'
+import { authHref } from '@/lib/authRedirect'
 import { useAuthStore } from '@/lib/store'
 import { api } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
@@ -19,6 +20,9 @@ export default function RegisterPage() {
   const router = useRouter()
   const { t } = useI18n()
   const setAuth = useAuthStore(s => s.setAuth)
+  // Where a "sign in to continue" sent them from. The short onboarding still
+  // comes first for a new account; it hands them on there afterwards.
+  const next = useNextParam()
   // The level is asked once, in the learning onboarding that follows, where it
   // sits beside the questions it belongs with. (The API still defaults the
   // legacy field, and saving the learning profile keeps it in step.)
@@ -41,7 +45,7 @@ export default function RegisterPage() {
       // decided by the server, never by this page.
       const data = await api.register({ ...form, accept_terms: true, accept_privacy: true })
       setAuth(data.access_token, data.user, data.expires_in)
-      router.replace('/onboarding/quick')
+      router.replace(next ? `/onboarding/quick?next=${encodeURIComponent(next)}` : '/onboarding/quick')
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {
@@ -60,8 +64,8 @@ export default function RegisterPage() {
           <LanguageSwitcher />
         </div>
 
-        <h1 className="font-display font-bold text-2xl text-white mb-1">{t('reg.title')}</h1>
-        <p className="text-sm text-soft mb-8">{t('reg.subtitle')}</p>
+        <h1 className="ui-page-title mb-1">{t('reg.title')}</h1>
+        <p className="ui-description mb-8">{t('reg.subtitle')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
@@ -128,7 +132,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-soft mt-6">
           {t('reg.haveAccount')}{' '}
-          <Link href="/auth/login" className="text-amber-text hover:text-amber-text2 transition-colors">
+          <Link href={authHref('login', next)} className="text-amber-text hover:text-amber-text2 transition-colors">
             {t('reg.signIn')}
           </Link>
         </p>

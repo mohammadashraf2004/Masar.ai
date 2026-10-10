@@ -875,8 +875,8 @@ The source persists it with pickle and reloads it.
             "placement": "after_section",
             "description": "Explain why persistent state and Linux identities must align.",
             "instructions": (
-                "Draw the host-to-container Jenkins volume mapping. Identify the shared Linux group, the users placed "
-                "in it, the role of `chown`/`chmod`, and how JENKINS_UID/JENKINS_GID from `.env` affect the container."
+                ('1. Draw the host-to-container Jenkins volume mapping.\n'
+                 '2. Identify the shared Linux group, the users placed in it, the role of `chown`/`chmod`, and how JENKINS_UID/JENKINS_GID from `.env` affect the container.')
             ),
             "expected_output": "A permissions/persistence diagram and explanation.",
             "difficulty": DifficultyLevel.beginner,
@@ -890,9 +890,8 @@ The source persists it with pickle and reloads it.
             "placement": "after_section",
             "description": "Connect dataset generation, splitting, fitting, evaluation, and persistence.",
             "instructions": (
-                "Create a flow diagram using the source values: 1,000 rows, four informative features, binary target, "
-                "80/20 split, RandomForestClassifier, accuracy/precision/recall, then pickle persistence. "
-                "Explain why the validation set is separate from training."
+                ('1. Create a flow diagram using the source values: 1,000 rows, four informative features, binary target, 80/20 split, RandomForestClassifier, accuracy/precision/recall, then pickle persistence.\n'
+                 '2. Explain why the validation set is separate from training.')
             ),
             "expected_output": "A complete ML pipeline diagram with source-specific settings.",
             "difficulty": DifficultyLevel.beginner,
@@ -906,9 +905,8 @@ The source persists it with pickle and reloads it.
             "placement": "after_section",
             "description": "Follow one HTTPS POST request through the deployed system.",
             "instructions": (
-                "Starting from a JSON payload with Feature_1..Feature_4, trace Basic Auth, Nginx, Flask, "
-                "model loading/input conversion, `predict_proba`, selected score, and the JSON response. "
-                "Include where a 401 would occur if credentials were invalid."
+                ('1. Starting from a JSON payload with Feature_1..Feature_4, trace Basic Auth, Nginx, Flask, model loading/input conversion, `predict_proba`, selected score, and the JSON response.\n'
+                 '2. Include where a 401 would occur if credentials were invalid.')
             ),
             "expected_output": "An end-to-end prediction request sequence.",
             "difficulty": DifficultyLevel.beginner,

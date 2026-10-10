@@ -41,10 +41,12 @@ export function LessonMentorPanel({
     <aside
       aria-label={t('mentor.v2.panel.title')}
       data-testid="lesson-mentor-panel"
-      // A 360px panel (280px at the least) docked at the end edge, below the header. It is fixed rather than a
-      // third column of the lesson's row: that row is 1024px wide and already holds the article and the module
-      // list, so in the flow the panel wrapped to the bottom of the page, below the fold. A phone gets a bottom sheet.
-      className="fixed z-[60] flex w-[360px] min-w-[280px] max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-xl border border-border bg-surface p-4 shadow-[0_8px_24px_rgba(0,0,0,.35)] end-4 top-20 bottom-4 max-[899px]:inset-x-0 max-[899px]:bottom-0 max-[899px]:end-auto max-[899px]:top-auto max-[899px]:max-h-[75dvh] max-[899px]:w-auto max-[899px]:min-w-0 max-[899px]:max-w-none max-[899px]:overflow-y-auto max-[899px]:rounded-b-none max-[899px]:pb-[max(1rem,env(safe-area-inset-bottom))]"
+      // A panel docked at the end edge, below the header, that grows with the screen: 28% of its width, from
+      // 340px (a small laptop) to 480px (a large monitor). LessonPage leaves the same width free beside it -
+      // keep the two clamp()s equal. It is fixed rather than a third column of the lesson's row: that row is
+      // 1024px wide and already holds the article and the module list, so in the flow the panel wrapped to the
+      // bottom of the page, below the fold. A phone gets a bottom sheet.
+      className="fixed z-[60] flex w-[clamp(340px,28vw,480px)] max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-xl border border-border bg-surface p-4 shadow-[0_8px_24px_rgba(0,0,0,.35)] end-4 top-20 bottom-4 max-[899px]:inset-x-0 max-[899px]:bottom-0 max-[899px]:end-auto max-[899px]:top-auto max-[899px]:max-h-[75dvh] max-[899px]:w-auto max-[899px]:min-w-0 max-[899px]:max-w-none max-[899px]:overflow-y-auto max-[899px]:rounded-b-none max-[899px]:pb-[max(1rem,env(safe-area-inset-bottom))]"
     >
       <header className="flex items-center gap-2.5">
         <LogoMark size={30} label={null} />

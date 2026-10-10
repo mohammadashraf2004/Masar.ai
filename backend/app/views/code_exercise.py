@@ -22,12 +22,23 @@ class RunResponse(BaseModel):
     execution_time_ms: int
 
 
+class AttemptStateResponse(BaseModel):
+    failed_checks: int
+    passed: bool
+    completed_independently: bool
+    solution_viewed: bool
+    solution_available: bool
+    checks_until_solution: int
+
+
 class SubmitResponse(RunResponse):
     passed: bool
     feedback: FeedbackResponse
     tests_passed: int
     tests_total: int
     failed_test: Optional[str] = None
+    # The learner's standing after this check (see attempt_state).
+    attempt: Optional[AttemptStateResponse] = None
 
 
 class CodeExerciseResponse(BaseModel):

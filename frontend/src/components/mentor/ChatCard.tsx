@@ -72,7 +72,8 @@ export function ChatCard({ chat }: { chat: Chat }) {
   }
 
   return (
-    <Card className="flex h-[calc(100dvh-200px)] min-h-[480px] min-w-0 flex-col overflow-hidden p-0 md:h-[620px]">
+    // Runs to the bottom of the screen: the page measures it (useFillHeight) and sets --mentor-chat-h.
+    <Card className="flex h-[var(--mentor-chat-h,calc(100dvh-200px))] min-h-[420px] min-w-0 flex-col overflow-hidden p-0">
       <div className="flex items-center gap-3 border-b border-border px-[18px] py-3.5">
         <LogoMark size={34} label={null} />
         <div className="min-w-0 flex-1">

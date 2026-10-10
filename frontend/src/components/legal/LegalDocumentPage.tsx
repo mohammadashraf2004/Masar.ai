@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { Logo } from '@/components/layout/Logo'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/index'
@@ -42,9 +43,18 @@ export function LegalDocumentPage({ kind }: { kind: 'terms' | 'privacy' | 'refun
 
   return (
     <div className="flex min-h-dvh flex-col bg-void px-4 pt-8 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6">
-      <div className="mx-auto mb-10 flex max-w-3xl items-center justify-between">
-        <Link href="/" aria-label="Masar" className="inline-flex min-h-[44px] items-center lg:min-h-0"><Logo size={28} wordmarkClassName="text-sm" /></Link>
-        <LanguageSwitcher />
+      <div className="mx-auto mb-10 flex w-full max-w-3xl items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <Link
+            href="/"
+            aria-label={t('legal.back')}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface text-bright transition-colors hover:border-amber/30 hover:text-amber-text"
+          >
+            <ArrowLeft size={18} className="rtl:rotate-180" aria-hidden="true" />
+          </Link>
+          <Link href="/" aria-label="Masar" className="inline-flex min-h-[44px] items-center lg:min-h-0"><Logo size={28} wordmarkClassName="text-sm" /></Link>
+        </div>
+        <LanguageSwitcher className="shrink-0" />
       </div>
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
@@ -65,14 +75,14 @@ export function LegalDocumentPage({ kind }: { kind: 'terms' | 'privacy' | 'refun
 
         {current?.doc && (
           <article>
-            <h1 className="font-display text-3xl font-bold text-white">{current.doc.title}</h1>
-            <p className="mt-2 text-xs text-soft">{tf('legal.version', { v: current.doc.version })}</p>
-            <p className="mt-6 text-sm leading-relaxed text-soft">{current.doc.intro}</p>
+            <h1 className="ui-page-title">{current.doc.title}</h1>
+            <p className="ui-caption mt-2">{tf('legal.version', { v: current.doc.version })}</p>
+            <p className="ui-body-copy mt-6 max-w-[var(--ui-measure)]">{current.doc.intro}</p>
             {current.doc.sections.map((section) => (
               <section key={section.heading} className="mt-8">
-                <h2 className="mb-2 text-base font-semibold text-bright">{section.heading}</h2>
+                <h2 className="ui-section-title mb-3">{section.heading}</h2>
                 {section.body.map((paragraph, i) => (
-                  <p key={i} className="mb-3 text-sm leading-relaxed text-soft">{paragraph}</p>
+                  <p key={i} className="ui-body-copy mb-4 max-w-[var(--ui-measure)]">{paragraph}</p>
                 ))}
               </section>
             ))}

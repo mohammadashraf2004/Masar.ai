@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useSession } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { LegalFooter } from '@/components/layout/LegalFooter'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -42,7 +42,8 @@ function useDebounced<T>(value: T, delayMs: number): T {
  * hard-coded catalogue.
  */
 export default function GlossaryPage() {
-  const { isLoading: authLoading, isAuthenticated } = useAuth()
+  // Public: the vocabulary is for everyone; progress is shown when signed in.
+  const { isLoading: authLoading, isAuthenticated } = useSession()
   const { t, language } = useI18n()
 
   const [query, setQuery] = useState('')
@@ -223,7 +224,7 @@ export default function GlossaryPage() {
           {!!fromMasarTerms?.length && (
             <section aria-labelledby="vocab-from-masar-heading" className="space-y-2">
               <div>
-                <h2 id="vocab-from-masar-heading" className="text-sm font-bold text-bright">{t('vocab.fromYourMasar')}</h2>
+              <h2 id="vocab-from-masar-heading" className="text-card-title font-semibold text-bright">{t('vocab.fromYourMasar')}</h2>
                 {fromMasarCourse && (
                   <p className="text-xs text-ghost">{t('vocab.fromYourMasarSubtitle').replace('{course}', fromMasarCourse.title)}</p>
                 )}
@@ -245,7 +246,7 @@ export default function GlossaryPage() {
 
           {!!continueLearningTerms?.length && (
             <section aria-labelledby="vocab-continue-learning-heading" className="space-y-2">
-              <h2 id="vocab-continue-learning-heading" className="text-sm font-bold text-bright">{t('vocab.continueLearning')}</h2>
+              <h2 id="vocab-continue-learning-heading" className="text-card-title font-semibold text-bright">{t('vocab.continueLearning')}</h2>
               <div className="flex flex-wrap gap-2">
                 {continueLearningTerms.map((term) => (
                   <button
@@ -263,7 +264,7 @@ export default function GlossaryPage() {
 
           {courses.length > 0 && (
             <section aria-labelledby="vocab-browse-course-heading" className="space-y-2">
-              <h2 id="vocab-browse-course-heading" className="text-sm font-bold text-bright">{t('vocab.browseByCourse')}</h2>
+              <h2 id="vocab-browse-course-heading" className="text-card-title font-semibold text-bright">{t('vocab.browseByCourse')}</h2>
               <div className="flex flex-wrap gap-2">
                 {sortedCourses.map((c) => (
                   <button
@@ -288,7 +289,7 @@ export default function GlossaryPage() {
 
           {categoryCounts.length > 0 && (
             <section aria-labelledby="vocab-browse-category-heading" className="space-y-2">
-              <h2 id="vocab-browse-category-heading" className="text-sm font-bold text-bright">{t('vocab.browseByCategory')}</h2>
+              <h2 id="vocab-browse-category-heading" className="text-card-title font-semibold text-bright">{t('vocab.browseByCategory')}</h2>
               <div className="flex flex-wrap gap-2">
                 {categoryCounts.map((c) => (
                   <button
@@ -338,7 +339,7 @@ export default function GlossaryPage() {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="font-display text-sm font-bold text-bright" dir="ltr">
+                          <p className="ui-card-title" dir="ltr">
                             {language === 'ar' ? term.term_ar : term.term_en}
                             {term.acronym && <span className="ms-1 text-xs text-ghost">({term.acronym})</span>}
                           </p>
@@ -347,18 +348,18 @@ export default function GlossaryPage() {
                           )}
                         </div>
                         {term.category && (
-                          <span className="shrink-0 rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[10px] text-dim">
+                          <span className="shrink-0 rounded border border-border bg-muted/40 px-1.5 py-0.5 text-xs text-dim">
                             {term.category}
                           </span>
                         )}
                       </div>
                       {(language === 'ar' ? term.explanation_simple_ar : term.definition_en) && (
-                        <p className="mt-2.5 line-clamp-2 text-xs leading-relaxed text-soft" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                        <p className="ui-description mt-2.5 line-clamp-2" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                           {language === 'ar' ? term.explanation_simple_ar : term.definition_en}
                         </p>
                       )}
                       <div className="mt-3 flex items-center justify-between">
-                        <span className="text-[11px] text-ghost">
+                        <span className="text-xs text-ghost">
                           {term.course_count > 0 ? t('vocab.courseCount').replace('{n}', String(term.course_count)) : ''}
                         </span>
                         {isMastered && <Badge variant="emerald">{t('vocab.mastered')}</Badge>}

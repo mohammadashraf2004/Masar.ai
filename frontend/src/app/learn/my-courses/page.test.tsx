@@ -8,6 +8,7 @@ import type { MyCourse } from '@/types'
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: null, isAuthenticated: true, isLoading: false }),
   useGuest: () => {},
+  useSession: () => ({ user: null, isAuthenticated: true, isLoading: false }), useNextParam: () => null,
 }))
 vi.mock('@/components/layout/AppShell', async () => {
   const { createElement } = await import('react')
@@ -55,7 +56,7 @@ describe('my courses', () => {
     vi.mocked(api.getMyCourses).mockResolvedValue([])
     render(<MyCoursesPage />)
     expect(await screen.findByText(STRINGS.en['mc.empty'])).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Browse courses' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'Browse courses' })).toHaveAttribute('href', '/explore')
   })
 
   it('shows an error when the list cannot be loaded', async () => {

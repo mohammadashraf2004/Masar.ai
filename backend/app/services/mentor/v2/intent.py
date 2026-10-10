@@ -32,7 +32,13 @@ _RULES: Tuple[Tuple[str, Pattern[str]], ...] = (
                   r"مش شغال", r"مشكلة في الكود", r"\bwrong\b", r"غلط", r"خاطئ", r"خاطئة")),
     ("HINT", _rx(r"\bhint\b", r"\bstuck\b", r"give me a clue", r"تلميح", r"عالق", r"تعبت", r"ساعدني بدون الحل",
                  r"بدون الحل")),
-    ("QUIZ", _rx(r"\bquiz\b", r"test me", r"\bexam me\b", r"اختبرني", r"اختبار", r"سؤال لي", r"اسألني")),
+    # A quiz is answered by a rule, without the model, so only a request for one may match. A bare
+    # "اختبار" is course vocabulary ("مجموعة اختبار" test set, "اختبار الفرضيات", "A/B اختبار") and a
+    # question about it must reach the mentor, as "test set" does in English.
+    ("QUIZ", _rx(r"\bquiz\b", r"test me", r"\bexam me\b", r"اختبرني", r"اختبر\s+(?:فهمي|معلوماتي|نفسي)",
+                 r"(?:أعطني|اعطني|عطني|أريد|اريد|عايز|بدي|ابغى)\s+(?:\S+\s+)?(?:اختبار|اختبارا|اختباراً|كويز)",
+                 r"اختبار\s+(?:قصير|سريع)", r"اختبارا\s+(?:قصيرا|سريعا)", r"اختباراً\s+(?:قصيراً|سريعاً)", r"كويز",
+                 r"سؤال لي", r"اسألني")),
     ("SIMPLIFY", _rx(r"simplif", r"\beli5\b", r"in simple terms", r"simpler", r"بسّط", r"بسط", r"أبسط", r"ابسط",
                      r"مش فاهم", r"ما فهمت", r"لم أفهم", r"بشكل مبسط")),
     ("PRACTICE", _rx(r"\bpractice\b", r"\bexercise me\b", r"give me an exercise", r"تمرين", r"تدرّب", r"تدرب",

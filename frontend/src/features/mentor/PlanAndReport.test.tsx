@@ -5,7 +5,7 @@ import { mentorV2 } from '@/lib/api'
 import { ApprovedPlanCard, upcomingDays } from './ApprovedPlanCard'
 import { InterviewReport } from './InterviewReport'
 import { StudyPlan, formatMinutes, weekStartOf } from './StudyPlan'
-import { tabFromParams } from './MentorHub'
+import { TABS, tabFromParams } from './MentorHub'
 import { mockExtraBlocks, mockPlan, resetMentorMock } from './mock'
 
 beforeEach(() => {
@@ -157,11 +157,16 @@ describe('tabs', () => {
   const params = (q: string) => new URLSearchParams(q)
   it('reads ?tab=, and keeps the old ?mode=interview link working', () => {
     expect(tabFromParams(params(''))).toBe('chat')
-    expect(tabFromParams(params('tab=review'))).toBe('review')
     expect(tabFromParams(params('tab=plan'))).toBe('plan')
     expect(tabFromParams(params('tab=interview'))).toBe('interview')
     expect(tabFromParams(params('mode=interview'))).toBe('interview')
     expect(tabFromParams(params('tab=nonsense'))).toBe('chat')
-    expect(tabFromParams(params('tab=review&mode=interview'))).toBe('review')
+    expect(tabFromParams(params('tab=plan&mode=interview'))).toBe('plan')
+  })
+
+  it('has no code review tab: an old ?tab=review link opens the chat', () => {
+    expect(TABS).not.toContain('review')
+    expect(tabFromParams(params('tab=review'))).toBe('chat')
+    expect(tabFromParams(params('tab=review&exerciseId=9007'))).toBe('chat')
   })
 })

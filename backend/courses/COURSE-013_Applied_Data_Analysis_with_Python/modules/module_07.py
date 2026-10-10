@@ -2777,11 +2777,9 @@ TOPIC = {
                 "Practice the human-review workflow recommended by the chapter."
             ),
             "instructions": (
-                "Write a prompt similar to the chapter's GenAI example for a hypothetical customer dataset.\n"
-                "Your prompt must ask the model to propose code for missing values, type correction, "
-                "category normalization, and outlier detection while preserving the original data.\n"
-                "Then write a review checklist with at least six checks you would perform before running "
-                "or accepting the generated cleaning code."
+                ("1. Write a prompt similar to the chapter's GenAI example for a hypothetical customer dataset.\n"
+                 '2. Your prompt must ask the model to propose code for missing values, type correction, category normalization, and outlier detection while preserving the original data.\n'
+                 '3. Then write a review checklist with at least six checks you would perform before running or accepting the generated cleaning code.')
             ),
             "expected_output": (
                 "A reusable GenAI cleaning prompt plus a human-review checklist covering data preservation, "

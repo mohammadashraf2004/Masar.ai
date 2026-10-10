@@ -2896,12 +2896,11 @@ what they do.**
                 "Quantify why action chunking is important for expensive iterative policies."
             ),
             "instructions": (
-                "A robot executes at 60 Hz. Its action expert needs 8 denoising forward passes "
-                "for each policy generation.\n"
-                "A. If it predicts one action at a time, how many forward passes/second are needed?\n"
-                "B. If it predicts 12 actions per chunk, how many policy generations/second are needed?\n"
-                "C. How many action-expert forward passes/second result?\n"
-                "D. What approximate reduction factor did chunking provide?"
+                ('1. A robot executes at 60 Hz. Its action expert needs 8 denoising forward passes for each policy generation.\n'
+                 '   - A. If it predicts one action at a time, how many forward passes/second are needed?\n'
+                 '   - B. If it predicts 12 actions per chunk, how many policy generations/second are needed?\n'
+                 '   - C. How many action-expert forward passes/second result?\n'
+                 '   - D. What approximate reduction factor did chunking provide?')
             ),
             "expected_output": (
                 "Step-by-step frequency and forward-pass calculations."
@@ -2923,16 +2922,15 @@ what they do.**
                 "Design checks for synchronized multimodal robot demonstrations."
             ),
             "instructions": (
-                "A dataset has two cameras at 30 fps, joint states at 100 Hz, and action commands "
-                "at 50 Hz.\n"
-                "Create a validation checklist that catches:\n"
-                "- missing camera frames,\n"
-                "- timestamp drift,\n"
-                "- impossible joint angles,\n"
-                "- actions blocked by safety limits,\n"
-                "- episode truncation,\n"
-                "- insufficient start-state variation.\n"
-                "For each failure, explain what training error it could teach."
+                ('1. A dataset has two cameras at 30 fps, joint states at 100 Hz, and action commands at 50 Hz.\n'
+                 '2. Create a validation checklist that catches:\n'
+                 '   - missing camera frames,\n'
+                 '   - timestamp drift,\n'
+                 '   - impossible joint angles,\n'
+                 '   - actions blocked by safety limits,\n'
+                 '   - episode truncation,\n'
+                 '   - insufficient start-state variation.\n'
+                 '3. For each failure, explain what training error it could teach.')
             ),
             "expected_output": (
                 "A validation table with signal, test, failure symptom, and learned-policy risk."
@@ -2954,17 +2952,16 @@ what they do.**
                 "Synthesize perception, action, feedback, validation, and deterministic fallbacks."
             ),
             "instructions": (
-                "Design an agent that finds a product on a website, extracts the visible price, "
-                "adds it to a comparison table, and stops before purchase.\n"
-                "Specify:\n"
-                "- observation format,\n"
-                "- action space,\n"
-                "- screenshot callback,\n"
-                "- coordinate convention,\n"
-                "- step-level checks,\n"
-                "- task completion condition,\n"
-                "- API/deterministic fallbacks,\n"
-                "- actions requiring explicit prohibition or approval."
+                ('1. Design an agent that finds a product on a website, extracts the visible price, adds it to a comparison table, and stops before purchase.\n'
+                 '2. Specify:\n'
+                 '   - observation format,\n'
+                 '   - action space,\n'
+                 '   - screenshot callback,\n'
+                 '   - coordinate convention,\n'
+                 '   - step-level checks,\n'
+                 '   - task completion condition,\n'
+                 '   - API/deterministic fallbacks,\n'
+                 '   - actions requiring explicit prohibition or approval.')
             ),
             "expected_output": (
                 "An end-to-end browser-agent design and safety boundary."
@@ -2987,19 +2984,19 @@ what they do.**
                 "Apply the chapter's VLA ideas to an accessible robot-manipulation system."
             ),
             "instructions": (
-                "Design a VLA for a small robot arm that must sort colored objects.\n"
-                "Specify:\n"
-                "- cameras,\n"
-                "- language instruction format,\n"
-                "- proprioception,\n"
-                "- compact VLM strategy,\n"
-                "- token reduction,\n"
-                "- action head,\n"
-                "- action chunk length,\n"
-                "- asynchronous queue behavior,\n"
-                "- demonstration collection,\n"
-                "- validation metrics.\n"
-                "Use the SmolVLA efficiency principles where appropriate."
+                ('1. Design a VLA for a small robot arm that must sort colored objects.\n'
+                 '2. Specify:\n'
+                 '   - cameras,\n'
+                 '   - language instruction format,\n'
+                 '   - proprioception,\n'
+                 '   - compact VLM strategy,\n'
+                 '   - token reduction,\n'
+                 '   - action head,\n'
+                 '   - action chunk length,\n'
+                 '   - asynchronous queue behavior,\n'
+                 '   - demonstration collection,\n'
+                 '   - validation metrics.\n'
+                 '3. Use the SmolVLA efficiency principles where appropriate.')
             ),
             "expected_output": (
                 "A compact VLA architecture plus training/data/control plan."

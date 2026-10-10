@@ -1,6 +1,6 @@
 import type { User } from '@/types'
 import { getRecord } from './records'
-import { TOURS, TOURS_RELEASED_AT, routeMatches, type TourDef } from './registry'
+import { TOURS, TOURS_RELEASED_AT, routeMatches, tourAvailable, type TourDef } from './registry'
 
 /**
  * Which tour, if any, runs on this page for this account. Pure decisions; nothing here
@@ -52,6 +52,7 @@ export function pickTour(
   if (sessionRan) return null
   return TOURS.find((tour) =>
     routeMatches(tour, pathname)
+    && tourAvailable(tour)
     && appliesTo(tour, user)
     && records(user.id, tour.id)?.version !== tour.version
     && prerequisitesMet(tour, user, records),

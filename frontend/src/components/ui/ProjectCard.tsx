@@ -43,7 +43,7 @@ export function ProjectCard({
         </div>
 
         <h3
-          className="font-display font-bold text-bright text-base leading-snug"
+          className="ui-card-title"
           dir={title.shownIn === 'ar' ? 'rtl' : 'ltr'}
         >
           {title.text}

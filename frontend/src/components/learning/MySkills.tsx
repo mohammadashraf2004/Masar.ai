@@ -105,7 +105,7 @@ export function MySkillsSection() {
   return (
     <Card className="p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="text-sm font-semibold text-bright">{t('mys.title')}</h2>
+        <h2 className="ui-section-title">{t('mys.title')}</h2>
         {!editing && (
           <Button variant="ghost" size="sm" onClick={startEditing} disabled={!canEdit}>
             {t('mys.edit')}
@@ -116,7 +116,7 @@ export function MySkillsSection() {
 
       {editing && profile.career_goal ? (
         <div className="mt-4">
-          <h3 className="text-sm font-semibold text-bright">{t('skills.heading')}</h3>
+          <h3 className="ui-card-title">{t('skills.heading')}</h3>
           <p className="mb-4 mt-1 text-xs text-soft">{t('skills.hint')}</p>
           <SkillsStep
             query={{
@@ -135,7 +135,7 @@ export function MySkillsSection() {
       ) : (
         <div className="mt-4 grid gap-5 sm:grid-cols-2">
           <section aria-labelledby="mys-known">
-            <h3 id="mys-known" className="mb-2 text-xs font-medium uppercase tracking-widest text-soft">{t('mys.known')}</h3>
+            <h3 id="mys-known" className="ui-eyebrow mb-2">{t('mys.known')}</h3>
             {skills.known.length === 0 ? (
               <p className="text-sm text-soft">{t('mys.none')}</p>
             ) : (
@@ -157,7 +157,7 @@ export function MySkillsSection() {
             )}
           </section>
           <section aria-labelledby="mys-learning">
-            <h3 id="mys-learning" className="mb-2 text-xs font-medium uppercase tracking-widest text-soft">{t('mys.learning')}</h3>
+            <h3 id="mys-learning" className="ui-eyebrow mb-2">{t('mys.learning')}</h3>
             {skills.learning.length === 0 ? (
               <p className="text-sm text-soft">{t('mys.noneLearning')}</p>
             ) : (

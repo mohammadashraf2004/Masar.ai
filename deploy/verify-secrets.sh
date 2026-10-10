@@ -138,12 +138,14 @@ else
 fi
 
 echo
-echo "── Payments (Paymob) ────────────────────────────────────────────────"
-present PAYMOB_API_KEY               "paymob"  required
-present PAYMOB_INTEGRATION_ID_CARD   "paymob"  required
-present PAYMOB_INTEGRATION_ID_WALLET "paymob"  required
-present PAYMOB_IFRAME_ID             "paymob"  required
-present PAYMOB_HMAC_SECRET           "paymob"  required "without it NO payment is ever confirmed"
+echo "── Payments (Kashier) ───────────────────────────────────────────────"
+present KASHIER_MODE                 "kashier" required "must be live in production"
+present KASHIER_MERCHANT_ID          "kashier" required
+present KASHIER_API_KEY              "kashier" required "signs webhooks: without it NO payment is ever confirmed"
+present KASHIER_SECRET_KEY           "kashier" required
+present KASHIER_PUBLIC_API_URL       "kashier" required "https origin Kashier posts the webhook to"
+echo "── Payments (Paymob, historical reconciliation only) ────────────────"
+present PAYMOB_HMAC_SECRET           "paymob"  optional "keep while Paymob may still send callbacks for its orders"
 
 echo
 echo "── Reverse proxy / CORS ─────────────────────────────────────────────"

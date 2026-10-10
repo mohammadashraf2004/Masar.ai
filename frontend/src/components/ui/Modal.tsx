@@ -112,8 +112,8 @@ export function Modal({ title, description, onClose, initialFocus, icon, footer,
             </span>
           )}
           <div className="min-w-0">
-            <h2 id={`${id}-title`} className="font-display text-lg font-bold leading-snug text-white">{title}</h2>
-            {description && <p id={`${id}-desc`} className="mt-1 text-sm leading-relaxed text-soft">{description}</p>}
+            <h2 id={`${id}-title`} className="ui-card-title">{title}</h2>
+            {description && <p id={`${id}-desc`} className="ui-description mt-1">{description}</p>}
           </div>
         </div>
 

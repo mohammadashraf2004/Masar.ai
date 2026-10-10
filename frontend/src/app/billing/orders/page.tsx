@@ -8,6 +8,7 @@ import { Card, Spinner } from '@/components/ui/index'
 import { ReferenceNumber } from '@/components/billing/ReferenceNumber'
 import { RefundPolicySummary } from '@/components/billing/RefundPolicySummary'
 import { api } from '@/lib/api'
+import { useAuth } from '@/hooks/useAuth'
 import { useMoney } from '@/lib/billing/money'
 import { useRefundI18n } from '@/lib/billing/refundI18n'
 import type { RefundStatus, SubscriptionOrder } from '@/lib/billing/types'
@@ -19,6 +20,8 @@ const statusKey: Record<RefundStatus, Parameters<ReturnType<typeof useRefundI18n
 }
 
 export default function BillingOrdersPage() {
+  // The account's own orders: signed-out visitors are sent to sign in.
+  useAuth()
   const { language, t } = useRefundI18n()
   const { money } = useMoney('EGP')
   const [orders, setOrders] = useState<SubscriptionOrder[] | null>(null)

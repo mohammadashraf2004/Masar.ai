@@ -1,7 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
+import { useSession } from '@/hooks/useAuth'
+import { GatedLink } from '@/components/auth/AuthPrompt'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PageBody } from '@/components/layout/PageContainer'
@@ -59,7 +60,9 @@ const TOOL_ICONS: Record<string, LucideIcon> = {
 }
 
 export default function ToolsPage() {
-  const { isLoading: authLoading } = useAuth()
+  // Public: anyone may browse the tools; a visitor opens a course's overview
+  // (its outline and how to start), a learner enrolls and continues here.
+  const { isLoading: authLoading, isAuthenticated } = useSession()
   const { t, tf, language } = useI18n()
   const [courses, setCourses] = useState<ToolCourseSummary[]>([])
   const [enrollments, setEnrollments] = useState<ToolEnrollment[]>([])
@@ -91,14 +94,17 @@ export default function ToolsPage() {
     if (authLoading) return
     async function load() {
       try {
-        const [c, e] = await Promise.all([api.listToolCourses(), api.getMyToolEnrollments()])
+        const [c, e] = await Promise.all([
+          api.listToolCourses(),
+          isAuthenticated ? api.getMyToolEnrollments() : Promise.resolve([] as ToolEnrollment[]),
+        ])
         setCourses(c)
         setEnrollments(e)
       } catch {}
       setLoading(false)
     }
     load()
-  }, [authLoading])
+  }, [authLoading, isAuthenticated])
 
   async function handleEnroll(course: ToolCourseSummary) {
     setEnrollingId(course.id)
@@ -160,11 +166,11 @@ export default function ToolsPage() {
                   in Arabic has an English name. */}
               {shownResults.matched_terms.map(term => (
                 <Card key={term.id} className="p-4 border-amber/20">
-                  <p className="font-display font-bold text-bright text-sm" dir="ltr">
+                  <p className="ui-card-title" dir="ltr">
                     {term.preferred}
                   </p>
                   <p className="text-xs text-amber-text2 mt-0.5" dir="rtl">{term.ar}</p>
-                  <p className="text-xs text-soft leading-relaxed mt-2" dir="rtl">
+                  <p className="ui-description mt-2" dir="rtl">
                     {term.definitionAr}
                   </p>
                 </Card>
@@ -174,10 +180,10 @@ export default function ToolsPage() {
                 <p className="text-sm text-ghost py-6 text-center">{t('course.noResults')}</p>
               ) : (
                 shownResults.hits.map(hit => (
-                  <Link key={`${hit.kind}-${hit.id}`} href={hit.href} className="block">
+                  <GatedLink key={`${hit.kind}-${hit.id}`} href={hit.href} className="block">
                     <Card className="p-4 hover:border-amber/20">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="ghost" className="text-[10px]">{hit.kind.replace('_', ' ')}</Badge>
+                        <Badge variant="ghost">{hit.kind.replace('_', ' ')}</Badge>
                         {hit.parent_title && (
                           <span dir="auto" className="text-xs text-ghost truncate">{hit.parent_title}</span>
                         )}
@@ -191,7 +197,7 @@ export default function ToolsPage() {
                         </p>
                       )}
                     </Card>
-                  </Link>
+                  </GatedLink>
                 ))
               )}
             </div>
@@ -204,7 +210,7 @@ export default function ToolsPage() {
               <div key={category}>
                 <div className="flex items-center gap-2 mb-4">
                   <Icon size={15} className={meta.text} />
-                  <h2 dir="auto" className="text-sm font-medium text-bright">
+                  <h2 dir="auto" className="text-card-title font-semibold text-bright">
                     {CATEGORY_LABEL[category] ? t(CATEGORY_LABEL[category]) : category}
                   </h2>
                   <span className="text-xs text-ghost">
@@ -243,10 +249,10 @@ export default function ToolsPage() {
                             <DifficultyBadge level={course.difficulty} />
                           )}
                         </div>
-                        <h3 dir="auto" className="font-medium text-bright text-sm mb-1.5">
+                        <h3 dir="auto" className="ui-card-title mb-1.5">
                           {localizedTitle(course, language)}
                         </h3>
-                        <p dir="auto" className="text-xs text-ghost leading-relaxed mb-4 flex-1">
+                        <p dir="auto" className="ui-description mb-4 flex-1">
                           {localizedDescription(course, language)}
                         </p>
 
@@ -282,6 +288,13 @@ export default function ToolsPage() {
                           <Button size="sm" variant="outline" className="w-full" disabled>
                             {t('course.comingSoon')}
                           </Button>
+                        ) : !isAuthenticated ? (
+                          <Link
+                            href={`/courses/${course.slug}`}
+                            className={buttonStyles({ size: 'sm', variant: 'outline', className: 'w-full' })}
+                          >
+                            {t('card.viewCourse')}
+                          </Link>
                         ) : (
                           <Button
                             size="sm"

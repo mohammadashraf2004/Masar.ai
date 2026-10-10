@@ -240,7 +240,7 @@ export function OutputPanel({
           >
             {t(label[name])}
             {name === 'artifacts' && artifacts.length > 0 && (
-              <span className="ms-1.5 font-mono text-[10px] text-ghost">{artifacts.length}</span>
+              <span className="ms-1.5 font-mono text-xs text-ghost">{artifacts.length}</span>
             )}
           </button>
         ))}

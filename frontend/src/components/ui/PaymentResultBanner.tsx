@@ -5,7 +5,7 @@ import { api } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
 import { CheckCircle, XCircle, Clock, X } from 'lucide-react'
 
-// Mounted on the dashboard — where Paymob's checkout redirect now lands
+// Mounted on the dashboard — where the checkout redirect (Kashier's return) now lands
 // (?payment_ref=...). Deliberately does not trust anything in the URL
 // itself; it only shows what our own authenticated status endpoint
 // reports, which only reflects what the server-side webhook has

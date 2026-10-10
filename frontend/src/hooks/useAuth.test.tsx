@@ -22,8 +22,8 @@ describe('useGuest', () => {
 
   it('honours a different destination for that visitor', () => {
     useAuthStore.setState({ token: 'tok' })
-    renderHook(() => useGuest('/learn'))
-    expect(router.replace).toHaveBeenCalledWith('/learn')
+    renderHook(() => useGuest('/explore'))
+    expect(router.replace).toHaveBeenCalledWith('/explore')
   })
 
   it('leaves a signed-out visitor alone', () => {

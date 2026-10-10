@@ -38,6 +38,7 @@ function newSession() {
 }
 
 beforeEach(() => {
+  vi.stubEnv('NEXT_PUBLIC_MOCK_INTERVIEW', '1')
   setToursEnabled(true)
   mockLayout()
   setPathname('/dashboard')
@@ -45,9 +46,13 @@ beforeEach(() => {
   resetSyncedForTests()
   vi.mocked(api.getMyTours).mockResolvedValue([])
   vi.mocked(api.putTour).mockResolvedValue({ tour_id: 'onboarding', status: 'completed', version: 1, at: new Date().toISOString() })
+  // The mentor hub's own tour comes first on /mentor; these tests are about the ones after it
+  // (it has its own describe below).
+  saveRecord(7, 'mentor', { status: 'done', version: 1 })
 })
 
 afterEach(() => {
+  vi.unstubAllEnvs()
   vi.useRealTimers()
   setWidth(1024)
 })
@@ -354,12 +359,14 @@ describe('replaying', () => {
 
   it('replays the tour of the page it is opened on', () => {
     signIn({ created_at: OLD_ACCOUNT })
+    saveRecord(7, 'mentor', { status: 'done', version: 1 })
     saveRecord(7, 'mentor-interview', { status: 'done', version: 1 })
     setPathname('/mentor')
-    render(page(['interview-tab', 'credits'], <AccountMenu />))
+    render(page(['mentor-course', 'mentor-context', 'mentor-actions', 'mentor-composer', 'mentor-learner', 'mentor-tabs', 'interview-tab', 'credits'], <AccountMenu />))
     expect(card()).toBeNull()
     replay()
-    expect(title()).toBe('New: mock interviews')
+    // On the mentor, Help replays how to use the mentor.
+    expect(title()).toBe('Pick the course you are asking about')
   })
 
   it('goes to the tour\'s page first when its targets are on another', () => {
@@ -440,5 +447,37 @@ describe('the language tour on a desktop', () => {
     render(page(['lang-switch', 'mentor-lang', 'menu-button']))
     await tick(3500)
     expect(card()).toHaveTextContent('Switch to English here anytime')
+  })
+})
+
+describe('the mentor hub tour', () => {
+  const HUB = ['mentor-course', 'mentor-context', 'mentor-actions', 'mentor-composer', 'mentor-learner', 'mentor-tabs', ...MENTOR_PAGE]
+
+  beforeEach(() => {
+    window.localStorage.clear()
+    setPathname('/mentor')
+  })
+
+  it('is the first tour on the mentor, from choosing a course to the other tabs', async () => {
+    vi.useFakeTimers()
+    render(page(HUB))
+    expect(title()).toBe('Pick the course you are asking about')
+    expect(counter()).toBe('1 of 6')
+    for (const next of ['What the mentor can see', 'Say what kind of help you want', 'Ask in Arabic or English', 'What the mentor knows about you', 'More ways to learn']) {
+      fireEvent.click(button('Next'))
+      await tick(200)
+      expect(title()).toBe(next)
+    }
+  })
+
+  it('leaves out, on a phone, the panel and the tabs the full-screen chat has no room for', async () => {
+    setWidth(390)
+    mockLayout({ width: 390, height: 844 })
+    vi.useFakeTimers()
+    // The learner panel is hidden below 900px, so it is not among what a phone shows.
+    render(page(HUB.filter((id) => id !== 'mentor-learner')))
+    await tick(3500)
+    expect(title()).toBe('Pick the course you are asking about')
+    expect(counter()).toBe('1 of 4')
   })
 })

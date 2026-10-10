@@ -90,8 +90,29 @@ describe('useLessonScrollSteps', () => {
     divider.getBoundingClientRect = () => ({ top: 400 } as DOMRect)
 
     await user.click(screen.getByText('go-exercise'))
-    expect(container.scrollTo).toHaveBeenCalledWith({ top: 344, behavior: 'smooth' })
+    // 400 - 64: the divider lands just below the sticky step bar.
+    expect(container.scrollTo).toHaveBeenCalledWith({ top: 336, behavior: 'smooth' })
     expect(screen.getByTestId('active')).toHaveTextContent('exercise')
     expect(onContentRead).toHaveBeenCalledTimes(1)
+  })
+
+  it('below lg, where the window scrolls, it scrolls the window and observes the viewport', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: false, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn(),
+    }))
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    const user = userEvent.setup()
+    render(<Harness hasExercise />)
+    const container = screen.getByTestId('container')
+    container.scrollTo = vi.fn()
+    screen.getByTestId('divider').getBoundingClientRect = () => ({ top: 900 } as DOMRect)
+
+    expect(observedOptions?.root).toBeNull()
+    expect(document.documentElement.style.scrollPaddingTop).toBe('64px')
+    await user.click(screen.getByText('go-exercise'))
+    expect(scrollTo).toHaveBeenCalledWith({ top: 900 - 64, behavior: 'smooth' })
+    expect(container.scrollTo).not.toHaveBeenCalled()
+    scrollTo.mockRestore()
+    vi.unstubAllGlobals()
   })
 })

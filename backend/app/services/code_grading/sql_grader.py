@@ -67,6 +67,10 @@ class SQLGrader:
                 None, 0, 0, empty,
             )
 
+        result_test = next((test for test in tests if test.get("type") == "sql_result"), None)
+        if result_test is not None and any(test.get("type") == "sql_blank" for test in tests):
+            return await self._grade_by_result(code, tests, required, result_test)
+
         passed = 0
         execution = empty
         for index, test in enumerate(tests):
@@ -103,6 +107,67 @@ class SQLGrader:
             "correct", True, "CORRECT", {"en": "Correct!", "ar": "إجابة صحيحة!"},
             None, passed, len(required), execution,
         )
+
+    async def _grade_by_result(
+        self, code: str, tests: list[dict[str, Any]], required: list[dict[str, Any]],
+        result_test: dict[str, Any],
+    ) -> GradingResult:
+        """Blanks guide the learner; the query's result decides.
+
+        An empty blank is reported before running anything. Once every blank
+        is filled, any query that returns the expected result passes, even if
+        a field is written differently from the accepted answers. When the
+        result is wrong, the first field that differs from them is named.
+        """
+        blanks = [(index, test) for index, test in enumerate(tests) if test.get("type") == "sql_blank"]
+        for done, (index, test) in enumerate(blanks):
+            if not self._blank_filled(code, test):
+                return self._blank_failure(test, index, done, len(required))
+        execution = await _execute_off_loop(code, result_test)
+        if not execution.succeeded:
+            return GradingResult(
+                execution.status, False, execution.status.upper(),
+                {"en": execution.stderr, "ar": execution.stderr},
+                str(result_test.get("id") or "result"), 0, len(required), execution,
+            )
+        if execution.detail == "match":
+            return GradingResult(
+                "correct", True, "CORRECT", {"en": "Correct!", "ar": "إجابة صحيحة!"},
+                None, len(required), len(required), execution,
+            )
+        for done, (index, test) in enumerate(blanks):
+            if not self._blank_matches(code, test):
+                failure = self._blank_failure(test, index, done, len(required))
+                failure.execution = execution
+                return failure
+        return GradingResult(
+            "incorrect", False, "TEST_FAILED",
+            result_test.get("feedback") or {
+                "en": "The query does not produce the expected result.",
+                "ar": "لا ينتج الاستعلام النتيجة المتوقعة.",
+            },
+            str(result_test.get("id") or "result"), len(blanks), len(required), execution,
+        )
+
+    @staticmethod
+    def _blank_failure(test: dict[str, Any], index: int, passed: int, total: int) -> GradingResult:
+        return GradingResult(
+            "incorrect", False, "BLANK_INCORRECT",
+            test.get("feedback") or {
+                "en": "The query does not produce the expected result.",
+                "ar": "لا ينتج الاستعلام النتيجة المتوقعة.",
+            },
+            str(test.get("id") or f"test_{index + 1}"), passed, total, ExecutionResult("success"),
+        )
+
+    @staticmethod
+    def _blank_filled(code: str, test: dict[str, Any]) -> bool:
+        fields = {int(number): value for number, value in _BLANK.findall(code)}
+        actual = fields.get(int(test.get("blank", 0)))
+        if actual is None:
+            # Markers removed: the result test decides, unless blanks remain.
+            return "___" not in code
+        return bool(actual.strip()) and "___" not in actual
 
     @staticmethod
     def _blank_matches(code: str, test: dict[str, Any]) -> bool:

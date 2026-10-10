@@ -832,6 +832,15 @@ export interface CourseModule {
   is_optional?: boolean
   completion_pct?: number | null
   status?: 'not_started' | 'in_progress' | 'completed' | null
+  /** The outline: lesson names only (public). Bodies come from the course viewer. */
+  lessons?: CourseLessonTitle[]
+}
+
+export interface CourseLessonTitle {
+  id: number
+  order: number
+  title: string
+  title_ar?: string | null
 }
 
 export interface CourseProject {
@@ -1376,6 +1385,14 @@ export interface CourseFilters {
 /** A certificate as the API returns it, both for the signed-in learner's own list
  *  and for the public verification lookup (the same shape, by design: the public
  *  one shows nothing the certificate itself does not). */
+/** Practice activity per local day (exercise checks, quizzes, exams,
+ *  projects), oldest first, and the current streak of active days. */
+export interface ProfileActivity {
+  days: Array<{ date: string; count: number }>
+  active_days: number
+  current_streak: number
+}
+
 export interface CertificateSummary {
   /** A UUID: the public identifier, and what the verification link carries. */
   certificate_id: string
@@ -1393,9 +1410,12 @@ export interface CertificateSummary {
 
 // [code-cell]
 export interface ExerciseFile {
+  /** Storage identifier: saved drafts are keyed by it, so it never changes. */
   name: string
   content: string
   readOnly?: boolean
+  /** What the tab shows when it differs from `name` (e.g. `train_model.py`). */
+  label?: string
 }
 
 export interface TestResult {
@@ -1406,7 +1426,7 @@ export interface TestResult {
 
 export type ExerciseExecutionStatus =
   | 'success' | 'syntax_error' | 'runtime_error' | 'timeout'
-  | 'memory_limit' | 'forbidden_operation' | 'execution_error' | 'grading_error'
+  | 'memory_limit' | 'forbidden_operation' | 'execution_error' | 'grading_error' | 'incomplete'
 
 export interface ExerciseRunResult {
   status: ExerciseExecutionStatus
@@ -1432,5 +1452,17 @@ export interface GradeResult {
   tests_passed: number
   tests_total: number
   failed_test?: string | null
+  attempt?: ExerciseAttemptState | null
+}
+
+/** The server's record of one learner on one code exercise; it decides
+ *  whether the worked solution may be shown. */
+export interface ExerciseAttemptState {
+  failed_checks: number
+  passed: boolean
+  completed_independently: boolean
+  solution_viewed: boolean
+  solution_available: boolean
+  checks_until_solution: number
 }
 // [/code-cell]

@@ -105,10 +105,17 @@ class Settings(BaseSettings):
     # offline scripts that build a provider themselves keep their own.
     GENERATION_TIMEOUT_SECONDS: float = 25.0
     GENERATION_MAX_RETRIES: int = 0
-    # Mentor replies that fail validation fall back to a safe answer and are
-    # refunded - this many times per account per 24 h. Beyond it the send is
-    # charged: each one already cost up to three provider calls.
-    MENTOR_VALIDATION_REFUNDS_PER_DAY: int = 3
+    # A mentor reply that fails validation falls back to a safe answer and is
+    # always refunded: a learner never pays for unusable output. Each such send
+    # still cost up to three provider calls, so after this many in the window
+    # further model sends are refused (429, nothing charged, no provider call)
+    # until the oldest leaves the window.
+    MENTOR_VALIDATION_FAILURES_LIMIT: int = 5
+    MENTOR_VALIDATION_FAILURE_WINDOW_SECONDS: int = 3600
+    # Wall-clock budget for one /mentor/message: no provider call is started that
+    # could end after it (each may take GENERATION_TIMEOUT_SECONDS). Below the
+    # browser's 65 s timeout for this request (frontend MENTOR_MESSAGE_TIMEOUT_MS).
+    MENTOR_MESSAGE_BUDGET_SECONDS: float = 55.0
     # AI-reviewed project submissions (/tracks/projects/{id}/submit) per account
     # in any rolling 24 hours, on top of that route's per-IP limit.
     PROJECT_REVIEW_LIMIT_PER_DAY: int = 10
@@ -169,6 +176,15 @@ class Settings(BaseSettings):
     # (checked against the runner's /healthz). Set it when the runner is
     # deployed with runtime: runsc, so a misconfigured host fails loudly.
     PROJECT_LAB_REQUIRE_GVISOR: bool = False
+    # The API receives the runner container settings as well as its own flag.
+    # It cannot inspect Docker directly (and must never receive the Docker
+    # socket), but in production it can refuse a configuration that would ask
+    # Compose for runc, the runc seccomp profile, or insufficient gVisor pid
+    # headroom. The live runtime is attested separately at API startup.
+    PROJECT_RUNNER_RUNTIME: str = "runc"
+    PROJECT_RUNNER_SECCOMP: str = "runner-seccomp.json"
+    PROJECT_RUNNER_REQUIRE_GVISOR: bool = False
+    PROJECT_RUNNER_PIDS_LIMIT: int = 128
     # One execution at a time per learner. A lease older than this is treated
     # as abandoned (a crashed worker), so a learner is never locked out.
     PROJECT_LAB_EXECUTION_LEASE_SECONDS: int = 180
@@ -186,6 +202,22 @@ class Settings(BaseSettings):
     RUNNER_USER_SECONDS: int = 120
     RUNNER_USER_WINDOW_SECONDS: int = 600
 
+    # ─── Pro plan: included AI usage ──────────────────────────────────────
+    # A Pro subscriber's AI actions draw on an allowance instead of the
+    # wallet: this many credits (the same per-action prices as the wallet)
+    # per rolling window, counted from each request's reservation time.
+    PRO_AI_CREDITS_PER_WINDOW: int = 50
+    PRO_AI_WINDOW_SECONDS: int = 14400
+    # The seven-day trial opens every course but its AI actions are paid from
+    # the wallet: the allowance starts with the first payment (decision
+    # 2026-10-08).
+    PRO_AI_INCLUDE_TRIAL: bool = False
+    # A reservation neither finalized nor released after this long belongs to
+    # a request that never answered (a worker killed mid-request): it is
+    # released, not counted - nothing was delivered. Well above the longest
+    # request (gunicorn --timeout 60).
+    PRO_AI_RESERVATION_TTL_SECONDS: int = 300
+
     # ─── CORS ─────────────────────────────────────────────────────────────
     FRONTEND_URL: str = "http://localhost:3000"
     # Comma-separated list of extra allowed origins for production
@@ -196,7 +228,30 @@ class Settings(BaseSettings):
     RESEND_API_KEY: Optional[str] = None
     EMAIL_FROM: str = "Masar <noreply@example.com>"
 
-    # ─── Payments (Paymob) ─────────────────────────────────────────────────
+    # ─── Payments (Kashier) ────────────────────────────────────────────────
+    # Every new checkout - Pro subscriptions, course purchases, wallet top-ups
+    # and exam fees - is a Kashier hosted payment session. "test" talks to
+    # test-api.kashier.io with the test keys, "live" to api.kashier.io with the
+    # live keys; production refuses "test". All four blank: payments are off
+    # (checkout answers 503) and nothing else is affected.
+    KASHIER_MODE: str = "test"
+    KASHIER_MERCHANT_ID: Optional[str] = None
+    # The Payment API key: signs webhooks (x-kashier-signature) - the HMAC secret.
+    KASHIER_API_KEY: Optional[str] = None
+    # The secret key: the Authorization header of server-to-server calls.
+    KASHIER_SECRET_KEY: Optional[str] = None
+    # This API's public https origin (e.g. https://api.masarai.net): Kashier posts
+    # the webhook to <origin>/api/v1/payments/kashier/webhook and returns the
+    # shopper to <origin>/api/v1/payments/kashier/return.
+    KASHIER_PUBLIC_API_URL: Optional[str] = None
+    KASHIER_ALLOWED_METHODS: str = "card,wallet"
+    KASHIER_SESSION_MINUTES: int = 60
+    KASHIER_TIMEOUT_SECONDS: float = 20.0
+
+    # ─── Payments (Paymob, historical only) ────────────────────────────────
+    # No new Paymob payment is ever started. These remain so the Paymob
+    # webhook can still verify and reconcile the payments and refunds of the
+    # orders Paymob took before the switch to Kashier.
     PAYMOB_API_KEY: Optional[str] = None
     PAYMOB_INTEGRATION_ID_CARD: Optional[str] = None
     PAYMOB_INTEGRATION_ID_WALLET: Optional[str] = None
@@ -309,6 +364,53 @@ class Settings(BaseSettings):
                 "PROJECT_LAB_RUNNER_TOKEN must be a random value of 24+ characters (not the compose "
                 "default) when PROJECT_LAB_EXECUTION_BACKEND=runner"
             )
+        if self.is_production and backend == "runner":
+            if self.PROJECT_RUNNER_RUNTIME.strip() != "runsc":
+                problems.append(
+                    "PROJECT_RUNNER_RUNTIME must be runsc when learner execution is enabled in production"
+                )
+            if self.PROJECT_RUNNER_SECCOMP.strip() != "runner-seccomp-gvisor.json":
+                problems.append(
+                    "PROJECT_RUNNER_SECCOMP must be runner-seccomp-gvisor.json when learner execution "
+                    "is enabled in production"
+                )
+            if not self.PROJECT_RUNNER_REQUIRE_GVISOR:
+                problems.append(
+                    "PROJECT_RUNNER_REQUIRE_GVISOR must be true when learner execution is enabled in production"
+                )
+            if not self.PROJECT_LAB_REQUIRE_GVISOR:
+                problems.append(
+                    "PROJECT_LAB_REQUIRE_GVISOR must be true when learner execution is enabled in production"
+                )
+            if self.PROJECT_RUNNER_PIDS_LIMIT < 512:
+                problems.append(
+                    "PROJECT_RUNNER_PIDS_LIMIT must be at least 512 when learner execution is enabled "
+                    "under gVisor in production"
+                )
+        return problems
+
+    @property
+    def kashier_configured(self) -> bool:
+        return all((self.KASHIER_MERCHANT_ID, self.KASHIER_API_KEY, self.KASHIER_SECRET_KEY,
+                    self.KASHIER_PUBLIC_API_URL))
+
+    def kashier_problems(self, *, production: bool) -> list[str]:
+        """Payments off (nothing set) is allowed; half a configuration is not."""
+        problems: list[str] = []
+        if self.KASHIER_MODE not in {"test", "live"}:
+            problems.append("KASHIER_MODE must be test or live")
+        values = (self.KASHIER_MERCHANT_ID, self.KASHIER_API_KEY, self.KASHIER_SECRET_KEY,
+                  self.KASHIER_PUBLIC_API_URL)
+        if any(values) and not all(values):
+            problems.append(
+                "Kashier is partly configured: set all of KASHIER_MERCHANT_ID, KASHIER_API_KEY, "
+                "KASHIER_SECRET_KEY and KASHIER_PUBLIC_API_URL (or none, to keep payments off)"
+            )
+        if production and any(values):
+            if self.KASHIER_MODE != "live":
+                problems.append("KASHIER_MODE must be live in production (test keys take no real payments)")
+            if not (self.KASHIER_PUBLIC_API_URL or "").startswith("https://"):
+                problems.append("KASHIER_PUBLIC_API_URL must be an https:// origin in production")
         return problems
 
 
@@ -370,6 +472,7 @@ if settings.is_production:
     # then fails every AI request with the first sign being user reports.
     _problems.extend(settings.llm_config_problems())
     _problems.extend(settings.project_lab_problems())
+    _problems.extend(settings.kashier_problems(production=True))
     if settings.project_lab_backend == "local":
         # The local adapter runs learner code as the API's own user, with the
         # API's filesystem and network. It exists for development and tests;

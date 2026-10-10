@@ -15,6 +15,7 @@ vi.mock('next/navigation', () => ({
 }))
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: { id: 1 }, isAuthenticated: true, isLoading: false }),
+  useSession: () => ({ user: { id: 1 }, isAuthenticated: true, isLoading: false }), useNextParam: () => null,
 }))
 vi.mock('@/components/layout/AppShell', () => ({ AppShell: ({ children }: { children: ReactNode }) => <>{children}</> }))
 vi.mock('@/components/layout/PageHeader', () => ({ PageHeader: ({ title }: { title: string }) => <h1>{title}</h1> }))

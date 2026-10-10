@@ -26,7 +26,8 @@ import {
 import { mentorMocksEnabled } from '@/lib/mentor/mocks'
 // [mentor-v2]
 import { InterviewReportPage as InterviewReportV2Page } from '@/features/mentor/InterviewReportPage'
-import { mentorV2Enabled, mentorV2MocksAllowed } from '@/features/mentor/flag'
+import { mentorV2Enabled, mentorV2MocksAllowed, mockInterviewAvailable } from '@/features/mentor/flag'
+import { InterviewComingSoonPage } from '@/features/mentor/InterviewTab'
 // [/mentor-v2]
 
 /**
@@ -93,7 +94,7 @@ function Report({ session }: { session: InterviewSession }) {
       <PageBody className="space-y-5">
         <div className="flex flex-wrap items-start gap-5">
           <Card className="flex min-w-0 flex-[1_1_300px] flex-col gap-4 p-[22px]">
-            <h2 className="text-sm font-semibold text-white">{t('interview.report.overall')}</h2>
+            <h2 className="ui-card-title">{t('interview.report.overall')}</h2>
             {scored ? (
               <>
                 <p dir="ltr" className="flex items-baseline gap-1.5">
@@ -113,7 +114,7 @@ function Report({ session }: { session: InterviewSession }) {
 
           <div className="flex min-w-0 flex-[2_1_400px] flex-col gap-5">
             <Card className="p-[22px]">
-              <h2 className="mb-3 text-sm font-semibold text-white">{t('interview.report.strengths')}</h2>
+              <h2 className="ui-card-title mb-3">{t('interview.report.strengths')}</h2>
               {best ? (
                 <p className="text-[13px] leading-relaxed text-soft">
                   {tf('interview.report.strong', { dim: dimName(best[0]), score: best[1] })}
@@ -123,7 +124,7 @@ function Report({ session }: { session: InterviewSession }) {
               )}
             </Card>
             <Card className="p-[22px]">
-              <h2 className="mb-3 text-sm font-semibold text-white">{t('interview.report.improve')}</h2>
+              <h2 className="ui-card-title mb-3">{t('interview.report.improve')}</h2>
               {worst && best && worst[0] !== best[0] && worst[1] < WEAK_BELOW + 2 ? (
                 <p className="mb-2 text-[13px] leading-relaxed text-soft">
                   {tf('interview.report.weak', { dim: dimName(worst[0]), score: worst[1] })}
@@ -147,7 +148,7 @@ function Report({ session }: { session: InterviewSession }) {
         </div>
 
         <section aria-labelledby="qbq" className="space-y-3">
-          <h2 id="qbq" className="text-sm font-semibold text-white">{t('interview.report.questions')}</h2>
+          <h2 id="qbq" className="ui-card-title">{t('interview.report.questions')}</h2>
           {session.questions.map((q, i) => (
             <Card key={q.id} className="p-[22px]" data-weak={isWeak(q) ? 'true' : 'false'}>
               <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
@@ -207,6 +208,7 @@ function Report({ session }: { session: InterviewSession }) {
 // only on a fixture build. With the live mentor - production - learners get the page above, which
 // is built from their own interview.
 export default function InterviewReportPage() {
+  if (!mockInterviewAvailable()) return <InterviewComingSoonPage />
   return mentorV2Enabled() && mentorV2MocksAllowed() ? <InterviewReportV2Page /> : <LegacyInterviewReport />
 }
 // [/mentor-v2]

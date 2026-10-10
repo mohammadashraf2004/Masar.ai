@@ -2542,12 +2542,12 @@ requires strict extraction.**
                 "Match document requirements to the correct answer-generation style."
             ),
             "instructions": (
-                "Choose generative VLM, extractive model, or both for each case:\n"
-                "A. Return the exact invoice number.\n"
-                "B. Explain what a scientific chart implies.\n"
-                "C. Extract a short customer name with minimal free-form generation.\n"
-                "D. Summarize the financial risks described across a page.\n"
-                "For each, explain hallucination tolerance, reasoning need, and expected output format."
+                ('1. Choose generative VLM, extractive model, or both for each case:\n'
+                 '   - A. Return the exact invoice number.\n'
+                 '   - B. Explain what a scientific chart implies.\n'
+                 '   - C. Extract a short customer name with minimal free-form generation.\n'
+                 '   - D. Summarize the financial risks described across a page.\n'
+                 '2. For each, explain hallucination tolerance, reasoning need, and expected output format.')
             ),
             "expected_output": (
                 "A four-row table with task, approach, reason, and main risk."
@@ -2625,12 +2625,11 @@ requires strict extraction.**
                 "Prepare one complete multimodal training example for document question answering."
             ),
             "instructions": (
-                "Create a training example containing:\n"
-                "- one RGB document image,\n"
-                "- question: 'What is the invoice date?',\n"
-                "- answer: 'March 18, 2026'.\n"
-                "Write the chat-style user/assistant structure, state what the processor must do, "
-                "and identify what should contribute to language-model loss."
+                ('1. Create a training example containing:\n'
+                 '   - one RGB document image,\n'
+                 "   - question: 'What is the invoice date?',\n"
+                 "   - answer: 'March 18, 2026'.\n"
+                 '2. Write the chat-style user/assistant structure, state what the processor must do, and identify what should contribute to language-model loss.')
             ),
             "expected_output": (
                 "One formatted multimodal SFT example plus a short loss-region explanation."
@@ -2683,13 +2682,13 @@ requires strict extraction.**
                 "Select the smallest suitable architecture for several document products."
             ),
             "instructions": (
-                "For each product, choose a likely approach and justify it:\n"
-                "A. Mobile form-type classifier.\n"
-                "B. Cloud system that converts scientific PDFs to Markdown.\n"
-                "C. Invoice field extractor that must return exact spans.\n"
-                "D. Search engine over one million visually complex PDF pages.\n"
-                "E. Analyst assistant that searches documents and answers open-ended questions.\n"
-                "For retrieval cases, state whether you prefer single-vector or multivector."
+                ('1. For each product, choose a likely approach and justify it:\n'
+                 '   - A. Mobile form-type classifier.\n'
+                 '   - B. Cloud system that converts scientific PDFs to Markdown.\n'
+                 '   - C. Invoice field extractor that must return exact spans.\n'
+                 '   - D. Search engine over one million visually complex PDF pages.\n'
+                 '   - E. Analyst assistant that searches documents and answers open-ended questions.\n'
+                 '2. For retrieval cases, state whether you prefer single-vector or multivector.')
             ),
             "expected_output": (
                 "A five-row architecture decision table with cost, accuracy, and deployment rationale."

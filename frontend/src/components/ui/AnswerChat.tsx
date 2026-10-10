@@ -189,16 +189,16 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-ink">
         <div className="flex items-center gap-2">
           <Bot size={13} className="text-amber-text" />
-          <span className="text-xs font-medium text-ghost">AI evaluator</span>
+          <span className="text-xs font-medium text-ghost">{t('exercise.chat.evaluator')}</span>
         </div>
         {isCorrect === true && (
           <span className="flex items-center gap-1 text-xs text-emerald">
-            <CheckCircle size={12} /> Correct
+            <CheckCircle size={12} /> {t('exercise.chat.correct')}
           </span>
         )}
         {isCorrect === false && (
           <span className="flex items-center gap-1 text-xs text-amber-text">
-            <HelpCircle size={12} /> Keep going
+            <HelpCircle size={12} /> {t('exercise.chat.keepGoing')}
           </span>
         )}
       </div>
@@ -207,8 +207,8 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
         {messages.length === 0 && (
           <p className="text-xs text-ghost text-center py-4">
             {isCode
-              ? 'Submit your code above and the AI will tell you exactly what to fix — not just whether it is right.'
-              : 'Write your answer below — an AI will discuss it with you like a mentor, not just mark it right or wrong.'}
+              ? t('exercise.chat.emptyCode')
+              : t('exercise.chat.emptyWritten')}
           </p>
         )}
         {messages.map((m, i) => (
@@ -247,7 +247,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
           <div className="flex items-end gap-2">
             <textarea
               className="flex-1 min-w-0 bg-void border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 resize-none min-h-[44px] max-h-40"
-              placeholder={placeholder ?? 'Write your answer… (⌘/Ctrl+Enter to send)'}
+              placeholder={placeholder ?? t('exercise.chat.placeholder')}
               value={draft}
               onChange={e => setDraft(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -282,19 +282,19 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
               type="button"
               onClick={undo}
               disabled={history.length === 0}
-              title="Undo the last edit"
-              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] text-ghost border border-border hover:text-bright hover:border-amber/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title={t('exercise.chat.undoTitle')}
+              className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-ghost transition-colors hover:border-amber/30 hover:text-bright disabled:cursor-not-allowed disabled:opacity-30"
             >
-              <Undo2 size={11} /> Undo
+              <Undo2 size={11} /> {t('exercise.chat.undo')}
             </button>
             <button
               type="button"
               onClick={startAgain}
               disabled={draft === baseline}
-              title="Restore the starter code"
-              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] text-ghost border border-border hover:text-bright hover:border-amber/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title={t('exercise.chat.startAgainTitle')}
+              className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-ghost transition-colors hover:border-amber/30 hover:text-bright disabled:cursor-not-allowed disabled:opacity-30"
             >
-              <RotateCcw size={11} /> Start again
+              <RotateCcw size={11} /> {t('exercise.chat.startAgain')}
             </button>
           </div>
         </div>

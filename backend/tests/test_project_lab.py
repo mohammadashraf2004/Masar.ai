@@ -154,8 +154,34 @@ def test_unknown_project_is_404(client):
 
 
 def test_requires_authentication(client, lab):
-    assert client.get(f"{API}/projects").status_code == 401
+    # Browsing the catalogue and the overview is public; starting is not.
     assert client.post(f"{API}/projects/{lab}/start").status_code == 401
+
+
+def test_catalogue_and_overview_are_public_but_carry_no_task_content(client, lab):
+    cards = client.get(f"{API}/projects")
+    assert cards.status_code == 200
+    card = next(c for c in cards.json() if c["slug"] == lab)
+    assert card["attempt"] is None and card["task_count"] == 29
+    detail = client.get(f"{API}/projects/{lab}")
+    assert detail.status_code == 200
+    body = detail.json()
+    assert body["attempt"] is None
+    assert [m["slug"] for m in body["milestones"]] == MILESTONES
+    for task in (t for m in body["milestones"] for t in m["tasks"]):
+        assert set(task) == {"slug", "title", "title_ar"}
+    for text in (cards.text, detail.text):
+        for secret in ("instructions", "hints", "primary_file", "validator", "masar_commerce.", "workspace"):
+            assert secret not in text, secret
+
+
+def test_signed_in_catalogue_still_shows_the_learners_own_attempt(client, lab):
+    _, headers = _register(client)
+    _start(client, headers, lab)
+    mine = next(c for c in client.get(f"{API}/projects", headers=headers).json() if c["slug"] == lab)
+    assert mine["attempt"] is not None
+    anonymous = next(c for c in client.get(f"{API}/projects").json() if c["slug"] == lab)
+    assert anonymous["attempt"] is None
 
 
 def test_start_is_idempotent_and_creates_the_workspace(client, db, lab):
@@ -681,14 +707,29 @@ def test_production_never_uses_the_local_adapter(monkeypatch):
     problems = " ".join(Settings(APP_ENV="production", PROJECT_LAB_EXECUTION_BACKEND="runner").project_lab_problems())
     assert "PROJECT_LAB_RUNNER_SOCKET must be an absolute socket path" in problems
     assert "PROJECT_LAB_RUNNER_TOKEN must be a random value" in problems
+    assert "PROJECT_RUNNER_RUNTIME must be runsc" in problems
+    assert "PROJECT_RUNNER_SECCOMP must be runner-seccomp-gvisor.json" in problems
+    assert "PROJECT_RUNNER_REQUIRE_GVISOR must be true" in problems
+    assert "PROJECT_LAB_REQUIRE_GVISOR must be true" in problems
+    assert "PROJECT_RUNNER_PIDS_LIMIT must be at least 512" in problems
     ok = Settings(APP_ENV="production", PROJECT_LAB_EXECUTION_BACKEND="runner",
                   PROJECT_LAB_RUNNER_SOCKET="/run/project-runner/runner.sock",
-                  PROJECT_LAB_RUNNER_TOKEN="0123456789abcdef0123456789abcdef")
+                  PROJECT_LAB_RUNNER_TOKEN="0123456789abcdef0123456789abcdef",
+                  PROJECT_RUNNER_RUNTIME="runsc",
+                  PROJECT_RUNNER_SECCOMP="runner-seccomp-gvisor.json",
+                  PROJECT_RUNNER_REQUIRE_GVISOR=True,
+                  PROJECT_LAB_REQUIRE_GVISOR=True,
+                  PROJECT_RUNNER_PIDS_LIMIT=512)
     assert ok.project_lab_problems() == []
     default_token = Settings(APP_ENV="production", PROJECT_LAB_EXECUTION_BACKEND="runner",
                              PROJECT_LAB_RUNNER_SOCKET="/run/project-runner/runner.sock",
                              PROJECT_LAB_RUNNER_TOKEN="local-dev-runner-token-change-me")
     assert default_token.project_lab_problems()
+
+    # The kill switch remains available even when runsc is absent: none of
+    # the runner settings is required while learner execution is disabled.
+    disabled = Settings(APP_ENV="production", PROJECT_LAB_EXECUTION_BACKEND="disabled")
+    assert disabled.project_lab_problems() == []
 
     monkeypatch.setattr(execution.settings, "APP_ENV", "production")
     monkeypatch.setattr(execution.settings, "PROJECT_LAB_EXECUTION_BACKEND", "local")

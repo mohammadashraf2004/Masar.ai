@@ -6,7 +6,7 @@ Register in main.py:
     from app.controllers.profile_controller import router as profile_router
     app.include_router(profile_router, prefix="/api/v1/profile", tags=["profile"])
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from typing import Optional
 
@@ -14,6 +14,7 @@ from app.db.session import get_db
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.progress import EngineerScorecard
+from app.services.learning_activity import MAX_DAYS, daily_activity
 from app.services.scorecard.scorecard_service import compute_scorecard
 from pydantic import BaseModel
 
@@ -92,3 +93,25 @@ async def get_scorecard(
         hire_ready=scorecard.hire_ready or False,
         last_computed_at=scorecard.last_computed_at.isoformat() if scorecard.last_computed_at else None,
     )
+
+class ActivityDay(BaseModel):
+    date: str
+    count: int
+
+
+class ActivityResponse(BaseModel):
+    days: list[ActivityDay]
+    active_days: int
+    current_streak: int
+
+
+@router.get("/activity", response_model=ActivityResponse)
+def get_activity(
+    days: int = Query(84, ge=1, le=MAX_DAYS),
+    tz_offset_minutes: int = Query(0, ge=-14 * 60, le=14 * 60),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Practice activity per local day (exercise checks, quizzes, exams,
+    projects) and the current streak, for the profile heatmap."""
+    return ActivityResponse(**daily_activity(db, current_user.id, days=days, tz_offset_minutes=tz_offset_minutes))

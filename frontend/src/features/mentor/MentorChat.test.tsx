@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { api, mentorV2 } from '@/lib/api'
 import { useLanguageStore } from '@/lib/language'
+import { wholeCourse } from './context'
 import { MentorChat } from './MentorChat'
 import { mockControl, mockProactive, resetMentorMock } from './mock'
 import { clearThread } from './threadStore'
@@ -51,11 +52,31 @@ describe('MentorChat context', () => {
     expect(send.mock.calls[0][0].context).toEqual({ courseId: 'langgraph-agent-memory', lessonId: '1007', exerciseId: '9007', attachCode: true })
   })
 
-  it('answers in general, with no pill, when both chips are removed', async () => {
+  it('on the hub, sends the whole chosen course and offers no lesson or code to attach', async () => {
     const send = vi.spyOn(mentorV2, 'sendMessage')
-    const user = await open()
-    await user.click(screen.getByRole('button', { name: /^Remove LangGraph/ }))
-    await user.click(screen.getByRole('button', { name: /^Remove agent\.py/ }))
+    vi.spyOn(api, 'getMentorSessions').mockResolvedValue([])
+    const courses = [{ courseId: 'langgraph-agent-memory', title: 'LangGraph Agent Memory', lessonsDone: 6, lessonsTotal: 12 }]
+    await act(async () => {
+      render(<MentorChat base={wholeCourse({ ...BASE, courseEnrolled: true })} courses={courses} onSelectCourse={() => {}} />)
+    })
+    await screen.findByText('What the mentor knows about you')
+    const bar = screen.getByTestId('context-bar')
+    expect(within(bar).getByText('The whole course')).toBeInTheDocument()
+    expect(within(bar).queryAllByRole('button')).toHaveLength(0)
+    expect(within(bar).queryByText(/Checkpointers|agent\.py/)).toBeNull()
+    const user = userEvent.setup()
+    await user.type(box(), 'what is a checkpointer?')
+    await user.keyboard('{Enter}')
+    await waitFor(() => expect(send).toHaveBeenCalled())
+    expect(send.mock.calls[0][0].context).toEqual({ courseId: 'langgraph-agent-memory' })
+  })
+
+  it('answers in general, with no pill, for General', async () => {
+    const send = vi.spyOn(mentorV2, 'sendMessage')
+    vi.spyOn(api, 'getMentorSessions').mockResolvedValue([])
+    await act(async () => { render(<MentorChat base={{}} />) })
+    await screen.findByText('What the mentor knows about you')
+    const user = userEvent.setup()
     expect(screen.getByText(/Nothing\. The mentor will answer in general/)).toBeInTheDocument()
     await user.type(box(), 'what is a checkpointer?')
     await user.keyboard('{Enter}')

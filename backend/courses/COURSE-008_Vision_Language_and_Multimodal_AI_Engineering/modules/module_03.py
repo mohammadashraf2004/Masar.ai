@@ -2676,13 +2676,12 @@ and image resolution all agree with one another.**
             ),
 
             "instructions": (
-                "For each scenario, identify the training paradigm and likely stage.\n"
-                "A. Train an image-text encoder on millions of naturally paired web images "
-                "and captions by increasing matching similarity.\n"
-                "B. Fine-tune a VLM on curated image-question-answer examples.\n"
-                "C. Mask image patches and train the visual encoder to reconstruct them.\n"
-                "D. Optimize a previously instruction-tuned model using preference pairs.\n"
-                "For each scenario, explain which word answers HOW and which answers WHEN."
+                ('1. For each scenario, identify the training paradigm and likely stage.\n'
+                 '   - A. Train an image-text encoder on millions of naturally paired web images and captions by increasing matching similarity.\n'
+                 '   - B. Fine-tune a VLM on curated image-question-answer examples.\n'
+                 '   - C. Mask image patches and train the visual encoder to reconstruct them.\n'
+                 '   - D. Optimize a previously instruction-tuned model using preference pairs.\n'
+                 '2. For each scenario, explain which word answers HOW and which answers WHEN.')
             ),
 
             "expected_output": (

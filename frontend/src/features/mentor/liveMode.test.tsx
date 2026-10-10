@@ -1,6 +1,6 @@
 import { act, render, renderHook, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { api, mentorV2 } from '@/lib/api'
+import { api, MENTOR_MESSAGE_TIMEOUT_MS, mentorV2 } from '@/lib/api'
 import { useAuthStore } from '@/lib/store'
 import { mentorV2Live, mentorV2MocksAllowed } from './flag'
 import { lessonHref, planBlockHref } from './links'
@@ -66,7 +66,15 @@ describe('the live mentor never serves a fixture', () => {
     expect(post).toHaveBeenCalledWith('/mentor/message', expect.objectContaining({
       intent: 'HINT', hintLevel: 2, requestId: 'rq-12345678', language: 'en',
       context: { exerciseId: '9007', attachCode: true, code: 'x = 1  # my draft' },
-    }))
+    }), { timeout: MENTOR_MESSAGE_TIMEOUT_MS })
+  })
+
+  it('waits for a send longer than the server may take, so a retry never races a send still running', async () => {
+    const post = vi.spyOn(http(), 'post').mockResolvedValue({ data: reply() })
+    await mentorV2.sendMessage({ text: 'Why sqrt(d_k)?', context: { lessonId: '42' }, requestId: 'rq-1' }, 'en')
+    const [, , config] = post.mock.calls[0] as [string, unknown, { timeout: number }]
+    // The API worker is killed at 60 s (gunicorn --timeout 60); the client default is 30 s.
+    expect(config.timeout).toBeGreaterThan(60_000)
   })
 
   it('gives the solution only after confirmation, from the exercise itself, free', async () => {
@@ -93,8 +101,8 @@ describe('links to real Masar content are built by the app', () => {
     expect(planBlockHref({ type: 'lesson', title: 't', minutes: 30, refId: 'lesson:12', courseId: 'course-004', lessonId: '12' }))
       .toBe('/courses/course-004/lessons/12')
     expect(planBlockHref({ type: 'review', title: 't', minutes: 15, refId: 'mentor:chat' })).toBe('/mentor')
-    expect(planBlockHref({ type: 'lesson', title: 't', minutes: 15, refId: '//evil.example/x' })).toBe('/learn')
-    expect(planBlockHref({ type: 'lesson', title: 't', minutes: 15, refId: 'https://evil.example' })).toBe('/learn')
+    expect(planBlockHref({ type: 'lesson', title: 't', minutes: 15, refId: '//evil.example/x' })).toBe('/explore')
+    expect(planBlockHref({ type: 'lesson', title: 't', minutes: 15, refId: 'https://evil.example' })).toBe('/explore')
   })
 
   it('names an extra-concept source by its verified title and links to it, never by a database id', () => {
@@ -129,7 +137,7 @@ describe('the weekly plan', () => {
     vi.spyOn(mentorV2, 'plan').mockResolvedValue({ ...week([]), status: 'no_enrollment', goal: '', reasons: [] })
     await act(async () => { render(<StudyPlan now={SATURDAY} />) })
     expect(screen.getByTestId('plan-empty')).toHaveTextContent('Enroll in a course to get a weekly plan')
-    expect(screen.getByRole('link', { name: 'Browse courses' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'Browse courses' })).toHaveAttribute('href', '/explore')
     expect(screen.queryAllByTestId('plan-day')).toHaveLength(0)
   })
 })
@@ -175,6 +183,67 @@ describe('a retried send', () => {
     expect(result.current.messages.map((m) => m.role)).toEqual(['learner', 'mentor'])
   })
 
+  it('counts the cost of a replayed reply: its own response never arrived, so it was never counted', async () => {
+    vi.spyOn(mentorV2, 'sendMessage')
+      .mockRejectedValueOnce(new Error('Network Error'))
+      .mockResolvedValueOnce({ ...reply(), replayed: true } as MentorMessageV2 & { sessionId: number })
+    const { result } = renderHook(() => useMentorV2({ base: { courseId: 'course-004', lessonId: '12' } }))
+
+    await act(async () => { await result.current.send('Explain this') })
+    expect(result.current.spent).toBe(0)
+    await act(async () => { await result.current.retry() })
+    expect(result.current.spent).toBe(2)
+  })
+
+  it('that reaches the server while the first is still running waits for it, with the same id', async () => {
+    vi.useFakeTimers()
+    try {
+      const inProgress = { response: { status: 409, data: { detail: { error: 'request_in_progress', retry_after: 3 } } } }
+      const post = vi.spyOn(http(), 'post')
+        .mockRejectedValueOnce(inProgress)
+        .mockRejectedValueOnce(inProgress)
+        .mockResolvedValueOnce({ data: reply({ replayed: true } as Partial<MentorMessageV2>) })
+      const sent = mentorV2.sendMessage({ text: 'Why?', context: { lessonId: '42' }, requestId: 'rq-same-0001' }, 'en')
+      await vi.advanceTimersByTimeAsync(6_000)
+      expect((await sent).replayed).toBe(true)
+      expect(post).toHaveBeenCalledTimes(3)
+      expect(post.mock.calls.map((call) => (call[1] as { requestId: string }).requestId)).toEqual(['rq-same-0001', 'rq-same-0001', 'rq-same-0001'])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('gives up on a send still running after a while, and any other 409 at once', async () => {
+    vi.useFakeTimers()
+    try {
+      const inProgress = { response: { status: 409, data: { detail: { error: 'request_in_progress', retry_after: 3 } } } }
+      const post = vi.spyOn(http(), 'post').mockRejectedValue(inProgress)
+      const sent = mentorV2.sendMessage({ text: 'Why?', context: { lessonId: '42' }, requestId: 'rq-stuck-0001' }, 'en')
+      const outcome = sent.catch((error) => error)
+      await vi.advanceTimersByTimeAsync(80_000)
+      expect(await outcome).toBe(inProgress)
+      expect(post.mock.calls.length).toBeLessThanOrEqual(25)
+
+      post.mockReset()
+      const stale = { response: { status: 409, data: { detail: 'Proactive trigger is no longer current' } } }
+      post.mockRejectedValueOnce(stale)
+      await expect(mentorV2.sendMessage({ text: 'Why?', context: { lessonId: '42' }, requestId: 'rq-other-0001' }, 'en')).rejects.toBe(stale)
+      expect(post).toHaveBeenCalledTimes(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('names Code Review and interview requests too, so a retry of either is charged once', async () => {
+    const post = vi.spyOn(http(), 'post').mockResolvedValue({ data: { summary: '', issues: [], improvements: [] } })
+    await mentorV2.review({ exerciseId: '9007', code: 'x = 1', lang: 'python', requestId: 'rq-review-0001' }, 'en')
+    expect(post).toHaveBeenLastCalledWith('/mentor/code-review', expect.objectContaining({ request_id: 'rq-review-0001', exercise_id: 9007 }), undefined)
+
+    post.mockResolvedValue({ data: { question: 'Q?', question_type: 'theoretical', hints: [] } })
+    await api.getMockInterviewQuestion('NLP', 'intermediate', [], 'en', 'iv-abc-q1')
+    expect(post).toHaveBeenLastCalledWith('/mentor/mock-interview', expect.objectContaining({ request_id: 'iv-abc-q1' }), undefined)
+  })
+
   it('starts a new server conversation after "new conversation"', async () => {
     const send = vi.spyOn(mentorV2, 'sendMessage').mockResolvedValue(reply())
     const { result } = renderHook(() => useMentorV2({ base: { lessonId: '12' } }))
@@ -196,8 +265,16 @@ describe('a lesson thread on a new device', () => {
     const thread = vi.spyOn(api, 'getMentorThread').mockResolvedValue(server)
     const { result } = renderHook(() => useMentorV2({ base: { lessonId: '42' } }))
     await act(async () => { await Promise.resolve() })
-    expect(thread).toHaveBeenCalledWith('42')
+    expect(thread).toHaveBeenCalledWith('42', undefined)
     expect(result.current.messages.map((m) => m.id)).toEqual(['s1-0', 's1-1'])
+  })
+
+  it('continues the chosen course\'s own conversation when no lesson is attached', async () => {
+    const thread = vi.spyOn(api, 'getMentorThread').mockResolvedValue([reply({ id: 'course' })])
+    const { result } = renderHook(() => useMentorV2({ base: { courseId: 'ml', courseEnrolled: true } }))
+    await act(async () => { await Promise.resolve() })
+    expect(thread).toHaveBeenCalledWith(undefined, 'ml')
+    expect(result.current.messages.map((m) => m.id)).toEqual(['course'])
   })
 
   it('keeps this browser copy when there is one', async () => {

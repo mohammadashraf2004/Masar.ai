@@ -52,7 +52,7 @@ export default function VerifyCertificatePage() {
           <LanguageSwitcher />
         </div>
 
-        <h1 className="font-display text-2xl font-bold text-white lg:text-[26px]">{t('cert.verify.title')}</h1>
+        <h1 className="ui-page-title">{t('cert.verify.title')}</h1>
 
         {view.kind === 'loading' && (
           <div className="flex justify-center py-16"><Spinner announce className="h-6 w-6" /></div>

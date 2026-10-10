@@ -1641,10 +1641,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'description': 'Given three workloads—financial tables, product-photo search, and '
                                'a scanned manual—choose conversion, native multimodal retrieval, '
                                'or a hybrid approach for each and justify the decision.',
-                'instructions': 'For each workload, identify the dominant information-bearing '
-                                'modality, decide where conversion would lose meaning, and choose '
-                                'conversion, native retrieval, or a hybrid. Include one '
-                                'operational reason for each choice.',
+                'instructions': ('1. For each workload, identify the dominant information-bearing modality, decide where conversion would lose meaning, and choose conversion, native retrieval, or a hybrid.\n'
+                                 '2. Include one operational reason for each choice.'),
                 'expected_output': 'A three-row decision table with workload, chosen architecture, '
                                    'information-loss risk, and operational rationale.',
                 'skill_tested': ['architecture', 'multimodal-rag'],
@@ -1657,9 +1655,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'description': 'A parser returns correct characters but places values under the '
                                'wrong columns. Identify which extraction stage failed and propose '
                                'two validation checks.',
-                'instructions': 'Trace the failure through table detection, cell OCR/reading, and '
-                                'normalization. Then propose two automated checks that would catch '
-                                'column misalignment before indexing.',
+                'instructions': ('1. Trace the failure through table detection, cell OCR/reading, and normalization.\n'
+                                 '2. Then propose two automated checks that would catch column misalignment before indexing.'),
                 'expected_output': 'A stage-level diagnosis plus two concrete validation rules, '
                                    'such as header/value type checks or row/column consistency '
                                    'checks.',
@@ -1672,10 +1669,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Design a small representative test corpus and define structural '
                                'checks you would use to compare two table parsers.',
-                'instructions': 'Select 8–12 representative documents with easy, merged-cell, '
-                                'borderless, rotated, and scanned tables. Define the expected '
-                                'structure manually, then compare two parsers on extraction '
-                                'completeness and structural accuracy.',
+                'instructions': ('1. Select 8–12 representative documents with easy, merged-cell, borderless, rotated, and scanned tables.\n'
+                                 '2. Define the expected structure manually, then compare two parsers on extraction completeness and structural accuracy.'),
                 'expected_output': 'A small parser benchmark specification with document '
                                    'categories, expected outputs, scoring criteria, and a '
                                    'parser-selection rule.',
@@ -1688,9 +1683,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Explain why a retrieved table row without headers is unsafe, then '
                                'redesign the representation so the row retains schema context.',
-                'instructions': 'Rewrite the headless row into a representation that preserves its '
-                                'column names and units. Explain why the new representation is '
-                                'safer for both retrieval and generation.',
+                'instructions': ('1. Rewrite the headless row into a representation that preserves its column names and units.\n'
+                                 '2. Explain why the new representation is safer for both retrieval and generation.'),
                 'expected_output': 'A repaired structured row plus a short explanation of how '
                                    'schema context prevents value misinterpretation.',
                 'skill_tested': ['table-chunking', 'structured-context'],
@@ -1702,10 +1696,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Describe the metadata required to retrieve a table summary and '
                                'dereference the authoritative full table at generation time.',
-                'instructions': 'Define the summary chunk, authoritative table object, stable '
-                                'table ID, source page, bounding box, schema, and storage pointer. '
-                                'Show how a query-time match to the summary resolves back to the '
-                                'full table.',
+                'instructions': ('1. Define the summary chunk, authoritative table object, stable table ID, source page, bounding box, schema, and storage pointer.\n'
+                                 '2. Show how a query-time match to the summary resolves back to the full table.'),
                 'expected_output': 'A metadata schema and a 4–6 step dereference flow from '
                                    'retrieved summary to authoritative table context.',
                 'skill_tested': ['table-rag', 'provenance'],
@@ -1717,10 +1709,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Define at least four signals you would require before merging two '
                                'adjacent page-level table fragments.',
-                'instructions': 'Define merge requirements using page adjacency, identical or '
-                                'compatible column count, header similarity, data-type '
-                                'compatibility, table title continuity, and repeated-header '
-                                'handling. State when the merge must be rejected.',
+                'instructions': ('1. Define merge requirements using page adjacency, identical or compatible column count, header similarity, data-type compatibility, table title continuity, and repeated-header handling.\n'
+                                 '2. State when the merge must be rejected.'),
                 'expected_output': 'A table-stitching checklist with positive merge signals and at '
                                    'least two rejection conditions.',
                 'skill_tested': ['table-stitching', 'document-parsing'],
@@ -1732,10 +1722,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Draft the fields a VLM-generated image summary should capture for '
                                'a chart so future queries can retrieve it reliably.',
-                'instructions': 'Write a chart-summary contract that captures chart type, title, '
-                                'axes, units, legends, major values, trends, anomalies, and '
-                                'uncertainty. Separate facts visible in the image from '
-                                'interpretations.',
+                'instructions': ('1. Write a chart-summary contract that captures chart type, title, axes, units, legends, major values, trends, anomalies, and uncertainty.\n'
+                                 '2. Separate facts visible in the image from interpretations.'),
                 'expected_output': 'A structured image-summary template that could be indexed as '
                                    'retrieval text without losing critical chart semantics.',
                 'skill_tested': ['image-summarization', 'vlm'],
@@ -1747,10 +1735,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Sketch the ingestion and query flow for retrieving by image '
                                'summary but reasoning over the original image.',
-                'instructions': 'Draw the ingestion path from image extraction to VLM summary to '
-                                'vector index while storing the original image separately. Then '
-                                'draw the query path that retrieves by summary and supplies the '
-                                'raw image to a VLM only when needed.',
+                'instructions': ('1. Draw the ingestion path from image extraction to VLM summary to vector index while storing the original image separately.\n'
+                                 '2. Then draw the query path that retrieves by summary and supplies the raw image to a VLM only when needed.'),
                 'expected_output': 'An ingestion/query sequence with summary embedding, '
                                    'source-image pointer, retrieval, dereferencing, and final '
                                    'multimodal generation.',
@@ -1763,10 +1749,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Explain how a text query can retrieve an image with no text '
                                'metadata when both are encoded into a shared vector space.',
-                'instructions': 'Walk through image encoding, text-query encoding, vector '
-                                'normalization, cosine/dot-product similarity, and top-k '
-                                'selection. Explain why no filename or caption is required for the '
-                                'match.',
+                'instructions': ('1. Walk through image encoding, text-query encoding, vector normalization, cosine/dot-product similarity, and top-k selection.\n'
+                                 '2. Explain why no filename or caption is required for the match.'),
                 'expected_output': 'A five-step cross-modal retrieval explanation using the shared '
                                    'latent-space mental model.',
                 'skill_tested': ['multimodal-embeddings', 'retrieval'],
@@ -1778,10 +1762,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'For a product catalog, a financial chart, and an engineering '
                                'schematic, decide whether shared embeddings alone are sufficient.',
-                'instructions': 'For each workload, judge whether coarse visual similarity is '
-                                'enough or whether exact visual reasoning is required. Add the '
-                                'fallback representation you would use when shared embeddings are '
-                                'insufficient.',
+                'instructions': ('1. For each workload, judge whether coarse visual similarity is enough or whether exact visual reasoning is required.\n'
+                                 '2. Add the fallback representation you would use when shared embeddings are insufficient.'),
                 'expected_output': 'Three architecture decisions that distinguish visual-search '
                                    'workloads from information-dense visual reasoning workloads.',
                 'skill_tested': ['visual-retrieval', 'architecture'],
@@ -1793,9 +1775,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Define the minimum metadata fields for transcript chunks that '
                                'support speaker filtering and jump-to-source playback.',
-                'instructions': 'Define transcript chunk metadata for source recording ID, speaker '
-                                'IDs, start/end timestamps, language, confidence, and permissions. '
-                                'Explain how each field supports retrieval or verification.',
+                'instructions': ('1. Define transcript chunk metadata for source recording ID, speaker IDs, start/end timestamps, language, confidence, and permissions.\n'
+                                 '2. Explain how each field supports retrieval or verification.'),
                 'expected_output': 'A transcript-chunk schema sufficient for speaker filtering, '
                                    'source playback, auditing, and permission enforcement.',
                 'skill_tested': ['asr', 'diarization'],
@@ -1807,9 +1788,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Design a representation for a training video where the spoken '
                                "instruction is ambiguous without seeing the operator's action.",
-                'instructions': 'Represent the same video moment with transcript text, timestamp, '
-                                'visual caption/keyframe, and source-video ID. Explain how the '
-                                'visual record resolves the ambiguous spoken phrase.',
+                'instructions': ('1. Represent the same video moment with transcript text, timestamp, visual caption/keyframe, and source-video ID.\n'
+                                 '2. Explain how the visual record resolves the ambiguous spoken phrase.'),
                 'expected_output': 'A multimodal evidence object that links the spoken instruction '
                                    'to the visual action and exact playback location.',
                 'skill_tested': ['video-rag', 'multimodal-context'],
@@ -1821,9 +1801,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Choose fixed frames, temporal segments, keyframes, or a hybrid '
                                'strategy for three different video workloads and explain why.',
-                'instructions': 'Choose a sampling strategy for a security-camera stream, a repair '
-                                'tutorial, and a product-demo video. Compare granularity, temporal '
-                                'reasoning, ingestion cost, and storage.',
+                'instructions': ('1. Choose a sampling strategy for a security-camera stream, a repair tutorial, and a product-demo video.\n'
+                                 '2. Compare granularity, temporal reasoning, ingestion cost, and storage.'),
                 'expected_output': 'A three-row comparison with selected strategy and explicit '
                                    'quality/cost trade-offs.',
                 'skill_tested': ['video-rag', 'sampling'],
@@ -1835,10 +1814,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Identify which expensive transformations can be moved to ingestion '
                                'time and which must remain query-time for high-fidelity answers.',
-                'instructions': 'Separate transformations that can be cached at ingestion—OCR, '
-                                'ASR, summaries, embeddings—from query-time work such as raw-image '
-                                'inspection for high-fidelity questions. Explain one case where '
-                                'query-time multimodal reasoning is unavoidable.',
+                'instructions': ('1. Separate transformations that can be cached at ingestion—OCR, ASR, summaries, embeddings—from query-time work such as raw-image inspection for high-fidelity questions.\n'
+                                 '2. Explain one case where query-time multimodal reasoning is unavoidable.'),
                 'expected_output': 'A two-column ingestion-vs-query cost plan with a justification '
                                    'for the expensive query-time path.',
                 'skill_tested': ['multimodal-rag', 'cost'],
@@ -1850,10 +1827,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Describe how malicious text hidden inside an image could influence '
                                'a VLM and propose a layered defense.',
-                'instructions': 'Describe the attack path from hidden visual instruction to VLM '
-                                'behavior. Add controls at ingestion, retrieval, prompt '
-                                'construction, and tool/action layers, and state which control '
-                                'limits impact if earlier defenses fail.',
+                'instructions': ('1. Describe the attack path from hidden visual instruction to VLM behavior.\n'
+                                 '2. Add controls at ingestion, retrieval, prompt construction, and tool/action layers, and state which control limits impact if earlier defenses fail.'),
                 'expected_output': 'A layered visual-prompt-injection threat model with preventive '
                                    'and containment controls.',
                 'skill_tested': ['security', 'visual-prompt-injection'],
@@ -1865,10 +1840,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Given a wrong chart-based answer, list checks that distinguish OCR '
                                'error, summary error, retrieval error, and generation error.',
-                'instructions': 'Start from the wrong answer and inspect, in order, source image '
-                                'quality, OCR/table extraction, generated summary, retrieval '
-                                'ranking, original-image dereference, and VLM answer. Record the '
-                                'evidence that would confirm each failure class.',
+                'instructions': ('1. Start from the wrong answer and inspect, in order, source image quality, OCR/table extraction, generated summary, retrieval ranking, original-image dereference, and VLM answer.\n'
+                                 '2. Record the evidence that would confirm each failure class.'),
                 'expected_output': 'A debugging decision tree that distinguishes representation, '
                                    'retrieval, alignment, and generation failures.',
                 'skill_tested': ['observability', 'multimodal-hallucinations'],
@@ -1880,9 +1853,8 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Create an evaluation query set in which some answers depend only '
                                'on tables, some only on images, and some on video.',
-                'instructions': 'Create at least nine evaluation cases: three table-dependent, '
-                                'three image-dependent, and three audio/video-dependent. For each, '
-                                'identify the golden artifact and define recall@k success.',
+                'instructions': ('1. Create at least nine evaluation cases: three table-dependent, three image-dependent, and three audio/video-dependent.\n'
+                                 '2. For each, identify the golden artifact and define recall@k success.'),
                 'expected_output': 'A modality-balanced retrieval benchmark with query, required '
                                    'evidence artifact, and pass/fail retrieval criterion.',
                 'skill_tested': ['evaluation', 'multimodal-retrieval'],
@@ -1894,10 +1866,11 @@ TOPIC = {'title': 'Multimodal RAG',
                 'placement': 'after_section',
                 'description': 'Draw or describe a production architecture with separate modality '
                                'processors, shared retrieval, provenance, and evaluation.',
-                'instructions': 'Design separate ingestion workers for text, tables, images, and '
-                                'audio/video; specify shared IDs, storage, indexing, retrieval '
-                                'fusion, source dereferencing, tracing, security, and evaluation '
-                                'services.',
+                'instructions': ('1. Design separate ingestion workers for text, tables, images, and audio/video.\n'
+                                 '2. Specify the shared IDs and the storage every worker writes to.\n'
+                                 '3. Describe indexing and how retrieval results from all modalities are fused.\n'
+                                 '4. Show how an answer dereferences back to its sources.\n'
+                                 '5. Add the tracing, security and evaluation services.'),
                 'expected_output': 'An end-to-end production architecture with modality '
                                    'processors, shared provenance, retrieval, generation, '
                                    'observability, and evaluation boundaries.',

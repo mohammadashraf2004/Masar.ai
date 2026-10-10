@@ -699,8 +699,8 @@ The source configures both certificate chain material and the corresponding priv
             "placement": "after_section",
             "description": "Build a correct mental model of certificate material.",
             "instructions": (
-                "Create a three-column table for private key, CSR, and issued certificate. "
-                "For each, state who creates it, whether it can be shared, and where the source uses it later."
+                ('1. Create a three-column table for private key, CSR, and issued certificate.\n'
+                 '2. For each, state who creates it, whether it can be shared, and where the source uses it later.')
             ),
             "expected_output": "A certificate-material ownership and usage table.",
             "difficulty": DifficultyLevel.beginner,
@@ -714,9 +714,8 @@ The source configures both certificate chain material and the corresponding priv
             "placement": "after_section",
             "description": "Explain how Nginx turns an external HTTPS request into an internal Streamlit request.",
             "instructions": (
-                "Trace a request through: domain, Nginx TLS listener, certificate/key, `location /`, "
-                "`proxy_pass`, and `streamlit_calc:8501`. Explain the purpose of Host, X-Real-IP, "
-                "X-Forwarded-For, and X-Forwarded-Proto."
+                ('1. Trace a request through: domain, Nginx TLS listener, certificate/key, `location /`, `proxy_pass`, and `streamlit_calc:8501`.\n'
+                 '2. Explain the purpose of Host, X-Real-IP, X-Forwarded-For, and X-Forwarded-Proto.')
             ),
             "expected_output": "A reverse-proxy flow diagram plus header explanations.",
             "difficulty": DifficultyLevel.beginner,
@@ -730,9 +729,9 @@ The source configures both certificate chain material and the corresponding priv
             "placement": "after_section",
             "description": "Use the full source architecture to troubleshoot a failed secure request.",
             "instructions": (
-                "Suppose https://your-domain:8501 fails. Check, in order, DNS resolution, certificate files, "
-                "Nginx startup, Docker Compose service health, load-balancer path, EC2 reachability, and Streamlit. "
-                "For each layer, write one piece of evidence that would confirm or eliminate it."
+                ('1. Suppose https://your-domain:8501 fails.\n'
+                 '2. Check, in order, DNS resolution, certificate files, Nginx startup, Docker Compose service health, load-balancer path, EC2 reachability, and Streamlit.\n'
+                 '3. For each layer, write one piece of evidence that would confirm or eliminate it.')
             ),
             "expected_output": "A layered HTTPS troubleshooting checklist.",
             "difficulty": DifficultyLevel.beginner,

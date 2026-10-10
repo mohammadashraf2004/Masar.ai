@@ -14,6 +14,7 @@ from app.core.metrics import record_credit_denial, record_credits_spent
 from app.models.user import User, UserRole
 from app.models.billing import BillingOrder, CourseEnrollment
 from app.models.wallet import UserWallet, WalletTransaction, TransactionType, TransactionStatus, PaymentMethod
+from app.services.billing import pro_ai_allowance as pro_ai
 
 
 # ── Credit costs per action ───────────────────────────────────────────────────
@@ -223,6 +224,14 @@ def deduct_credits(
     # costs us nothing.
     _require_verified_email(user_id, db)
 
+    # A Pro subscriber's AI actions are paid from the plan's included allowance,
+    # never from the wallet - not even when the allowance is used up (purchased
+    # and promo credits are left alone; the request is refused instead).
+    if action_type in pro_ai.PRO_AI_ACTIONS:
+        subscription = pro_ai.eligible_subscription(db, user_id)
+        if subscription is not None:
+            return _charge_pro_allowance(user_id, action_type, cost, subscription, db)
+
     # Cheap, rare path: make sure a wallet row exists at all.
     get_or_create_wallet(user_id, db)
 
@@ -279,6 +288,56 @@ def deduct_credits(
     return {"credits_used": cost, "balance_after": wallet.credit_balance}
 
 
+PRO_LIMIT_MESSAGE = (
+    "You've used your {limit} included AI credits for the current 4-hour window. Your course access "
+    "remains available. More AI credits will become available as earlier usage leaves the window."
+)
+
+
+def _charge_pro_allowance(user_id: int, action_type: str, cost: int, subscription, db: Session) -> dict:
+    """Reserve `cost` from the Pro allowance (see pro_ai_allowance) or refuse with
+    429 - never falling back to the wallet."""
+    try:
+        usage = pro_ai.reserve(
+            db, user_id, subscription, action_type, cost, request_key=pro_ai.current_request_key(action_type),
+        )
+    except pro_ai.AllowanceExceeded as exc:
+        record_credit_denial(action_type)
+        status = exc.status
+        retry_at = exc.available_at
+        headers = {}
+        if retry_at is not None:
+            wait = max(1, int((retry_at - datetime.now(timezone.utc)).total_seconds()) + 1)
+            headers["Retry-After"] = str(wait)
+        message = PRO_LIMIT_MESSAGE.format(limit=status.limit) if status.remaining == 0 else (
+            f"This action needs {cost} AI credits and {status.remaining} of your {status.limit} included "
+            "credits are left in the current 4-hour window. Your course access remains available."
+        )
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error": "pro_ai_limit_reached",
+                "message": message,
+                "action": action_type,
+                "credits_needed": cost,
+                **status.as_dict(),
+                "retry_at": pro_ai._iso(retry_at),
+            },
+            headers=headers or None,
+        )
+    except pro_ai.DuplicateRequest:
+        raise HTTPException(
+            status_code=409,
+            detail={"error": "duplicate_request", "action": action_type,
+                    "message": "This request was already received; it is not run or charged twice."},
+        )
+    pro_ai.remember(pro_ai.RequestCharge(user_id, action_type, cost, usage.id))
+    remaining = pro_ai.allowance_status(db, user_id).remaining
+    wallet = get_or_create_wallet(user_id, db)
+    return {"credits_used": cost, "source": "pro_allowance", "allowance_remaining": remaining,
+            "balance_after": wallet.credit_balance}
+
+
 def refund_credits(
     user_id: int,
     action_type: str,
@@ -314,6 +373,14 @@ def refund_credits(
     """
     if cost is None:
         cost = CREDIT_COSTS.get(action_type, 1)
+
+    # This request paid from the Pro allowance: give those credits back to the
+    # allowance, not to the wallet (which was never charged).
+    charge, already_released = pro_ai.take(user_id, action_type, cost)
+    if charge is not None:
+        pro_ai.release(db, charge.usage_id, reason=reason)
+    if charge is not None or already_released:
+        return get_or_create_wallet(user_id, db)
 
     get_or_create_wallet(user_id, db)
     wallet = (

@@ -2,6 +2,8 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useLanguageStore } from '@/lib/language'
+import { useAuthStore } from '@/lib/store'
+import { useAuthPrompt } from '@/components/auth/AuthPrompt'
 import { router } from '@/test/nav'
 import { LabProjectsSection } from './LabProjectsSection'
 import { ProjectLab } from './ProjectLab'
@@ -108,6 +110,9 @@ function check(outcome: LabCheckResult['outcome'], extra: Partial<LabCheckResult
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // A signed-in learner; the signed-out overview is asserted on its own below.
+  useAuthStore.setState({ token: 'tok', _hasHydrated: true })
+  useAuthPrompt.setState({ open: false, next: null })
   mocked.getLabProjects.mockResolvedValue([CARD])
   mocked.getLabAttempt.mockResolvedValue(ATTEMPT)
   mocked.getLabWorkspace.mockResolvedValue(WORKSPACE)
@@ -216,6 +221,17 @@ describe('Project overview', () => {
     await userEvent.click(within(page).getByRole('button', { name: 'Start Project' }))
     expect(mocked.startLabProject).toHaveBeenCalledWith('masar-commerce-analysis')
     await waitFor(() => expect(router.push).toHaveBeenCalledWith('/challenges/projects/masar-commerce-analysis/workspace'))
+  })
+
+  it('signed out, the overview is readable and Start asks them to sign in first', async () => {
+    useAuthStore.setState({ token: null })
+    mocked.getLabProject.mockResolvedValue(DETAIL)
+    render(<ProjectLabPage slug="masar-commerce-analysis" />)
+    const page = await screen.findByTestId('lab-overview')
+    expect(within(page).getByText('Junior Data Analyst')).toBeInTheDocument()
+    await userEvent.click(within(page).getByRole('button', { name: 'Sign in to start this project' }))
+    expect(mocked.startLabProject).not.toHaveBeenCalled()
+    expect(useAuthPrompt.getState()).toMatchObject({ open: true, next: '/challenges/projects/masar-commerce-analysis' })
   })
 
   it('offers Continue Project for a learner who has started', async () => {

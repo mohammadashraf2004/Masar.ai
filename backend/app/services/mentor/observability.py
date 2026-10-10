@@ -21,7 +21,7 @@ logger = logging.getLogger("app.mentor.events")
 # The categories a failure is reported under. Free text never goes in the log line.
 ERROR_CATEGORIES = {
     "insufficient_credits", "access_denied", "not_found", "invalid_request",
-    "provider_error", "validation_failed", "internal_error",
+    "provider_error", "validation_failed", "internal_error", "limit_reached",
 }
 
 
@@ -50,6 +50,9 @@ def _category_for_status(status: int) -> str:
         return "not_found"
     if status in (409, 422):
         return "invalid_request"
+    if status == 429:
+        # A rate limit, the Pro allowance or the validation-failure pause: refused before any charge.
+        return "limit_reached"
     if status == 503:
         return "provider_error"
     return "internal_error"

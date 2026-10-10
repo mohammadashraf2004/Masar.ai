@@ -1992,18 +1992,16 @@ Before continuing, make sure you can answer:
             ),
 
             "instructions": (
-                "A user sends a question about an uploaded document. The system must "
-                "authenticate the user, retrieve relevant chunks from a vector store, "
-                "call a language model, save the conversation, and return an answer.\n\n"
-                "Assign each responsibility to an appropriate component such as:\n"
-                "- router,\n"
-                "- controller,\n"
-                "- service,\n"
-                "- provider,\n"
-                "- repository,\n"
-                "- schema,\n"
-                "- dependency/guard.\n\n"
-                "Then draw the request flow using arrows."
+                ('1. A user sends a question about an uploaded document. The system must authenticate the user, retrieve relevant chunks from a vector store, call a language model, save the conversation, and return an answer.\n'
+                 '2. Assign each responsibility to an appropriate component such as:\n'
+                 '   - router,\n'
+                 '   - controller,\n'
+                 '   - service,\n'
+                 '   - provider,\n'
+                 '   - repository,\n'
+                 '   - schema,\n'
+                 '   - dependency/guard.\n'
+                 '3. Then draw the request flow using arrows.')
             ),
 
             "expected_output": (

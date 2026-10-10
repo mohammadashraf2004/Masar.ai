@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from app.core.limiter import limiter
 from app.services.execution_fairness import runner_turn
 from app.core.metrics import record_project_lab_check, record_project_lab_rejected
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_optional_user
 from app.db.session import get_db
 from app.models.project_lab import LabAttempt, LabProject
 from app.models.user import User
@@ -81,17 +81,25 @@ def _attempt_view(db: Session, attempt: LabAttempt) -> AttemptView:
 
 # ─── Projects ────────────────────────────────────────────────────────────────
 
+# The catalogue and the overview are public: they carry titles, summaries, the
+# milestone/task outline and the overview card, never a task's instructions,
+# hints, files or checks (those are AttemptView, reachable only through an
+# attempt the caller owns). A signed-in learner also gets their own attempt.
+
 @router.get("/projects", response_model=list[ProjectCard])
-def list_projects(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def list_projects(current_user: User | None = Depends(get_optional_user), db: Session = Depends(get_db)):
     projects = service.published_projects(db)
-    attempts = {a.project_id: a for a in db.query(LabAttempt).filter(LabAttempt.user_id == current_user.id)}
+    attempts = (
+        {a.project_id: a for a in db.query(LabAttempt).filter(LabAttempt.user_id == current_user.id)}
+        if current_user else {}
+    )
     return [ProjectCard(**_card(db, p, attempts.get(p.id))) for p in projects]
 
 
 @router.get("/projects/{slug}", response_model=ProjectDetail)
-def get_project(slug: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_project(slug: str, current_user: User | None = Depends(get_optional_user), db: Session = Depends(get_db)):
     project = service.get_project(db, slug)
-    attempt = service.find_attempt(db, current_user.id, project)
+    attempt = service.find_attempt(db, current_user.id, project) if current_user else None
     return ProjectDetail(
         **_card(db, project, attempt),
         milestones=[

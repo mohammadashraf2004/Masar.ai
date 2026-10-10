@@ -2282,13 +2282,13 @@ Before continuing, make sure you can answer:
             "placement": "after_section",
             "description": "Apply state validation and redirect restrictions to an OAuth login.",
             "instructions": (
-                "Assume your app generates state `ABC123` before redirecting to the provider.\n\n"
-                "Evaluate these callbacks:\n"
-                "A. `state=ABC123` from the registered callback path.\n"
-                "B. `state=WRONG`.\n"
-                "C. Correct state, but the authorization flow uses an unregistered attacker-controlled redirect URI.\n\n"
-                "For each, state whether to continue or reject and why.\n"
-                "Then explain why provider access tokens should not be exposed unnecessarily to browser code."
+                ('1. Assume your app generates state `ABC123` before redirecting to the provider.\n'
+                 '2. Evaluate these callbacks:\n'
+                 '   - A. `state=ABC123` from the registered callback path.\n'
+                 '   - B. `state=WRONG`.\n'
+                 '   - C. Correct state, but the authorization flow uses an unregistered attacker-controlled redirect URI.\n'
+                 '3. For each, state whether to continue or reject and why.\n'
+                 '4. Then explain why provider access tokens should not be exposed unnecessarily to browser code.')
             ),
             "expected_output": "Three callback decisions plus a token-exposure explanation.",
             "difficulty": DifficultyLevel.beginner,

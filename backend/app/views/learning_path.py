@@ -170,6 +170,16 @@ class CourseCard(CourseSummary):
     recommended_before: List[CourseRef] = []
 
 
+class LessonTitleOut(BaseModel):
+    """One row of a course outline: the lesson's name and place. Public, so it
+    carries nothing else - the body, exercises and answers stay behind sign-in
+    and the course's own access rules."""
+    id: int
+    order: int
+    title: str
+    title_ar: Optional[str] = None
+
+
 class ModuleOut(BaseModel):
     id: int                                   # the topic id the course viewer opens
     order: int
@@ -185,6 +195,7 @@ class ModuleOut(BaseModel):
     completion_required: bool = True
     is_optional: bool = False
     completion_pct: Optional[float] = None    # signed-in learners only
+    lessons: List[LessonTitleOut] = []
     status: Optional[Literal["not_started", "in_progress", "completed"]] = None
 
 

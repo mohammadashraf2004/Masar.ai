@@ -767,10 +767,10 @@ TOPIC = {
             "placement": "after_section",
             "description": "Evaluate whether a split is representative and leakage-safe.",
             "instructions": (
-                "Given synthetic candidate records with series UID, patient ID, diameter, and class, create two splits: "
-                "(A) every tenth candidate and (B) patient-level grouping. For each split, report class counts, diameter ranges, "
-                "and whether any patient appears in both sets. Explain which split is safer if several candidates from one patient "
-                "are strongly correlated, and why."
+                ('1. Use synthetic candidate records with series UID, patient ID, diameter and class.\n'
+                 '2. Create split A by taking every tenth candidate, and split B by grouping candidates by patient.\n'
+                 '3. For each split, report the class counts, the diameter ranges, and whether any patient appears in both sets.\n'
+                 '4. Explain which split is safer when several candidates from one patient are strongly correlated, and why.')
             ),
             "expected_output": "Two split summaries, leakage checks, and a justified recommendation.",
             "difficulty": DifficultyLevel.intermediate,
@@ -784,9 +784,8 @@ TOPIC = {
             "placement": "after_section",
             "description": "Turn the chapter into a reusable engineering verification plan.",
             "instructions": (
-                "Write at least 12 tests covering metadata parsing, candidate/annotation matching, HU clipping, coordinate round trips, "
-                "crop boundary handling, output shape/dtype, cache invalidation, split overlap, and visual spot checks. For each test, "
-                "state: input fixture, expected behavior, and what model-training failure the test prevents."
+                ('1. Write at least 12 tests covering metadata parsing, candidate/annotation matching, HU clipping, coordinate round trips, crop boundary handling, output shape/dtype, cache invalidation, split overlap, and visual spot checks.\n'
+                 '2. For each test, state: input fixture, expected behavior, and what model-training failure the test prevents.')
             ),
             "expected_output": "A structured test table with at least 12 data-pipeline checks and their rationale.",
             "difficulty": DifficultyLevel.intermediate,

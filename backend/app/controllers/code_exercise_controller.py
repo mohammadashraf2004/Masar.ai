@@ -11,13 +11,17 @@ from app.models.learning import Exercise
 from app.models.user import User
 from app.services.billing.access_service import course_for_content, require_content_access
 from app.services.code_exercises import (
-    SQL_GRADER, grader_for_language, RUNNER, feedback_messages, mark_complete, record_attempt,
+    NOT_EXECUTED_LANGUAGE, SQL_GRADER, check_without_running, grader_for_language, RUNNER,
+    attempt_state, feedback_messages, mark_complete, record_attempt,
 )
 from app.services.code_execution import ExecutionResult
+from app.services.code_grading.authoring import count_python_blanks
+from app.services.code_grading.grader import blanks_remaining_feedback, first_blank_line, is_static_only
 from app.services.execution_fairness import runner_turn
 from app.services.learning import enrollment as course_enrollment
 from app.views.code_exercise import (
-    CodeExerciseResponse, CodePayload, FeedbackResponse, RunResponse, SolutionResponse, SubmitResponse,
+    AttemptStateResponse, CodeExerciseResponse, CodePayload, FeedbackResponse, RunResponse, SolutionResponse,
+    SubmitResponse,
 )
 
 
@@ -51,6 +55,16 @@ def get_code_exercise(
     return _exercise(db, exercise_id, current_user.id)
 
 
+@router.get("/{exercise_id}/progress", response_model=AttemptStateResponse)
+def get_attempt_state(
+    exercise_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db),
+):
+    """Where this learner stands (attempts, pass, solution access), so a
+    reloaded page offers the same options as before."""
+    exercise = _code_exercise(db, exercise_id, current_user.id, require_tests=False)
+    return AttemptStateResponse(**attempt_state(db, current_user.id, exercise))
+
+
 @router.post("/{exercise_id}/run", response_model=RunResponse)
 @limiter.limit("30/minute")
 async def run_code(
@@ -58,7 +72,13 @@ async def run_code(
     current_user: User = Depends(get_current_user), db: Session = Depends(get_db),
 ):
     exercise = _code_exercise(db, exercise_id, current_user.id, require_tests=False)
-    if exercise.language == "python":
+    remaining = count_python_blanks(payload.code) if exercise.language == "python" else 0
+    if remaining:
+        message = blanks_remaining_feedback(remaining, first_blank_line(payload.code))[payload.language]
+        result = ExecutionResult("incomplete", stderr=message + "\n")
+    elif exercise.language == "python" and is_static_only(list(exercise.grading_tests or [])):
+        result = check_without_running(payload.code, payload.language)
+    elif exercise.language == "python":
         # Plain values only past this commit: touching an expired ORM object
         # (even current_user.id) would silently reopen a transaction and pin
         # the connection for the whole runner wait.
@@ -69,9 +89,7 @@ async def run_code(
     elif exercise.language == "sql":
         result = await SQL_GRADER.run(payload.code, list(exercise.grading_tests or []))
     else:
-        result = ExecutionResult(
-            "success", stdout="This draft is editable. Runtime execution is not available for this language.\n",
-        )
+        result = ExecutionResult("success", stdout=NOT_EXECUTED_LANGUAGE[payload.language])
     record_attempt(
         db, user_id=current_user.id, exercise_id=exercise.id, action="run",
         status=result.status, execution_time_ms=result.execution_time_ms,
@@ -113,6 +131,8 @@ async def submit_code(
     if grade.passed:
         mark_complete(db, current_user.id, exercise)
     course = course_for_content(db, exercise) if grade.passed else None
+    db.flush()
+    state = attempt_state(db, current_user.id, exercise)
     db.commit()
     if course is not None:
         course_enrollment.sync_lifecycle(db, current_user.id, course)
@@ -125,6 +145,7 @@ async def submit_code(
         ),
         tests_passed=grade.tests_passed, tests_total=grade.tests_total,
         failed_test=grade.failed_test_id,
+        attempt=AttemptStateResponse(**state),
     )
 
 
@@ -135,6 +156,13 @@ def show_solution(
     exercise = _code_exercise(db, exercise_id, current_user.id, require_tests=False)
     if not exercise.solution_code:
         raise HTTPException(status_code=404, detail="No solution is available")
+    # The worked solution is a reward for trying, not a shortcut: it opens
+    # after a pass or after several genuinely different attempts.
+    state = attempt_state(db, current_user.id, exercise)
+    if not state["solution_available"]:
+        raise HTTPException(status_code=403, detail={
+            "code": "SOLUTION_LOCKED", "checks_until_solution": state["checks_until_solution"],
+        })
     record_attempt(
         db, user_id=current_user.id, exercise_id=exercise.id, action="solution",
         status="solution_viewed",

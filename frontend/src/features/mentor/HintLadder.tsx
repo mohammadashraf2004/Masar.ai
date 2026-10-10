@@ -57,7 +57,7 @@ export function HintLadder({
   return (
     <div className="flex flex-col gap-3" data-testid="hint-ladder">
       <div className="flex items-center gap-3">
-        <span dir="ltr" className="font-mono text-[10px] text-amber-text" style={{ letterSpacing: '0.1em' }}>{t('mentor.v2.hint.label')}</span>
+        <span dir="ltr" className="ui-eyebrow ui-eyebrow-accent font-mono">{t('mentor.v2.hint.label')}</span>
         <span className="text-xs text-dim">{tf('mentor.v2.hint.level', { n: n(current) })}</span>
         <span aria-hidden="true" className="ms-auto flex items-center gap-1">
           {[1, 2, 3, 4].map((level) => (

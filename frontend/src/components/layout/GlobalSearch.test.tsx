@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { GlobalSearch } from '@/components/layout/GlobalSearch'
 import { useLanguageStore } from '@/lib/language'
+import { useAuthStore } from '@/lib/store'
+import { useAuthPrompt } from '@/components/auth/AuthPrompt'
 import { router } from '@/test/nav'
 import type { SearchHit, SearchResults } from '@/types'
 
@@ -22,6 +24,9 @@ const field = () => screen.getByRole('combobox')
 
 beforeEach(() => {
   vi.mocked(api.search).mockResolvedValue(results([LANGGRAPH, LANGCHAIN]))
+  // A signed-in learner; the signed-out case is asserted on its own below.
+  useAuthStore.setState({ token: 'tok', _hasHydrated: true })
+  useAuthPrompt.setState({ open: false, next: null })
 })
 
 describe('GlobalSearch — the field', () => {
@@ -171,6 +176,15 @@ describe('GlobalSearch — the keyboard', () => {
     expect(router.push).toHaveBeenCalledWith('/tools/langgraph')
     expect(field()).toHaveValue('')
     expect(screen.queryByRole('listbox')).toBeNull()
+  })
+
+  it('signed out, Enter on a course that needs an account asks them to sign in instead', async () => {
+    useAuthStore.setState({ token: null })
+    const user = userEvent.setup()
+    await typeAndWait(user)
+    await user.keyboard('{ArrowDown}{Enter}')
+    expect(router.push).not.toHaveBeenCalledWith('/tools/langgraph')
+    expect(useAuthPrompt.getState()).toMatchObject({ open: true, next: '/tools/langgraph' })
   })
 
   it('does nothing on Enter when no result is highlighted', async () => {

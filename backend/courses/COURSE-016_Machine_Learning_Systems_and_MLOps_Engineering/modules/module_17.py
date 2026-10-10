@@ -1303,14 +1303,14 @@ TOPIC = {
                 "Practice separating interface code from reusable domain checks."
             ),
             "instructions": (
-                "A single `csv_linter.py` file now contains 300 lines of Click code, data checks, formatting, and helper functions.\n\n"
-                "Propose a package structure with at least:\n"
-                "- `__init__.py`,\n"
-                "- `main.py`,\n"
-                "- `checks.py`,\n"
-                "- `setup.py`,\n"
-                "- `requirements.txt`.\n\n"
-                "State which responsibilities belong in each file and show how the console entry point must change after moving `main()`."
+                ('1. A single `csv_linter.py` file now contains 300 lines of Click code, data checks, formatting, and helper functions.\n'
+                 '2. Propose a package structure with at least:\n'
+                 '   - `__init__.py`,\n'
+                 '   - `main.py`,\n'
+                 '   - `checks.py`,\n'
+                 '   - `setup.py`,\n'
+                 '   - `requirements.txt`.\n'
+                 '3. State which responsibilities belong in each file and show how the console entry point must change after moving `main()`.')
             ),
             "expected_output": (
                 "A modular package tree with responsibility boundaries and an updated entry-point mapping."

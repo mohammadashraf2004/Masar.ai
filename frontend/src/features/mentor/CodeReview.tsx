@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { codeCellColors } from '@/features/exercises/CodeCell/codeCellTheme'
 import { Card } from '@/components/ui/index'
 import { api, mentorV2 } from '@/lib/api'
@@ -10,6 +10,7 @@ import { exerciseFileName } from '@/features/exercises/lessonExerciseFiles'
 import { contextLabels } from './context'
 import { exerciseDraft } from './draft'
 import type { ReviewResult, ReviewSeverity } from './types'
+import { newRequestId } from './useMentorV2'
 
 /** The code surface keeps the dark palette in both themes (the same one the exercise cell uses). */
 const SEVERITY_COLOR: Record<ReviewSeverity, string> = { ok: '#10B981', suggestion: '#F59E0B', issue: '#F43F5E' }
@@ -41,6 +42,10 @@ export function CodeReview({ exerciseId }: { exerciseId?: string }) {
   const [selected, setSelected] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState<StringKey | null>(null)
+  // The review that has not been answered yet. Trying the same code again after a failure or a
+  // timeout reuses its request id, so the server answers and charges it once (it may still be
+  // running, or have finished after the browser gave up); any other review gets a new id.
+  const unanswered = useRef<{ text: string; forExercise: boolean; requestId: string } | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -60,9 +65,9 @@ export function CodeReview({ exerciseId }: { exerciseId?: string }) {
   const fileName = pasted !== null ? 'pasted.py' : exerciseFileName(codeLanguage)
   const labels = contextLabels({ exerciseId: id }, language, n)
 
-  const fetchReview = useCallback((text: string, forExercise: boolean) => {
+  const fetchReview = useCallback((text: string, forExercise: boolean, requestId: string) => {
     const lang = forExercise ? codeLanguage ?? 'python' : 'python'
-    const body = forExercise ? { exerciseId: id, code: text, lang } : { code: text, lang }
+    const body = forExercise ? { exerciseId: id, code: text, lang, requestId } : { code: text, lang, requestId }
     return mentorV2.review(body, language)
   }, [codeLanguage, id, language])
 
@@ -75,7 +80,13 @@ export function CodeReview({ exerciseId }: { exerciseId?: string }) {
   const run = useCallback((text: string, forExercise: boolean) => {
     setBusy(true)
     setFailed(null)
-    fetchReview(text, forExercise).then(apply, (error) => { setFailed(mentorErrorKey(error)); setBusy(false) })
+    const previous = unanswered.current
+    const requestId = previous && previous.text === text && previous.forExercise === forExercise ? previous.requestId : newRequestId()
+    unanswered.current = { text, forExercise, requestId }
+    fetchReview(text, forExercise, requestId).then(
+      (next) => { unanswered.current = null; apply(next) },
+      (error) => { setFailed(mentorErrorKey(error)); setBusy(false) },
+    )
   }, [apply, fetchReview])
 
   const byLine = useMemo(() => new Map((result?.comments ?? []).map((c) => [c.line, c])), [result])
@@ -151,7 +162,7 @@ export function CodeReview({ exerciseId }: { exerciseId?: string }) {
               {fileName}
               <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-0.5" style={{ background: codeCellColors.amber }} />
             </span>
-            <span className="ms-auto font-mono text-[11px]" style={{ color: codeCellColors.muted }}>{t('mentor.v2.review.static')}</span>
+            <span className="ms-auto font-mono text-xs" style={{ color: codeCellColors.muted }}>{t('mentor.v2.review.static')}</span>
           </div>
 
           <div className="overflow-x-auto py-3.5" data-testid="review-code">
@@ -205,7 +216,7 @@ export function CodeReview({ exerciseId }: { exerciseId?: string }) {
 
       <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-5">
         <Card className="flex flex-col gap-3 p-5" aria-busy={busy}>
-          <h2 className="text-sm font-semibold text-white">{t('mentor.v2.review.notes')}</h2>
+          <h2 className="ui-card-title">{t('mentor.v2.review.notes')}</h2>
           {busy && <p role="status" className="text-xs text-ghost">{t('mentor.v2.review.reviewing')}</p>}
           {result?.summary && <p dir="auto" className="text-[13px] leading-[1.7] text-bright" data-testid="review-summary">{result.summary}</p>}
           {result && result.comments.length === 0 && <p className="text-xs text-ghost">{t('mentor.v2.review.noNotes')}</p>}
@@ -232,7 +243,7 @@ export function CodeReview({ exerciseId }: { exerciseId?: string }) {
 
         {result && (
           <Card className="flex flex-col gap-3 p-5" data-testid="debug-card">
-            <h2 className="text-sm font-semibold text-white">{t('mentor.v2.review.debug')}</h2>
+            <h2 className="ui-card-title">{t('mentor.v2.review.debug')}</h2>
             <ol className="flex flex-col gap-2.5">
               {result.debugSteps.map((step, i) => (
                 <li key={i} data-unlocked={step.unlocked} className={cn('flex gap-2.5 text-[13px] leading-[1.7]', step.unlocked ? 'text-bright' : 'text-ghost')}>

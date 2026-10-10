@@ -8,9 +8,15 @@ import type { MentorContextRef, MentorContextSelection } from './types'
  */
 export const DEFAULT_CONTEXT: MentorContextSelection = {}
 
-export function contextLabels(base: MentorContextSelection, language: 'ar' | 'en', n: (value: number) => string): { lesson: string | null; code: string | null } {
+export function contextLabels(
+  base: MentorContextSelection,
+  language: 'ar' | 'en',
+  n: (value: number) => string,
+  { withCourse = true }: { withCourse?: boolean } = {},
+): { lesson: string | null; code: string | null } {
+  // With the course picker beside it, the lesson chip need not name the course again.
   const lesson = base.lessonId
-    ? [base.courseTitle, base.lessonNumber ? (language === 'ar' ? `الدرس ${n(base.lessonNumber)}` : `Lesson ${base.lessonNumber}`) : null, base.lessonTitle]
+    ? [withCourse ? base.courseTitle : null, base.lessonNumber ? (language === 'ar' ? `الدرس ${n(base.lessonNumber)}` : `Lesson ${base.lessonNumber}`) : null, base.lessonTitle]
         .filter(Boolean).join(' · ')
     : null
   const code = base.exerciseId ? (base.exerciseTitle || (language === 'ar' ? 'تمرين الكود' : 'Code exercise')) : null
@@ -18,14 +24,26 @@ export function contextLabels(base: MentorContextSelection, language: 'ar' | 'en
 }
 
 /**
- * The `context` of one request, from the chips that are on: removing a chip removes its ids from
- * the request, so with both removed the mentor has nothing to ground an answer in and says so.
+ * What the mentor hub attaches: the whole course (its id, its name and whether the learner is
+ * enrolled), never one lesson or exercise in it, even when the server's default or a link resolved
+ * one. A single lesson is asked about in that lesson's own mentor panel.
  */
-export function buildContext(base: MentorContextRef, on: { lesson: boolean; code: boolean }, selectedText?: string): MentorContextRef {
+export function wholeCourse({ courseId, courseTitle, courseEnrolled }: MentorContextSelection): MentorContextSelection {
+  return { courseId, courseTitle, courseEnrolled }
+}
+
+/**
+ * The `context` of one request, from the chips that are on: removing a chip removes its ids from
+ * the request. An enrolled course the learner chose stays attached when the lesson chip is removed
+ * (the conversation is then about the whole course); with nothing left the mentor answers in general.
+ */
+export function buildContext(base: MentorContextSelection, on: { lesson: boolean; code: boolean }, selectedText?: string): MentorContextRef {
   const context: MentorContextRef = {}
-  if (on.lesson) {
+  if (on.lesson && base.lessonId) {
     if (base.courseId) context.courseId = base.courseId
-    if (base.lessonId) context.lessonId = base.lessonId
+    context.lessonId = base.lessonId
+  } else if (base.courseId && base.courseEnrolled) {
+    context.courseId = base.courseId
   }
   if (on.code && base.exerciseId) {
     context.exerciseId = base.exerciseId

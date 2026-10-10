@@ -69,13 +69,13 @@ export function LanguageSwitcher({
         data-tour="lang-switch"
         title={t('lang.title')}
         className={cn(
-          'flex min-h-[44px] items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all lg:min-h-0',
+          'flex min-h-[40px] items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-all lg:min-h-[30px] lg:py-0.5',
           open
             ? 'border-amber/40 bg-amber/10 text-amber-text'
             : 'border-border text-dim hover:text-bright hover:border-amber/20'
         )}
       >
-        <Languages size={12} className="shrink-0" />
+        <Languages size={11} className="shrink-0" />
         <span>{language === 'ar' ? 'ع' : 'EN'}</span>
         <span className="text-ghost hidden md:inline">·</span>
         <span className="text-ghost hidden md:inline">{t(MODE_KEYS[mode].label)}</span>
@@ -84,21 +84,23 @@ export function LanguageSwitcher({
       {open && (
         <div
           className={cn(
-            'absolute w-72 max-w-[calc(100vw-2rem)] bg-ink border border-border rounded-xl shadow-2xl z-50 overflow-hidden',
+            // Sized to the compact trigger: never narrower than it, and no
+            // wider than the mode hints need to wrap onto two or three lines.
+            'absolute w-60 min-w-full max-w-[calc(100vw-2rem)] bg-ink border border-border rounded-lg shadow-2xl z-50 overflow-hidden',
             align === 'start' ? 'start-0' : 'end-0',
-            placement === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',
+            placement === 'up' ? 'bottom-full mb-1.5' : 'top-full mt-1.5',
           )}
         >
           {/* ── Explanation language ── */}
-          <div className="px-4 pt-3.5 pb-3 border-b border-border">
-            <p className="text-[11px] text-ghost mb-2">{t('lang.uiLanguage')}</p>
+          <div className="px-3 pt-3 pb-2.5 border-b border-border">
+            <p className="ui-caption mb-1.5">{t('lang.uiLanguage')}</p>
             <div className="flex gap-1.5">
               {(['ar', 'en'] as const).map((code) => (
                 <button
                   key={code}
                   onClick={() => setLanguage(code)}
                   className={cn(
-                    'flex-1 px-3 py-1.5 rounded-lg border text-xs transition-colors',
+                    'flex-1 px-2 py-1.5 rounded-md border text-caption transition-colors',
                     language === code
                       ? 'border-amber/30 bg-amber/10 text-amber-text font-medium'
                       : 'border-border text-dim hover:text-bright'
@@ -111,8 +113,8 @@ export function LanguageSwitcher({
           </div>
 
           {/* ── Industry Mode ladder ── */}
-          <div className="px-4 pt-3.5 pb-3 border-b border-border">
-            <p className="text-[11px] text-ghost mb-2">{t('lang.mode')}</p>
+          <div className="px-3 pt-3 pb-2.5 border-b border-border">
+            <p className="ui-caption mb-1.5">{t('lang.mode')}</p>
             <div className="space-y-1">
               {TERMINOLOGY_MODES.map((value) => {
                 const active = mode === value
@@ -121,7 +123,7 @@ export function LanguageSwitcher({
                     key={value}
                     onClick={() => setMode(value)}
                     className={cn(
-                      'w-full text-start px-2.5 py-2 rounded-lg border transition-colors',
+                      'w-full text-start px-2 py-1.5 rounded-md border transition-colors',
                       active
                         ? 'border-amber/30 bg-amber/10'
                         : 'border-transparent hover:bg-surface'
@@ -130,7 +132,7 @@ export function LanguageSwitcher({
                     <span className="flex items-center gap-1.5">
                       <span
                         className={cn(
-                          'text-xs font-medium',
+                          'text-caption font-medium',
                           active ? 'text-amber-text' : 'text-soft'
                         )}
                       >
@@ -138,7 +140,7 @@ export function LanguageSwitcher({
                       </span>
                       {active && <Check size={11} className="text-amber-text" />}
                     </span>
-                    <span className="block text-[11px] text-ghost leading-snug mt-0.5">
+                    <span className="mt-0.5 block text-xs leading-snug text-ghost">
                       {t(MODE_KEYS[value].hint)}
                     </span>
                   </button>
@@ -148,7 +150,7 @@ export function LanguageSwitcher({
           </div>
 
           {/* ── Term highlighting ── */}
-          <div className="px-4 py-3">
+          <div className="px-3 py-2.5">
             <label className="flex items-start gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -156,9 +158,9 @@ export function LanguageSwitcher({
                 onChange={(e) => setAnnotateTerms(e.target.checked)}
                 className="mt-0.5 accent-amber"
               />
-              <span className="text-[11px] text-soft leading-snug">{t('lang.annotate')}</span>
+              <span className="text-xs leading-snug text-soft">{t('lang.annotate')}</span>
             </label>
-            <p className="flex items-start gap-1.5 mt-2.5 text-[11px] text-ghost leading-snug">
+            <p className="mt-2 flex items-start gap-1.5 text-xs leading-snug text-ghost">
               <Code2 size={11} className="shrink-0 mt-0.5" />
               {t('lang.codeNote')}
             </p>

@@ -17,7 +17,7 @@ fraction and the course's fraction can never disagree.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 from sqlalchemy import func
@@ -48,6 +48,15 @@ class ProjectInfo:
 
 
 @dataclass
+class LessonTitle:
+    """A lesson as the public outline shows it: its name and place, never its body."""
+    id: int
+    order: int
+    title: str
+    title_ar: Optional[str]
+
+
+@dataclass
 class ModuleInfo:
     id: int                          # the topic id the viewer opens
     order: int
@@ -67,6 +76,8 @@ class ModuleInfo:
     # Only for a signed-in learner.
     completion: Optional[float] = None
     status: Optional[str] = None
+    # The outline: lesson names only. Bodies stay behind the course viewer.
+    lessons: List[LessonTitle] = field(default_factory=list)
 
     @property
     def item_count(self) -> int:
@@ -105,6 +116,16 @@ def course_modules(db: Session, course: Course, user_id: Optional[int] = None) -
 
     lessons, exercises, quizzes, projects = counts(Lesson), counts(Exercise), counts(Quiz), counts(Project)
 
+    # Titles only - the columns are named so a body can never ride along.
+    titles: Dict[int, List[LessonTitle]] = {}
+    for lid, tid, order, title, title_ar in (
+        db.query(Lesson.id, fk(Lesson), Lesson.order, Lesson.title, Lesson.title_ar)
+        .filter(fk(Lesson).in_(ids))
+        .order_by(Lesson.order, Lesson.id)
+        .all()
+    ):
+        titles.setdefault(tid, []).append(LessonTitle(id=lid, order=order, title=title, title_ar=title_ar))
+
     done_by_topic: Dict[int, int] = {}
     if user_id is not None:
         lesson_ids: Dict[int, List[int]] = {}
@@ -136,6 +157,7 @@ def course_modules(db: Session, course: Course, user_id: Optional[int] = None) -
             quiz_count=quizzes.get(t.id, 0), project_count=projects.get(t.id, 0),
             completion_required=t.completion_required if tool else True,
             is_optional=t.is_optional if tool else False,
+            lessons=titles.get(t.id, []),
         )
         if user_id is not None:
             total = info.item_count

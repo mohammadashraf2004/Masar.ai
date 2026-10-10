@@ -17,6 +17,7 @@ const auth = vi.hoisted(() => ({ readiness: 42 }))
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: { full_name: 'Amira Hassan', overall_readiness_score: auth.readiness }, isAuthenticated: true, isLoading: false }),
   useGuest: () => {},
+  useSession: () => ({ user: { full_name: 'Amira Hassan', overall_readiness_score: auth.readiness }, isAuthenticated: true, isLoading: false }), useNextParam: () => null,
 }))
 vi.mock('@/components/layout/AppShell', async () => {
   const { createElement } = await import('react')

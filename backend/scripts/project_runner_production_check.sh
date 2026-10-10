@@ -13,7 +13,8 @@
 #      REQUIRE flags, runner backend);
 #   3. the compose config gives project-runner `runtime: runsc`;
 #   4. the DEPLOYED project-runner container uses runsc and is healthy;
-#   5. the API, through the real socket, sees the runner report gVisor;
+#   5. the API is healthy (its startup gate passed) and, through the real
+#      socket, sees the runner report gVisor;
 #   6. the full security probe suite passes under gVisor (throwaway compose
 #      project — production containers are not touched);
 #   7. a representative capstone slice passes through the deployed API and
@@ -25,7 +26,7 @@ set -eu
 
 ENV_FILE=${1:?usage: project_runner_production_check.sh /path/to/production.env}
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
-COMPOSE="docker compose --env-file $ENV_FILE -f $ROOT/docker-compose.yml -f $ROOT/docker-compose.prod.yml"
+COMPOSE="docker compose --profile project-lab --env-file $ENV_FILE -f $ROOT/docker-compose.yml -f $ROOT/docker-compose.prod.yml"
 step=0
 pass() { echo "PASS  $1"; }
 fail() { echo "FAIL  $1"; echo; echo "Production-host gVisor verification FAILED at step $step."; exit 1; }
@@ -65,6 +66,10 @@ cid=$($COMPOSE ps -q project-runner)
 pass "running under runsc and healthy"
 
 next "The API sees a gVisor runner through the socket"
+api_cid=$($COMPOSE ps -q api)
+[ -n "$api_cid" ] || fail "api is not running (its production gVisor startup gate may have failed)"
+[ "$(docker inspect --format '{{.State.Health.Status}}' "$api_cid")" = "healthy" ] \
+  || fail "api is not healthy (inspect API logs for the gVisor startup gate)"
 runtime=$($COMPOSE exec -T api python -c '
 import http.client, json, os, socket
 class C(http.client.HTTPConnection):

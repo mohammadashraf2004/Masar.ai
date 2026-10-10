@@ -64,7 +64,10 @@ export function useInterviewRun(id: string, level: string | undefined) {
       const earlier = saved.questions
         .filter((q) => q.answer !== null)
         .map((q) => ({ question: q.text, answer: q.skipped ? '' : (q.answer ?? '') }))
-      const question = await api.getMockInterviewQuestion(topicFor(saved.role, saved.type), difficultyFor(level), earlier, saved.language)
+      // The turn's id: asking again for the same turn (a retry, a reload, a dropped connection)
+      // gets the same question back and is charged once; the next turn has its own.
+      const turn = `iv-${saved.id}-q${saved.questions.length + 1}`.replace(/[^A-Za-z0-9_-]/g, '').slice(-64)
+      const question = await api.getMockInterviewQuestion(topicFor(saved.role, saved.type), difficultyFor(level), earlier, saved.language, turn)
       update(id, (s) => (s.endedAt || s.questions.length >= s.totalQuestions ? s : { ...s, questions: [...s.questions, newQuestion(question)] }))
     } catch (err) {
       setError(mentorErrorKey(err))

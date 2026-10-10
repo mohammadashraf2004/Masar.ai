@@ -10,7 +10,7 @@ import { DEMO_COURSE_SLUG, DEMO_LESSON_ID } from './mockLesson'
 import type { Exercise, Lesson, ToolCourse, ToolTopic } from '@/types'
 
 const auth = vi.hoisted(() => ({ user: { id: 1 }, isAuthenticated: true, isLoading: false }))
-vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth }))
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth, useSession: () => auth, useNextParam: () => null }))
 vi.mock('@/components/layout/AppShell', () => ({ AppShell: ({ children }: { children: ReactNode }) => <>{children}</> }))
 vi.mock('@/lib/api', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/api')>()
@@ -19,6 +19,7 @@ vi.mock('@/lib/api', async (importOriginal) => {
     // [code-cell]
     runExerciseTests: vi.fn(),
     submitExercise: vi.fn(),
+    getExerciseAttemptState: vi.fn().mockResolvedValue(null),
     // [/code-cell]
     api: {
       getToolCourse: vi.fn(),
@@ -79,7 +80,9 @@ describe('LessonPage — the design fixture (mock lesson)', () => {
     expect(screen.getByText('Lesson 7 of 12')).toBeInTheDocument()
     expect(screen.getByText('15 min read')).toBeInTheDocument()
     expect(screen.getByText('+40 credits')).toBeInTheDocument()
-    expect(screen.getByTestId('lesson-step-switcher')).toHaveClass('sticky', 'top-2', 'w-fit')
+    // A full-width opaque bar, and scroll padding so a focused editor line never sits beneath it.
+    expect(screen.getByTestId('lesson-step-switcher')).toHaveClass('sticky', 'top-14', 'lg:top-0', 'border-b', 'bg-void/95')
+    expect(screen.getByTestId('lesson-scroll-container')).toHaveClass('max-lg:overflow-x-clip', 'lg:overflow-y-auto', 'lg:scroll-pt-28')
     expect(screen.getByRole('button', { name: '1 Content' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: '2 Exercise' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByRole('button', { name: 'Next: Exercise' })).toBeInTheDocument()
@@ -126,9 +129,9 @@ describe('LessonPage — the design fixture (mock lesson)', () => {
       'href', `/courses/${DEMO_COURSE_SLUG}/lessons/1008`,
     )
 
-    const editor = await screen.findByRole('textbox', { name: 'agent.py' })
+    const editor = await screen.findByRole('textbox', { name: 'add_checkpointer_agent.py' })
     fireEvent.change(editor, { target: { value: 'from langgraph.checkpoint.memory import MemorySaver\n' } })
-    await user.click(screen.getByRole('button', { name: 'Submit Answer' }))
+    await user.click(screen.getByRole('button', { name: 'Check Answer' }))
 
     expect(await screen.findByText('Correct!')).toBeInTheDocument()
     // The mock lesson has no real topic to persist against — no progress call fires.

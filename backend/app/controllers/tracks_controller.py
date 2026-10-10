@@ -608,6 +608,9 @@ def project_hint(
             language=payload.language,
             terminology_mode=payload.terminology_mode,
         )
+        # Built inside the try: a model answer the response schema rejects is as
+        # undelivered as a provider error, and must not become a charged 500.
+        response = ProjectHintResponse(**result)
     except Exception:
         # The student paid for a hint they did not get. Refunding is the
         # honest outcome, and it keeps a provider outage from quietly
@@ -625,4 +628,4 @@ def project_hint(
             detail="The hint service is unavailable right now. Your credit was refunded.",
         )
 
-    return ProjectHintResponse(**result)
+    return response

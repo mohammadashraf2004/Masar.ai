@@ -9,7 +9,7 @@ import { useAuthStore } from '@/lib/store'
 import { useLanguageStore } from '@/lib/language'
 import { setSearch } from '@/test/nav'
 
-vi.mock('@/hooks/useAuth', () => ({ useGuest: () => {} }))
+vi.mock('@/hooks/useAuth', () => ({ useGuest: () => {}, useSession: () => ({ user: null, isAuthenticated: false, isLoading: false }), useNextParam: () => null }))
 vi.mock('@/lib/api', () => ({ api: { login: vi.fn(), verifyEmail: vi.fn() } }))
 import { api } from '@/lib/api'
 

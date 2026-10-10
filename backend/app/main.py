@@ -15,6 +15,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.core import security_log
 from app.core.config import settings
 from app.core.body_limit import BodySizeLimitMiddleware
+from app.services.billing.pro_ai_allowance import AllowanceRequestMiddleware
 from app.core.http_security import SecurityHeadersMiddleware
 from app.core.limiter import limiter, verify_storage_reachable
 from app.core.metrics import (
@@ -56,6 +57,17 @@ app = FastAPI(
     redoc_url=None if settings.is_production else "/redoc",
     openapi_url=None if settings.is_production else "/openapi.json",
 )
+
+
+@app.on_event("startup")
+async def _verify_production_project_runner() -> None:
+    # Static settings are rejected in app.core.config before this module is
+    # imported. This second gate validates the live sandbox: production does
+    # not begin serving when learner execution is enabled but the runner is
+    # absent, unhealthy, or running under anything other than gVisor.
+    from app.services.project_lab.execution import verify_production_runner
+
+    await verify_production_runner()
 
 # ─── Rate limiting ──────────────────────────────────────────────────────────
 # Probe the backend before serving. A rate limiter whose storage is
@@ -134,6 +146,11 @@ class UnhandledErrorMiddleware(BaseHTTPMiddleware):
 # other middleware does.
 if settings.METRICS_ENABLED:
     app.add_middleware(MetricsMiddleware)
+
+# Pro AI allowance: settles each request's reservations once its status is known.
+# Inside UnhandledErrorMiddleware, so a crashed request is seen as a failure and
+# its reservations are released. See app/services/billing/pro_ai_allowance.py.
+app.add_middleware(AllowanceRequestMiddleware)
 
 # Added after MetricsMiddleware and before SecurityHeadersMiddleware, which
 # puts it between the two in the stack. See the class docstring — the order

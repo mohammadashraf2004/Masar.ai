@@ -129,6 +129,13 @@ services:
       - PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus-multiproc
       - RESEND_API_KEY
       - EMAIL_FROM
+      # Payments: Kashier takes every new payment (app/services/payments/checkout.py).
+      - KASHIER_MODE=${KASHIER_MODE:-test}
+      - KASHIER_MERCHANT_ID
+      - KASHIER_API_KEY
+      - KASHIER_SECRET_KEY
+      - KASHIER_PUBLIC_API_URL
+      # Paymob: historical only - its webhook still reconciles the orders it took.
       - PAYMOB_API_KEY
       - PAYMOB_INTEGRATION_ID_CARD
       - PAYMOB_INTEGRATION_ID_WALLET
@@ -144,6 +151,13 @@ services:
       # the API then refuses to hand learner code to a runner that does not
       # report gVisor, so a host misconfiguration fails loudly.
       - PROJECT_LAB_REQUIRE_GVISOR=${PROJECT_LAB_REQUIRE_GVISOR:-false}
+      # Production startup validates these values against the live runner.
+      # They are passed to the API for validation only; the API never receives
+      # the Docker socket and cannot change the host runtime.
+      - PROJECT_RUNNER_RUNTIME=${PROJECT_RUNNER_RUNTIME:-runc}
+      - PROJECT_RUNNER_SECCOMP=${PROJECT_RUNNER_SECCOMP:-runner-seccomp.json}
+      - PROJECT_RUNNER_REQUIRE_GVISOR=${PROJECT_RUNNER_REQUIRE_GVISOR:-0}
+      - PROJECT_RUNNER_PIDS_LIMIT=${PROJECT_RUNNER_PIDS_LIMIT:-128}
       # Behind Caddy every request's TCP peer is the proxy. Without these two
       # the rate limiter keys every visitor on Caddy's address: one shared
       # login/register budget for the whole internet (app/core/limiter.py).
@@ -163,14 +177,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      # Deliberately NOT project-runner: the api must boot (and report
-      # Project Lab as unavailable) even when the runner is down or cannot
-      # be created at all — e.g. the host lost runsc while
-      # PROJECT_RUNNER_RUNTIME=runsc. With any dependency on it (even
-      # `required: false`) `docker compose up -d api` refused to start the
-      # api in that case (verified 2026-10-07). A full `docker compose up`
-      # still aborts when the runtime is unknown — see the rollback in
-      # docs/project-lab.md. Start order is not needed for the socket volume:
+      # Deliberately NOT project-runner: Compose must be able to boot the API
+      # while the production kill switch is set to `disabled`, even when the
+      # host has no runsc runtime. When production execution is `runner`, the
+      # API's own startup attestation below fails closed if the runner is
+      # absent or not gVisor. A Compose dependency (even `required: false`)
+      # made `docker compose up -d api` fail before the disabled API could
+      # start (verified 2026-10-07). Start order is not needed for the socket:
       # Docker seeds it from the runner image's /run/project-runner
       # (root:1000, mode 2750) on the runner's first mount even when the api
       # mounted the new, empty volume first (verified).
@@ -204,7 +217,8 @@ services:
   #     the unprivileged `sandbox` user); no-new-privileges;
   #   * a restrictive seccomp allowlist (backend/project_runner/seccomp/);
   #   * pids/memory/CPU caps for the whole service, rlimits per job;
-  #   * optionally gVisor: PROJECT_RUNNER_RUNTIME=runsc with
+  #   * gVisor is optional for local development, but mandatory whenever a
+  #     production API enables learner execution: PROJECT_RUNNER_RUNTIME=runsc with
   #     PROJECT_RUNNER_SECCOMP=runner-seccomp-gvisor.json and
   #     PROJECT_RUNNER_REQUIRE_GVISOR=1 (host setup in docs/project-lab.md).
   project-runner:

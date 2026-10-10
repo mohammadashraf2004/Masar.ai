@@ -24,7 +24,7 @@ const variants: Record<ButtonVariant, string> = {
   outline: 'bg-transparent border border-amber/40 text-amber-text hover:bg-amber/10',
 }
 const sizes: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-xs',
+  sm: 'px-3 py-1.5 text-caption',
   md: 'px-4 py-2 text-sm',
   lg: 'px-6 py-3 text-sm',
 }

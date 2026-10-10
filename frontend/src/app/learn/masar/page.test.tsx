@@ -8,6 +8,7 @@ import { router } from '@/test/nav'
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: null, isAuthenticated: true, isLoading: false }),
   useGuest: () => {},
+  useSession: () => ({ user: null, isAuthenticated: true, isLoading: false }), useNextParam: () => null,
 }))
 vi.mock('@/components/layout/AppShell', async () => {
   const { createElement } = await import('react')

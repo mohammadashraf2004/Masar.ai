@@ -1,8 +1,12 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
+import { useAuthStore } from '@/lib/store'
+import { buttonStyles } from '@/components/ui/Button'
+import { authHref } from '@/lib/authRedirect'
 import { AccountMenu } from '@/components/layout/AccountMenu'
 import { CreditsBadge } from '@/components/layout/CreditsBadge'
 import { GlobalSearch } from '@/components/layout/GlobalSearch'
@@ -21,11 +25,16 @@ import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
  * stays on screen as the page scrolls (below `lg` the document scrolls, so
  * without `sticky` the button that opens navigation would scroll away with it).
  * Whatever does not fit the phone bar is in the menu it opens.
+ *
+ * A signed-out visitor browsing the public pages sees Sign in and Create
+ * account (back to this page afterwards) where a learner has the avatar.
  */
 export function ShellHeader() {
   const { t } = useI18n()
   const { open, setOpen } = useMobileNav()
   const button = useRef<HTMLButtonElement>(null)
+  const signedIn = useAuthStore((s) => !!s.token)
+  const here = usePathname()
 
   // MobileNavProvider closes the menu on Escape; this puts focus back on the
   // button that opened it, as the account menu does for its avatar.
@@ -38,7 +47,7 @@ export function ShellHeader() {
 
   return (
     <header className="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-ink px-4 lg:static lg:h-16 lg:bg-transparent lg:px-8">
-      <Link href="/dashboard" className="flex min-h-[44px] items-center gap-2 lg:hidden">
+      <Link href={signedIn ? '/dashboard' : '/'} className="flex min-h-[44px] items-center gap-2 lg:hidden">
         <LogoMark size={28} label={null} />
         <Wordmark className="text-base text-white" />
       </Link>
@@ -56,6 +65,16 @@ export function ShellHeader() {
         </Link>
         <ThemeToggle className="hidden lg:flex" />
         <AccountMenu className="hidden lg:block" />
+        {!signedIn && (
+          <>
+            <Link href={authHref('login', here)} className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
+              {t('gate.signIn')}
+            </Link>
+            <Link href={authHref('register', here)} className={buttonStyles({ variant: 'amber', size: 'sm', className: 'hidden sm:inline-flex' })}>
+              {t('gate.signUp')}
+            </Link>
+          </>
+        )}
         <button
           ref={button}
           type="button"

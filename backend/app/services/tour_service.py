@@ -12,7 +12,7 @@ from app.models.user_tour import TourRecordStatus, UserTour
 # Free-form on that side by design, but the server still refuses to store a
 # tour_id it does not recognise — the same "unknown announcement" refusal as
 # app.services.update_service — so a typo or a probe cannot create rows forever.
-KNOWN_TOUR_IDS = {"onboarding", "mentor-interview", "language"}
+KNOWN_TOUR_IDS = {"onboarding", "mentor", "mentor-interview", "language"}
 
 
 def list_records(db: Session, user_id: int) -> List[UserTour]:

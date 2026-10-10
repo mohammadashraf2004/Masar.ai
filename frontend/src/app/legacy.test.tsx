@@ -19,6 +19,7 @@ import type { CareerTrackSummary, Enrollment, User } from '@/types'
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: { full_name: 'Amira Hassan', overall_readiness_score: 42 }, isAuthenticated: true, isLoading: false }),
   useGuest: () => {},
+  useSession: () => ({ user: { full_name: 'Amira Hassan', overall_readiness_score: 42 }, isAuthenticated: true, isLoading: false }), useNextParam: () => null,
 }))
 vi.mock('@/components/layout/PageHeader', async () => {
   const { createElement } = await import('react')

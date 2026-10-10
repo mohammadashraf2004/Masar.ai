@@ -40,8 +40,8 @@ export function StatusPage({
           {code}
         </p>
         <div className="max-w-md space-y-2">
-          <h1 className="font-display text-2xl font-bold text-white">{t(title)}</h1>
-          <p className="text-sm leading-relaxed text-dim">{t(body)}</p>
+          <h1 className="ui-section-title">{t(title)}</h1>
+          <p className="ui-description">{t(body)}</p>
         </div>
         <div className="flex flex-wrap justify-center gap-3">
           <Link href="/dashboard" className={buttonStyles()}>{t('err.dashboard')}</Link>

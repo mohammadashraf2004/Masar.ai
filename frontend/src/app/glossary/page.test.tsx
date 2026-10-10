@@ -2,12 +2,15 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GlossaryPage from '@/app/glossary/page'
+import { useAuthStore } from '@/lib/store'
+import { useAuthPrompt } from '@/components/auth/AuthPrompt'
 import type { MyCourse, VocabularyListResponse, VocabularyTermDetail, VocabularyTermSummary } from '@/types'
 
 let mockIsAuthenticated = true
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: null, isAuthenticated: mockIsAuthenticated, isLoading: false }),
   useGuest: () => {},
+  useSession: () => ({ user: null, isAuthenticated: mockIsAuthenticated, isLoading: false }), useNextParam: () => null,
 }))
 vi.mock('@/components/layout/AppShell', async () => {
   const { createElement } = await import('react')
@@ -63,6 +66,8 @@ const EMPTY_RESPONSE: VocabularyListResponse = { items: [], total: 0, page: 1, p
 
 beforeEach(() => {
   mockIsAuthenticated = true
+  useAuthStore.setState({ token: 'tok', _hasHydrated: true })
+  useAuthPrompt.setState({ open: false, next: null })
   // The "All Terms" list uses page_size 24 (or omits it); "From Your Masar"
   // and "Continue Learning" both request page_size 6. Keeping those two
   // kinds of calls distinct here (instead of always returning the same two
@@ -196,6 +201,18 @@ describe('AI Vocabulary page', () => {
     await waitFor(() => {
       expect(api.recordVocabularyTermProgress).toHaveBeenCalledWith('retrieval_augmented_generation', 'mastered')
     })
+  })
+
+  it('signed out, tracking a term asks them to sign in and records nothing', async () => {
+    mockIsAuthenticated = false
+    useAuthStore.setState({ token: null })
+    const user = userEvent.setup()
+    render(<GlossaryPage />)
+    await user.click(await screen.findByText('Retrieval-Augmented Generation'))
+    const dialog = await screen.findByRole('dialog')
+    await user.click(within(dialog).getByText('I know this'))
+    expect(api.recordVocabularyTermProgress).not.toHaveBeenCalled()
+    expect(useAuthPrompt.getState().open).toBe(true)
   })
 
   describe('From Your Masar', () => {

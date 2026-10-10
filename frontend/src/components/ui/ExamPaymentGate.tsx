@@ -58,8 +58,7 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
   const [alreadyPaid, setAlreadyPaid] = useState(false)
   const [error, setError]       = useState('')
   const [showManual, setShowManual] = useState(false)
-  const [payingVia, setPayingVia] = useState<'card' | 'wallet' | null>(null)
-  const [walletPhone, setWalletPhone] = useState('')
+  const [payingVia, setPayingVia] = useState<'card' | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -92,19 +91,12 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
     setSubmitting(false)
   }
 
-  const handlePayNow = async (via: 'card' | 'wallet') => {
-    if (via === 'wallet' && !walletPhone.trim()) {
-      setError('Please enter the mobile number to charge.')
-      return
-    }
-    setPayingVia(via)
+  // Kashier's hosted page offers card and mobile wallet itself, so one button opens it.
+  const handlePayNow = async () => {
+    setPayingVia('card')
     setError('')
     try {
-      const { checkout_url } = await api.initExamPayment({
-        exam_id: examId,
-        method: via,
-        phone_number: via === 'wallet' ? walletPhone.trim() : undefined,
-      })
+      const { checkout_url } = await api.initExamPayment({ exam_id: examId, method: 'card' })
       window.location.href = checkout_url
     } catch (e: any) {
       setError(e?.response?.data?.detail ?? 'Could not start checkout. Please try again.')
@@ -196,24 +188,13 @@ export function ExamPaymentGate({ examId, examTitle, onPaid, onClose }: ExamPaym
                   </div>
                 )}
 
-                {/* Pay now — real Paymob checkout, instant confirmation */}
+                {/* Pay now — Kashier hosted checkout, confirmed by the server */}
                 <div className="space-y-2">
-                  <Button className="w-full" onClick={() => handlePayNow('card')} loading={payingVia === 'card'} disabled={!!payingVia}>
-                    💳 Pay {price} EGP by Card
+                  <Button className="w-full" onClick={() => handlePayNow()} loading={!!payingVia} disabled={!!payingVia}>
+                    💳 Pay {price} EGP securely · card or mobile wallet
                   </Button>
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <input
-                      className="w-full min-w-0 sm:flex-1 bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
-                      placeholder="01XXXXXXXXX"
-                      value={walletPhone}
-                      onChange={e => setWalletPhone(e.target.value)}
-                    />
-                    <Button variant="outline" className="w-full sm:w-auto" onClick={() => handlePayNow('wallet')} loading={payingVia === 'wallet'} disabled={!!payingVia}>
-                      📱 Pay by Wallet
-                    </Button>
-                  </div>
                   <p className="text-xs text-ghost text-center">
-                    Secure checkout via Paymob · access granted automatically once paid
+                    Secure checkout via Kashier · access granted automatically once paid
                   </p>
                 </div>
 

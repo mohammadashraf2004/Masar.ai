@@ -149,6 +149,7 @@ export function CheckoutCard({
       {!trial && !provider && <p className="text-xs leading-relaxed text-dim">{t('billing.closed')}</p>}
       {!trial && provider?.isMock && <p className="text-xs leading-relaxed text-amber-text">{t('billing.mock')}</p>}
       {trial && <p className="text-xs leading-relaxed text-amber-text">{t('billing.trial.trust')}</p>}
+      {trial && <p className="text-xs leading-relaxed text-dim">{t('billing.trial.ai')}</p>}
 
       {failure && (
         <p role="alert" className="rounded-lg border border-rose/20 bg-rose/10 px-3 py-2.5 text-xs text-rose">

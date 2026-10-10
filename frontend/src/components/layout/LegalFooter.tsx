@@ -30,7 +30,7 @@ export function LegalFooter({ className }: { className?: string }) {
       </div>
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ghost">
-          <span dir="ltr" className="font-mono text-[11px]">© {year} Masar Inc.</span>
+          <span dir="ltr" className="font-mono text-xs">© {year} Masar Inc.</span>
           <span>{t('footer.copyright')}</span>
         </div>
         <nav aria-label={t('footer.aria')} className="flex flex-wrap gap-x-[18px] gap-y-1">

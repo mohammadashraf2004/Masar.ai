@@ -2291,12 +2291,9 @@ complexity you can justify.**
                 "Apply the source's architecture comparison to two engineering scenarios."
             ),
             "instructions": (
-                "Scenario A: You must keep a strong proprietary LLM frozen and only add new "
-                "multimodal components.\n"
-                "Scenario B: You can LoRA-adapt both the vision encoder and LLM and want the "
-                "simplest possible architecture.\n"
-                "For each scenario, choose cross-attention adapter or unified sequence and "
-                "justify the decision using the source's findings and engineering trade-offs."
+                ('1. Scenario A: You must keep a strong proprietary LLM frozen and only add new multimodal components.\n'
+                 '2. Scenario B: You can LoRA-adapt both the vision encoder and LLM and want the simplest possible architecture.\n'
+                 "3. For each scenario, choose cross-attention adapter or unified sequence and justify the decision using the source's findings and engineering trade-offs.")
             ),
             "expected_output": (
                 "A two-row decision table covering backbone trainability, likely architecture, "
@@ -2320,12 +2317,11 @@ complexity you can justify.**
                 "Distinguish early, intermediate, and late fusion from architecture descriptions."
             ),
             "instructions": (
-                "Classify each system:\n"
-                "A. Image and text embeddings are concatenated before one transformer.\n"
-                "B. A vision encoder runs separately, but visual features enter selected LLM "
-                "layers through cross-attention.\n"
-                "C. Independent vision and text classifiers produce scores that are averaged.\n"
-                "For each, state one advantage and one disadvantage."
+                ('1. Classify each system:\n'
+                 '   - A. Image and text embeddings are concatenated before one transformer.\n'
+                 '   - B. A vision encoder runs separately, but visual features enter selected LLM layers through cross-attention.\n'
+                 '   - C. Independent vision and text classifiers produce scores that are averaged.\n'
+                 '2. For each, state one advantage and one disadvantage.')
             ),
             "expected_output": (
                 "A three-row table identifying fusion type, interaction depth, advantage, and cost."
@@ -2379,16 +2375,16 @@ complexity you can justify.**
                 "Synthesize the chapter into a small architecture proposal."
             ),
             "instructions": (
-                "Design a VLM for high-resolution document QA.\n"
-                "Choose:\n"
-                "- vision encoder behavior,\n"
-                "- visual token compression,\n"
-                "- cross-attention adapter or unified sequence,\n"
-                "- frozen or trainable backbones,\n"
-                "- fusion type,\n"
-                "- one strategy for keeping visual-token cost manageable,\n"
-                "- two evaluation metrics/tasks beyond training loss.\n"
-                "Justify every choice."
+                ('1. Design a VLM for high-resolution document QA.\n'
+                 '2. Choose:\n'
+                 '   - vision encoder behavior,\n'
+                 '   - visual token compression,\n'
+                 '   - cross-attention adapter or unified sequence,\n'
+                 '   - frozen or trainable backbones,\n'
+                 '   - fusion type,\n'
+                 '   - one strategy for keeping visual-token cost manageable,\n'
+                 '   - two evaluation metrics/tasks beyond training loss.\n'
+                 '3. Justify every choice.')
             ),
             "expected_output": (
                 "A compact architecture specification and rationale grounded in the chapter."

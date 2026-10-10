@@ -1,154 +1,394 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { Award, CheckCircle, Link2, LogOut, Mail, Save, Trash2, UserRound } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/lib/store'
 import { AppShell } from '@/components/layout/AppShell'
 import { LegalFooter } from '@/components/layout/LegalFooter'
-import { PageHeader } from '@/components/layout/PageHeader'
-import { Card, Badge, ProgressBar, Spinner } from '@/components/ui/index'
 import { Button, buttonStyles } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { api } from '@/lib/api'
-import { useI18n } from '@/lib/i18n'
-import { getErrorMessage, scoreColor } from '@/lib/utils'
-import {
-  User, Save, CheckCircle, ShieldCheck, Trophy,
-  Zap, Clock, DollarSign, AlertTriangle, Target,
-  Code2, BookOpen, Brain, RefreshCw, Star,
-  TrendingUp, Award, Activity, Lock, Mail, LogOut, Trash2
-} from 'lucide-react'
+import { countForm, useI18n } from '@/lib/i18n'
+import { cn, getErrorMessage } from '@/lib/utils'
+import type { CertificateSummary, LearningPath, MyCourse, ProfileActivity, SkillGapItem, SkillGaps } from '@/types'
+import type { LabProjectCard } from '@/features/project-lab/types'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface Scorecard {
-  certs_earned: number
-  exams_attempted: number
-  exam_pass_rate: number | null
-  avg_latency_ms: number | null
-  p95_latency_ms: number | null
-  cost_per_1k_requests: number | null
-  total_tokens_used: number
-  hallucination_rate: number | null
-  retrieval_precision: number | null
-  code_quality_score: number | null
-  avg_project_score: number | null
-  projects_submitted: number
-  quizzes_passed: number
-  mentor_sessions_count: number
-  total_study_minutes: number
-  overall_grade: string | null
-  hire_ready: boolean
-  last_computed_at: string | null
+type Tab = 'profile' | 'settings'
+
+interface Achievement {
+  key: string
+  kind: 'certificate' | 'project' | 'course'
+  title: string
+  subtitle: string
+  date: string
+  href?: string
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function fmt(val: number | null | undefined, decimals = 1, suffix = ''): string {
-  if (val === null || val === undefined) return '—'
-  return `${val.toFixed(decimals)}${suffix}`
-}
+const card = 'rounded-xl border border-border bg-surface'
 
-function fmtMs(ms: number | null | undefined): string {
-  if (ms === null || ms === undefined) return '—'
-  return ms >= 1000 ? `${(ms / 1000).toFixed(2)}s` : `${Math.round(ms)}ms`
-}
+// ─── Page ─────────────────────────────────────────────────────────────────────
+export default function ProfilePage() {
+  const { user } = useAuth()
+  const { t, language } = useI18n()
+  const [tab, setTab] = useState<Tab>('profile')
 
-function fmtMinutes(mins: number): string {
-  if (mins < 60) return `${mins}m`
-  const h = Math.floor(mins / 60)
-  const m = mins % 60
-  return m ? `${h}h ${m}m` : `${h}h`
-}
+  if (!user) return null
 
-function gradeColor(grade: string | null): string {
-  if (!grade) return 'text-ghost'
-  if (grade === 'A+' || grade === 'A') return 'text-emerald'
-  if (grade === 'B+' || grade === 'B') return 'text-amber-text'
-  if (grade === 'C') return 'text-sky'
-  return 'text-rose'
-}
-
-function latencyColor(ms: number | null): string {
-  if (!ms) return 'text-ghost'
-  if (ms < 800) return 'text-emerald'
-  if (ms < 2000) return 'text-amber-text'
-  return 'text-rose'
-}
-
-function hallucinationColor(rate: number | null): string {
-  if (rate === null || rate === undefined) return 'text-ghost'
-  if (rate < 0.05) return 'text-emerald'
-  if (rate < 0.15) return 'text-amber-text'
-  return 'text-rose'
-}
-
-// ─── Metric card ──────────────────────────────────────────────────────────────
-function MetricCard({
-  icon: Icon, label, value, sub, valueClass = 'text-bright', locked = false
-}: {
-  icon: any; label: string; value: string; sub?: string
-  valueClass?: string; locked?: boolean
-}) {
   return (
-    <Card className="p-4 relative">
-      {locked && (
-        <div className="absolute inset-0 bg-void/60 backdrop-blur-[1px] rounded-lg flex flex-col items-center justify-center gap-1 z-10">
-          <Lock size={14} className="text-ghost" />
-          <span className="text-xs text-ghost">No data yet</span>
+    <AppShell>
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-5">
+          <div role="tablist" aria-label={t('profile.tab.profile')} className="flex gap-1.5 self-start rounded-full border border-border bg-surface p-1">
+            {(['profile', 'settings'] as const).map(value => (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={tab === value}
+                onClick={() => setTab(value)}
+                className={cn(
+                  'flex h-9 items-center rounded-full px-4 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring',
+                  tab === value ? 'bg-amber font-semibold text-on-solid' : 'text-dim hover:text-bright',
+                )}
+              >
+                {t(`profile.tab.${value}`)}
+              </button>
+            ))}
+          </div>
+
+          {tab === 'profile'
+            ? <ProfileView language={language} onEdit={() => setTab('settings')} />
+            : <SettingsView onDone={() => setTab('profile')} />}
         </div>
-      )}
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs text-ghost">{label}</span>
-        <Icon size={13} className="text-ghost" />
+        <LegalFooter className="mx-auto w-full max-w-[1120px]" />
       </div>
-      <div className={`text-xl font-mono font-bold mb-0.5 ${valueClass}`}>{value}</div>
-      {sub && <div className="text-xs text-ghost">{sub}</div>}
-    </Card>
+    </AppShell>
   )
 }
 
-// ─── Section header ───────────────────────────────────────────────────────────
-function SectionHeader({ icon: Icon, label, color = 'text-amber-text' }: {
-  icon: any; label: string; color?: string
-}) {
+// ─── Profile tab ──────────────────────────────────────────────────────────────
+function ProfileView({ language, onEdit }: { language: 'en' | 'ar'; onEdit: () => void }) {
+  const { user } = useAuth()
+  const { t, tf } = useI18n()
+  const [path, setPath] = useState<LearningPath | null>(null)
+  const [gaps, setGaps] = useState<SkillGaps | null>(null)
+  const [activity, setActivity] = useState<ProfileActivity | null>(null)
+  const [studyMinutes, setStudyMinutes] = useState<number | null>(null)
+  const [certificates, setCertificates] = useState<CertificateSummary[]>([])
+  const [courses, setCourses] = useState<MyCourse[]>([])
+  const [projects, setProjects] = useState<LabProjectCard[]>([])
+
+  useEffect(() => {
+    let live = true
+    const settle = <T,>(promise: Promise<T>, set: (value: T) => void) =>
+      promise.then(value => { if (live) set(value) }).catch(() => { /* the section shows its empty state */ })
+    settle(api.getMyLearningPath(), setPath)
+    settle(api.getMySkillGaps(), setGaps)
+    settle(api.getProfileActivity(84), setActivity)
+    settle(api.getScorecard(), sc => setStudyMinutes((sc as { total_study_minutes?: number }).total_study_minutes ?? 0))
+    settle(api.getMyCertificates(), setCertificates)
+    settle(api.getMyCourses(), setCourses)
+    settle(api.getLabProjects(), setProjects)
+    return () => { live = false }
+  }, [])
+
+  const local = (en: string, ar?: string | null) => (language === 'ar' && ar ? ar : en)
+  const monthYear = (iso: string) =>
+    new Date(iso).toLocaleDateString(language === 'ar' ? 'ar-u-nu-latn-ca-gregory' : 'en-GB', { month: 'long', year: 'numeric' })
+
+  if (!user) return null
+  const stageIndex = path?.stages.findIndex(stage => stage.slug === path.current_stage_slug) ?? -1
+  const pathPct = Math.round(path?.progress?.path_pct ?? path?.progress?.overall_pct ?? 0)
+  const streak = activity?.current_streak ?? null
+  const hours = studyMinutes === null ? null : Math.round(studyMinutes / 60)
+
+  const stats = [
+    { label: t('profile.stat.readiness'), value: Math.round(user.overall_readiness_score ?? 0), unit: '/100' },
+    { label: t('profile.stat.streak'), value: streak, unit: streak === null ? '' : t(`profile.unit.days.${countForm(streak, language)}`) },
+    { label: t('profile.stat.hours'), value: hours, unit: t('profile.unit.hours') },
+    { label: t('profile.stat.certificates'), value: certificates.length, unit: t('profile.unit.earned') },
+  ]
+
   return (
-    <div className="flex items-center gap-2 mb-3">
-      <Icon size={13} className={color} />
-      <span className={`text-xs font-medium uppercase tracking-widest ${color}`}>{label}</span>
+    <div className="flex flex-col gap-5">
+      {/* ── Identity ── */}
+      <section
+        className={cn(card, 'flex flex-wrap items-center gap-6 rounded-[14px] p-7')}
+        style={{ backgroundImage: `radial-gradient(70% 140% at ${language === 'ar' ? '100%' : '0%'} 0%, rgb(var(--acc) / 0.10), transparent 60%)` }}
+      >
+        <div className="grid size-[88px] flex-none place-items-center rounded-full border-2 border-amber bg-muted text-[34px] font-bold text-bright shadow-[0_0_0_5px_rgb(var(--acc)/0.12)]" aria-hidden="true">
+          {user.full_name.charAt(0).toUpperCase()}
+        </div>
+        <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-2">
+          <h1 className="m-0 text-[26px] font-bold text-bright"><bdi>{user.full_name}</bdi></h1>
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-dim">
+            <span>{tf('profile.memberSince', { date: monthYear(user.created_at) })}</span>
+            {path?.level && <span className="text-amber-text">{local(path.level.name, path.level.name_ar)}</span>}
+          </div>
+          {path ? (
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span className="text-[15px] font-semibold text-bright">{local(path.career_goal.title, path.career_goal.title_ar)}</span>
+              {language === 'ar' && path.career_goal.title_ar && (
+                <span dir="ltr" className="font-display text-sm font-semibold text-ghost">{path.career_goal.title}</span>
+              )}
+              {stageIndex >= 0 && (
+                <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-xs text-dim">
+                  {tf('profile.stage', { n: stageIndex + 1, total: path.stages.length, pct: pathPct })}
+                </span>
+              )}
+            </div>
+          ) : (
+            <Link href="/learn/masar" className="text-sm text-amber-text hover:text-amber-text2">{t('profile.buildPath')}</Link>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2.5">
+          <Link href="/profile/learning" className={buttonStyles({ variant: 'outline', className: 'h-11 gap-2' })}>
+            <Link2 size={16} aria-hidden="true" />
+            {t('profile.learningProfile')}
+          </Link>
+          <Button className="h-11" onClick={onEdit}>{t('profile.edit')}</Button>
+        </div>
+      </section>
+
+      {/* ── Numbers ── */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {stats.map(stat => (
+          <div key={stat.label} className={cn(card, 'flex flex-col gap-1.5 px-5 py-[18px]')}>
+            <span className="text-xs text-dim">{stat.label}</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-display text-[32px] font-extrabold leading-[1.1] text-bright">{stat.value ?? '—'}</span>
+              <span className="text-xs text-ghost">{stat.unit}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-5">
+        <SkillMap path={path} gaps={gaps} language={language} />
+        <ActivityMap activity={activity} language={language} />
+      </div>
+
+      <Achievements
+        certificates={certificates}
+        courses={courses}
+        projects={projects}
+        language={language}
+      />
     </div>
   )
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
-export default function ProfilePage() {
+function SkillMap({ path, gaps, language }: { path: LearningPath | null; gaps: SkillGaps | null; language: 'en' | 'ar' }) {
+  const { t, tf } = useI18n()
+  const names = useMemo(() => {
+    const all: SkillGapItem[] = gaps ? [...gaps.known, ...gaps.partial, ...gaps.missing] : []
+    return new Map(all.map(item => [item.slug, item]))
+  }, [gaps])
+  const skills = Object.entries(path?.progress?.by_skill ?? {})
+    .filter(([slug]) => names.has(slug))
+    .map(([slug, value]) => ({ skill: names.get(slug)!, value: Math.round(value) }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 6)
+  const gap = gaps?.missing.find(item => item.is_immediate) ?? gaps?.missing[0]
+  const name = (item: SkillGapItem) => (language === 'ar' && item.name_ar ? item.name_ar : item.name)
+
+  return (
+    <section className={cn(card, 'flex min-w-0 flex-[1_1_340px] flex-col gap-4 p-[22px]')}>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[15px] font-semibold text-bright">{t('profile.skills.title')}</h2>
+        <span className="text-xs text-ghost">{t('profile.skills.source')}</span>
+      </div>
+      {skills.length === 0 ? (
+        <p className="text-sm text-dim">{t('profile.skills.empty')}</p>
+      ) : (
+        <ul className="flex flex-col gap-4">
+          {skills.map(({ skill, value }) => (
+            <li key={skill.slug} className="flex flex-col gap-1.5">
+              <div className="flex justify-between gap-2.5 text-sm">
+                <span dir="auto" className="text-bright">{name(skill)}</span>
+                <span className="font-mono text-dim" dir="ltr">{value}%</span>
+              </div>
+              <div className="h-[5px] overflow-hidden rounded-[3px] bg-muted" role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={100} aria-label={name(skill)}>
+                <div className={cn('h-full', value < 50 ? 'bg-rose' : 'bg-amber')} style={{ width: `${value}%` }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {gap && (
+        <div className="flex items-start gap-2.5 rounded-lg bg-muted px-3.5 py-3 text-sm leading-7 text-soft">
+          <span className="pt-0.5 font-mono text-[11px] text-amber-text">GAP</span>
+          <span className="[text-wrap:pretty]">
+            {tf(gap.is_immediate ? 'profile.skills.gapNow' : 'profile.skills.gapLater', { skill: name(gap) })}{' '}
+            <Link href="/learn/masar" className="text-amber-text hover:text-amber-text2">{t('profile.skills.openPath')}</Link>
+          </span>
+        </div>
+      )}
+    </section>
+  )
+}
+
+function ActivityMap({ activity, language }: { activity: ProfileActivity | null; language: 'en' | 'ar' }) {
+  const { t, tf } = useI18n()
+  const days = activity?.days ?? []
+  const max = Math.max(1, ...days.map(day => day.count))
+  const shade = (count: number) =>
+    count === 0 ? 'bg-muted' : count <= max / 3 ? 'bg-amber/25' : count <= (2 * max) / 3 ? 'bg-amber/50' : 'bg-amber'
+
+  return (
+    <section className={cn(card, 'flex min-w-0 flex-[1_1_340px] flex-col gap-3.5 p-[22px]')}>
+      <h2 className="text-[15px] font-semibold text-bright">{t('profile.activity.title')}</h2>
+      <div
+        dir="ltr"
+        role="img"
+        aria-label={`${t('profile.activity.title')}: ${tf(`profile.activity.days.${countForm(activity?.active_days ?? 0, language)}`, { n: activity?.active_days ?? 0 })}`}
+        className="grid grid-flow-col grid-cols-12 grid-rows-7 gap-1"
+      >
+        {(days.length ? days : Array.from({ length: 84 }, () => ({ date: '', count: 0 }))).map((day, index) => (
+          <div
+            key={day.date || index}
+            title={day.date ? tf('profile.activity.cell', { date: day.date, n: day.count }) : undefined}
+            className={cn('aspect-square rounded-[2px]', shade(day.count))}
+          />
+        ))}
+      </div>
+      <div className="flex flex-wrap justify-between gap-2 text-xs text-dim">
+        <span>
+          {tf(`profile.activity.days.${countForm(activity?.active_days ?? 0, language)}`, { n: activity?.active_days ?? 0 })}
+          <span className="text-ghost"> · {t('profile.activity.note')}</span>
+        </span>
+        <div className="flex items-center gap-1" aria-hidden="true">
+          <span>{t('profile.activity.less')}</span>
+          <span className="size-2.5 rounded-[2px] bg-muted" />
+          <span className="size-2.5 rounded-[2px] bg-amber/35" />
+          <span className="size-2.5 rounded-[2px] bg-amber" />
+          <span>{t('profile.activity.more')}</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Achievements({ certificates, courses, projects, language }: {
+  certificates: CertificateSummary[]
+  courses: MyCourse[]
+  projects: LabProjectCard[]
+  language: 'en' | 'ar'
+}) {
+  const { t, tf } = useI18n()
+  const local = (en: string, ar?: string | null) => (language === 'ar' && ar ? ar : en)
+  const items: Achievement[] = [
+    ...certificates.map(c => ({
+      key: `c-${c.certificate_id}`, kind: 'certificate' as const, title: c.track_title,
+      subtitle: tf('profile.wins.score', { n: Math.round(c.score) }), date: c.issued_at, href: `/verify/${c.certificate_id}`,
+    })),
+    ...projects.filter(p => p.attempt?.status === 'completed').map(p => ({
+      key: `p-${p.slug}`, kind: 'project' as const, title: local(p.title, p.title_ar),
+      subtitle: t('profile.wins.projectDone'), date: p.attempt?.submitted_at ?? '', href: `/challenges/projects/${p.slug}`,
+    })),
+    ...courses.filter(c => c.status === 'completed' || c.progress >= 100).map(c => ({
+      key: `k-${c.course_id}`, kind: 'course' as const, title: local(c.title, c.title_ar),
+      subtitle: t('profile.wins.courseDone'), date: c.completed_at ?? '', href: c.href ?? `/courses/${c.slug}`,
+    })),
+  ].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 8)
+  const pill = { certificate: 'border-emerald text-emerald', project: 'border-amber text-amber-text', course: 'border-dim text-dim' }
+
+  return (
+    <section className={cn(card, 'flex flex-col gap-4 p-[22px]')}>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[15px] font-semibold text-bright">{t('profile.wins.title')}</h2>
+        <Link href="/certificates" className="text-sm text-amber-text hover:text-amber-text2">{t('profile.wins.all')}</Link>
+      </div>
+      {items.length === 0 ? (
+        <p className="flex items-center gap-2 text-sm text-dim"><Award size={14} aria-hidden="true" />{t('profile.wins.empty')}</p>
+      ) : (
+        <ul className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
+          {items.map(item => {
+            const body = (
+              <>
+                <div className="flex items-center justify-between gap-2">
+                  <span className={cn('rounded-full border px-2 py-0.5 text-[11px]', pill[item.kind])}>{t(`profile.wins.${item.kind}`)}</span>
+                  {item.date && <span className="font-mono text-[11px] text-ghost" dir="ltr">{item.date.slice(0, 7)}</span>}
+                </div>
+                <span dir="auto" className="font-display text-base font-bold text-bright">{item.title}</span>
+                <span className="text-sm text-dim">{item.subtitle}</span>
+              </>
+            )
+            return (
+              <li key={item.key}>
+                {item.href ? (
+                  <Link href={item.href} className="flex h-full flex-col gap-2 rounded-[10px] border border-border bg-panel p-4 transition-colors hover:border-amber/40">{body}</Link>
+                ) : (
+                  <div className="flex h-full flex-col gap-2 rounded-[10px] border border-border bg-panel p-4">{body}</div>
+                )}
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+// ─── Settings tab ─────────────────────────────────────────────────────────────
+function SettingsView({ onDone }: { onDone: () => void }) {
   const { user } = useAuth()
   const { t } = useI18n()
   const { token, logout } = useAuthStore()
-
-  const [resendingVerification, setResendingVerification] = useState(false)
+  const [form, setForm] = useState({
+    full_name: user?.full_name ?? '',
+    bio: user?.bio ?? '',
+    github_url: user?.github_url ?? '',
+    linkedin_url: user?.linkedin_url ?? '',
+  })
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [formError, setFormError] = useState('')
   const [verificationSent, setVerificationSent] = useState(false)
+  const [resending, setResending] = useState(false)
   const [loggingOutAll, setLoggingOutAll] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  async function handleResendVerification() {
-    setResendingVerification(true)
+  if (!user) return null
+
+  async function save(event: React.FormEvent) {
+    event.preventDefault()
+    setSaving(true)
+    setFormError('')
+    try {
+      const updated = await api.updateMe(form)
+      // Refresh the cached user only: reusing setAuth's default TTL here
+      // would silently extend the session on every profile save.
+      if (token) useAuthStore.setState({ user: updated })
+      setSaved(true)
+      window.setTimeout(() => { setSaved(false); onDone() }, 900)
+    } catch (err) {
+      setFormError(getErrorMessage(err))
+    }
+    setSaving(false)
+  }
+
+  async function resend() {
+    setResending(true)
     try {
       await api.resendVerification()
       setVerificationSent(true)
-    } catch { /* ignore — rate limited or already verified */ }
-    setResendingVerification(false)
+    } catch { /* rate limited or already verified */ }
+    setResending(false)
   }
 
-  async function handleLogoutAll() {
+  async function logoutAll() {
     setLoggingOutAll(true)
     try {
       await api.logoutAllDevices()
     } finally {
-      logout() // also clears this device's session
+      logout()
     }
   }
 
-  async function handleDeleteAccount() {
+  async function deleteAccount() {
     setDeleting(true)
     try {
       await api.deleteAccount()
@@ -158,495 +398,97 @@ export default function ProfilePage() {
     }
   }
 
-  const [form, setForm] = useState({
-    full_name: user?.full_name ?? '',
-    bio: user?.bio ?? '',
-    github_url: user?.github_url ?? '',
-    linkedin_url: user?.linkedin_url ?? '',
-    experience_level: user?.experience_level ?? 'beginner',
-  })
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const [formError, setFormError] = useState('')
-
-  const [scorecard, setScorecard] = useState<Scorecard | null>(null)
-  const [scorecardLoading, setScorecardLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-
-  // Load scorecard
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await api.getScorecard()
-        setScorecard(data)
-      } catch { /* no scorecard yet */ }
-      setScorecardLoading(false)
-    }
-    load()
-  }, [])
-
-  const refreshScorecard = async () => {
-    setRefreshing(true)
-    try {
-      const data = await api.getScorecard(true)
-      setScorecard(data)
-    } catch { /* ignore */ }
-    setRefreshing(false)
-  }
-
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    setSaving(true)
-    setFormError('')
-    try {
-      const updated = await api.updateMe(form)
-      // Refresh the cached user only — reusing setAuth's default TTL
-      // here would silently extend the session on every profile save.
-      if (token) useAuthStore.setState({ user: updated })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
-    } catch (err) {
-      setFormError(getErrorMessage(err))
-    }
-    setSaving(false)
-  }
-
-  if (!user) return null
-
-  const sc = scorecard
-  const hasActivity = sc && (
-    sc.exams_attempted > 0 || sc.projects_submitted > 0 || sc.mentor_sessions_count > 0
-  )
+  const row = 'flex min-h-11 items-center justify-between gap-4 border-b border-muted py-3.5 last:border-b-0'
 
   return (
-    <AppShell>
-      <PageHeader title="Profile" subtitle="Your account, preferences, and verified engineer scorecard." />
-
-      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
-        <div className="w-full max-w-4xl space-y-6">
-
-          {/* ── Top: avatar + grade badge ── */}
-          <Card className="p-6">
-            <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-full bg-amber/10 border-2 border-amber/30 flex items-center justify-center shrink-0">
-                <span className="text-2xl font-display font-bold text-amber-text">
-                  {user.full_name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <h2 className="font-display font-bold text-bright text-lg">{user.full_name}</h2>
-                  {sc?.hire_ready && (
-                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald/10 border border-emerald/30 text-xs font-semibold text-emerald">
-                      <ShieldCheck size={11} />
-                      Hire Ready
-                    </span>
-                  )}
-                  {sc?.overall_grade && (
-                    <span className={`px-2.5 py-1 rounded-full bg-surface border border-border text-xs font-mono font-bold ${gradeColor(sc.overall_grade)}`}>
-                      Grade {sc.overall_grade}
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-ghost">{user.email}</p>
-                <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                  <span className="text-xs px-2 py-0.5 rounded bg-amber/10 border border-amber/20 text-amber-text capitalize">
-                    {user.experience_level}
-                  </span>
-                  <span className="text-xs text-ghost capitalize">{user.role}</span>
-                  {sc?.certs_earned ? (
-                    <span className="flex items-center gap-1 text-xs text-emerald">
-                      <Trophy size={11} /> {sc.certs_earned} certification{sc.certs_earned !== 1 ? 's' : ''}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-              <div className="text-end shrink-0">
-                <div className="text-3xl font-display font-bold text-amber-text">
-                  {user.overall_readiness_score.toFixed(0)}%
-                </div>
-                <div className="text-xs text-ghost">Readiness score</div>
-              </div>
-            </div>
-          </Card>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* ── Left: edit form ── */}
-            <div className="lg:col-span-1 space-y-4">
-              <Card className="p-5">
-                <h3 className="font-medium text-bright mb-4 flex items-center gap-2 text-sm">
-                  <User size={14} className="text-ghost" />
-                  Edit profile
-                </h3>
-                <form onSubmit={handleSave} className="space-y-3">
-                  <Input
-                    label="Full name"
-                    value={form.full_name}
-                    onChange={e => setForm(p => ({ ...p, full_name: e.target.value }))}
-                  />
-                  <div>
-                    <label className="text-xs font-medium text-soft tracking-wide uppercase block mb-1.5">Bio</label>
-                    <textarea
-                      className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 min-h-20 resize-none"
-                      placeholder="Your goals and background…"
-                      value={form.bio}
-                      onChange={e => setForm(p => ({ ...p, bio: e.target.value }))}
-                    />
-                  </div>
-                  {/* Level moved to the learning profile, where it sits beside the
-                      interests and career goal it belongs with. Editing it in two
-                      places would let the two answers drift apart, so there is one:
-                      saving the learning profile keeps this account field in step. */}
-                  <div>
-                    <label className="text-xs font-medium text-soft tracking-wide uppercase block mb-1.5">
-                      {t('plp.linkTitle')}
-                    </label>
-                    <p className="text-xs text-ghost mb-2">{t('plp.linkBody')}</p>
-                    <Link href="/profile/learning" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
-                      {t('plp.open')}
-                    </Link>
-                  </div>
-                  <Input
-                    label="GitHub"
-                    placeholder="https://github.com/…"
-                    value={form.github_url}
-                    onChange={e => setForm(p => ({ ...p, github_url: e.target.value }))}
-                  />
-                  <Input
-                    label="LinkedIn"
-                    placeholder="https://linkedin.com/in/…"
-                    value={form.linkedin_url}
-                    onChange={e => setForm(p => ({ ...p, linkedin_url: e.target.value }))}
-                  />
-                  {formError && (
-                    <div role="alert" className="px-3 py-2 rounded bg-rose/10 border border-rose/20 text-xs text-rose">{formError}</div>
-                  )}
-                  <Button type="submit" loading={saving} variant={saved ? 'ghost' : 'amber'} className="w-full">
-                    {saved ? <><CheckCircle size={13} className="text-emerald" /> Saved</> : <><Save size={13} /> Save changes</>}
-                  </Button>
-                </form>
-              </Card>
-
-              {/* Account info */}
-              <Card className="p-5">
-                <h3 className="font-medium text-bright mb-3 text-sm">Account</h3>
-                <div className="space-y-2 text-sm">
-                  {[
-                    { label: 'Email', value: user.email },
-                    { label: 'Member since', value: new Date(user.created_at).toLocaleDateString() },
-                    { label: 'Role', value: user.role },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                      <span className="text-ghost text-xs">{label}</span>
-                      <span className="text-soft text-xs capitalize">{value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {!user.is_verified && (
-                  <div className="mt-3 pt-3 border-t border-border">
-                    {verificationSent ? (
-                      <p className="text-xs text-emerald flex items-center gap-1.5">
-                        <CheckCircle size={12} /> Verification email sent — check your inbox.
-                      </p>
-                    ) : (
-                      <button
-                        onClick={handleResendVerification}
-                        disabled={resendingVerification}
-                        className="text-xs text-amber-text hover:text-amber-text2 flex min-h-[44px] items-center gap-1.5 disabled:opacity-50 lg:min-h-0"
-                      >
-                        <Mail size={12} /> Email not verified — resend verification link
-                      </button>
-                    )}
-                  </div>
-                )}
-              </Card>
-
-              {/* Danger zone */}
-              <Card className="p-5">
-                <h3 className="font-medium text-bright mb-3 text-sm">Session &amp; account</h3>
-                <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={handleLogoutAll} loading={loggingOutAll}>
-                    <LogOut size={13} /> Log out on all devices
-                  </Button>
-
-                  {!confirmingDelete ? (
-                    <button
-                      onClick={() => setConfirmingDelete(true)}
-                      className="w-full flex min-h-[44px] lg:min-h-0 items-center gap-2 text-xs text-rose hover:text-rose/80 py-2"
-                    >
-                      <Trash2 size={13} /> Delete account
-                    </button>
-                  ) : (
-                    <div className="px-3 py-3 rounded-lg bg-rose/5 border border-rose/20 space-y-2">
-                      <p className="text-xs text-rose leading-relaxed">
-                        This deactivates your account and removes your personal info. This can&apos;t be undone from the app.
-                      </p>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1" onClick={() => setConfirmingDelete(false)}>
-                          Cancel
-                        </Button>
-                        <button
-                          onClick={handleDeleteAccount}
-                          disabled={deleting}
-                          className="flex-1 text-xs font-medium text-on-solid bg-rose hover:bg-rose/90 rounded-lg disabled:opacity-50"
-                        >
-                          {deleting ? 'Deleting…' : 'Confirm delete'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </div>
-
-            {/* ── Right: Engineer Scorecard ── */}
-            <div className="col-span-2 space-y-5">
-
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-amber-text" />
-                  <h3 className="font-display font-bold text-bright">Engineer Scorecard</h3>
-                  <Badge variant="amber">Verified</Badge>
-                </div>
-                <button
-                  onClick={refreshScorecard}
-                  disabled={refreshing}
-                  className="flex min-h-[44px] items-center gap-1.5 text-xs text-ghost hover:text-soft transition-colors lg:min-h-0"
-                >
-                  <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
-                  {sc?.last_computed_at
-                    ? `Updated ${new Date(sc.last_computed_at).toLocaleDateString()}`
-                    : 'Compute'}
-                </button>
-              </div>
-
-              {scorecardLoading ? (
-                <Card className="p-12 flex items-center justify-center">
-                  <Spinner announce className="w-5 h-5" />
-                </Card>
-              ) : !hasActivity ? (
-                <Card className="p-10 text-center">
-                  <Activity size={32} className="text-ghost mx-auto mb-3" />
-                  <p className="text-bright font-medium mb-1">No activity yet</p>
-                  <p className="text-xs text-ghost max-w-xs mx-auto leading-relaxed">
-                    Complete exams, submit projects, and use the AI mentor to build your verified scorecard.
-                  </p>
-                </Card>
-              ) : (
-                <div className="space-y-5">
-
-                  {/* Hire-ready banner */}
-                  {sc?.hire_ready && (
-                    <div className="flex items-center gap-3 px-4 py-3 bg-emerald/5 border border-emerald/20 rounded-lg">
-                      <ShieldCheck size={18} className="text-emerald flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-emerald">Hire-Ready Engineer</p>
-                        <p className="text-xs text-ghost">You meet all benchmarks for a production AI Engineer role.</p>
-                      </div>
-                      <div className={`ml-auto text-3xl font-mono font-bold ${gradeColor(sc.overall_grade)}`}>
-                        {sc.overall_grade}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Certification */}
-                  <div>
-                    <SectionHeader icon={Trophy} label="Certification" color="text-amber-text" />
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <MetricCard
-                        icon={Award}
-                        label="Certs earned"
-                        value={`${sc!.certs_earned}`}
-                        sub="verified badges"
-                        valueClass="text-emerald"
-                        locked={sc!.certs_earned === 0}
-                      />
-                      <MetricCard
-                        icon={Target}
-                        label="Exam pass rate"
-                        value={fmt(sc!.exam_pass_rate, 0, '%')}
-                        sub={`${sc!.exams_attempted} attempted`}
-                        valueClass={sc!.exam_pass_rate && sc!.exam_pass_rate >= 70 ? 'text-emerald' : 'text-amber-text'}
-                        locked={sc!.exams_attempted === 0}
-                      />
-                      <MetricCard
-                        icon={Star}
-                        label="Avg project score"
-                        value={fmt(sc!.avg_project_score, 1, '/100')}
-                        sub={`${sc!.projects_submitted} submitted`}
-                        valueClass={scoreColor(sc!.avg_project_score ?? 0)}
-                        locked={sc!.projects_submitted === 0}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Performance */}
-                  <div>
-                    <SectionHeader icon={Zap} label="Performance" color="text-sky" />
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <MetricCard
-                        icon={Clock}
-                        label="Avg latency"
-                        value={fmtMs(sc!.avg_latency_ms)}
-                        sub="LLM response time"
-                        valueClass={latencyColor(sc!.avg_latency_ms)}
-                        locked={sc!.avg_latency_ms === null}
-                      />
-                      <MetricCard
-                        icon={Activity}
-                        label="P95 latency"
-                        value={fmtMs(sc!.p95_latency_ms)}
-                        sub="95th percentile"
-                        valueClass={latencyColor(sc!.p95_latency_ms)}
-                        locked={sc!.p95_latency_ms === null}
-                      />
-                      <MetricCard
-                        icon={DollarSign}
-                        label="Cost / 1K req"
-                        value={sc!.cost_per_1k_requests !== null ? `$${sc!.cost_per_1k_requests!.toFixed(4)}` : '—'}
-                        sub={`${sc!.total_tokens_used.toLocaleString()} tokens total`}
-                        valueClass="text-sky"
-                        locked={sc!.cost_per_1k_requests === null}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Quality */}
-                  <div>
-                    <SectionHeader icon={ShieldCheck} label="Quality" color="text-emerald" />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <Card className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs text-ghost">Hallucination rate</span>
-                          <AlertTriangle size={13} className="text-ghost" />
-                        </div>
-                        {sc!.hallucination_rate !== null ? (
-                          <>
-                            <div className={`text-xl font-mono font-bold mb-1 ${hallucinationColor(sc!.hallucination_rate)}`}>
-                              {(sc!.hallucination_rate! * 100).toFixed(1)}%
-                            </div>
-                            <ProgressBar
-                              value={100 - sc!.hallucination_rate! * 100}
-                              color={sc!.hallucination_rate! < 0.05 ? 'emerald' : sc!.hallucination_rate! < 0.15 ? 'amber' : 'rose'}
-                            />
-                            <p className="text-xs text-ghost mt-1">
-                              {sc!.hallucination_rate! < 0.05 ? 'Excellent accuracy' : sc!.hallucination_rate! < 0.15 ? 'Acceptable' : 'Needs improvement'}
-                            </p>
-                          </>
-                        ) : (
-                          <div className="flex flex-col items-start gap-1">
-                            <Lock size={14} className="text-ghost" />
-                            <span className="text-xs text-ghost">No data yet</span>
-                          </div>
-                        )}
-                      </Card>
-
-                      <Card className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs text-ghost">Retrieval precision</span>
-                          <Target size={13} className="text-ghost" />
-                        </div>
-                        {sc!.retrieval_precision !== null ? (
-                          <>
-                            <div className={`text-xl font-mono font-bold mb-1 ${scoreColor(sc!.retrieval_precision!)}`}>
-                              {sc!.retrieval_precision!.toFixed(1)}%
-                            </div>
-                            <ProgressBar
-                              value={sc!.retrieval_precision!}
-                              color={sc!.retrieval_precision! >= 75 ? 'emerald' : sc!.retrieval_precision! >= 50 ? 'amber' : 'rose'}
-                            />
-                          </>
-                        ) : (
-                          <div className="flex flex-col items-start gap-1">
-                            <Lock size={14} className="text-ghost" />
-                            <span className="text-xs text-ghost">No data yet</span>
-                          </div>
-                        )}
-                      </Card>
-
-                      <Card className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs text-ghost">Code quality</span>
-                          <Code2 size={13} className="text-ghost" />
-                        </div>
-                        {sc!.code_quality_score !== null ? (
-                          <>
-                            <div className={`text-xl font-mono font-bold mb-1 ${scoreColor(sc!.code_quality_score!)}`}>
-                              {sc!.code_quality_score!.toFixed(1)}<span className="text-xs text-ghost">/100</span>
-                            </div>
-                            <ProgressBar
-                              value={sc!.code_quality_score!}
-                              color={sc!.code_quality_score! >= 75 ? 'emerald' : sc!.code_quality_score! >= 50 ? 'amber' : 'rose'}
-                            />
-                          </>
-                        ) : (
-                          <div className="flex flex-col items-start gap-1">
-                            <Lock size={14} className="text-ghost" />
-                            <span className="text-xs text-ghost">Submit a project first</span>
-                          </div>
-                        )}
-                      </Card>
-
-                      <Card className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs text-ghost">Overall grade</span>
-                          <TrendingUp size={13} className="text-ghost" />
-                        </div>
-                        {sc!.overall_grade ? (
-                          <>
-                            <div className={`text-3xl font-mono font-bold mb-1 ${gradeColor(sc!.overall_grade)}`}>
-                              {sc!.overall_grade}
-                            </div>
-                            <p className="text-xs text-ghost">
-                              {sc!.overall_grade === 'A+' ? 'Exceptional' :
-                               sc!.overall_grade === 'A'  ? 'Excellent' :
-                               sc!.overall_grade === 'B+' ? 'Very good' :
-                               sc!.overall_grade === 'B'  ? 'Good' :
-                               sc!.overall_grade === 'C'  ? 'Developing' : 'Needs work'}
-                            </p>
-                          </>
-                        ) : (
-                          <div className="flex flex-col items-start gap-1">
-                            <Lock size={14} className="text-ghost" />
-                            <span className="text-xs text-ghost">No grade yet</span>
-                          </div>
-                        )}
-                      </Card>
-                    </div>
-                  </div>
-
-                  {/* Activity summary */}
-                  <div>
-                    <SectionHeader icon={BookOpen} label="Activity" color="text-violet" />
-                    <Card className="p-4">
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 divide-x-0 lg:divide-x divide-border">
-                        {[
-                          { icon: Brain,    label: 'Mentor sessions', value: `${sc!.mentor_sessions_count}` },
-                          { icon: BookOpen, label: 'Quizzes passed',  value: `${sc!.quizzes_passed}` },
-                          { icon: Code2,    label: 'Projects done',   value: `${sc!.projects_submitted}` },
-                          { icon: Clock,    label: 'Study time',      value: fmtMinutes(sc!.total_study_minutes) },
-                        ].map(({ icon: Icon, label, value }) => (
-                          <div key={label} className="lg:ps-4 lg:first:ps-0">
-                            <div className="flex items-center gap-1.5 mb-1">
-                              <Icon size={11} className="text-ghost" />
-                              <span className="text-xs text-ghost">{label}</span>
-                            </div>
-                            <span className="text-lg font-mono font-bold text-bright">{value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                  </div>
-
-                </div>
-              )}
-            </div>
-          </div>
+    <form onSubmit={save} className="flex max-w-[760px] flex-col gap-5">
+      <section className={cn(card, 'flex flex-col gap-4 p-[22px]')}>
+        <h2 className="text-[15px] font-semibold text-bright">{t('profile.settings.personal')}</h2>
+        <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
+          <Input label={t('profile.field.name')} dir="auto" value={form.full_name}
+            onChange={e => setForm(p => ({ ...p, full_name: e.target.value }))} />
+          <Input label={t('profile.field.email')} dir="ltr" value={user.email} readOnly />
+          <Input label="GitHub" dir="ltr" placeholder="https://github.com/…" value={form.github_url}
+            onChange={e => setForm(p => ({ ...p, github_url: e.target.value }))} />
+          <Input label="LinkedIn" dir="ltr" placeholder="https://linkedin.com/in/…" value={form.linkedin_url}
+            onChange={e => setForm(p => ({ ...p, linkedin_url: e.target.value }))} />
         </div>
-        <LegalFooter className="w-full max-w-4xl" />
+        <label className="flex flex-col gap-1.5">
+          <span className="text-xs text-dim">{t('profile.field.bio')}</span>
+          <textarea
+            dir="auto"
+            className="min-h-20 w-full resize-none rounded-lg border border-border bg-panel px-3 py-2.5 text-base text-bright placeholder:text-ghost focus:border-amber/50 focus:outline-none md:text-sm"
+            placeholder={t('profile.field.bioPlaceholder')}
+            value={form.bio}
+            onChange={e => setForm(p => ({ ...p, bio: e.target.value }))}
+          />
+        </label>
+        {formError && <div role="alert" className="rounded border border-rose/20 bg-rose/10 px-3 py-2 text-xs text-rose">{formError}</div>}
+      </section>
+
+      <section className={cn(card, 'flex flex-col px-[22px] py-2')} aria-label={t('profile.settings.account')}>
+        <div className={row}>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm text-bright">{user.is_verified ? t('profile.verify.done') : t('profile.verify.pending')}</span>
+            <span className="text-xs text-ghost" dir="ltr">{user.email}</span>
+          </div>
+          {user.is_verified ? (
+            <CheckCircle size={18} className="text-emerald" aria-hidden="true" />
+          ) : verificationSent ? (
+            <span className="text-xs text-emerald">{t('profile.verify.sent')}</span>
+          ) : (
+            <Button type="button" variant="outline" size="sm" loading={resending} onClick={resend}>
+              <Mail size={13} aria-hidden="true" /> {t('profile.verify.resend')}
+            </Button>
+          )}
+        </div>
+        <Link href="/profile/learning" className={cn(row, 'hover:text-bright')}>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm text-bright">{t('profile.learningProfile')}</span>
+            <span className="text-xs text-ghost">{t('profile.learning.hint')}</span>
+          </div>
+          <UserRound size={16} className="text-dim" aria-hidden="true" />
+        </Link>
+        <div className={row}>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm text-bright">{t('profile.logoutAll')}</span>
+            <span className="text-xs text-ghost">{t('profile.logoutAll.hint')}</span>
+          </div>
+          <Button type="button" variant="outline" size="sm" loading={loggingOutAll} onClick={logoutAll}>
+            <LogOut size={13} aria-hidden="true" /> {t('profile.logoutAll')}
+          </Button>
+        </div>
+        <div className={cn(row, 'flex-wrap')}>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm text-rose">{t('profile.delete')}</span>
+            <span className="text-xs text-ghost">{confirmingDelete ? t('profile.delete.confirm') : t('profile.delete.hint')}</span>
+          </div>
+          {confirmingDelete ? (
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setConfirmingDelete(false)}>{t('profile.delete.cancel')}</Button>
+              <button type="button" onClick={deleteAccount} disabled={deleting}
+                className="min-h-9 rounded-lg bg-rose px-3 text-sm font-medium text-on-solid hover:bg-rose/90 disabled:opacity-50">
+                {t('profile.delete')}
+              </button>
+            </div>
+          ) : (
+            <button type="button" onClick={() => setConfirmingDelete(true)}
+              className="flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-sm text-rose hover:bg-rose/10">
+              <Trash2 size={13} aria-hidden="true" /> {t('profile.delete')}
+            </button>
+          )}
+        </div>
+      </section>
+
+      <div className="flex flex-wrap justify-between gap-3">
+        <button type="button" onClick={() => logout()}
+          className="flex h-11 items-center rounded-lg border border-rose/40 px-[18px] text-sm text-rose hover:bg-rose/10">
+          {t('profile.logout')}
+        </button>
+        <Button type="submit" className="h-11 px-[22px]" loading={saving} variant={saved ? 'ghost' : 'amber'}>
+          {saved ? <><CheckCircle size={14} className="text-emerald" aria-hidden="true" /> {t('profile.saved')}</> : <><Save size={14} aria-hidden="true" /> {t('profile.save')}</>}
+        </Button>
       </div>
-    </AppShell>
+    </form>
   )
 }

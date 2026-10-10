@@ -10,6 +10,7 @@ import type { CertificateSummary, User } from '@/types'
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: null, isAuthenticated: true, isLoading: false }),
   useGuest: () => {},
+  useSession: () => ({ user: null, isAuthenticated: true, isLoading: false }), useNextParam: () => null,
 }))
 vi.mock('@/lib/api', () => ({ api: { getMyCertificates: vi.fn(), getWallet: vi.fn(), search: vi.fn() } }))
 // Printing is the browser's; what matters here is that the button asks for it.

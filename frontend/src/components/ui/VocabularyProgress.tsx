@@ -50,7 +50,7 @@ export function VocabularyProgress({
   return (
     <div className={cn('rounded-lg bg-panel border border-border p-4', className)}>
       <div className="flex items-baseline justify-between gap-2 mb-2">
-        <h3 className="text-sm font-medium text-bright">{t('term.glossaryTitle')}</h3>
+        <h3 className="ui-card-title">{t('term.glossaryTitle')}</h3>
         <span className="text-xs font-mono text-amber-text">{pct}%</span>
       </div>
 

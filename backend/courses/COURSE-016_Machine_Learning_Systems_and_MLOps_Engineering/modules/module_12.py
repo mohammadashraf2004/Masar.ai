@@ -1190,17 +1190,17 @@ TOPIC = {
             "placement": "after_section",
             "description": "Separate CI/CD responsibilities into clear, debuggable steps.",
             "instructions": (
-                "Design a pipeline that starts with source code and a registered model and ends with a published image.\n\n"
-                "Include steps for:\n"
-                "- source checkout,\n"
-                "- cloud/model-registry authentication,\n"
-                "- model retrieval,\n"
-                "- container build,\n"
-                "- functional tests,\n"
-                "- linting,\n"
-                "- registry authentication,\n"
-                "- publishing.\n\n"
-                "Then explain which parts fit a generic CI/CD tool and which might benefit from an ML-specific pipeline service."
+                ('1. Design a pipeline that starts with source code and a registered model and ends with a published image.\n'
+                 '2. Include steps for:\n'
+                 '   - source checkout,\n'
+                 '   - cloud/model-registry authentication,\n'
+                 '   - model retrieval,\n'
+                 '   - container build,\n'
+                 '   - functional tests,\n'
+                 '   - linting,\n'
+                 '   - registry authentication,\n'
+                 '   - publishing.\n'
+                 '3. Then explain which parts fit a generic CI/CD tool and which might benefit from an ML-specific pipeline service.')
             ),
             "expected_output": "A step-by-step pipeline with small failure domains and tool-selection reasoning.",
             "difficulty": DifficultyLevel.intermediate,
@@ -1299,15 +1299,14 @@ TOPIC = {
             "placement": "after_section",
             "description": "Prioritize automation by recurring friction and failure risk.",
             "instructions": (
-                "A team currently does the following manually:\n"
-                "- copies model files into Docker build folders,\n"
-                "- runs one curl request by hand,\n"
-                "- emails another team for release approval,\n"
-                "- recreates the same features in three projects,\n"
-                "- manually tries ten model configurations,\n"
-                "- creates explainability plots only after incidents.\n\n"
-                "Prioritize these six problems from first to last for automation. "
-                "There is no single correct ordering, but every choice must be justified using failure risk, repetition, debugging cost, and production value."
+                ('1. A team currently does the following manually:\n'
+                 '   - copies model files into Docker build folders,\n'
+                 '   - runs one curl request by hand,\n'
+                 '   - emails another team for release approval,\n'
+                 '   - recreates the same features in three projects,\n'
+                 '   - manually tries ten model configurations,\n'
+                 '   - creates explainability plots only after incidents.\n'
+                 '2. Prioritize these six problems from first to last for automation. There is no single correct ordering, but every choice must be justified using failure risk, repetition, debugging cost, and production value.')
             ),
             "expected_output": "A prioritized continuous-improvement backlog with explicit reasoning.",
             "difficulty": DifficultyLevel.intermediate,

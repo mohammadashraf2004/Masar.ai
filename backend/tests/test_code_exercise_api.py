@@ -180,16 +180,70 @@ def test_code_exercise_cannot_fall_back_to_ai_or_client_completion(client, db, c
 
 def test_show_solution_is_explicit_and_never_completes(client, db, code_exercise):
     user_id, headers = _register(client)
-    response = client.post(
-        f"/api/v1/practice/exercises/{code_exercise.id}/solution", headers=headers,
-    )
+    base = f"/api/v1/practice/exercises/{code_exercise.id}"
+
+    def submit(code):
+        response = client.post(f"{base}/submit", headers=headers, json={"code": code})
+        assert response.status_code == 200 and response.json()["passed"] is False
+        return response.json()["attempt"]
+
+    locked = client.post(f"{base}/solution", headers=headers)
+    assert locked.status_code == 403
+    assert locked.json()["detail"] == {"code": "SOLUTION_LOCKED", "checks_until_solution": 3}
+
+    # Neither the untouched starter nor the same program checked again is a new attempt.
+    assert submit(code_exercise.starter_code)["failed_checks"] == 0
+    assert submit("value = 3.14159\nresult = 3")["failed_checks"] == 1
+    assert submit("value = 3.14159\nresult = 3\n")["checks_until_solution"] == 2
+    assert submit("value = 3.14159\nresult = round(value)")["checks_until_solution"] == 1
+    assert client.post(f"{base}/solution", headers=headers).status_code == 403
+    third = submit("value = 3.14159\nresult = round(value, 3)")
+    assert third["solution_available"] is True and third["failed_checks"] == 3
+
+    # A reload asks the server, which remembers.
+    state = client.get(f"{base}/progress", headers=headers).json()
+    assert state == {
+        "failed_checks": 3, "passed": False, "completed_independently": False,
+        "solution_viewed": False, "solution_available": True, "checks_until_solution": 0,
+    }
+
+    response = client.post(f"{base}/solution", headers=headers)
     assert response.status_code == 200
     assert response.json()["solution_code"] == code_exercise.solution_code
-    attempt = db.query(CodeExerciseAttempt).filter_by(user_id=user_id, exercise_id=code_exercise.id).one()
-    assert attempt.action == "solution"
+    attempt = db.query(CodeExerciseAttempt).filter_by(
+        user_id=user_id, exercise_id=code_exercise.id, action="solution",
+    ).one()
     assert attempt.status == "solution_viewed"
     assert attempt.passed is False
+    # Viewing the solution completes nothing.
     assert db.query(UserProgress).filter(UserProgress.user_id == user_id).first() is None
+
+    # Passing after viewing it completes the exercise, but not independently.
+    passed = client.post(f"{base}/submit", headers=headers, json={"code": "value = 3.14159\nresult = round(value, 2)"})
+    assert passed.json()["passed"] is True
+    assert passed.json()["attempt"]["completed_independently"] is False
+    assert client.get(f"{base}/progress", headers=headers).json()["solution_viewed"] is True
+
+
+def test_passing_first_unlocks_the_solution_and_counts_as_independent(client, db, code_exercise):
+    _, headers = _register(client)
+    base = f"/api/v1/practice/exercises/{code_exercise.id}"
+    passed = client.post(f"{base}/submit", headers=headers, json={"code": "value = 3.14159\nresult = round(value, 2)"})
+    assert passed.json()["attempt"] == {
+        "failed_checks": 0, "passed": True, "completed_independently": True,
+        "solution_viewed": False, "solution_available": True, "checks_until_solution": 0,
+    }
+    assert client.post(f"{base}/solution", headers=headers).status_code == 200
+
+
+def test_attempt_state_is_private_to_each_learner(client, db, code_exercise):
+    _, first = _register(client)
+    _, second = _register(client)
+    base = f"/api/v1/practice/exercises/{code_exercise.id}"
+    client.post(f"{base}/submit", headers=first, json={"code": "value = 3.14159\nresult = round(value, 2)"})
+    assert client.get(f"{base}/progress", headers=second).json()["solution_available"] is False
+    assert client.post(f"{base}/solution", headers=second).status_code == 403
+    assert client.get(f"{base}/progress").status_code in (401, 403)
 
 
 def test_classified_pending_code_can_run_but_cannot_receive_fake_marks(client, db, code_exercise):
@@ -235,7 +289,13 @@ def test_pending_shell_exercise_uses_the_editor_without_claiming_execution(clien
 
     assert response.status_code == 200
     assert response.json()["status"] == "success"
-    assert "Runtime execution is not available" in response.json()["stdout"]
+    assert "checked by reading it, not by running it" in response.json()["stdout"]
+
+    arabic = client.post(
+        f"/api/v1/practice/exercises/{code_exercise.id}/run",
+        headers=headers, json={"code": "git status", "language": "ar"},
+    )
+    assert "بقراءته لا بتشغيله" in arabic.json()["stdout"]
 
 
 def test_sql_run_and_submit_are_isolated_deterministic_and_track_progress(client, db, sql_exercise):
@@ -274,3 +334,52 @@ def test_sql_run_and_submit_are_isolated_deterministic_and_track_progress(client
     db.expire_all()
     progress = db.query(UserProgress).filter(UserProgress.user_id == user_id).one()
     assert sql_exercise.id in progress.exercises_completed
+
+
+# ─── Sandbox: learner Python never runs outside the execution service ──────
+
+@pytest.fixture()
+def execution_disabled(monkeypatch):
+    """The production fail-closed switch (PROJECT_LAB_EXECUTION_BACKEND=disabled),
+    with every in-process path booby-trapped so a fallback would be caught."""
+    from app.services.code_execution.python_runner import LocalPythonRunner
+    from app.services.project_lab import execution
+
+    async def must_not_run(*args, **kwargs):
+        raise AssertionError("learner code must not run outside the execution service")
+
+    monkeypatch.setattr(execution, "_service", execution.ProjectExecutionService(execution.DisabledBackend()))
+    monkeypatch.setattr(LocalPythonRunner, "run", must_not_run)
+    monkeypatch.setattr(execution.LocalSubprocessBackend, "execute", must_not_run)
+
+
+def test_disabled_execution_fails_closed_for_run_and_check(client, db, code_exercise, execution_disabled):
+    user_id, headers = _register(client)
+    base = f"/api/v1/practice/exercises/{code_exercise.id}"
+    solution = "value = 3.14159\nresult = round(value, 2)"
+
+    run = client.post(f"{base}/run", headers=headers, json={"code": solution})
+    assert run.status_code == 200 and run.json()["status"] == "execution_error"
+
+    submit = client.post(f"{base}/submit", headers=headers, json={"code": solution})
+    assert submit.status_code == 200
+    assert submit.json()["passed"] is False and submit.json()["status"] == "execution_error"
+    assert "not available" in submit.json()["feedback"]["message"]
+    # An outage is not a wrong answer: it never counts toward the solution.
+    for code in ("result = 1", "result = 2", "result = 3"):
+        client.post(f"{base}/submit", headers=headers, json={"code": f"value = 3.14159\n{code}"})
+    state = client.get(f"{base}/progress", headers=headers).json()
+    assert (state["failed_checks"], state["solution_available"]) == (0, False)
+    assert db.query(UserProgress).filter(UserProgress.user_id == user_id).first() is None
+
+
+def test_production_never_selects_the_in_process_backend(monkeypatch):
+    from app.core.config import settings
+    from app.services.project_lab import execution
+
+    monkeypatch.setattr(type(settings), "is_production", property(lambda self: True))
+    monkeypatch.setattr(settings, "PROJECT_LAB_EXECUTION_BACKEND", "")
+    assert settings.project_lab_backend == "disabled"
+    assert isinstance(execution.build_backend(), execution.DisabledBackend)
+    monkeypatch.setattr(settings, "PROJECT_LAB_EXECUTION_BACKEND", "local")
+    assert isinstance(execution.build_backend(), execution.DisabledBackend)

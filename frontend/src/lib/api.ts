@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError } from 'axios'
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios'
 import type {
   TokenResponse, User,
   CareerTrack, CareerTrackSummary, Enrollment,
@@ -21,9 +21,29 @@ import type {
   AssessmentResult, Recommendations, TrackDetail, SkillLevels,
 } from '@/types'
 import { useAuthStore } from '@/lib/store'
+import { authHref, currentPath } from '@/lib/authRedirect'
 import { useLanguageStore } from '@/lib/language'
 import type { BillingCycle, CreditPack, Offer, PlanId, RefundPolicySummary, RefundStatus, SubscriptionOrder } from '@/lib/billing/types'
 import { mentorV2EndpointLive, mentorV2Live } from '@/features/mentor/flag'
+
+export interface AiAllowance {
+  limit: number
+  window_seconds: number
+  used: number
+  remaining: number
+  /** When the next credit leaves the rolling window; null while credits remain. */
+  next_credit_available_at: string | null
+}
+
+export interface AiAllowanceResponse {
+  plan: PlanId
+  ai_allowance: AiAllowance | null
+  all_courses_access: boolean
+  /** Where AI actions are paid from now: the included allowance (paid Pro) or the wallet
+   *  (Free, and the trial until its first payment). */
+  ai_billing: 'allowance' | 'wallet'
+  trial: boolean
+}
 
 export interface BillingCatalogApi {
   currency: string
@@ -45,6 +65,10 @@ export interface BillingCatalogApi {
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+/** Longer than the API worker's 60 s limit (gunicorn --timeout 60), so the browser never gives up on a send the server is still answering. */
+export const MENTOR_MESSAGE_TIMEOUT_MS = 65_000
+/** How long a paid AI request keeps asking about the same request id while its first attempt runs. */
+export const AI_REQUEST_PATIENCE_MS = 70_000
 
 /** A walkthrough record as the wire has it (docs/backend-requests.md §6); the tours feature
  *  translates this into its own local shape (frontend/src/features/tours/sync.ts). */
@@ -87,6 +111,9 @@ export function resolveAssetUrl(url: string): string {
  * function runs, long after both modules have finished evaluating, never
  * at import time.
  */
+/** A request config that knows whether it went out under a session. */
+type SessionConfig = InternalAxiosRequestConfig & { _hadSession?: boolean }
+
 function clearDeadSession() {
   if (typeof window === 'undefined') return
   try {
@@ -102,6 +129,29 @@ function clearDeadSession() {
 
 class ApiClient {
   private http: AxiosInstance
+
+  /**
+   * POST a paid AI request that carries a client request id. The server charges and answers each
+   * id once (backend app/services/mentor/idempotency.py). While the first attempt of an id is still
+   * running - a retry after a timeout or a dropped connection - it answers 409
+   * `request_in_progress`; this waits the time it asks for and asks again with the same id, never
+   * a second charge, until the stored answer comes back or AI_REQUEST_PATIENCE_MS runs out.
+   */
+  private async postAiOnce<T>(url: string, body: unknown, config?: AxiosRequestConfig): Promise<T> {
+    const started = Date.now()
+    for (;;) {
+      try {
+        return (await this.http.post<T>(url, body, config)).data
+      } catch (error) {
+        const resp = (error as { response?: { status?: number; data?: { detail?: { error?: unknown; retry_after?: unknown } } } }).response
+        const detail = resp?.data?.detail
+        if (resp?.status !== 409 || typeof detail !== 'object' || detail === null || detail.error !== 'request_in_progress') throw error
+        const wait = Math.min(10, Math.max(1, Number(detail.retry_after) || 3)) * 1000
+        if (Date.now() - started + wait > AI_REQUEST_PATIENCE_MS) throw error
+        await new Promise((resolve) => setTimeout(resolve, wait))
+      }
+    }
+  }
 
   constructor() {
     this.http = axios.create({
@@ -120,6 +170,9 @@ class ApiClient {
             const parsed = JSON.parse(raw)
             const token = parsed?.state?.token
             const expiresAt = parsed?.state?.expiresAt
+            // Remembered for the 401 handler: only a request made under a
+            // session can mean "your session ended".
+            if (token) (config as SessionConfig)._hadSession = true
             if (expiresAt && Date.now() >= expiresAt) {
               // Clears the store as well as storage, so the UI drops to
               // its logged-out state now rather than after the 401 comes
@@ -142,7 +195,13 @@ class ApiClient {
     this.http.interceptors.response.use(
       (r) => r,
       (error: AxiosError) => {
-        if (error.response?.status === 401 && typeof window !== 'undefined') {
+        // A 401 for a visitor who never signed in is just "this needs an
+        // account": the public pages they browse skip those calls, and the
+        // page that made one handles the refusal (or its guard sends them to
+        // sign in). Bouncing them to the login page from a catalogue page would
+        // make browsing without an account impossible.
+        const hadSession = !!(error.config as SessionConfig | undefined)?._hadSession
+        if (error.response?.status === 401 && typeof window !== 'undefined' && hadSession) {
           clearDeadSession()
           // Already on an auth screen: clearing is enough, and navigating
           // to the login page from the login page is how a redirect loop
@@ -150,9 +209,9 @@ class ApiClient {
           if (!window.location.pathname.startsWith('/auth/')) {
             // A full navigation on purpose: this runs outside React (no router
             // to call) and the reload is what drops every piece of in-memory
-            // session state along with the dead token.
-            // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-            window.location.href = '/auth/login'
+            // session state along with the dead token. `next` brings them back
+            // here after signing in again.
+            window.location.href = authHref('login', currentPath())
           }
         }
         return Promise.reject(error)
@@ -413,11 +472,12 @@ class ApiClient {
     return res.data
   }
 
-  async reviewCode(code: string, language: string, context?: string, uiLanguage?: 'ar' | 'en', exerciseId?: string) {
-    const res = await this.http.post<CodeReviewResult>('/mentor/code-review', {
+  /** `requestId` names this review: a retry of it with the same id is answered and charged once. */
+  async reviewCode(code: string, language: string, context?: string, uiLanguage?: 'ar' | 'en', exerciseId?: string, requestId?: string) {
+    return this.postAiOnce<CodeReviewResult>('/mentor/code-review', {
       code, language, context, ui_language: uiLanguage, exercise_id: exerciseId ? Number(exerciseId) : undefined,
+      ...(requestId ? { request_id: requestId } : {}),
     })
-    return res.data
   }
 
   async analyzeSkillGap(data: { target_role: string; current_skills: string[]; cv_text?: string; github_url?: string }) {
@@ -425,12 +485,15 @@ class ApiClient {
     return res.data
   }
 
-  /** `language` is the interview's language; the server adds what the learner has studied itself. */
-  async getMockInterviewQuestion(topic: string, difficulty: string, previousQa: Array<{ question: string; answer: string }> = [], language?: 'ar' | 'en') {
-    const res = await this.http.post<InterviewQuestion>('/mentor/mock-interview', {
-      topic, difficulty, previous_qa: previousQa, ...(language ? { language } : {}),
+  /**
+   * `language` is the interview's language; the server adds what the learner has studied itself.
+   * `requestId` names the interview turn: asking again for the same turn returns the same question
+   * and is charged once.
+   */
+  async getMockInterviewQuestion(topic: string, difficulty: string, previousQa: Array<{ question: string; answer: string }> = [], language?: 'ar' | 'en', requestId?: string) {
+    return this.postAiOnce<InterviewQuestion>('/mentor/mock-interview', {
+      topic, difficulty, previous_qa: previousQa, ...(language ? { language } : {}), ...(requestId ? { request_id: requestId } : {}),
     })
-    return res.data
   }
 
   async getRoadmap(track?: string, language?: 'ar' | 'en') {
@@ -489,6 +552,14 @@ class ApiClient {
   return res.data
   }
 
+  /** Days are bucketed in the browser's own timezone. */
+  async getProfileActivity(days = 84) {
+    const res = await this.http.get<import('@/types').ProfileActivity>('/profile/activity', {
+      params: { days, tz_offset_minutes: new Date().getTimezoneOffset() },
+    })
+    return res.data
+  }
+
   // ─── Wallet ───────────────────────────────────────────────────────────
 
   async getWallet() {
@@ -516,10 +587,10 @@ class ApiClient {
     return res.data
   }
 
-  /** Starts a real Paymob checkout for a wallet top-up. Returns a
-   * checkout_url to redirect the browser to (card iframe or wallet OTP
-   * redirect) — credits are released by the server-side webhook once
-   * Paymob confirms payment, not by this call. */
+  /** Starts a Kashier checkout for a wallet top-up. Returns a checkout_url
+   * (Kashier's hosted page, which offers card and mobile wallet) to redirect
+   * the browser to — credits are released by the server-side webhook once
+   * Kashier confirms payment, not by this call. */
   async initWalletTopUp(data: { package_id: number; method: 'card' | 'wallet'; phone_number?: string }) {
     const res = await this.http.post('/payments/wallet/topup/init', data)
     return res.data as { checkout_url: string; merchant_order_id: string }
@@ -529,6 +600,12 @@ class ApiClient {
 
   async getChallenges() {
     const res = await this.http.get('/challenges/')
+    return res.data
+  }
+
+  /** The public challenge catalogue: the cards only, for anyone signed in or not. */
+  async getPublicChallenges() {
+    const res = await this.http.get('/challenges/catalog')
     return res.data
   }
 
@@ -582,7 +659,7 @@ class ApiClient {
     return res.data
   }
 
-  /** Starts a real Paymob checkout for an exam fee. See initWalletTopUp
+  /** Starts a Kashier checkout for an exam fee. See initWalletTopUp
    * for the confirmation model — the webhook is authoritative, not this
    * call's response. */
   async initExamPayment(data: { exam_id: number; method: 'card' | 'wallet'; phone_number?: string }) {
@@ -590,7 +667,7 @@ class ApiClient {
     return res.data as { checkout_url: string; merchant_order_id: string }
   }
 
-  /** Polled by the /payments/result page after a Paymob checkout redirect
+  /** Polled by the /payments/result page after a checkout redirect
    * — only ever reflects what the server-side webhook has confirmed. */
   async getPaymentStatus(merchantOrderId: string) {
     const res = await this.http.get(`/payments/status/${merchantOrderId}`)
@@ -964,6 +1041,13 @@ class ApiClient {
     return res.data
   }
 
+  /** The plan, Pro's included AI allowance (null on Free) and whether every course is open -
+   *  all computed by the server from subscription and usage records. */
+  async getAiAllowance() {
+    const res = await this.http.get<AiAllowanceResponse>('/billing/ai-allowance')
+    return res.data
+  }
+
   async adminSubscriptionOrders(params: {
     reference_number?: string
     provider_transaction_id?: string
@@ -1074,20 +1158,31 @@ class ApiClient {
     },
     language: 'ar' | 'en',
   ) {
-    const res = await this.http.post<import('@/features/mentor/types').MentorMessageV2 & { sessionId: number }>(
-      '/mentor/message', { ...body, language },
+    // One send can take the server up to its 60 s worker limit (intent call, reply, one corrected
+    // retry). Giving up at the default 30 s let the learner press "retry" while the first send was
+    // still running, so the server's same-request-id replay found nothing and both were charged.
+    // A retry that does arrive while the first is running is told so (409) and waits for it.
+    return this.postAiOnce<import('@/features/mentor/types').MentorMessageV2 & { sessionId: number }>(
+      '/mentor/message', { ...body, language }, { timeout: MENTOR_MESSAGE_TIMEOUT_MS },
     )
-    return res.data
   }
 
   async getMentorV2Context(
-    params: { lessonId?: string; exerciseId?: string },
+    params: { lessonId?: string; exerciseId?: string; courseId?: string },
     language: 'ar' | 'en',
   ) {
     const res = await this.http.get<import('@/features/mentor/types').MentorContextSelection>(
       '/mentor/context', { params: { ...params, language } },
     )
     return res.data
+  }
+
+  /** The courses the learner is enrolled in: what the hub's course picker offers. Free. */
+  async getMentorCourses(language: 'ar' | 'en') {
+    const res = await this.http.get<{ courses: import('@/features/mentor/types').MentorCourseOption[] }>(
+      '/mentor/courses', { params: { language } },
+    )
+    return res.data.courses
   }
 
   /** The question a quiz block shows, in `language`. The same question: no cost, nothing recorded. */
@@ -1106,11 +1201,11 @@ class ApiClient {
     return res.data
   }
 
-  /** The conversation the server is continuing for this lesson (or general): what it sends the
-   *  model as history, so a new device shows the same thread. Free. */
-  async getMentorThread(lessonId: string | undefined) {
+  /** The conversation the server is continuing for this lesson, chosen course, or general: what it
+   *  sends the model as history, so a new device shows the same thread. Free. */
+  async getMentorThread(lessonId: string | undefined, courseId?: string) {
     const res = await this.http.get<{ messages: import('@/features/mentor/types').MentorMessageV2[] }>(
-      '/mentor/thread', { params: lessonId ? { lessonId } : {} },
+      '/mentor/thread', { params: lessonId ? { lessonId } : courseId ? { courseId } : {} },
     )
     return res.data.messages
   }
@@ -1158,6 +1253,11 @@ class ApiClient {
   async revealCodeExerciseSolution(id: string | number) {
     const res = await this.http.post<{ solution_code: string }>(`/practice/exercises/${id}/solution`)
     return res.data.solution_code
+  }
+
+  async getCodeExerciseAttemptState(id: string | number) {
+    const res = await this.http.get<import('@/types').ExerciseAttemptState>(`/practice/exercises/${id}/progress`)
+    return res.data
   }
   // [/mentor-v2]
 
@@ -1291,6 +1391,12 @@ export async function submitExercise(
 export async function showExerciseSolution(id: string | number): Promise<string> {
   return api.revealCodeExerciseSolution(id)
 }
+
+/** Attempts and solution access as the server records them, so a reload or a
+ *  new device offers the same options. */
+export async function getExerciseAttemptState(id: string | number): Promise<import('@/types').ExerciseAttemptState> {
+  return api.getCodeExerciseAttemptState(id)
+}
 // [/code-cell]
 
 // [screens]
@@ -1362,8 +1468,8 @@ export const mentorV2 = {
     if (mentorV2EndpointLive('quiz')) return api.answerMentorV2Quiz(body, lang)
     return (await mentorMock()).mockAnswerQuiz(body, lang)
   },
-  async review(body: { exerciseId?: string; code?: string; lang: string }, lang: MentorV2Lang) {
-    const result = await api.reviewCode(body.code ?? '', body.lang, undefined, lang, body.exerciseId)
+  async review(body: { exerciseId?: string; code?: string; lang: string; requestId?: string }, lang: MentorV2Lang) {
+    const result = await api.reviewCode(body.code ?? '', body.lang, undefined, lang, body.exerciseId, body.requestId)
     return {
       executed: false as const,
       summary: result.summary,

@@ -86,7 +86,7 @@ function GapGroups({ groups, count }: { groups: SkillGapGroup[]; count: number }
         <div id={listId} className="mt-2 space-y-5">
           {groups.map((group) => (
             <section key={group.key} aria-labelledby={`gap-group-${group.key}`}>
-              <h3 id={`gap-group-${group.key}`} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 text-xs font-medium uppercase tracking-widest text-soft">
+              <h3 id={`gap-group-${group.key}`} className="ui-eyebrow flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
                 <span><GroupHeading group={group} /></span>
                 <span className="font-normal normal-case tracking-normal">
                   {tf('gap.groupProgress', { known: group.known_count, total: group.total })}
@@ -171,7 +171,7 @@ export function SkillGapsPanel({ variant = 'roadmap', reloadKey = 0, className }
         {summaryBlock}
         {shown.length > 0 && (
           <section aria-labelledby="gap-working-toward" className="mt-4">
-            <h3 id="gap-working-toward" className="mb-1 text-xs font-medium uppercase tracking-widest text-soft">
+            <h3 id="gap-working-toward" className="ui-eyebrow mb-1">
               {t('gap.workingToward')}
             </h3>
             <ul className="divide-y divide-border/60">
@@ -193,7 +193,7 @@ export function SkillGapsPanel({ variant = 'roadmap', reloadKey = 0, className }
   return (
     <Card className={className ?? 'p-5 sm:p-6'}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4">
-        <h2 className="text-sm font-semibold text-bright">{t('gap.title')}</h2>
+        <h2 className="ui-card-title">{t('gap.title')}</h2>
         <Link href="/profile/learning" className="-my-3 inline-flex min-h-[44px] items-center text-xs font-medium text-amber-text hover:text-amber-text2 lg:my-0 lg:min-h-0">
           {t('mys.edit')}
         </Link>

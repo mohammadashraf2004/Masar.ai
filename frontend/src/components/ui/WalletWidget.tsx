@@ -71,8 +71,7 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
   const [done, setDone]             = useState(false)
   const [error, setError]           = useState('')
   const [showManual, setShowManual] = useState(false)
-  const [payingVia, setPayingVia]   = useState<'card' | 'wallet' | null>(null)
-  const [walletPhone, setWalletPhone] = useState('')
+  const [payingVia, setPayingVia]   = useState<'card' | null>(null)
 
   useEffect(() => {
     api.getWalletPackages().then(pkgs => {
@@ -99,20 +98,13 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
     setSubmitting(false)
   }
 
-  const handlePayNow = async (via: 'card' | 'wallet') => {
+  // Kashier's hosted page offers card and mobile wallet itself, so one button opens it.
+  const handlePayNow = async () => {
     if (!selected) { setError('Please select a package first.'); return }
-    if (via === 'wallet' && !walletPhone.trim()) {
-      setError('Please enter the mobile number to charge.')
-      return
-    }
-    setPayingVia(via)
+    setPayingVia('card')
     setError('')
     try {
-      const { checkout_url } = await api.initWalletTopUp({
-        package_id: selected.id,
-        method: via,
-        phone_number: via === 'wallet' ? walletPhone.trim() : undefined,
-      })
+      const { checkout_url } = await api.initWalletTopUp({ package_id: selected.id, method: 'card' })
       window.location.href = checkout_url
     } catch (e: any) {
       setError(e?.response?.data?.detail ?? 'Could not start checkout. Please try again.')
@@ -201,32 +193,17 @@ function TopUpModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
                   </div>
                 )}
 
-                {/* Pay now — real Paymob checkout, instant confirmation */}
+                {/* Pay now — Kashier hosted checkout, confirmed by the server */}
                 <div className="space-y-2">
                   <button
-                    onClick={() => handlePayNow('card')}
+                    onClick={() => handlePayNow()}
                     disabled={!selected || !!payingVia}
                     className="w-full py-3 rounded-lg btn-amber text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    {payingVia === 'card' ? <Spinner className="w-4 h-4" /> : <>💳 Pay by Card</>}
+                    {payingVia ? <Spinner className="w-4 h-4" /> : <>💳 Pay securely · card or mobile wallet</>}
                   </button>
-                  <div className="flex gap-2">
-                    <input
-                      className="flex-1 bg-surface border border-border rounded-lg px-3 py-2.5 text-base md:text-sm text-bright placeholder:text-ghost focus:outline-none focus:border-amber/50 font-mono"
-                      placeholder="01XXXXXXXXX"
-                      value={walletPhone}
-                      onChange={e => setWalletPhone(e.target.value)}
-                    />
-                    <button
-                      onClick={() => handlePayNow('wallet')}
-                      disabled={!selected || !!payingVia}
-                      className="px-4 py-2.5 rounded-lg border border-border text-xs font-medium text-soft hover:border-amber/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
-                    >
-                      {payingVia === 'wallet' ? <Spinner className="w-4 h-4" /> : <>📱 Pay by Wallet</>}
-                    </button>
-                  </div>
                   <p className="text-xs text-ghost text-center">
-                    Secure checkout via Paymob · credits added automatically once paid
+                    Secure checkout via Kashier · credits added automatically once paid
                   </p>
                 </div>
 

@@ -1868,17 +1868,16 @@ Before continuing, make sure you can answer:
             ),
 
             "instructions": (
-                "You are building a chatbot whose request contains:\n"
-                "- the newest user message,\n"
-                "- conversation ID,\n"
-                "- several generation options,\n"
-                "- optional retrieved context.\n\n"
-                "Compare these designs:\n"
-                "A. GET SSE with EventSource.\n"
-                "B. POST endpoint whose streamed response is read through `fetch`.\n"
-                "C. POST data first, store it server-side, then open GET SSE using an ID.\n\n"
-                "For each design, list one strength and one weakness, then select one "
-                "for this scenario and explain your reasoning."
+                ('1. You are building a chatbot whose request contains:\n'
+                 '   - the newest user message,\n'
+                 '   - conversation ID,\n'
+                 '   - several generation options,\n'
+                 '   - optional retrieved context.\n'
+                 '2. Compare these designs:\n'
+                 '   - A. GET SSE with EventSource.\n'
+                 '   - B. POST endpoint whose streamed response is read through `fetch`.\n'
+                 '   - C. POST data first, store it server-side, then open GET SSE using an ID.\n'
+                 '3. For each design, list one strength and one weakness, then select one for this scenario and explain your reasoning.')
             ),
 
             "expected_output": (

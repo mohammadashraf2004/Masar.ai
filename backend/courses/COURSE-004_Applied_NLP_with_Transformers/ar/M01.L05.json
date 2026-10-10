@@ -12,7 +12,7 @@
     {
       "id": "COURSE-004.M01.L05.EX02",
       "title": "تتبّع teacher forcing",
-      "description": "تدرّب على تحضير مُدخَلات decoder والأهداف لتدريب seq2seq.\n\n**المخرَج المتوقع**\n\nجدول خطوات يعرض مُدخَلات decoder المزاحة وأهداف الـ token التالي، مع شرح لـ teacher forcing وcausal masking وتسميات padding المتجاهَلة."
+      "description": "تدرّب على تحضير مُدخَلات decoder والأهداف لتدريب seq2seq.\n\n**التعليمات**\n\n1. استخدم الملخص المستهدف 'Alice called Bob today'.\n2. اكتب مدخل الـ decoder في كل خطوة تدريب، بدءًا بـ token البداية.\n3. اكتب الـ token المستهدف التالي المتوقع في كل خطوة.\n4. اشرح لماذا يُزاح الهدف الذهبي (gold target) بموضع واحد.\n5. اشرح لماذا يجب أن تبقى الـ tokens المستهدفة المستقبلية مخفية.\n6. حدّد ما الذي يجب أن يحدث لتسميات الحشو (padding) عند حساب الخسارة.\n\n**المخرَج المتوقع**\n\nجدول خطوات يعرض مُدخَلات decoder المزاحة وأهداف الـ token التالي، مع شرح لـ teacher forcing وcausal masking وتسميات padding المتجاهَلة."
     }
   ],
   "questions": [

@@ -2337,13 +2337,12 @@ together.**
                 "Select appropriate objectives and efficiency methods for different tasks."
             ),
             "instructions": (
-                "For each case, choose SFT, DPO/MPO-style preference training, RLVR/GRPO-style "
-                "training, LoRA/DoRA, QLoRA, or a combination:\n"
-                "A. 20K image-question-answer examples, 16 GB GPU.\n"
-                "B. Human-ranked pairs of two multimodal responses.\n"
-                "C. Geometry problems where answers can be automatically checked.\n"
-                "D. A large model that already performs well but needs a tiny domain adapter.\n"
-                "Explain both the objective and efficiency method separately."
+                ('1. For each case, choose SFT, DPO/MPO-style preference training, RLVR/GRPO-style training, LoRA/DoRA, QLoRA, or a combination:\n'
+                 '   - A. 20K image-question-answer examples, 16 GB GPU.\n'
+                 '   - B. Human-ranked pairs of two multimodal responses.\n'
+                 '   - C. Geometry problems where answers can be automatically checked.\n'
+                 '   - D. A large model that already performs well but needs a tiny domain adapter.\n'
+                 '2. Explain both the objective and efficiency method separately.')
             ),
             "expected_output": (
                 "A four-row table with task, training objective, efficiency method, and "
@@ -2368,17 +2367,17 @@ together.**
                 "Create a preflight checklist for a multimodal post-training experiment."
             ),
             "instructions": (
-                "Write a checklist covering:\n"
-                "- one rendered training example,\n"
-                "- image mode/shape,\n"
-                "- loss mask,\n"
-                "- trainable parameter count,\n"
-                "- quantization configuration,\n"
-                "- train/eval split,\n"
-                "- preference-data correctness if used,\n"
-                "- baseline comparison,\n"
-                "- regression evaluation.\n"
-                "For each check, explain what failure it can catch."
+                ('1. Write a checklist covering:\n'
+                 '   - one rendered training example,\n'
+                 '   - image mode/shape,\n'
+                 '   - loss mask,\n'
+                 '   - trainable parameter count,\n'
+                 '   - quantization configuration,\n'
+                 '   - train/eval split,\n'
+                 '   - preference-data correctness if used,\n'
+                 '   - baseline comparison,\n'
+                 '   - regression evaluation.\n'
+                 '2. For each check, explain what failure it can catch.')
             ),
             "expected_output": (
                 "A preflight table containing check, expected condition, and failure prevented."

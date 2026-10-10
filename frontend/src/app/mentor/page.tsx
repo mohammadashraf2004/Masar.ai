@@ -1,5 +1,5 @@
 'use client'
-import { Suspense, useMemo } from 'react'
+import { Suspense, useMemo, type CSSProperties } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -8,11 +8,12 @@ import { ChatCard } from '@/components/mentor/ChatCard'
 import { ChatSide } from '@/components/mentor/ChatSide'
 import { Spinner } from '@/components/ui/index'
 import { useAuth } from '@/hooks/useAuth'
+import { useFillHeight } from '@/hooks/useFillHeight'
 import { useMentorChat } from '@/hooks/useMentorChat'
 // [mentor-v2]
 import { InterviewMode } from '@/features/mentor/InterviewTab'
-import { MentorHub } from '@/features/mentor/MentorHub'
-import { mentorV2Enabled } from '@/features/mentor/flag'
+import { MentorHub, SoonPill } from '@/features/mentor/MentorHub'
+import { mentorV2Enabled, mockInterviewAvailable } from '@/features/mentor/flag'
 // [/mentor-v2]
 import { useI18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
@@ -69,6 +70,7 @@ function MentorScreen() {
                 )}
               >
                 {t(value === 'chat' ? 'mentor.mode.chat' : 'mentor.mode.interview')}
+                {value === 'interview' && !mockInterviewAvailable() && <SoonPill label={t('interview.soon.badge')} />}
               </button>
             ))}
           </div>
@@ -91,10 +93,15 @@ function ChatMode() {
   const chat = useMentorChat({ prefs, greeting: t('mentor.greeting'), search: params.toString() })
   const level = user?.experience_level ?? 'beginner'
   const readiness = Math.round(user?.overall_readiness_score ?? 0)
+  const [chatRef, chatHeight] = useFillHeight<HTMLDivElement>()
 
   return (
     <>
-      <div className="min-w-0 flex-[2_1_480px]">
+      <div
+        ref={chatRef}
+        style={chatHeight ? ({ '--mentor-chat-h': `${chatHeight}px` } as CSSProperties) : undefined}
+        className="min-w-0 flex-[2_1_480px]"
+      >
         <ChatCard chat={chat} />
       </div>
       <ChatSide chat={chat} name={user?.full_name ?? ''} level={level} readiness={readiness} />

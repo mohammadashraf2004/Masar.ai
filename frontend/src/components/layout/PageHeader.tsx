@@ -45,9 +45,9 @@ export function PageHeader({ title, subtitle, action, className, wrapTitle, cont
           single truncated line, as it always was. The subtitle wraps to two
           lines rather than being cut off at the first word. */}
       <div className="min-w-[10rem] flex-1 sm:min-w-0">
-        <h1 dir={dir} className={cn('font-display font-bold text-2xl lg:text-[26px] text-white tracking-tight break-words', wrapTitle ? 'line-clamp-2' : 'sm:truncate')}>{title}</h1>
+        <h1 dir={dir} className={cn('ui-page-title break-words', wrapTitle ? 'line-clamp-2' : 'sm:truncate')}>{title}</h1>
         {subtitle && (
-          <p dir={dir} className="mt-1.5 text-sm leading-relaxed text-dim line-clamp-2">{subtitle}</p>
+          <p dir={dir} className="ui-description mt-1.5 line-clamp-2">{subtitle}</p>
         )}
       </div>
 

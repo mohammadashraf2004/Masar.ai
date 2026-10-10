@@ -1296,11 +1296,11 @@ TOPIC = {
                 "Separate cloud/deployment learning from model complexity."
             ),
             "instructions": (
-                "You are learning AWS deployment for the first time and eventually want to deploy an ML API.\n\n"
-                "Design two stages:\n"
-                "Stage A: a hello-world Flask application using source control, linting, CodeBuild, and Elastic Beanstalk.\n"
-                "Stage B: replace the simple endpoint with a model-backed endpoint.\n\n"
-                "Explain which failures Stage A helps you isolate before ML is introduced."
+                ('1. You are learning AWS deployment for the first time and eventually want to deploy an ML API.\n'
+                 '2. Design two stages:\n'
+                 '3. Stage A: a hello-world Flask application using source control, linting, CodeBuild, and Elastic Beanstalk.\n'
+                 '4. Stage B: replace the simple endpoint with a model-backed endpoint.\n'
+                 '5. Explain which failures Stage A helps you isolate before ML is introduced.')
             ),
             "expected_output": (
                 "A two-stage learning/deployment plan that reduces debugging complexity."

@@ -41,7 +41,7 @@ export function ChoiceGroup<T extends string | number>({
               className={cn(
                 'flex min-h-[44px] cursor-pointer items-center rounded-full border px-4 py-2 text-[13px] transition-colors lg:min-h-9',
                 'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring',
-                checked ? 'border-amber bg-amber-soft font-semibold text-white' : 'border-border text-dim hover:border-amber/40 hover:text-bright',
+                checked ? 'border-amber bg-amber font-semibold text-on-amber' : 'border-border text-dim hover:border-amber/40 hover:text-bright',
                 disabled && 'cursor-not-allowed opacity-60',
               )}
             >

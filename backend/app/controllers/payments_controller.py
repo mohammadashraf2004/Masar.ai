@@ -1,28 +1,28 @@
 """
 backend/app/controllers/payments_controller.py
 
-Paymob-backed payment initiation + webhook handling for both wallet
-top-ups and exam-fee payments. This is the ONLY path that should ever
-mark a Paymob-routed payment as confirmed — the GET /callback route the
-customer's browser lands on after paying is purely cosmetic routing and
-must never itself grant credits/access (a browser redirect can be
-skipped, replayed, or forged; the server-to-server webhook, verified by
-HMAC, cannot).
+Payment initiation for wallet top-ups and exam fees, and the provider webhooks
+that settle every kind of order (subscriptions, course purchases, top-ups, exam
+fees). New payments are Kashier hosted checkouts (app/services/payments/checkout.py).
+Paymob is no longer initiated; its webhook stays so the orders it already took
+still reconcile their payments and refunds.
+
+The webhooks are the ONLY path that marks a payment confirmed. The routes the
+shopper's browser returns to are purely cosmetic: a redirect can be skipped,
+replayed or forged; a signed server-to-server webhook, confirmed against the
+provider's own record, cannot.
 
 Register in main.py:
     from app.controllers.payments_controller import router as payments_router
     app.include_router(payments_router, prefix="/api/v1/payments", tags=["Payments"])
 """
-import logging
 import uuid
-from datetime import datetime, timezone
 from typing import Literal
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core import security_log
@@ -35,10 +35,10 @@ from app.models.challenge import ExamPayment
 from app.models.billing import BillingOrder, SubscriptionOrder
 from app.models.exam import Exam
 from app.core.security import get_current_user
-from app.services.wallet.wallet_service import confirm_pending_topup, get_or_create_wallet
-from app.services.payments import paymob_service
-from app.services.billing.course_billing import process_paymob_course_webhook
-from app.services.billing.subscriptions import process_paymob_subscription_webhook
+from app.services.wallet.wallet_service import get_or_create_wallet
+from app.services.payments import kashier_service, paymob_service
+from app.services.payments.checkout import language_of, start_checkout
+from app.services.payments.settlement import settle_notice
 
 from app.controllers.exam_payment_controller import EXAM_PRICE_EGP
 
@@ -46,9 +46,10 @@ router = APIRouter()
 
 
 class InitPaymentRequest(BaseModel):
-    method: Literal["card", "wallet"]
-    # Digits (with optional leading +) only — this value is forwarded to
-    # the payment provider, so it should not be a free-text passthrough.
+    # Which method the shopper prefers. Kashier's hosted page offers every
+    # enabled method (card, mobile wallet) itself, so no phone number is taken here.
+    method: Literal["card", "wallet"] = "card"
+    # Accepted for older clients and ignored (Kashier's page collects it).
     phone_number: str | None = Field(None, min_length=6, max_length=20, pattern=r"^\+?[0-9]{6,19}$")
 
 
@@ -64,38 +65,6 @@ def _new_merchant_order_id(prefix: str) -> str:
     return f"{prefix}-{uuid.uuid4().hex}"
 
 
-def _require_phone_for_wallet(payload: InitPaymentRequest):
-    if payload.method == "wallet" and not payload.phone_number:
-        raise HTTPException(status_code=422, detail="phone_number is required for method=wallet")
-
-
-def _init_checkout(amount_egp: float, merchant_order_id: str, payload: InitPaymentRequest, user: User) -> dict:
-    """Returns {"checkout_url", "paymob_order_id"}. The caller stores the
-    Paymob order id: it is the only signed link between a webhook and the row
-    it may settle."""
-    try:
-        result = paymob_service.init_payment(
-            amount_egp=amount_egp,
-            merchant_order_id=merchant_order_id,
-            method=payload.method,
-            full_name=user.full_name,
-            email=user.email,
-            phone_number=payload.phone_number or "01000000000",
-        )
-    except paymob_service.PaymobConfigError as e:
-        raise HTTPException(status_code=503, detail=str(e))
-    except httpx.HTTPStatusError as e:
-        # The upstream body can echo request details and provider-side
-        # diagnostics; it belongs in our logs, not in a client response.
-        logging.getLogger("app.payments").warning(
-            "Paymob rejected a payment init (status=%s)", e.response.status_code,
-        )
-        raise HTTPException(status_code=502, detail="The payment provider rejected this request.")
-    except httpx.HTTPError:
-        raise HTTPException(status_code=502, detail="Could not reach Paymob. Please try again.")
-    return result
-
-
 # ─── Wallet top-up ──────────────────────────────────────────────────────────
 
 @router.post("/wallet/topup/init")
@@ -106,7 +75,6 @@ def init_wallet_topup(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    _require_phone_for_wallet(payload)
     package = db.query(CreditPackage).filter(
         CreditPackage.id == payload.package_id,
         CreditPackage.is_active == True,
@@ -126,14 +94,23 @@ def init_wallet_topup(
         egp_amount=package.egp_price,
         payment_method=PaymentMethod(payload.method if payload.method == "card" else "vodafone_cash"),
         payment_ref=merchant_order_id,
-        description=f"{package.name} package — Paymob {payload.method}",
+        description=f"{package.name} package — Kashier",
         balance_after=wallet.credit_balance,
     )
     db.add(tx)
     db.commit()
 
-    result = _init_checkout(package.egp_price, merchant_order_id, payload, current_user)
-    tx.provider_order_id = str(result["paymob_order_id"])
+    try:
+        result = start_checkout(
+            kind="wallet_topup", amount_minor=round(float(package.egp_price) * 100), currency="EGP",
+            merchant_order_id=merchant_order_id, user=current_user,
+            description=f"Masar credits: {package.name}", language=language_of(request),
+        )
+    except HTTPException:
+        tx.status = TransactionStatus.failed
+        db.commit()
+        raise
+    tx.provider_order_id = result["provider_order_id"]
     db.commit()
     return {"checkout_url": result["checkout_url"], "merchant_order_id": merchant_order_id}
 
@@ -148,7 +125,6 @@ def init_exam_payment(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    _require_phone_for_wallet(payload)
     exam = db.query(Exam).filter(Exam.id == payload.exam_id).first()
     if not exam:
         raise HTTPException(status_code=404, detail="Exam not found")
@@ -166,15 +142,24 @@ def init_exam_payment(
         user_id=current_user.id,
         exam_id=payload.exam_id,
         egp_amount=EXAM_PRICE_EGP,
-        payment_method=payload.method,
+        payment_method="kashier",
         payment_ref=merchant_order_id,
         status="pending",
     )
     db.add(payment)
     db.commit()
 
-    result = _init_checkout(EXAM_PRICE_EGP, merchant_order_id, payload, current_user)
-    payment.provider_order_id = str(result["paymob_order_id"])
+    try:
+        result = start_checkout(
+            kind="exam_payment", amount_minor=round(float(EXAM_PRICE_EGP) * 100), currency="EGP",
+            merchant_order_id=merchant_order_id, user=current_user,
+            description=f"Masar certification exam #{payload.exam_id}", language=language_of(request),
+        )
+    except HTTPException:
+        payment.status = "failed"
+        db.commit()
+        raise
+    payment.provider_order_id = result["provider_order_id"]
     db.commit()
     return {"checkout_url": result["checkout_url"], "merchant_order_id": merchant_order_id}
 
@@ -188,7 +173,7 @@ def get_payment_status(
     db: Session = Depends(get_db),
 ):
     """Read-only status check by merchant_order_id, scoped to the
-    requesting user — only ever reflects what the webhook has actually
+    requesting user — only ever reflects what a webhook has actually
     confirmed, never what a browser redirect claims."""
     tx = db.query(WalletTransaction).join(UserWallet).filter(
         WalletTransaction.payment_ref == merchant_order_id,
@@ -207,28 +192,69 @@ def get_payment_status(
     raise HTTPException(status_code=404, detail="No payment found for this reference")
 
 
-# ─── Webhook (authoritative) ─────────────────────────────────────────────────
+# ─── Kashier webhook (authoritative for new payments) ───────────────────────
 
-def _binding_problem(obj: dict, provider_order_id, egp_amount, transaction_id) -> str | None:
-    """Why this signed callback may not settle this row, or None if it may.
-    Rows created before migration 034 carry no provider order id and are left
-    for manual confirmation rather than trusted on merchant_order_id alone."""
-    if not transaction_id:
-        return "missing_transaction_id"
-    if provider_order_id is None:
-        return "unbound_legacy_order"
-    if not paymob_service.provider_order_matches(obj, provider_order_id):
-        return "provider_order_mismatch"
-    try:
-        amount = int(obj.get("amount_cents"))
-    except (TypeError, ValueError):
-        return "amount_mismatch"
-    if egp_amount is None or amount != round(float(egp_amount) * 100):
-        return "amount_mismatch"
-    if str(obj.get("currency") or "").upper() != "EGP":
-        return "currency_mismatch"
+def _bound_checkout(db: Session, merchant_order_id: str):
+    """The Kashier session bound to our order at checkout, or None when no
+    Kashier order of ours has this reference."""
+    for model, column in ((SubscriptionOrder, SubscriptionOrder.merchant_order_id),
+                          (BillingOrder, BillingOrder.merchant_order_id)):
+        row = db.query(model.provider, model.provider_order_id).filter(column == merchant_order_id).first()
+        if row is not None:
+            return row.provider_order_id if row.provider == "kashier" else None
+    for model in (WalletTransaction, ExamPayment):
+        row = db.query(model.provider_order_id).filter(model.payment_ref == merchant_order_id).first()
+        if row is not None:
+            return row.provider_order_id
     return None
 
+
+@router.post("/kashier/webhook")
+# Unauthenticated by necessity (Kashier calls it server-to-server): the
+# x-kashier-signature is the authentication. The limit bounds forged-signature
+# grinding and replay floods.
+@limiter.limit("120/minute")
+def kashier_webhook(request: Request, payload: dict = Body(...), db: Session = Depends(get_db)):
+    data = payload.get("data")
+    event = str(payload.get("event") or "").lower()
+    if not isinstance(data, dict) or not kashier_service.verify_signature(
+        data, request.headers.get("x-kashier-signature", ""),
+    ):
+        security_log.payment_event(kind="kashier_signature_rejected", ref="<unverified>", success=False)
+        raise HTTPException(status_code=401, detail="Invalid signature")
+    merchant_order_id = str(data.get("merchantOrderId") or "")
+    missing = kashier_service.unsigned_required_fields(data)
+    if missing or not merchant_order_id:
+        # Settlement trusts these fields; a signature that does not cover them
+        # proves nothing about them.
+        security_log.payment_event(kind="kashier_unsigned_fields", ref=merchant_order_id or "<none>", success=False)
+        raise HTTPException(status_code=400, detail="Webhook fields are not covered by the signature")
+
+    session_id = _bound_checkout(db, merchant_order_id)
+    if session_id is None:
+        return {"status": "no matching order"}
+
+    # A payment, refund or void changes access only once Kashier's own record says
+    # so; until then Kashier is told to retry.
+    confirmed = None
+    record = kashier_service.needs_confirmation(event, data)
+    if record is not None:
+        lookup = kashier_service.get_session_payment if record == "payment" else kashier_service.get_session
+        try:
+            confirmed = lookup(session_id)
+        except (httpx.HTTPError, kashier_service.KashierConfigError, ValueError):
+            raise HTTPException(status_code=503, detail="Payment confirmation unavailable; retry later")
+    try:
+        notice = kashier_service.notice_from_webhook(event, data, session_id=session_id, confirmed=confirmed)
+    except kashier_service.PaymentNotConfirmed:
+        raise HTTPException(status_code=503, detail="Payment not confirmed by the provider yet; retry later")
+    try:
+        return settle_notice(db, notice)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+# ─── Paymob webhook (historical orders only) ─────────────────────────────────
 
 @router.post("/paymob/webhook")
 # Unauthenticated by necessity (Paymob calls it server-to-server) — HMAC
@@ -249,158 +275,43 @@ async def paymob_webhook(request: Request, db: Session = Depends(get_db)):
         security_log.payment_event(kind="hmac_rejected", ref="<unverified>", success=False)
         raise HTTPException(status_code=401, detail="Invalid HMAC signature")
 
-    success = bool(obj.get("success"))
-    merchant_order_id = (obj.get("order") or {}).get("merchant_order_id")
-    if not merchant_order_id:
+    # `merchant_order_id` is NOT covered by Paymob's HMAC: it only *finds* a
+    # candidate row; the signed provider order id, amount and currency must all
+    # match that row, and one Paymob transaction id settles at most one row.
+    notice = paymob_service.to_notice(obj)
+    if notice is None:
         raise HTTPException(status_code=400, detail="Missing merchant_order_id")
-
-    # Subscription and course purchases use the same verified callback and
-    # provider client. Each service recognizes only its own merchant order.
     try:
-        subscription_result = process_paymob_subscription_webhook(db, obj)
+        return settle_notice(db, notice)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-    if subscription_result is not None:
-        return subscription_result
-
-    # Course purchases use the same verified callback and the same Paymob
-    # client as exams and wallet top-ups.  Their settlement is isolated in
-    # the billing service because it additionally validates the provider
-    # order, amount and currency before creating an enrollment.
-    try:
-        course_result = process_paymob_course_webhook(db, obj)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-    if course_result is not None:
-        return course_result
-
-    # `merchant_order_id` is NOT covered by the HMAC: a learner can lift the
-    # signed fields of one cheap payment from their own browser redirect and
-    # re-send them under any merchant_order_id. So it only *finds* a candidate
-    # row; the signed provider order id, amount and currency must all match
-    # that row, and one Paymob transaction id settles at most one row.
-    transaction_id = str(obj.get("id")) if obj.get("id") is not None else None
-    kind = paymob_service.classify_transaction(obj)
-    settles = success and not bool(obj.get("pending")) and kind == "payment"
-
-    # Wallet top-up?
-    tx = (
-        db.query(WalletTransaction)
-        .filter(
-            WalletTransaction.payment_ref == merchant_order_id,
-            WalletTransaction.status == TransactionStatus.pending,
-        )
-        .with_for_update()
-        .first()
-    )
-    if tx:
-        wallet = db.query(UserWallet).filter(UserWallet.id == tx.wallet_id).one()
-        problem = _binding_problem(obj, tx.provider_order_id, tx.egp_amount, transaction_id)
-        if problem:
-            db.rollback()
-            security_log.payment_event(kind=f"wallet_topup_{problem}", ref=merchant_order_id,
-                                       success=False, user_id=wallet.user_id)
-            return {"status": "rejected", "kind": "wallet_topup", "success": False}
-        if not settles:
-            # A refund/void/authorization never settles a top-up, and a decline
-            # is not final: the buyer can retry another card inside the same
-            # Paymob order while its payment key lives, and that charge must
-            # still find this row pending. Leave it untouched.
-            db.rollback()
-            security_log.payment_event(kind="wallet_topup_not_settled", ref=merchant_order_id,
-                                       success=False, user_id=wallet.user_id)
-            return {"status": "processed", "kind": "wallet_topup", "success": False}
-        tx.provider_transaction_id = transaction_id
-        try:
-            # One authoritative payout path, shared with the admin/manual
-            # confirmation in wallet_controller. It takes the wallet row lock
-            # itself and is a no-op on an already-confirmed row, so a Paymob
-            # webhook retry cannot pay the same top-up out twice.
-            wallet = confirm_pending_topup(tx, db)
-        except IntegrityError:
-            # uq_wallet_transactions_provider_txn: this transaction already
-            # settled another top-up.
-            db.rollback()
-            security_log.payment_event(kind="wallet_topup_txn_reused", ref=merchant_order_id,
-                                       success=False, user_id=wallet.user_id)
-            return {"status": "rejected", "kind": "wallet_topup", "success": False}
-        security_log.payment_event(
-            kind="wallet_topup", ref=merchant_order_id, success=settles, user_id=wallet.user_id,
-        )
-        return {"status": "processed", "kind": "wallet_topup", "success": settles}
-
-    # Exam fee?
-    payment = (
-        db.query(ExamPayment)
-        .filter(
-            ExamPayment.payment_ref == merchant_order_id,
-            ExamPayment.status == "pending",
-        )
-        .with_for_update()
-        .first()
-    )
-    if payment:
-        problem = _binding_problem(obj, payment.provider_order_id, payment.egp_amount, transaction_id)
-        if problem:
-            db.rollback()
-            security_log.payment_event(kind=f"exam_payment_{problem}", ref=merchant_order_id,
-                                       success=False, user_id=payment.user_id)
-            return {"status": "rejected", "kind": "exam_payment", "success": False}
-        if not settles:
-            # Same rule as top-ups: a decline is not final while the buyer can
-            # still retry inside this Paymob order, so the row stays pending.
-            db.rollback()
-            security_log.payment_event(kind="exam_payment_not_settled", ref=merchant_order_id,
-                                       success=False, user_id=payment.user_id)
-            return {"status": "processed", "kind": "exam_payment", "success": False}
-        payment.provider_transaction_id = transaction_id
-        payment.status = "confirmed"
-        payment.confirmed_by = "webhook"
-        payment.confirmed_at = datetime.now(timezone.utc)
-        try:
-            db.commit()
-        except IntegrityError:
-            db.rollback()
-            security_log.payment_event(kind="exam_payment_txn_reused", ref=merchant_order_id,
-                                       success=False, user_id=payment.user_id)
-            return {"status": "rejected", "kind": "exam_payment", "success": False}
-        security_log.payment_event(
-            kind="exam_payment", ref=merchant_order_id, success=settles, user_id=payment.user_id,
-        )
-        return {"status": "processed", "kind": "exam_payment", "success": settles}
-
-    # Nothing pending matches — ack 200 anyway (so Paymob doesn't retry
-    # forever on an already-processed or unrelated notification) but don't
-    # pretend anything happened.
-    return {"status": "no matching pending transaction"}
 
 
 # ─── Browser return (cosmetic only — grants nothing) ────────────────────────
 
-@router.get("/paymob/callback")
-def paymob_callback(request: Request, db: Session = Depends(get_db)):
-    """Where the customer's browser lands after completing checkout.
-    Deliberately does not trust anything in these query params — redirects
-    to a frontend page that polls our own authenticated status endpoints,
-    which only ever reflect what the webhook above actually confirmed."""
-    merchant_order_id = request.query_params.get("merchant_order_id", "")
-    course_order = db.query(BillingOrder).filter(
-        BillingOrder.merchant_order_id == merchant_order_id,
-    ).first()
+def _frontend_return(db: Session, merchant_order_id: str) -> RedirectResponse:
+    """Send the shopper to the page that polls our own authenticated status
+    endpoints, which only ever reflect what a webhook confirmed."""
+    course_order = db.query(BillingOrder).filter(BillingOrder.merchant_order_id == merchant_order_id).first()
     if course_order:
-        return RedirectResponse(
-            url=f"{settings.FRONTEND_URL}/billing/course-success?order_id={course_order.id}"
-        )
+        return RedirectResponse(url=f"{settings.FRONTEND_URL}/billing/course-success?order_id={course_order.id}")
     subscription_order = db.query(SubscriptionOrder).filter(
         SubscriptionOrder.merchant_order_id == merchant_order_id,
     ).first()
     if subscription_order:
         return RedirectResponse(
-            url=(
-                f"{settings.FRONTEND_URL}/billing/success?reference="
-                f"{subscription_order.reference_number}"
-            )
+            url=f"{settings.FRONTEND_URL}/billing/success?reference={subscription_order.reference_number}"
         )
-    return RedirectResponse(
-        url=f"{settings.FRONTEND_URL}/dashboard?payment_ref={merchant_order_id}"
-    )
+    return RedirectResponse(url=f"{settings.FRONTEND_URL}/dashboard?payment_ref={merchant_order_id}")
+
+
+@router.get("/kashier/return")
+def kashier_return(request: Request, db: Session = Depends(get_db)):
+    """Where Kashier returns the shopper. `ref` is our own order reference, set in
+    the session's merchantRedirect; Kashier's added parameters are ignored."""
+    return _frontend_return(db, request.query_params.get("ref", ""))
+
+
+@router.get("/paymob/callback")
+def paymob_callback(request: Request, db: Session = Depends(get_db)):
+    return _frontend_return(db, request.query_params.get("merchant_order_id", ""))

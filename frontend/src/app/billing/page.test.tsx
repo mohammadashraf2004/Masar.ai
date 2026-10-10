@@ -309,7 +309,7 @@ describe('when payments are not open (no provider)', () => {
 
   it('shows everything, says nothing can be bought yet, and cannot be paid', async () => {
     await renderBilling({ methods: false })
-    expect(screen.getByText(/Payments are not open yet/)).toBeInTheDocument()
+    expect(screen.getByText(/Online payments are temporarily unavailable/)).toBeInTheDocument()
     expect(payButton()).toBeDisabled()
     expect(screen.queryByText(/Test mode/)).toBeNull()
   })

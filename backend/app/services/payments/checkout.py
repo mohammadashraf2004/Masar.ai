@@ -8,11 +8,25 @@ import logging
 import httpx
 from fastapi import HTTPException
 
+from app.core.config import settings
 from app.services.payments import kashier_service
 
 logger = logging.getLogger("app.payments")
 
 PROVIDER = "kashier"
+
+
+def require_payments_open() -> None:
+    """Refuse before anything is written: a closed checkout must not leave orders behind.
+
+    Used as a route dependency on every endpoint that opens a payment, and again inside
+    ``start_checkout`` so no caller can reach the provider while payments are closed."""
+    if not settings.payments_open:
+        raise HTTPException(status_code=503, detail={
+            "code": "PAYMENTS_UNAVAILABLE",
+            "message": "Online payments are temporarily unavailable.",
+            "message_ar": "الدفع الإلكتروني غير متاح مؤقتًا.",
+        })
 
 
 def language_of(request) -> str:
@@ -27,6 +41,7 @@ def start_checkout(*, kind: str, amount_minor: int, currency: str, merchant_orde
     provider's later webhook to that row. Raises HTTPException 503 (payments not
     configured) or 502 (provider refused or unreachable); the caller marks its
     order failed so it does not block the next attempt."""
+    require_payments_open()
     try:
         session = kashier_service.create_session(
             amount_minor=amount_minor, currency=currency, merchant_order_id=merchant_order_id,

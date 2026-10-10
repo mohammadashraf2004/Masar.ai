@@ -102,7 +102,7 @@ class FakeKashier:
 def kashier(monkeypatch):
     for name, value in (("KASHIER_MODE", "test"), ("KASHIER_MERCHANT_ID", "MID-TEST-1"),
                         ("KASHIER_API_KEY", API_KEY), ("KASHIER_SECRET_KEY", SECRET_KEY),
-                        ("KASHIER_PUBLIC_API_URL", "https://api.masar.test")):
+                        ("KASHIER_PUBLIC_API_URL", "https://api.masar.test"), ("PAYMENTS_ENABLED", True)):
         monkeypatch.setattr(settings, name, value)
     fake = FakeKashier()
     monkeypatch.setattr(kashier_service, "create_session", fake.create_session)

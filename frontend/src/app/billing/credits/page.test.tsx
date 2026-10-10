@@ -110,7 +110,7 @@ describe('Buy credits', () => {
     held.provider = null
     renderPage()
     expect(await screen.findByRole('button', { name: 'Buy credits' })).toBeDisabled()
-    expect(screen.getByText(/Payments are not open yet/)).toBeInTheDocument()
+    expect(screen.getByText(/Online payments are temporarily unavailable/)).toBeInTheDocument()
   })
 
   it('lists the purchase history with each order’s status', async () => {

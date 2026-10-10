@@ -28,7 +28,9 @@ from app.services.billing.refunds import (
     RefundError, refund_eligibility, request_refund, transition_refund,
 )
 from app.services.learning.catalog_service import load_catalog_bundle
-from app.services.payments.checkout import PROVIDER as CHECKOUT_PROVIDER, language_of, start_checkout
+from app.services.payments.checkout import (
+    PROVIDER as CHECKOUT_PROVIDER, language_of, require_payments_open, start_checkout,
+)
 from app.services.billing.subscriptions import (
     cancel_at_period_end, current_plan_code, current_subscription, plan_amount,
     release_stale_checkouts, start_free_trial, subscription_is_entitled,
@@ -210,7 +212,7 @@ def subscription_trial(
     return _subscription_out(subscription)
 
 
-@router.post("/billing/subscriptions/checkout")
+@router.post("/billing/subscriptions/checkout", dependencies=[Depends(require_payments_open)])
 @limiter.limit("10/minute")
 def subscription_checkout(
     request: Request,
@@ -449,7 +451,7 @@ class CheckoutIn(BaseModel):
     phone_number: Optional[str] = Field(None, min_length=6, max_length=20, pattern=r"^\+?[0-9]{6,19}$")
 
 
-@router.post("/billing/checkout")
+@router.post("/billing/checkout", dependencies=[Depends(require_payments_open)])
 @limiter.limit("10/minute")
 def checkout(
     request: Request,

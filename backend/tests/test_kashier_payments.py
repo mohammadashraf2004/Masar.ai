@@ -152,15 +152,43 @@ def test_every_checkout_opens_kashier_and_never_paymob(client, db, kashier, monk
     assert kashier.sessions[tx.provider_order_id]["amount_minor"] == 5000
 
 
-def test_payments_switched_off_is_a_clean_503_that_blocks_nothing(client, db, monkeypatch):
+def test_payments_switched_off_is_a_clean_503_that_leaves_no_order_behind(client, db, monkeypatch):
     for name in ("KASHIER_MERCHANT_ID", "KASHIER_API_KEY", "KASHIER_SECRET_KEY", "KASHIER_PUBLIC_API_URL"):
         monkeypatch.setattr(settings, name, None)
     user_id, headers = _register(client)
     response = client.post("/api/v1/billing/subscriptions/checkout",
                            json={"plan": "pro", "billing_period": "monthly"}, headers=headers)
     assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "PAYMENTS_UNAVAILABLE"
     db.expire_all()
-    assert [o.status for o in db.query(SubscriptionOrder).filter_by(user_id=user_id)] == ["failed"]
+    assert db.query(SubscriptionOrder).filter_by(user_id=user_id).count() == 0
+
+
+def test_the_master_switch_keeps_checkout_closed_even_with_every_key_present(client, db, kashier, monkeypatch):
+    """Keys alone never open payments: PAYMENTS_ENABLED is the deliberate act."""
+    monkeypatch.setattr(settings, "PAYMENTS_ENABLED", False)
+    user_id, headers = _register(client)
+    calls = {
+        "/api/v1/billing/subscriptions/checkout": {"plan": "pro", "billing_period": "monthly"},
+        "/api/v1/billing/checkout": {"course_id": "1"},
+        "/api/v1/payments/wallet/topup/init": {"package_id": 1},
+        "/api/v1/payments/exam/init": {"exam_id": 1},
+    }
+    for url, body in calls.items():
+        response = client.post(url, json=body, headers=headers)
+        assert response.status_code == 503, url
+        assert response.json()["detail"]["code"] == "PAYMENTS_UNAVAILABLE", url
+    db.expire_all()
+    assert db.query(SubscriptionOrder).filter_by(user_id=user_id).count() == 0
+    assert db.query(WalletTransaction).filter_by(user_id=user_id).count() == 0
+    assert kashier.sessions == {}
+
+
+def test_a_webhook_cannot_settle_anything_when_no_key_is_configured(client, monkeypatch):
+    monkeypatch.setattr(settings, "KASHIER_API_KEY", None)
+    response = client.post("/api/v1/payments/kashier/webhook", json={"event": "pay", "data": {"merchantOrderId": "x"}},
+                           headers={"x-kashier-signature": "deadbeef"})
+    assert response.status_code in (400, 401, 403)
 
 
 def test_a_refused_session_fails_the_order(client, db, kashier):

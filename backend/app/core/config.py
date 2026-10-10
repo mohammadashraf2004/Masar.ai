@@ -239,6 +239,9 @@ class Settings(BaseSettings):
     # test-api.kashier.io with the test keys, "live" to api.kashier.io with the
     # live keys; production refuses "test". All four blank: payments are off
     # (checkout answers 503) and nothing else is affected.
+    # Master switch for taking money. Off (the default) keeps every checkout closed even
+    # if provider keys are present: a launch without a verified gateway sets nothing here.
+    PAYMENTS_ENABLED: bool = False
     KASHIER_MODE: str = "test"
     KASHIER_MERCHANT_ID: Optional[str] = None
     # The Payment API key: signs webhooks (x-kashier-signature) - the HMAC secret.
@@ -399,6 +402,11 @@ class Settings(BaseSettings):
         return all((self.KASHIER_MERCHANT_ID, self.KASHIER_API_KEY, self.KASHIER_SECRET_KEY,
                     self.KASHIER_PUBLIC_API_URL))
 
+    @property
+    def payments_open(self) -> bool:
+        """Checkout may open only when the switch is on AND the gateway is fully configured."""
+        return bool(self.PAYMENTS_ENABLED and self.kashier_configured)
+
     def kashier_problems(self, *, production: bool) -> list[str]:
         """Payments off (nothing set) is allowed; half a configuration is not."""
         problems: list[str] = []
@@ -411,6 +419,8 @@ class Settings(BaseSettings):
                 "Kashier is partly configured: set all of KASHIER_MERCHANT_ID, KASHIER_API_KEY, "
                 "KASHIER_SECRET_KEY and KASHIER_PUBLIC_API_URL (or none, to keep payments off)"
             )
+        if self.PAYMENTS_ENABLED and not all(values):
+            problems.append("PAYMENTS_ENABLED is set but Kashier is not fully configured")
         if production and any(values):
             if self.KASHIER_MODE != "live":
                 problems.append("KASHIER_MODE must be live in production (test keys take no real payments)")

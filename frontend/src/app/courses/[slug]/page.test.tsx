@@ -118,6 +118,30 @@ describe('a course on its own: no track, no goal', () => {
     expect(screen.getByText('Informational only. You can enroll in this course directly.')).toBeInTheDocument()
   })
 
+  it('does not repeat the About summary under You will learn', async () => {
+    const summary = 'Load, clean, analyze, visualize, model, and communicate findings from real datasets.'
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open({
+      description: summary,
+      learning_objectives: [summary],
+    }))
+    render(<CoursePage />)
+    expect(await screen.findByText(summary)).toBeInTheDocument()
+    expect(screen.getAllByText(summary)).toHaveLength(1)
+    expect(screen.queryByRole('heading', { name: 'You will learn' })).toBeNull()
+  })
+
+  it('keeps distinct learning objectives while removing repeated ones', async () => {
+    const summary = 'Load, clean, analyze, visualize, model, and communicate findings from real datasets.'
+    vi.mocked(api.getCatalogCourse).mockResolvedValue(open({
+      description: summary,
+      learning_objectives: [summary, 'Build a reliable analysis workflow.'],
+    }))
+    render(<CoursePage />)
+    expect(await screen.findByText('Build a reliable analysis workflow.')).toBeInTheDocument()
+    expect(screen.getAllByText(summary)).toHaveLength(1)
+    expect(screen.getByRole('heading', { name: 'You will learn' })).toBeInTheDocument()
+  })
+
   it('enrolls with nothing but the course: no track, goal or score is sent', async () => {
     const user = userEvent.setup()
     vi.mocked(api.getCatalogCourse).mockResolvedValue(open())

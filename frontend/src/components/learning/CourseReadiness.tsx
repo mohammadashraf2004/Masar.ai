@@ -91,7 +91,7 @@ export function CourseReadiness({ report, onTakeCheck, className }: CourseReadin
   return (
     <Card className={cn('space-y-4 p-5', className)} aria-label={t('rd.title')}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-bright">{t('rd.title')}</h2>
+        <h2 className="ui-card-title">{t('rd.title')}</h2>
         <ReadinessBadge state={report.state} />
       </div>
 

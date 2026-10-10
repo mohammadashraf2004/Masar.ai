@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { LegalGate } from '@/components/layout/LegalGate'
 import { useAuthStore } from '@/lib/store'
 import { useLanguageStore } from '@/lib/language'
-import type { User } from '@/types'
+import type { LegalDocument, User } from '@/types'
 
-vi.mock('@/lib/api', () => ({ api: { acceptLegal: vi.fn(), getMe: vi.fn() } }))
+vi.mock('@/lib/api', () => ({ api: { acceptLegal: vi.fn(), getMe: vi.fn(), getLegalDocument: vi.fn() } }))
 import { api } from '@/lib/api'
 
 const user = (over: Partial<User> = {}) =>
@@ -20,6 +20,16 @@ beforeEach(() => {
   useAuthStore.setState({ token: null, user: null, expiresAt: null, _hasHydrated: true })
   vi.mocked(api.acceptLegal).mockResolvedValue(user({ requires_legal_acceptance: false, terms_version: '2026-09-01' }))
   vi.mocked(api.getMe).mockResolvedValue(user({ requires_legal_acceptance: false }))
+  vi.mocked(api.getLegalDocument).mockImplementation(async (kind) => doc(kind as 'terms' | 'privacy'))
+})
+
+const doc = (kind: 'terms' | 'privacy'): LegalDocument => ({
+  kind,
+  version: '2026-09-01',
+  language: 'en',
+  title: kind === 'terms' ? 'Terms of Service' : 'Privacy Policy',
+  intro: `The ${kind} intro.`,
+  sections: [{ heading: `1. ${kind} first section`, body: [`A ${kind} paragraph.`] }],
 })
 
 describe('re-acceptance of the Terms and Privacy Policy', () => {
@@ -60,6 +70,61 @@ describe('re-acceptance of the Terms and Privacy Policy', () => {
     expect(accept).toBeDisabled()
     await u.click(box)
     expect(accept).toBeEnabled()
+  })
+
+  // In-app browsers (WhatsApp, Facebook, Instagram) ignore target="_blank", so a
+  // new-tab link did nothing there: the documents must open inside the dialog.
+  it('opens the Terms inside the dialog, and Back returns with the tick kept', async () => {
+    const u = userEvent.setup()
+    signIn(user({ requires_legal_acceptance: true }))
+    render(<LegalGate />)
+    await u.click(screen.getByRole('checkbox'))
+    const link = screen.getByRole('link', { name: 'Terms of Service' })
+    expect(link).not.toHaveAttribute('target')
+    await u.click(link)
+
+    const dialog = await screen.findByRole('dialog', { name: 'Terms of Service' })
+    expect(api.getLegalDocument).toHaveBeenCalledWith('terms', 'en')
+    expect(dialog).toHaveTextContent('A terms paragraph.')
+    expect(dialog).toHaveTextContent('Version 2026-09-01')
+    const back = screen.getByRole('button', { name: 'Back' })
+    expect(back).toHaveFocus()
+
+    await u.click(back)
+    expect(screen.getByRole('dialog', { name: 'We updated our Terms and Privacy Policy' })).toBeInTheDocument()
+    expect(screen.getByRole('checkbox')).toBeChecked()
+    expect(screen.getByRole('link', { name: 'Terms of Service' })).toHaveFocus()
+  })
+
+  it('opens the Privacy Policy inside the dialog without ticking the box', async () => {
+    const u = userEvent.setup()
+    signIn(user({ requires_legal_acceptance: true }))
+    render(<LegalGate />)
+    await u.click(screen.getByRole('link', { name: 'Privacy Policy' }))
+    expect(await screen.findByRole('dialog', { name: 'Privacy Policy' })).toHaveTextContent('A privacy paragraph.')
+    await u.click(screen.getByRole('button', { name: 'Back' }))
+    expect(screen.getByRole('checkbox')).not.toBeChecked()
+  })
+
+  it('leaves a Ctrl/Cmd click to the browser (new tab to the public page)', () => {
+    signIn(user({ requires_legal_acceptance: true }))
+    render(<LegalGate />)
+    const link = screen.getByRole('link', { name: 'Terms of Service' })
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true, button: 0 })
+    act(() => { link.dispatchEvent(event) })
+    expect(event.defaultPrevented).toBe(false)
+    expect(api.getLegalDocument).not.toHaveBeenCalled()
+  })
+
+  it('says so when a document cannot be loaded, and retries', async () => {
+    const u = userEvent.setup()
+    vi.mocked(api.getLegalDocument).mockRejectedValueOnce(new Error('down'))
+    signIn(user({ requires_legal_acceptance: true }))
+    render(<LegalGate />)
+    await u.click(screen.getByRole('link', { name: 'Terms of Service' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not load this document.')
+    await u.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(await screen.findByRole('dialog', { name: 'Terms of Service' })).toHaveTextContent('A terms paragraph.')
   })
 
   it('records the agreement with the server and then gets out of the way', async () => {

@@ -48,7 +48,9 @@ def terms(text: Optional[str]) -> set[str]:
     """Content words of `text`, case/diacritic folded, Arabic and English."""
     if not text:
         return set()
-    words = re.findall(r"[a-z0-9_]+|[؀-ۿ]+", _fold(text))
+    # Arabic letters only: the block's punctuation (؟ ، ؛) would otherwise stick to the word
+    # before it, and "ما هو X؟" would look for "X؟".
+    words = re.findall(r"[a-z0-9_]+|[ء-يٱ-ۓ]+", _fold(text))
     return {word for word in words if len(word) >= 3 and word not in _STOP}
 
 
@@ -118,6 +120,23 @@ def outline(markdown: str) -> str:
             headings.append(match.group(2).strip())
     text = " | ".join(headings)
     return text[:OUTLINE_CHARS]
+
+
+def best_passage(markdown: str, *, query: str, budget: int) -> str:
+    """The section of a lesson whose words best match `query`, read on into the next ones while
+    they fit, for a lesson that is not the one being read: enough to answer from, too little to
+    crowd out the current lesson."""
+    wanted = terms(query)
+    parts = chunks(markdown or "")
+    if not parts:
+        return ""
+    best = max(parts, key=lambda c: (len(wanted & terms(c.text)) + 2 * len(wanted & terms(c.heading)), -c.index))
+    text = best.text[:budget]
+    for part in parts[best.index + 1:]:
+        if len(text) + 2 + len(part.text) > budget:
+            break
+        text += "\n\n" + part.text
+    return text
 
 
 def lesson_excerpt(markdown: str, *, query: str, selected: Optional[str], budget: int) -> str:

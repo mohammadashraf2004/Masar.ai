@@ -38,10 +38,10 @@ export function LearnerModelCard({ version }: { version: number }) {
   const position = model ? [model.position.track, model.position.course, model.position.lesson].filter(Boolean) : []
 
   return (
-    <Card className="flex flex-col gap-3.5 p-5" data-testid="learner-model">
-      <h2 className="text-sm font-semibold text-white">{t('mentor.v2.learner.title')}</h2>
+    <Card className="flex flex-col gap-3.5 p-5" data-testid="learner-model" data-tour="mentor-learner">
+      <h2 className="ui-card-title">{t('mentor.v2.learner.title')}</h2>
       {model && position.length > 0 && (
-        <p dir="auto" className="flex flex-wrap items-center gap-1.5 font-mono text-[11px] text-dim">
+        <p dir="auto" className="flex flex-wrap items-center gap-1.5 font-mono text-xs text-dim">
           {position.map((part, i) => (
             <span key={`${i}-${part}`} className="inline-flex items-center gap-1.5">
               {i > 0 && <span aria-hidden="true">›</span>}
@@ -58,8 +58,8 @@ export function LearnerModelCard({ version }: { version: number }) {
           {model.skills.map((skill) => (
             <li key={skill.name} className="flex flex-col gap-1.5" data-skill={skill.name}>
               <div className="flex items-center gap-2">
-                <span dir="ltr" className="min-w-0 flex-1 truncate text-[13px] font-medium text-bright">{skill.name}</span>
-                <span data-status={skill.status} className={cn('whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px]', STATUS_TONE[skill.status])}>
+                <span dir="ltr" className="min-w-0 flex-1 truncate text-caption font-medium text-bright">{skill.name}</span>
+                <span data-status={skill.status} className={cn('whitespace-nowrap rounded-full border px-2 py-0.5 text-xs', STATUS_TONE[skill.status])}>
                   {t(`mentor.v2.status.${skill.status}` as MentorV2Key)}
                 </span>
                 <span dir="ltr" className="font-mono text-xs text-dim">{skill.confidence.toFixed(2)}</span>
@@ -67,7 +67,7 @@ export function LearnerModelCard({ version }: { version: number }) {
               <div className="progress-track h-1 w-full">
                 <div className={cn('progress-fill', skill.status === 'needs_review' ? 'bg-rose' : skill.status === 'mastered' ? 'bg-emerald' : 'bg-amber')} style={{ width: `${Math.round(skill.confidence * 100)}%` }} />
               </div>
-              {skill.evidence.map((line) => <p key={line} dir="auto" className="text-[11px] text-ghost">{line}</p>)}
+              {skill.evidence.map((line) => <p key={line} dir="auto" className="text-xs text-ghost">{line}</p>)}
             </li>
           ))}
         </ul>
@@ -94,7 +94,7 @@ export function SuggestionCard() {
 
   return (
     <Card data-testid="suggestion-card" className="flex flex-col gap-3 border-amber/30 p-5 [background-image:radial-gradient(90%_120%_at_0%_0%,rgb(var(--acc)/var(--acc-soft-a)),transparent_60%)]">
-      <span dir="ltr" className="font-mono text-[10px] text-amber-text" style={{ letterSpacing: '0.12em' }}>{t('mentor.v2.suggestion.label')}</span>
+      <span dir="ltr" className="ui-eyebrow ui-eyebrow-accent font-mono">{t('mentor.v2.suggestion.label')}</span>
       <p dir="auto" className="text-sm leading-[1.7] text-bright">{suggestion.text}</p>
       <div className="flex flex-wrap gap-2">
         <Link
@@ -112,7 +112,7 @@ export function SuggestionCard() {
           {t('mentor.v2.suggestion.later')}
         </button>
       </div>
-      <p className="text-[11px] text-ghost">{t('mentor.v2.suggestion.note')}</p>
+      <p className="text-xs text-ghost">{t('mentor.v2.suggestion.note')}</p>
     </Card>
   )
 }
@@ -136,7 +136,7 @@ export function PastChats({ onOpen }: { onOpen?: (thread: Thread) => void }) {
 
   return (
     <Card className="p-5">
-      <h2 className="mb-2 text-sm font-semibold text-white">{t('mentor.threads')}</h2>
+      <h2 className="ui-card-title mb-2">{t('mentor.threads')}</h2>
       {threads.length === 0 ? (
         loaded && <p className="py-2 text-[13px] text-ghost">{t('mentor.threads.empty')}</p>
       ) : (

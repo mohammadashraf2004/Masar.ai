@@ -82,7 +82,12 @@ def enrolled_courses(db: Session, user_id: int, language: str = "en", limit: int
         .limit(limit)
         .all()
     )
-    courses = [enrollment.course for enrollment in enrollments]
+    return course_states(db, user_id, [enrollment.course for enrollment in enrollments], language)
+
+
+def course_states(db: Session, user_id: int, courses: List[Course], language: str = "en") -> List[CourseState]:
+    """`courses` with their real lesson order, the learner's completion and what they may open,
+    the most recently active first. Three queries for any number of courses."""
     tool_ids = [course.tool_course_id for course in courses if course.tool_course_id]
     level_ids = [course.track_level_id for course in courses if course.track_level_id]
 
@@ -145,6 +150,13 @@ def enrolled_courses(db: Session, user_id: int, language: str = "en", limit: int
     epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)
     ordered.sort(key=lambda state: state.last_activity or epoch, reverse=True)
     return ordered
+
+
+def next_lesson(state: CourseState) -> Optional[Lesson]:
+    """Where the learner is in a course: the first unfinished lesson they may open, else the
+    last one they may open (a finished course, or one whose next lesson is locked)."""
+    openable = [lesson for lesson in state.lessons if state.can_open(lesson)]
+    return next((lesson for lesson in openable if lesson.id not in state.completed), openable[-1] if openable else None)
 
 
 def studied_lessons(states: List[CourseState], language: str, limit: int = 12) -> List[str]:

@@ -43,7 +43,7 @@ export default function MyCoursesPage() {
           <Card className="flex flex-col items-center gap-3 p-10 text-center">
             <BookOpen size={28} className="text-ghost" aria-hidden="true" />
             <p className="text-sm text-dim">{t('mc.empty')}</p>
-            <Link href="/learn" className={buttonStyles({ variant: 'ghost' })}>{t('mc.browse')}</Link>
+            <Link href="/explore" className={buttonStyles({ variant: 'ghost' })}>{t('mc.browse')}</Link>
           </Card>
         )}
         {state === 'ready' && courses.length > 0 && (
@@ -51,7 +51,7 @@ export default function MyCoursesPage() {
             {courses.map((course) => (
               <Card key={course.course_id} className="space-y-4 p-5">
                 <div>
-                  <h2 className="font-display font-bold text-white" dir="auto">{pick(course.title, course.title_ar, language)}</h2>
+                  <h2 className="ui-card-title" dir="auto">{pick(course.title, course.title_ar, language)}</h2>
                   <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-ghost">
                     <Badge variant={course.status === 'completed' ? 'emerald' : 'ghost'}>
                       {course.status === 'completed'

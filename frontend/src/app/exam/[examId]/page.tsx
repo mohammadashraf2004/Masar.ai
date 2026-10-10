@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 import { ExamPaymentGate } from "@/components/ui/ExamPaymentGate";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, Badge, Spinner, ProgressBar } from "@/components/ui/index";
@@ -310,6 +311,8 @@ function ShortAnswer({ value, onChange }: { value: string; onChange: (v: string)
 // Main Page
 // ─────────────────────────────────────────────────────────────────────────────
 export default function ExamPage() {
+  // An exam is taken under an account: signed-out visitors are sent to sign in.
+  useAuth();
   const params = useParams();
   const router = useRouter();
   const examId = params?.examId as string;
@@ -561,7 +564,7 @@ export default function ExamPage() {
           {!showPaymentGate && (
             <Card className="p-8 max-w-md w-full text-center">
               <ShieldCheck size={36} className="text-amber-text mx-auto mb-4" />
-              <h2 className="font-display font-bold text-bright text-lg mb-2">Payment Required</h2>
+              <h2 className="ui-card-title mb-2">Payment Required</h2>
               <p className="text-sm text-ghost mb-6">This certification exam requires an EGP payment to access.</p>
               <div className="flex gap-3 justify-center">
                 <Button onClick={() => setShowPaymentGate(true)}>Pay to Access Exam</Button>
@@ -576,7 +579,7 @@ export default function ExamPage() {
       <div className="min-h-dvh bg-void flex items-center justify-center p-6">
         <Card className="p-8 max-w-md w-full text-center">
           <XCircle size={36} className="text-rose mx-auto mb-4" />
-          <h2 className="font-display font-bold text-bright text-lg mb-2">Something went wrong</h2>
+          <h2 className="ui-card-title mb-2">Something went wrong</h2>
           <p className="text-sm text-ghost mb-6">{error}</p>
           <Link href="/dashboard" className={buttonStyles()}>Back to Dashboard</Link>
         </Card>
@@ -596,7 +599,7 @@ export default function ExamPage() {
           <div className={`w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center ${passed ? "bg-emerald/10 border border-emerald/20" : "bg-rose/10 border border-rose/20"}`}>
             {passed ? <Trophy size={28} className="text-emerald" /> : <RotateCcw size={28} className="text-rose" />}
           </div>
-          <h1 className="font-display font-bold text-bright text-2xl mb-1">
+          <h1 className="ui-page-title mb-1">
             {passed ? "Certification Earned!" : "Keep Practicing"}
           </h1>
           <p className="text-sm text-ghost mb-8">{exam?.title}</p>
@@ -652,7 +655,7 @@ export default function ExamPage() {
       <div className="min-h-dvh bg-void flex items-center justify-center p-6">
         <div className="max-w-xl w-full space-y-4">
           <div className="text-center mb-6">
-            <h1 className="font-display font-bold text-bright text-2xl mb-2">{exam.title}</h1>
+            <h1 className="ui-page-title mb-2">{exam.title}</h1>
             <p className="text-sm text-ghost leading-relaxed">{exam.description}</p>
           </div>
 
@@ -859,7 +862,7 @@ export default function ExamPage() {
             <div className="mb-2">
               <span className="text-xs font-mono text-ghost">Q{current + 1} of {exam.questions.length}</span>
             </div>
-            <h2 className="text-lg font-medium text-bright leading-relaxed mb-7">{q.question_text}</h2>
+            <h2 className="ui-section-title mb-7">{q.question_text}</h2>
 
             <div className="mb-10">
               {q.question_type === "mcq" && (

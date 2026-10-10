@@ -24,6 +24,16 @@ export interface MentorContextSelection extends MentorContextRef {
   exerciseTitle?: string
   lessonNumber?: number
   lessonTotal?: number
+  /** The learner is enrolled in `courseId`: only such a course can be what a conversation is about. */
+  courseEnrolled?: boolean
+}
+
+/** A course the learner is enrolled in, as the hub's course picker offers it. */
+export interface MentorCourseOption {
+  courseId: string
+  title: string
+  lessonsDone: number
+  lessonsTotal: number
 }
 
 export type Grounding = 'lesson' | 'extra' | 'general'

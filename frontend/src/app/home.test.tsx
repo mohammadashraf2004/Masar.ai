@@ -100,10 +100,19 @@ describe('home — a visitor who is not signed in', () => {
     const signUp = screen.getByRole('link', { name: /Create account/ })
     expectLinkStyledAsButton(signUp, '/auth/register')
     expectMirroredArrow(signUp)
-    const signIn = screen.getAllByRole('link', { name: 'Sign in' }).find((a) => a.className.includes('min-h-[44px]') && a.className.includes('border'))!
-    expectLinkStyledAsButton(signIn, '/auth/login')
+    // The second is to look around first: browsing needs no account.
+    const explore = screen.getAllByRole('link', { name: 'Explore courses' }).find((a) => a.className.includes('border'))!
+    expectLinkStyledAsButton(explore, '/explore')
     // and nothing on the page is a button pretending to navigate
-    expect(screen.queryAllByRole('button').filter((b) => /Create account|Sign in/.test(b.textContent ?? ''))).toEqual([])
+    expect(screen.queryAllByRole('button').filter((b) => /Create account|Sign in|Explore/.test(b.textContent ?? ''))).toEqual([])
+  })
+
+  it('invites the visitor to browse the catalogue before signing up', () => {
+    render(<Home />)
+    const browse = screen.getByRole('region', { name: 'Look around first' })
+    for (const [name, href] of [['Explore', '/explore'], ['Tracks', '/tracks'], ['Challenges', '/challenges'], ['Tools & frameworks', '/tools']]) {
+      expect(within(browse).getByRole('link', { name })).toHaveAttribute('href', href)
+    }
   })
 
   it('never asks the API for a roadmap', () => {

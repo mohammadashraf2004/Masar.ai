@@ -161,7 +161,7 @@ export default function CertificatesPage() {
             </div>
 
             <section aria-labelledby="cert-history" className="flex flex-col gap-2.5">
-              <h2 id="cert-history" className="text-sm font-semibold text-white">{t('cert.history')}</h2>
+              <h2 id="cert-history" className="ui-section-title">{t('cert.history')}</h2>
               <ul aria-labelledby="cert-history" className="flex flex-col gap-2.5">
                 {certificates.map(cert => {
                   const active = cert.certificate_id === selected.certificate_id

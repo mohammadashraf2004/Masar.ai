@@ -23,9 +23,10 @@ function owner(): string {
   return id != null ? String(id) : 'anon'
 }
 
-/** The thread a request belongs to, from the lesson it carries. */
-export function scopeOf(context: { lessonId?: string } | null | undefined): string {
-  return context?.lessonId ? `lesson:${context.lessonId}` : 'general'
+/** The thread a request belongs to, from the lesson it carries, else the course it is about. */
+export function scopeOf(context: { lessonId?: string; courseId?: string } | null | undefined): string {
+  if (context?.lessonId) return `lesson:${context.lessonId}`
+  return context?.courseId ? `course:${context.courseId}` : 'general'
 }
 
 export function threadKey(scope: string = 'general'): string {

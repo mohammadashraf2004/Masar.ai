@@ -283,7 +283,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
               onClick={undo}
               disabled={history.length === 0}
               title={t('exercise.chat.undoTitle')}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] text-ghost border border-border hover:text-bright hover:border-amber/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-ghost transition-colors hover:border-amber/30 hover:text-bright disabled:cursor-not-allowed disabled:opacity-30"
             >
               <Undo2 size={11} /> {t('exercise.chat.undo')}
             </button>
@@ -292,7 +292,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
               onClick={startAgain}
               disabled={draft === baseline}
               title={t('exercise.chat.startAgainTitle')}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] text-ghost border border-border hover:text-bright hover:border-amber/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-ghost transition-colors hover:border-amber/30 hover:text-bright disabled:cursor-not-allowed disabled:opacity-30"
             >
               <RotateCcw size={11} /> {t('exercise.chat.startAgain')}
             </button>

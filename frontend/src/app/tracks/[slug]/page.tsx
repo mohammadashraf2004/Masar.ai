@@ -108,15 +108,15 @@ function TrackHeader({ track }: { track: CareerTrack }) {
       'rounded-[14px] border bg-surface p-5 sm:p-7',
       item.status === 'current' ? 'border-amber shadow-[0_0_0_4px_rgb(var(--acc)/var(--acc-soft-a))]' : 'border-border',
     )}>
-      <h1 dir="auto" className="font-display text-[28px] font-bold leading-tight text-white">{title}</h1>
-      <p dir="auto" className="mt-3 max-w-3xl text-[13px] leading-[1.7] text-dim [text-wrap:pretty]">{description}</p>
-      <div className="mt-4 flex flex-wrap gap-x-2 gap-y-1 text-xs text-dim">
+      <h1 dir="auto" className="ui-page-title">{title}</h1>
+      <p dir="auto" className="ui-description mt-3 max-w-3xl">{description}</p>
+      <div className="ui-caption mt-4 flex flex-wrap gap-x-2 gap-y-1">
         <span>{tf('tracks.courseCount', { n: item.course_count })}</span>
         <span>·</span>
         <span>{tf('tracks.hourCount', { n: item.hours })}</span>
       </div>
       <div className="mt-6 border-t border-border pt-4">
-        <div className="mb-2 flex items-center justify-between text-xs">
+        <div className="mb-2 flex items-center justify-between text-caption">
           <span className="text-dim">{progressLabel}</span>
           <span dir="ltr" className="font-mono text-amber-text">{Math.round(item.progress)}%</span>
         </div>

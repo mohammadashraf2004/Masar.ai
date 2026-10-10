@@ -42,7 +42,7 @@ export function Badge({ variant = 'ghost', className, ...props }: BadgeProps) {
     <span
       className={cn(
         // A pill (999px radius), the handoff's status shape.
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-medium border',
         badgeStyles[variant],
         className
       )}
@@ -139,8 +139,8 @@ export function EmptyState({ icon, title, description, action }: {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       {icon && <div className="text-4xl mb-4 text-ghost">{icon}</div>}
-      <p className="text-bright font-medium mb-1">{title}</p>
-      {description && <p className="text-sm text-ghost max-w-xs">{description}</p>}
+      <p className="ui-card-title mb-1">{title}</p>
+      {description && <p className="ui-description max-w-xs">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   )

@@ -273,13 +273,10 @@ def test_invalid_explicit_lesson_never_falls_back_to_latest_progress(api, db):
     assert response.json()["detail"] == "Lesson not found"
 
 
-def test_no_explicit_id_falls_back_to_first_unfinished_lesson(api, db):
+def test_no_explicit_id_and_no_enrolment_attaches_nothing(api, db):
+    # Progress in content the learner is not enrolled in is not the hub's default: the hub only
+    # attaches courses the learner is taking (test_mentor_audit pins the enrolled default).
     first, _, _, topic = _curriculum(db)
-    second = Lesson(
-        topic_id=topic.id, source_key=f"{first.source_key}-next", title="Next lesson",
-        content="The next lesson is the verified fallback.", order=2,
-    )
-    db.add(second)
     token, user_id = _register(api)
     db.add(UserProgress(
         user_id=user_id, topic_id=topic.id, status=ProgressStatus.in_progress,
@@ -290,8 +287,7 @@ def test_no_explicit_id_falls_back_to_first_unfinished_lesson(api, db):
     response = api.get("/api/v1/mentor/context", headers=_auth(token))
 
     assert response.status_code == 200, response.text
-    assert response.json()["lessonId"] == str(second.id)
-    assert response.json()["lessonTitle"] == second.title
+    assert response.json()["lessonId"] is None and response.json()["courseId"] is None
 
 
 def test_successful_message_charges_once_and_insufficient_credit_is_distinct(api, db, monkeypatch):

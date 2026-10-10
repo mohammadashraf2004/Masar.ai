@@ -10,7 +10,7 @@ import { DEMO_COURSE_SLUG, DEMO_LESSON_ID } from './mockLesson'
 import type { Exercise, Lesson, ToolCourse, ToolTopic } from '@/types'
 
 const auth = vi.hoisted(() => ({ user: { id: 1 }, isAuthenticated: true, isLoading: false }))
-vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth }))
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth, useSession: () => auth, useNextParam: () => null }))
 vi.mock('@/components/layout/AppShell', () => ({ AppShell: ({ children }: { children: ReactNode }) => <>{children}</> }))
 vi.mock('@/lib/api', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/api')>()

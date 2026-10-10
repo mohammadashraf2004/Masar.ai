@@ -2,10 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, ChevronDown, Lightbulb, RotateCcw, X } from 'lucide-react'
-import Link from 'next/link'
 import { Spinner } from '@/components/ui/index'
 import { cn } from '@/lib/utils'
-import { useExerciseI18n, useMentorV2I18n } from '@/lib/i18n'
+import { useExerciseI18n } from '@/lib/i18n'
 import type { ExerciseAttemptState, ExerciseFile, ExerciseRunResult, GradeResult } from '@/types'
 import { exerciseDraftKey } from '../draftKeys'
 import { CodeEditor } from './CodeEditor'
@@ -46,9 +45,6 @@ export type CodeCellProps = {
   onLoadAttemptState?(): Promise<ExerciseAttemptState>
   onPassed?(): void
   gradingAvailable?: boolean
-  // [mentor-v2] where "ask for a review" goes (the mentor's code-review tab); omitted, the button is not shown
-  reviewHref?: string
-  // [/mentor-v2]
 }
 
 export function CodeCell({
@@ -62,14 +58,12 @@ export function CodeCell({
   onRunTests,
   onSubmit,
   onPassed,
-  reviewHref,
   hint,
   onShowSolution,
   onLoadAttemptState,
   gradingAvailable = true,
 }: CodeCellProps) {
   const tx = useExerciseI18n()
-  const mentorTx = useMentorV2I18n()
   // Test fixtures are submitted to the runner but are intentionally private:
   // learners only see and edit solution files.
   const visibleFiles = useMemo(() => {
@@ -171,7 +165,7 @@ export function CodeCell({
     if (!current || current.readOnly) return
     setDrafts(previous => ({ ...previous, [current.name]: content }))
     window.localStorage.setItem(draftKey(exerciseId, current), content)
-    // The mentor code-review tab still consumes the stable legacy key.
+    // The mentor (hints and chat context) still reads the stable legacy key.
     window.localStorage.setItem(legacyDraftKey(exerciseId, current.name), content)
     onChange?.(current.name, content)
   }
@@ -281,7 +275,7 @@ export function CodeCell({
               </button>
             ))}
           </div>
-          <span className="ms-auto hidden shrink-0 items-center px-3 text-[11px] text-[#5C6678] sm:flex">{runtime}</span>
+          <span className="ms-auto hidden shrink-0 items-center px-3 text-xs text-[#5C6678] sm:flex">{runtime}</span>
           <div ref={menuRef} className="relative flex shrink-0 items-center">
             <button
               type="button"
@@ -314,16 +308,6 @@ export function CodeCell({
         </div>
 
         <div className="flex flex-wrap justify-end gap-2 border-t border-[#1E2535] bg-[#0D1117] px-3 py-2.5 font-arabic text-[13px]">
-          {/* [mentor-v2] */}
-          {reviewHref && (
-            <Link
-              href={reviewHref}
-              className="flex h-[38px] items-center justify-center rounded-[7px] border border-[#1E2535] px-4 text-[#E2E8F0] hover:border-[#F59E0B]"
-            >
-              {mentorTx.t('mentor.v2.review.request')}
-            </Link>
-          )}
-          {/* [/mentor-v2] */}
           <button
             type="button"
             disabled={runner.status === 'running'}

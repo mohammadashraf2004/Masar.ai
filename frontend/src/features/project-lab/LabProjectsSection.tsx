@@ -29,7 +29,7 @@ function ProjectCardView({ project }: { project: LabProjectCard }) {
         <DifficultyBadge level={project.difficulty} />
         <Badge variant="emerald">{t('lab.card.free')}</Badge>
       </div>
-      <h3 className="mb-2 font-display text-lg font-bold leading-snug text-bright">{pick(project.title, project.title_ar)}</h3>
+      <h3 className="ui-card-title mb-2">{pick(project.title, project.title_ar)}</h3>
       <p className="mb-4 text-sm leading-relaxed text-ghost">{pick(project.summary, project.summary_ar)}</p>
       <p className="mb-4 text-xs text-soft">
         {tf('lab.card.milestones', { n: project.milestone_count, tasks: project.task_count })}
@@ -76,7 +76,7 @@ export function LabProjectsSection() {
       <div className="mb-4 flex items-start gap-3">
         <FolderKanban size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-amber-text" />
         <div>
-          <h2 id="lab-projects-heading" className="font-display text-lg font-bold text-bright">{t('lab.section.title')}</h2>
+          <h2 id="lab-projects-heading" className="ui-section-title">{t('lab.section.title')}</h2>
           <p className="mt-1 text-sm text-ghost">{t('lab.section.subtitle')}</p>
         </div>
       </div>

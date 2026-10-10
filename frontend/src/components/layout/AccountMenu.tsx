@@ -82,7 +82,7 @@ export function AccountMenu({ className }: { className?: string }) {
 
           <div className="py-1.5">
             <Link
-              href="/billing"
+              href="/profile"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 px-4 py-2 text-xs text-soft transition-colors hover:bg-surface hover:text-bright"
             >
@@ -90,7 +90,7 @@ export function AccountMenu({ className }: { className?: string }) {
               Profile & Scorecard
             </Link>
             <Link
-              href="/profile"
+              href="/billing"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 px-4 py-2 text-xs text-soft transition-colors hover:bg-surface hover:text-bright"
             >
@@ -134,7 +134,7 @@ export function AccountMenu({ className }: { className?: string }) {
           {/* The help menu: for now, the walkthrough. */}
           {tours && (
             <div role="group" aria-label={t('nav.help')} className="border-t border-border py-1.5">
-              <p className="px-4 pb-1 pt-1.5 text-[11px] font-medium text-ghost">{t('nav.help')}</p>
+              <p className="px-4 pb-1 pt-1.5 text-xs font-medium text-ghost">{t('nav.help')}</p>
               <button
                 type="button"
                 onClick={() => { setOpen(false); tours.replay() }}

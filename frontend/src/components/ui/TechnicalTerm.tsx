@@ -98,13 +98,13 @@ function TermDefinition({
       )}
 
       <span className="flex items-center gap-1.5 flex-wrap pt-0.5">
-        <span className="text-[10px] px-1.5 py-0.5 rounded border border-border bg-muted/40 text-dim">
+        <span className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-xs text-dim">
           {categoryOverride ?? entry.category}
         </span>
         {roles.slice(0, 2).map((role) => (
           <span
             key={role.id}
-            className="text-[10px] px-1.5 py-0.5 rounded border border-sky/20 bg-sky/10 text-sky"
+            className="rounded border border-sky/20 bg-sky/10 px-1.5 py-0.5 text-xs text-sky"
             dir="ltr"
           >
             {role.title}
@@ -236,7 +236,7 @@ export function TermCard({ term, arabic, category, className, actionable = true 
             {entry.preferred}
           </p>
           {entry.preferred !== entry.en && (
-            <p className="text-[11px] text-dim truncate" dir="ltr">
+            <p className="truncate text-xs text-dim" dir="ltr">
               {entry.en}
             </p>
           )}
@@ -244,7 +244,7 @@ export function TermCard({ term, arabic, category, className, actionable = true 
             {arabic ?? entry.ar}
           </p>
         </div>
-        <span className="text-[10px] px-1.5 py-0.5 rounded border border-border bg-muted/40 text-dim shrink-0">
+        <span className="shrink-0 rounded border border-border bg-muted/40 px-1.5 py-0.5 text-xs text-dim">
           {category ?? entry.category}
         </span>
       </div>
@@ -259,7 +259,7 @@ export function TermCard({ term, arabic, category, className, actionable = true 
           onClick={() => markLearned(entry.id)}
           disabled={learned}
           className={cn(
-            'mt-3 inline-flex min-h-[44px] lg:min-h-0 items-center gap-1.5 text-[11px] px-2 py-1 rounded border transition-colors',
+            'mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded border px-2 py-1 text-xs transition-colors lg:min-h-0',
             learned
               ? 'border-emerald/25 bg-emerald/10 text-emerald cursor-default'
               : 'border-border text-ghost hover:text-amber-text hover:border-amber/30'
@@ -284,7 +284,7 @@ export function CourseVocabulary({ terms, className }: { terms: string[]; classN
     <div className={className}>
       <div className="flex items-center gap-2 mb-3">
         <BookMarked size={14} className="text-amber-text" />
-        <h3 className="text-sm font-medium text-bright">{t('term.inThisCourse')}</h3>
+        <h3 className="ui-card-title">{t('term.inThisCourse')}</h3>
         <span className="text-xs text-ghost">{resolved.length}</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -366,7 +366,7 @@ export function TermDetailModal({ term, onClose }: { term: string; onClose: () =
                   {roles.map((role) => (
                     <span
                       key={role.id}
-                      className="text-[11px] px-2 py-0.5 rounded border border-sky/20 bg-sky/10 text-sky"
+                      className="rounded border border-sky/20 bg-sky/10 px-2 py-0.5 text-xs text-sky"
                       dir="ltr"
                     >
                       {role.title}

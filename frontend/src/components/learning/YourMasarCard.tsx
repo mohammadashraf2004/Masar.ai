@@ -104,12 +104,12 @@ export function YourMasarCard({ variant = 'dashboard', className }: YourMasarCar
       <Card data-tour="path" className={cn('border-amber/30 bg-gradient-to-br from-amber/5 to-transparent p-5', className)}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="min-w-0 max-w-xl">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-bright">
+            <h2 className="ui-card-title flex items-center gap-2">
               <Compass size={15} className="text-amber-text" aria-hidden="true" />
               {t('card.empty.title')}
             </h2>
-            <p className="mt-1 text-xs leading-relaxed text-soft">{t('card.empty.body')}</p>
-            {carried && <p className="mt-1 text-xs text-soft">{tf('banner.onboard.carried', { goal: carried })}</p>}
+            <p className="ui-description mt-1">{t('card.empty.body')}</p>
+            {carried && <p className="ui-caption mt-1">{tf('banner.onboard.carried', { goal: carried })}</p>}
           </div>
           <Link href={profile.needs_onboarding ? '/onboarding/learning-profile' : '/learn/masar'} className={buttonStyles({ size: 'sm' })}>
             {t('card.empty.cta')} <ArrowRight size={12} className="rtl:rotate-180" aria-hidden="true" />
@@ -133,10 +133,10 @@ export function YourMasarCard({ variant = 'dashboard', className }: YourMasarCar
 
   return (
     <Card glow data-tour="path" className={cn('p-5 sm:p-6', className)}>
-      <p className="text-xs font-medium uppercase tracking-widest text-soft">
+      <p className="ui-eyebrow">
         {home ? t('card.masar') : t('card.roadmap')}
       </p>
-      <h2 className="mt-1 font-display text-lg font-bold leading-snug text-white sm:text-xl">
+      <h2 className="ui-section-title mt-1">
         <LearningLabel parts={roleLabel(path.career_goal, ctx)} />
       </h2>
       {path.effective_fields.length > 0 && (

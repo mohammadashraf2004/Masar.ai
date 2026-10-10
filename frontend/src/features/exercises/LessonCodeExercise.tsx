@@ -4,9 +4,6 @@ import { DifficultyBadge } from '@/components/ui/index'
 import { pickText } from '@/lib/content-language'
 import { useI18n } from '@/lib/i18n'
 import { getExerciseAttemptState, runExerciseTests, showExerciseSolution, submitExercise } from '@/lib/api'
-// [mentor-v2]
-import { mentorV2Enabled } from '@/features/mentor/flag'
-// [/mentor-v2]
 import type { Exercise } from '@/types'
 import { CodeCell } from './CodeCell/CodeCell'
 import { ExerciseBrief } from './ExerciseBrief'
@@ -49,7 +46,7 @@ export function LessonCodeExercise({
             <span className="font-mono text-lc-label uppercase tracking-wider text-ghost">{counter}</span>
             <DifficultyBadge level={exercise.difficulty} />
           </div>
-          <h2 className="font-display text-base font-bold leading-snug text-bright" dir={title.shownIn === 'ar' ? 'rtl' : 'ltr'}>{title.text}</h2>
+          <h2 className="ui-card-title" dir={title.shownIn === 'ar' ? 'rtl' : 'ltr'}>{title.text}</h2>
         </div>
         <div className="px-5 py-4">
           <ExerciseBrief content={brief.text} dir={brief.shownIn === 'ar' ? 'rtl' : 'ltr'} />
@@ -70,9 +67,6 @@ export function LessonCodeExercise({
         hint={language === 'ar' ? exercise.hint_ar ?? exercise.hint : exercise.hint}
         onShowSolution={exercise.grading_available !== false ? () => showExerciseSolution(exercise.id) : undefined}
         onLoadAttemptState={() => getExerciseAttemptState(exercise.id)}
-        // [mentor-v2]
-        reviewHref={mentorV2Enabled() ? `/mentor?tab=review&exerciseId=${exercise.id}` : undefined}
-        // [/mentor-v2]
       />
     </div>
   )

@@ -6,8 +6,11 @@ import ChallengesPage from '@/app/challenges/page'
 vi.mock('@/components/layout/AppShell', () => ({ AppShell: ({ children }: { children: ReactNode }) => <>{children}</> }))
 vi.mock('@/lib/api', () => ({ api: { getChallenges: vi.fn(), getLabProjects: vi.fn() } }))
 import { api } from '@/lib/api'
+import { useAuthStore } from '@/lib/store'
 
 beforeEach(() => {
+  // The signed-in page (the signed-out one is page.anonymous.test.tsx).
+  useAuthStore.setState({ token: 'tok', user: null, expiresAt: null, _hasHydrated: true })
   vi.mocked(api.getChallenges).mockResolvedValue([{
     id: 1, title: 'Clean the Sales Ledger', slug: 'clean-sales', difficulty: 'beginner', credit_cost: 20,
     passing_score: 70, description: 'Dirty data.', tags: [], is_enrolled: false, best_score: null, status: null,

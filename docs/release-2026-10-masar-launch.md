@@ -205,8 +205,10 @@ solutions, grading data), English or Arabic, get a fixed refusal: free, no provi
 at sign-out; another account on the same browser never reads or sends them. Drafts saved
 before this release under the old key are no longer read (learners see the starter once).
 
-Deploy: `alembic upgrade head` (036 -> 037, creates `mentor_requests` only; no data is
-touched). Check: `SELECT version_num FROM alembic_version;` is `037_mentor_requests`, and
+Deploy: `alembic upgrade head` (036 -> 037 -> 038; 037 creates `mentor_requests` only, no
+data is touched; 038 re-adds `pro_ai_usage.release_reason` only where an early 036 draft left
+it out, a no-op on production). Check: `SELECT version_num FROM alembic_version;` is
+`038_pro_ai_release_reason`, and
 `\d mentor_requests` shows `uq_mentor_requests_user_action_request` and
 `ck_mentor_requests_status`. Rollback: `alembic downgrade 036_pro_ai_usage` drops only
 that table; deploy the previous image with it.

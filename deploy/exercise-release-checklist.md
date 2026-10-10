@@ -104,7 +104,8 @@ API runs at boot, so a pass here means the swap will boot.)
 ## 6. Migrate (**CHANGE**: schema, AI Mentor only)
 
 `deploy/smoke/README.md` section 4. The exercise work adds no migration; head is
-`037_mentor_requests`.
+`038_pro_ai_release_reason`. 038 only adds `pro_ai_usage.release_reason` where an early
+draft of 036 left it out; production's 036 created it, so there 038 changes nothing.
 
 ## 7. Backend, then verify execution is off (**CHANGE**)
 

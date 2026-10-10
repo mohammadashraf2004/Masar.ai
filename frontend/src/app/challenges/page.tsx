@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { LegalFooter } from '@/components/layout/LegalFooter'
@@ -8,6 +8,8 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, DifficultyBadge, Spinner, ProgressBar } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
+import { useSession } from '@/hooks/useAuth'
+import { useRequireAuth } from '@/components/auth/AuthPrompt'
 import { useI18n } from '@/lib/i18n'
 import { LabProjectsSection } from '@/features/project-lab/LabProjectsSection'
 import { proAiLimitMessage } from '@/lib/aiErrors'
@@ -30,6 +32,25 @@ interface Challenge {
   is_enrolled: boolean
   best_score: number | null
   status: string | null
+}
+
+/** The public catalogue card (GET /challenges/catalog). */
+interface PublicChallenge {
+  id: number
+  title: string
+  slug: string
+  difficulty: string
+  credit_cost: number
+  passing_score: number
+  max_attempts: number
+  description: string
+  tags: string[]
+}
+
+const noSubscribe = () => () => {}
+/** `?challenge=<slug>`: the challenge to open, e.g. after signing in from its overview. */
+function requestedChallenge(): string | null {
+  return new URLSearchParams(window.location.search).get('challenge')
 }
 
 interface ChallengeDetail extends Challenge {
@@ -87,7 +108,7 @@ function EnrollModal({ challenge, onClose, onSuccess }: {
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-sm pointer-events-auto p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-bright">Unlock Challenge</h2>
+            <h2 className="ui-card-title">Unlock Challenge</h2>
             <button type="button" onClick={onClose} aria-label={t('common.close')} className="-me-2 flex h-11 w-11 items-center justify-center rounded text-ghost transition-colors hover:bg-surface hover:text-bright lg:me-0 lg:h-8 lg:w-8"><X size={15} /></button>
           </div>
           <p className="text-sm text-soft mb-4 leading-relaxed">{challenge.title}</p>
@@ -148,7 +169,7 @@ function SubmitModal({ challenge, onClose, onSuccess }: {
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div className="bg-ink border border-border rounded-xl shadow-2xl w-full max-w-2xl pointer-events-auto flex flex-col max-h-[90vh]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
-            <h2 className="text-sm font-semibold text-bright">Submit Solution — {challenge.title}</h2>
+            <h2 className="ui-card-title">Submit Solution — {challenge.title}</h2>
             <button type="button" onClick={onClose} aria-label={t('common.close')} className="-me-2 flex h-11 w-11 items-center justify-center rounded text-ghost transition-colors hover:bg-surface hover:text-bright lg:me-0 lg:h-8 lg:w-8"><X size={15} /></button>
           </div>
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
@@ -201,7 +222,7 @@ function SubmitModal({ challenge, onClose, onSuccess }: {
 }
 
 // ─── Challenge Card ───────────────────────────────────────────────────────────
-function ChallengeCard({ ch, onSelect }: { ch: Challenge; onSelect: () => void }) {
+function ChallengeCard({ ch, onSelect, anonymous = false }: { ch: Challenge; onSelect: () => void; anonymous?: boolean }) {
   const statusColor = ch.status === 'passed' ? 'text-emerald' : ch.status === 'failed' ? 'text-rose' : 'text-amber-text'
 
   return (
@@ -220,8 +241,8 @@ function ChallengeCard({ ch, onSelect }: { ch: Challenge; onSelect: () => void }
         </div>
       </div>
 
-      <h3 className="font-display font-bold text-bright text-base mb-2">{ch.title}</h3>
-      <p className="text-xs text-ghost leading-relaxed mb-3 line-clamp-2">{ch.description}</p>
+      <h3 className="ui-card-title mb-2">{ch.title}</h3>
+      <p className="ui-description mb-3 line-clamp-2">{ch.description}</p>
 
       <div className="flex flex-wrap gap-1.5 mb-4">
         {ch.tags.slice(0, 4).map(tag => (
@@ -247,12 +268,54 @@ function ChallengeCard({ ch, onSelect }: { ch: Challenge; onSelect: () => void }
         size="sm"
         onClick={onSelect}
       >
-        {ch.is_enrolled
+        {anonymous
+          ? <><ChevronRight size={12} className="rtl:rotate-180" /> View challenge</>
+          : ch.is_enrolled
           ? <><Play size={12} /> Open Challenge</>
           : <><Lock size={12} /> Unlock for {ch.credit_cost} credits</>
         }
       </Button>
     </Card>
+  )
+}
+
+// ─── Public overview (signed out) ─────────────────────────────────────────────
+// Built only from the public catalogue card: the dataset, rubric, hints and
+// submission are never requested without an account (the API refuses them).
+function PublicChallengeOverview({ ch, onBack }: { ch: PublicChallenge; onBack: () => void }) {
+  const { t } = useI18n()
+  const requireAuth = useRequireAuth()
+  return (
+    <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+      <button onClick={onBack} className="mb-5 flex min-h-[44px] items-center gap-1.5 text-xs text-ghost transition-colors hover:text-soft lg:min-h-0">
+        ← Back to challenges
+      </button>
+      <div className="w-full max-w-3xl space-y-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <DiffBadge diff={ch.difficulty} />
+          <span className="font-mono text-xs text-ghost">{ch.credit_cost} credits to unlock</span>
+          <span className="text-xs text-ghost">·</span>
+          <span className="text-xs text-ghost">Pass: {ch.passing_score}%</span>
+          <span className="text-xs text-ghost">·</span>
+          <span className="text-xs text-ghost">{ch.max_attempts} attempts</span>
+        </div>
+        <h1 className="ui-page-title">{ch.title}</h1>
+        <p className="max-w-2xl text-sm leading-relaxed text-ghost">{ch.description}</p>
+        {ch.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {ch.tags.map(tag => (
+              <span key={tag} className="rounded border border-border bg-surface px-2 py-0.5 text-xs text-ghost">{tag}</span>
+            ))}
+          </div>
+        )}
+        <Card className="space-y-4 p-5">
+          <p className="text-sm text-soft">{t('gate.overviewOnly')}</p>
+          <Button onClick={() => requireAuth(`/challenges?challenge=${encodeURIComponent(ch.slug)}`)}>
+            {t('gate.joinChallenge')}
+          </Button>
+        </Card>
+      </div>
+    </div>
   )
 }
 
@@ -356,7 +419,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
               <span className="text-xs text-ghost">·</span>
               <span className="text-xs text-ghost">{ch.attempts_used}/{ch.max_attempts} attempts used</span>
             </div>
-            <h1 className="font-display font-bold text-bright text-2xl mb-2">{ch.title}</h1>
+            <h1 className="ui-page-title mb-2">{ch.title}</h1>
             <p className="text-sm text-ghost leading-relaxed max-w-2xl">{ch.description}</p>
           </div>
           <div className="flex-shrink-0 flex flex-col gap-2">
@@ -399,7 +462,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                 <p className="text-xs text-ghost">Score: <span className="font-mono font-bold">{result.score}%</span></p>
               </div>
             </div>
-            <p className="text-xs text-ghost leading-relaxed mb-4">{result.overall_feedback}</p>
+            <p className="ui-description mb-4">{result.overall_feedback}</p>
             <div className="space-y-2">
               {result.feedback?.map((f: any) => (
                 <div key={f.criterion} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
@@ -434,7 +497,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
           {activeTab === 'dataset' && (
             <div>
               <Card className="p-4 mb-3">
-                <p className="text-xs text-ghost leading-relaxed whitespace-pre-line">{ch.dataset_description}</p>
+                <p className="ui-description whitespace-pre-line">{ch.dataset_description}</p>
               </Card>
               {ch.is_enrolled ? (
                 <>
@@ -478,7 +541,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                   </div>
                   <div>
                     <p className="text-sm font-medium text-bright mb-1">{r.criterion}</p>
-                    <p className="text-xs text-ghost leading-relaxed">{r.description}</p>
+                    <p className="ui-description">{r.description}</p>
                   </div>
                 </Card>
               ))}
@@ -493,7 +556,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                     {ch.hints.map((hint, i) => (
                       <Card key={i} className="p-4 flex items-start gap-3">
                         <span className="w-5 h-5 rounded bg-amber/10 border border-amber/20 flex items-center justify-center text-xs font-mono text-amber-text flex-shrink-0">{i + 1}</span>
-                        <p className="text-sm text-soft leading-relaxed">{hint}</p>
+                        <p className="ui-body-copy">{hint}</p>
                       </Card>
                     ))}
                   </div>
@@ -531,7 +594,7 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
                       {aiHints.map((h, i) => (
                         <div key={i} className="bg-void border border-border rounded-lg p-4">
                           <p className="text-xs text-ghost mb-1 font-medium">Hint {i + 1}</p>
-                          <p className="text-sm text-soft leading-relaxed mb-2">{h.hint}</p>
+                          <p className="ui-body-copy mb-2">{h.hint}</p>
                           {h.concept && (
                             <div className="flex items-center gap-2 mt-2">
                               <span className="text-xs text-ghost">Look up:</span>
@@ -565,9 +628,17 @@ function ChallengeDetailView({ slug, onBack }: { slug: string; onBack: () => voi
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function ChallengesPage() {
+  // Browsing is public: a signed-out visitor gets the catalogue cards and the
+  // overview; joining, the dataset, hints and submitting need an account.
+  const { isAuthenticated, isLoading: authLoading } = useSession()
   const [challenges, setChallenges] = useState<Challenge[]>([])
+  const [publicCards, setPublicCards] = useState<PublicChallenge[]>([])
   const [loading, setLoading]       = useState(true)
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null)
+  // undefined: nothing chosen on this page yet, so `?challenge=` decides.
+  const [chosenSlug, setChosenSlug] = useState<string | null | undefined>(undefined)
+  const requested = useSyncExternalStore(noSubscribe, requestedChallenge, () => null)
+  const selectedSlug = chosenSlug === undefined ? requested : chosenSlug
+  const setSelectedSlug = setChosenSlug
   const [filter, setFilter]         = useState<string>('all')
 
   // `loading` starts true (see useState above), so this never sets it
@@ -576,17 +647,24 @@ export default function ChallengesPage() {
   // from the detail view, to pick up enrollment changes.
   const load = useCallback(async () => {
     try {
-      const data = await api.getChallenges()
-      setChallenges(data)
+      if (isAuthenticated) {
+        const data = await api.getChallenges()
+        setChallenges(data)
+      } else {
+        const cards: PublicChallenge[] = await api.getPublicChallenges()
+        setPublicCards(cards)
+        setChallenges(cards.map(c => ({ ...c, is_enrolled: false, best_score: null, status: null })))
+      }
     } catch { /* leave the list as-is */ }
     setLoading(false)
-  }, [])
+  }, [isAuthenticated])
 
   useEffect(() => {
+    if (authLoading) return
     // Awaited so every state write inside `load` follows an await
     // boundary (react-hooks/set-state-in-effect).
     void (async () => { await load() })()
-  }, [load])
+  }, [load, authLoading])
 
   const filtered = filter === 'all'
     ? challenges
@@ -594,7 +672,18 @@ export default function ChallengesPage() {
     ? challenges.filter(c => c.is_enrolled)
     : challenges.filter(c => c.difficulty === filter)
 
-  if (selectedSlug) {
+  if (selectedSlug && !authLoading && !isAuthenticated) {
+    const card = publicCards.find(c => c.slug === selectedSlug)
+    if (card) {
+      return (
+        <AppShell>
+          <PublicChallengeOverview ch={card} onBack={() => setSelectedSlug(null)} />
+        </AppShell>
+      )
+    }
+  }
+
+  if (selectedSlug && isAuthenticated) {
     return (
       <AppShell>
         <ChallengeDetailView slug={selectedSlug} onBack={() => { setSelectedSlug(null); load() }} />
@@ -620,7 +709,7 @@ export default function ChallengesPage() {
           <section aria-label="Practice challenges">
             {/* Filter tabs are only useful when this legacy challenge collection exists. */}
             <div className="mb-6 flex flex-wrap items-center gap-2">
-              {['all', 'enrolled', 'beginner', 'intermediate', 'advanced'].map(f => (
+              {(isAuthenticated ? ['all', 'enrolled', 'beginner', 'intermediate', 'advanced'] : ['all', 'beginner', 'intermediate', 'advanced']).map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
@@ -644,7 +733,7 @@ export default function ChallengesPage() {
             ) : (
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {filtered.map(ch => (
-                  <ChallengeCard key={ch.id} ch={ch} onSelect={() => setSelectedSlug(ch.slug)} />
+                  <ChallengeCard key={ch.id} ch={ch} anonymous={!isAuthenticated} onSelect={() => setSelectedSlug(ch.slug)} />
                 ))}
               </div>
             )}

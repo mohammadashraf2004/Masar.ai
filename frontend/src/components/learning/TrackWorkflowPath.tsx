@@ -99,11 +99,11 @@ export function TrackWorkflowPath({ goal }: TrackWorkflowPathProps) {
   return (
     <section aria-labelledby="track-workflow-title" className="space-y-6">
       <div>
-        <p className="text-xs font-medium uppercase tracking-widest text-amber-text">{t('workflow.title')}</p>
-        <h2 id="track-workflow-title" className="mt-1 font-display text-2xl font-bold text-bright">
+        <p className="ui-eyebrow ui-eyebrow-accent">{t('workflow.title')}</p>
+        <h2 id="track-workflow-title" className="ui-section-title mt-1">
           {workflow ? pick(workflow.career_goal.title, workflow.career_goal.title_ar, language) : t('workflow.title')}
         </h2>
-        <p className="mt-1 text-sm text-soft">{t('workflow.subtitle')}</p>
+        <p className="ui-description mt-1">{t('workflow.subtitle')}</p>
       </div>
 
       {state === 'loading' && <div className="flex justify-center py-6"><Spinner announce className="h-5 w-5" /></div>}
@@ -140,13 +140,13 @@ export function TrackWorkflowPath({ goal }: TrackWorkflowPathProps) {
           {sections.map(({ section, courses }) => (
             <section key={section ?? 'main'} aria-labelledby={section ? `workflow-section-${section}` : undefined}>
               {section && (
-                <h4 id={`workflow-section-${section}`} className="mb-3 border-b border-border pb-2 text-sm font-semibold text-bright">
+                <h4 id={`workflow-section-${section}`} className="mb-3 border-b border-border pb-2 text-card-title font-semibold text-bright">
                   {t(`workflow.section.${section}` as const)}
                 </h4>
               )}
               <ol className="space-y-3">
                 {courses.map((course, index) => (
-                  <li key={course.course_id} className={cn((course.role === 'optional' || !course.required) && 'sm:ms-8')}>
+                  <li key={course.course_id}>
                     <WorkflowNode course={course} isLast={index === courses.length - 1} />
                   </li>
                 ))}
@@ -171,7 +171,7 @@ function WorkflowNode({ course, isLast }: { course: TrackWorkflowCourse; isLast:
       <div className="flex flex-col items-center">
         <span
           className={cn(
-            'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-[11px] font-mono',
+            'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-mono',
             course.status === 'completed' && 'border-emerald/40 bg-emerald/10 text-emerald',
             course.status === 'in_progress' && 'border-amber/40 bg-amber/10 text-amber-text',
             course.status === 'next' && 'border-sky/40 bg-sky/10 text-sky',
@@ -198,7 +198,7 @@ function WorkflowNode({ course, isLast }: { course: TrackWorkflowCourse; isLast:
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h5 className="text-sm font-semibold leading-snug text-bright">
+            <h5 className="ui-card-title">
               <Link href={ctaHref} className="hover:text-amber-text transition-colors">{pick(course.title, course.title_ar, language)}</Link>
             </h5>
           </div>
@@ -217,11 +217,11 @@ function WorkflowNode({ course, isLast }: { course: TrackWorkflowCourse; isLast:
         {course.progress_percent > 0 && (
           <div className="mt-3 space-y-1">
             <ProgressBar value={course.progress_percent} />
-            <p className="text-xs text-soft" dir="ltr">{Math.round(course.progress_percent)}%</p>
+            <p className="ui-caption" dir="ltr">{Math.round(course.progress_percent)}%</p>
           </div>
         )}
 
-        <div className="mt-3 space-y-1 text-xs text-soft">
+        <div className="ui-caption mt-3 space-y-1">
           {(course.estimated_hours > 0 || course.lesson_count > 0) && (
             <p>
               {course.estimated_hours > 0 && tf('workflow.hourCount', { n: Math.round(course.estimated_hours) })}

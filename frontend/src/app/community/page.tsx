@@ -198,7 +198,7 @@ function PostCard({ post, onUpdate }: { post: Post; onUpdate: (p: Post) => void 
       </div>
 
       {/* Content */}
-      <h3 className="font-medium text-bright mb-2 leading-snug">{post.title}</h3>
+      <h3 className="ui-card-title mb-2">{post.title}</h3>
       <p className={cn(
         'text-sm text-soft leading-relaxed whitespace-pre-line',
         !expanded && 'line-clamp-3'
@@ -337,7 +337,7 @@ function CreatePostModal({
     <div className="fixed inset-0 bg-scrim/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-xl p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display font-bold text-white">Share with the community</h2>
+          <h2 className="ui-card-title">Share with the community</h2>
           <button type="button" onClick={onClose} aria-label={t('common.close')} className="-me-2 flex h-11 w-11 items-center justify-center rounded text-ghost transition-colors hover:bg-surface hover:text-bright lg:me-0 lg:h-8 lg:w-8">
             <X size={18} />
           </button>
@@ -598,7 +598,7 @@ export default function CommunityPage() {
               {activeTab === 'leaderboard' && (
                 <Card className="overflow-hidden">
                   <div className="px-5 py-4 border-b border-border">
-                    <h3 className="font-medium text-bright flex items-center gap-2">
+                    <h3 className="ui-card-title flex items-center gap-2">
                       <Trophy size={15} className="text-amber-text" /> Top contributors
                     </h3>
                   </div>
@@ -645,7 +645,7 @@ export default function CommunityPage() {
             {/* ── Right sidebar ── */}
             <div className="space-y-4">
               <Card className="p-4">
-                <h3 className="text-xs font-medium text-ghost uppercase tracking-widest mb-3">
+                <h3 className="ui-eyebrow mb-3">
                   Post types
                 </h3>
                 <div className="space-y-2">
@@ -675,7 +675,7 @@ export default function CommunityPage() {
               {activeTab === 'feed' && leaderboard.length > 0 && (
                 <Card className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xs font-medium text-ghost uppercase tracking-widest">Top 3</h3>
+                    <h3 className="ui-eyebrow">Top 3</h3>
                     <button
                       onClick={() => setActiveTab('leaderboard')}
                       className="min-h-[44px] px-2 text-xs text-amber-text hover:text-amber-text2 lg:min-h-0 lg:px-0"

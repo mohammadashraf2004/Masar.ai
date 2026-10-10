@@ -28,7 +28,8 @@ from app.services.learning.catalog_service import CatalogBundle
 from app.services.learning.progress_service import pct
 from app.views import learning_courses as V
 from app.views.learning_path import (
-    CourseCard, CourseRef, EnrollmentBrief, ModuleOut, ProjectOut, ReadinessBrief, RoadmapMembership,
+    CourseCard, CourseRef, EnrollmentBrief, LessonTitleOut, ModuleOut, ProjectOut, ReadinessBrief,
+    RoadmapMembership,
 )
 
 
@@ -175,6 +176,7 @@ def module_out(m: content.ModuleInfo) -> ModuleOut:
         exercise_count=m.exercise_count, quiz_count=m.quiz_count, project_count=m.project_count,
         completion_required=m.completion_required, is_optional=m.is_optional,
         completion_pct=pct(m.completion) if m.completion is not None else None, status=m.status,
+        lessons=[LessonTitleOut(id=l.id, order=l.order, title=l.title, title_ar=l.title_ar) for l in m.lessons],
     )
 
 

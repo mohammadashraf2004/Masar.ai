@@ -17,5 +17,5 @@ export function planBlockHref(block: PlanBlock): string {
   if (block.refId === 'mentor:chat') return '/mentor'
   // The design fixtures carry app paths; anything else (or a protocol-relative URL) goes nowhere unexpected.
   if (block.refId.startsWith('/') && !block.refId.startsWith('//')) return block.refId
-  return '/learn'
+  return '/explore'
 }

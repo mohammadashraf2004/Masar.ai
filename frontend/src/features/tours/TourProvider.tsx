@@ -5,7 +5,7 @@ import { useAuthStore } from '@/lib/store'
 import { blockedRoute, modalOpen, pickTour, showsNewTag } from './eligibility'
 import { ReplayBar } from './ReplayBar'
 import { type TourStatus } from './records'
-import { TOURS, homeRoute, routeMatches, tourById, type Device, type TourDef, type TourId, type TourStep } from './registry'
+import { TOURS, homeRoute, routeMatches, tourAvailable, tourById, type Device, type TourDef, type TourId, type TourStep } from './registry'
 import { MIN_STEPS, resolveSteps } from './targets'
 import { clearPendingReplay, markTourSession, peekPendingReplay, setPendingReplay, toursEnabled, tourRanThisSession } from './session'
 import { ensureSynced, saveAndSync } from './sync'
@@ -128,7 +128,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     if (!toursEnabled() || !account || running) return
 
     const pending = peekPendingReplay()
-    const wanted = TOURS.find((t) => t.id === pending)
+    const wanted = TOURS.find((t) => t.id === pending && tourAvailable(t))
     if (wanted && routeMatches(wanted, pathname)) {
       begin(wanted, true, pathname)
     } else {
@@ -152,7 +152,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const replay = useCallback((id?: TourId) => {
-    const tour = id ? tourById(id) : (TOURS.find((t) => routeMatches(t, pathname)) ?? tourById('onboarding'))
+    const tour = id ? tourById(id) : (TOURS.find((t) => routeMatches(t, pathname) && tourAvailable(t)) ?? tourById('onboarding'))
     if (routeMatches(tour, pathname)) {
       setRun(null)
       begin(tour, true, pathname)

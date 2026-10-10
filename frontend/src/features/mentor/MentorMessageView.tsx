@@ -33,7 +33,7 @@ export function ConceptChain({ nodes, focus }: { nodes: string[]; focus: number 
             aria-current={i === focus ? 'step' : undefined}
             data-state={i === focus ? 'focus' : i > focus ? 'future' : 'past'}
             className={cn(
-              'rounded-md border px-2 py-1 font-mono text-[11px]',
+              'rounded-md border px-2 py-1 font-mono text-xs',
               i === focus ? 'border-amber bg-amber-soft text-amber-text'
                 : i > focus ? 'border-dashed border-border text-ghost'
                 : 'border-border text-bright',
@@ -103,7 +103,7 @@ export function GroundingPill({ grounding, sourceLessonId, sourceCourseId, sourc
       // No verified title to name: say only that it is extra (never a database id as a number).
       : tf('mentor.v2.grounding.extra', { n: '' }).split('·')[0].trim()
   const className = cn(
-    'inline-flex self-start rounded-full border px-2.5 py-0.5 text-[11px]',
+    'inline-flex self-start rounded-full border px-2.5 py-0.5 text-xs',
     grounding === 'lesson' ? 'border-amber text-amber-text' : 'border-dashed border-ghost text-dim',
     href && 'hover:text-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring',
   )
@@ -155,7 +155,7 @@ export function MentorBlocks({ blocks, actions = {} }: { blocks: MentorBlock[]; 
 
 function IntentTag({ intent }: { intent: string }) {
   return (
-    <span dir="ltr" className="inline-flex self-start rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-[10px] text-dim" style={{ letterSpacing: '0.1em' }}>
+    <span dir="ltr" className="inline-flex self-start rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-xs text-dim">
       {intent}
     </span>
   )
@@ -178,11 +178,11 @@ export function ProactiveCard({ message, actions }: { message: MentorMessageV2; 
   return (
     <div data-testid="proactive-card" className="flex w-full max-w-[88%] flex-col gap-3 self-start rounded-xl border border-border bg-void p-3.5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span dir="ltr" className="font-mono text-[10px] text-amber-text" style={{ letterSpacing: '0.1em' }}>
+        <span dir="ltr" className="ui-eyebrow ui-eyebrow-accent font-mono">
           {t('mentor.v2.proactive')}{message.intent ? ` · ${message.intent}` : ''}
         </span>
         <span dir="auto" className="min-w-0 flex-1 text-xs text-dim">{triggerKey ? t(triggerKey) : trigger}</span>
-        <span className="rounded-full border border-emerald px-2 py-0.5 text-[11px] text-emerald">{t('mentor.v2.proactiveFree')}</span>
+        <span className="rounded-full border border-emerald px-2 py-0.5 text-xs text-emerald">{t('mentor.v2.proactiveFree')}</span>
       </div>
       <MentorBlocks blocks={message.blocks} actions={actions} />
     </div>
@@ -215,7 +215,7 @@ export function MentorMessageView({ message, actions }: { message: MentorMessage
     >
       {message.intent && <IntentTag intent={message.intent} />}
       <MentorBlocks blocks={message.blocks} actions={actions} />
-      <span dir="ltr" className="self-end font-mono text-[10px] text-ghost" data-testid="message-cost">
+      <span dir="ltr" className="self-end font-mono text-xs text-ghost" data-testid="message-cost">
         {message.creditCost === 0 ? t('mentor.v2.free') : tf('mentor.v2.spent', { n: message.creditCost })}
       </span>
     </div>

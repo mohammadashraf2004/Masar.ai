@@ -1,5 +1,5 @@
 /**
- * Whether the Mentor v2 hub (context bar, hint ladder, code review, weekly plan, in-lesson mentor)
+ * Whether the Mentor v2 hub (context bar, hint ladder, weekly plan, in-lesson mentor)
  * replaces the current mentor. It is on in `next dev`, and in a build only with
  * NEXT_PUBLIC_MENTOR_V2=1. Endpoint rollout is intentionally separate below: message and quiz may
  * be live while other endpoints are still fixtures.
@@ -36,4 +36,13 @@ export function mentorV2Live(): boolean {
 
 export function mentorV2MocksAllowed(): boolean {
   return !mentorV2Live()
+}
+
+/**
+ * Whether learners can run a mock interview. Until it is ready the interview tab, its setup and
+ * report pages show "coming soon" instead, and its walkthrough does not run. A build turns it on
+ * with NEXT_PUBLIC_MOCK_INTERVIEW=1.
+ */
+export function mockInterviewAvailable(): boolean {
+  return process.env.NEXT_PUBLIC_MOCK_INTERVIEW === '1'
 }

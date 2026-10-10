@@ -832,6 +832,15 @@ export interface CourseModule {
   is_optional?: boolean
   completion_pct?: number | null
   status?: 'not_started' | 'in_progress' | 'completed' | null
+  /** The outline: lesson names only (public). Bodies come from the course viewer. */
+  lessons?: CourseLessonTitle[]
+}
+
+export interface CourseLessonTitle {
+  id: number
+  order: number
+  title: string
+  title_ar?: string | null
 }
 
 export interface CourseProject {
@@ -1376,6 +1385,14 @@ export interface CourseFilters {
 /** A certificate as the API returns it, both for the signed-in learner's own list
  *  and for the public verification lookup (the same shape, by design: the public
  *  one shows nothing the certificate itself does not). */
+/** Practice activity per local day (exercise checks, quizzes, exams,
+ *  projects), oldest first, and the current streak of active days. */
+export interface ProfileActivity {
+  days: Array<{ date: string; count: number }>
+  active_days: number
+  current_streak: number
+}
+
 export interface CertificateSummary {
   /** A UUID: the public identifier, and what the verification link carries. */
   certificate_id: string

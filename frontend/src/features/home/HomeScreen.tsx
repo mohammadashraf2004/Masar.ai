@@ -193,7 +193,7 @@ function ContinueCard({ overview }: { overview: HomeOverview }) {
     >
       <div className="flex items-center gap-2.5">
         {/* Inline spacing: the app cancels Tailwind tracking under lang="ar", and this label is Latin. */}
-        <span className="font-mono text-[11px] text-amber-text" style={{ letterSpacing: '0.12em' }}>
+        <span className="font-mono text-xs text-amber-text" style={{ letterSpacing: '0.12em' }}>
           {tf('home.continue.eyebrow')}
         </span>
         <span className="text-xs text-dim">{tf('home.continue.label')}</span>
@@ -267,7 +267,7 @@ function MilestoneRow({ milestone: m, last }: { milestone: HomeMilestone; last: 
           </span>
           <span className="text-xs text-ghost">{m.meta[language]}</span>
         </div>
-        <span className={cn('whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px]', TAG_TONE[m.status])}>
+        <span className={cn('whitespace-nowrap rounded-full border px-2 py-0.5 text-xs', TAG_TONE[m.status])}>
           {tag}
           {m.status === 'now' && <> · <bdi dir="ltr">{m.percent ?? 0}%</bdi></>}
         </span>

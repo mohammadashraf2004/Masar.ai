@@ -3,12 +3,22 @@ import { STRINGS, type StringKey } from '@/lib/i18n'
 import { TOURS, copyFor, homeRoute, routeMatches, targetFor, tourById } from './registry'
 
 describe('the tour list', () => {
-  it('has the three tours, in the order they are offered', () => {
+  it('has the four tours, in the order they are offered', () => {
     expect(TOURS.map((t) => [t.id, t.kind, t.steps.length])).toEqual([
       ['onboarding', 'onboarding', 4],
+      ['mentor', 'feature', 6],
       ['mentor-interview', 'feature', 2],
       ['language', 'feature', 3],
     ])
+  })
+
+  it('walks the mentor hub from choosing a course to its other tabs, before the interview tour', () => {
+    expect(tourById('mentor').steps.map((s) => s.target)).toEqual([
+      'mentor-course', 'mentor-context', 'mentor-actions', 'mentor-composer', 'mentor-learner',
+      { desktop: 'mentor-tabs', mobile: 'mentor-tabs-phone' },
+    ])
+    expect(routeMatches(tourById('mentor'), '/mentor')).toBe(true)
+    expect(TOURS.findIndex((t) => t.id === 'mentor')).toBeLessThan(TOURS.findIndex((t) => t.id === 'mentor-interview'))
   })
 
   it('points the onboarding at the four things the handoff names', () => {

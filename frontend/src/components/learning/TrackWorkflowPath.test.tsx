@@ -115,6 +115,21 @@ describe('TrackWorkflowPath — backend-driven career track workflow', () => {
     expect(within(card).queryByText('Locked')).not.toBeInTheDocument()
   })
 
+  it('keeps optional and required timeline markers on the same connector axis', async () => {
+    vi.mocked(api.getTrackWorkflow).mockResolvedValue(workflow({
+      courses: [
+        wcourse({ course_id: 1, slug: 'course-001', title: 'Required Course' }),
+        wcourse({ course_id: 2, slug: 'course-002', title: 'Optional Course', role: 'optional', required: false }),
+      ],
+    }))
+    render(<TrackWorkflowPath goal="ml-engineer" />)
+
+    const requiredRow = (await screen.findByText('Required Course')).closest('li') as HTMLElement
+    const optionalRow = screen.getByText('Optional Course').closest('li') as HTMLElement
+    expect(requiredRow.className).toBe(optionalRow.className)
+    expect(optionalRow).not.toHaveClass('sm:ms-8')
+  })
+
   it('badges core/supporting/optional roles distinctly', async () => {
     vi.mocked(api.getTrackWorkflow).mockResolvedValue(workflow({
       courses: [

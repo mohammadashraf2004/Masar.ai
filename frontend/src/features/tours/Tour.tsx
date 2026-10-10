@@ -288,7 +288,7 @@ export function Tour({ tour, steps, device, showNew = false, onFinish }: TourPro
         >
           <div className="flex min-h-[32px] items-center gap-2">
             {feature && showNew && (
-              <span className="rounded-full px-2 py-[5px] text-[11px] font-bold leading-none" style={{ background: 'var(--ta)', color: 'var(--ton)' }}>
+              <span className="rounded-full px-2 py-[5px] text-xs font-bold leading-none" style={{ background: 'var(--ta)', color: 'var(--ton)' }}>
                 {t('tour.new')}
               </span>
             )}

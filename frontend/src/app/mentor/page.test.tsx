@@ -18,6 +18,7 @@ vi.mock('@/hooks/useAuth', () => ({
     isAuthenticated: true,
     isLoading: false,
   }),
+  useNextParam: () => null,
 }))
 vi.mock('@/components/layout/AppShell', async () => {
   const { createElement } = await import('react')
@@ -76,6 +77,7 @@ async function ask(user: ReturnType<typeof userEvent.setup>, text: string) {
 }
 
 beforeEach(() => {
+  vi.stubEnv('NEXT_PUBLIC_MOCK_INTERVIEW', '1')
   useAuthStore.setState({ token: 'test-token', _hasHydrated: true })
   Element.prototype.scrollTo = vi.fn()
   sessions.mockResolvedValue([])
@@ -364,6 +366,17 @@ describe('the mode switch', () => {
     expect(screen.getAllByRole('link', { name: STRINGS.en['interview.report.new'] })[0]).toHaveAttribute('href', '/mentor/interview/new')
     expect(within(screen.getByRole('group', { name: STRINGS.en['mentor.modes'] })).getByRole('button', { name: STRINGS.en['mentor.mode.interview'] }))
       .toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('before the interview opens, tags its tab "Soon" and shows coming soon in its place', async () => {
+    vi.stubEnv('NEXT_PUBLIC_MOCK_INTERVIEW', '')
+    setSearch('mode=interview')
+    await renderChat()
+    const tab = within(screen.getByRole('group', { name: STRINGS.en['mentor.modes'] }))
+      .getByRole('button', { name: `${STRINGS.en['mentor.mode.interview']} ${STRINGS.en['interview.soon.badge']}` })
+    expect(tab).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByTestId('interview-coming-soon')).toHaveTextContent(STRINGS.en['interview.soon.title'])
+    expect(screen.queryByRole('link', { name: STRINGS.en['interview.report.new'] })).not.toBeInTheDocument()
   })
 })
 

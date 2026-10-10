@@ -59,7 +59,7 @@ export function QuickOnboarding({ fields, onDone, onSkip }: QuickOnboardingProps
   return (
     <Card className="mx-auto max-w-2xl space-y-6 p-6">
       <div>
-        <h1 className="font-display text-xl font-bold text-bright">{t('qob.title')}</h1>
+        <h1 className="ui-page-title">{t('qob.title')}</h1>
         <p className="mt-1 text-sm text-soft">{t('qob.subtitle')}</p>
         <p className="mt-3 text-xs text-soft" aria-live="polite">{tf('qob.step', { n: step + 1, total })}</p>
       </div>

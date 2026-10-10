@@ -71,6 +71,19 @@ describe('AccountMenu', () => {
     expect(screen.getByRole('link', { name: /Admin analytics/ })).toHaveAttribute('href', '/admin/analytics')
   })
 
+  it('maps every account action to its matching page', async () => {
+    signIn({ role: 'admin' })
+    const user = userEvent.setup()
+    render(<AccountMenu />)
+    await user.click(screen.getByRole('button', { name: /Profile menu/ }))
+
+    expect(screen.getByRole('link', { name: 'Profile & Scorecard' })).toHaveAttribute('href', '/profile')
+    expect(screen.getByRole('link', { name: 'Buy Credits' })).toHaveAttribute('href', '/billing')
+    expect(screen.getByRole('link', { name: 'Billing & payments' })).toHaveAttribute('href', '/billing/orders')
+    expect(screen.getByRole('link', { name: 'Admin analytics' })).toHaveAttribute('href', '/admin/analytics')
+    expect(screen.getByRole('link', { name: 'Admin billing' })).toHaveAttribute('href', '/admin/billing')
+  })
+
   it('signs out from its last row, and closes', async () => {
     const logout = vi.fn()
     useAuthStore.setState({ logout })

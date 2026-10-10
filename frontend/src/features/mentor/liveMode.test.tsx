@@ -101,8 +101,8 @@ describe('links to real Masar content are built by the app', () => {
     expect(planBlockHref({ type: 'lesson', title: 't', minutes: 30, refId: 'lesson:12', courseId: 'course-004', lessonId: '12' }))
       .toBe('/courses/course-004/lessons/12')
     expect(planBlockHref({ type: 'review', title: 't', minutes: 15, refId: 'mentor:chat' })).toBe('/mentor')
-    expect(planBlockHref({ type: 'lesson', title: 't', minutes: 15, refId: '//evil.example/x' })).toBe('/learn')
-    expect(planBlockHref({ type: 'lesson', title: 't', minutes: 15, refId: 'https://evil.example' })).toBe('/learn')
+    expect(planBlockHref({ type: 'lesson', title: 't', minutes: 15, refId: '//evil.example/x' })).toBe('/explore')
+    expect(planBlockHref({ type: 'lesson', title: 't', minutes: 15, refId: 'https://evil.example' })).toBe('/explore')
   })
 
   it('names an extra-concept source by its verified title and links to it, never by a database id', () => {
@@ -137,7 +137,7 @@ describe('the weekly plan', () => {
     vi.spyOn(mentorV2, 'plan').mockResolvedValue({ ...week([]), status: 'no_enrollment', goal: '', reasons: [] })
     await act(async () => { render(<StudyPlan now={SATURDAY} />) })
     expect(screen.getByTestId('plan-empty')).toHaveTextContent('Enroll in a course to get a weekly plan')
-    expect(screen.getByRole('link', { name: 'Browse courses' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'Browse courses' })).toHaveAttribute('href', '/explore')
     expect(screen.queryAllByTestId('plan-day')).toHaveLength(0)
   })
 })
@@ -265,8 +265,16 @@ describe('a lesson thread on a new device', () => {
     const thread = vi.spyOn(api, 'getMentorThread').mockResolvedValue(server)
     const { result } = renderHook(() => useMentorV2({ base: { lessonId: '42' } }))
     await act(async () => { await Promise.resolve() })
-    expect(thread).toHaveBeenCalledWith('42')
+    expect(thread).toHaveBeenCalledWith('42', undefined)
     expect(result.current.messages.map((m) => m.id)).toEqual(['s1-0', 's1-1'])
+  })
+
+  it('continues the chosen course\'s own conversation when no lesson is attached', async () => {
+    const thread = vi.spyOn(api, 'getMentorThread').mockResolvedValue([reply({ id: 'course' })])
+    const { result } = renderHook(() => useMentorV2({ base: { courseId: 'ml', courseEnrolled: true } }))
+    await act(async () => { await Promise.resolve() })
+    expect(thread).toHaveBeenCalledWith(undefined, 'ml')
+    expect(result.current.messages.map((m) => m.id)).toEqual(['course'])
   })
 
   it('keeps this browser copy when there is one', async () => {

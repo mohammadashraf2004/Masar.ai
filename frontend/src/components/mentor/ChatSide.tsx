@@ -43,7 +43,7 @@ export function ChatSide({ chat, name, level, readiness }: { chat: Chat; name: s
   return (
     <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-5">
       <Card className="p-5">
-        <h2 className="mb-3 text-sm font-semibold text-white">{t('mentor.known.title')}</h2>
+        <h2 className="ui-card-title mb-3">{t('mentor.known.title')}</h2>
         <dl className="space-y-2.5 text-[13px]">
           {known.map(row)}
           <div data-tour="mentor-lang" className="space-y-2.5">{chosen.map(row)}</div>
@@ -52,7 +52,7 @@ export function ChatSide({ chat, name, level, readiness }: { chat: Chat; name: s
       </Card>
 
       <Card className="p-5">
-        <h2 className="mb-3 text-sm font-semibold text-white">{t('mentor.shortcuts')}</h2>
+        <h2 className="ui-card-title mb-3">{t('mentor.shortcuts')}</h2>
         <ul className="space-y-2">
           {SHORTCUTS.map((key, i) => (
             <li key={key}>
@@ -72,7 +72,7 @@ export function ChatSide({ chat, name, level, readiness }: { chat: Chat; name: s
 
       <Card className="p-5">
         <div className="mb-2 flex items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold text-white">{t('mentor.threads')}</h2>
+          <h2 className="ui-card-title">{t('mentor.threads')}</h2>
           <button
             type="button"
             onClick={() => void chat.newConversation()}

@@ -76,17 +76,17 @@ export default function LearningProfilePage() {
             <>
               <MySkillsSection />
               <Card className="p-5">
-                <h2 className="mb-1 text-sm font-semibold text-bright">{t('onb.level.title')}</h2>
+                <h2 className="ui-card-title mb-1">{t('onb.level.title')}</h2>
                 <p className="mb-4 text-xs text-soft">{t('onb.level.hint')}</p>
                 <LevelPicker levels={catalog.levels} value={level} onChange={setLevel} />
               </Card>
               <Card className="p-5">
-                <h2 className="mb-1 text-sm font-semibold text-bright">{t('onb.fields.title')}</h2>
+                <h2 className="ui-card-title mb-1">{t('onb.fields.title')}</h2>
                 <p className="mb-4 text-xs text-soft">{t('onb.fields.hint')}</p>
                 <FieldPicker fields={catalog.fields} value={fields} onChange={setFields} level={chosenLevel} />
               </Card>
               <Card className="p-5">
-                <h2 className="mb-1 text-sm font-semibold text-bright">{t('onb.goal.title')}</h2>
+                <h2 className="ui-card-title mb-1">{t('onb.goal.title')}</h2>
                 <p className="mb-4 text-xs text-soft">{t('onb.goal.hint')}</p>
                 <GoalPicker goals={catalog.goals} value={goal} onChange={setGoal} />
               </Card>

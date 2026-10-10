@@ -2,7 +2,8 @@
 import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useGuest } from '@/hooks/useAuth'
+import { useGuest, useNextParam } from '@/hooks/useAuth'
+import { authHref } from '@/lib/authRedirect'
 import { useAuthStore } from '@/lib/store'
 import { api } from '@/lib/api'
 import { useI18n, type StringKey } from '@/lib/i18n'
@@ -38,6 +39,8 @@ function LoginPageInner() {
   const { t } = useI18n()
   const params = useSearchParams()
   const setAuth = useAuthStore(s => s.setAuth)
+  // Where a "sign in to continue" sent them from; followed only if it is a path on this site.
+  const next = useNextParam()
 
   const verifyToken = params.get('verify_token')
   const resetToken = params.get('reset_token')
@@ -65,7 +68,7 @@ function LoginPageInner() {
     try {
       const data = await api.login(form.email, form.password)
       setAuth(data.access_token, data.user, data.expires_in)
-      router.replace('/dashboard')
+      router.replace(next ?? '/dashboard')
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {
@@ -151,12 +154,12 @@ function LoginPageInner() {
               <Logo size={28} className="lg:hidden" wordmarkClassName="text-sm" />
               <LanguageSwitcher className="ms-auto" />
             </div>
-            <h1 className="font-display font-bold text-2xl text-white mb-1">
+            <h1 className="ui-page-title mb-1">
               {mode === 'forgot' ? t('login.forgot.title') : mode === 'reset' ? t('login.reset.title') : t('login.title')}
             </h1>
-            {mode === 'login' && <p className="text-sm text-ghost">{t('login.subtitle')}</p>}
-            {mode === 'forgot' && <p className="text-sm text-ghost">{t('login.forgot.subtitle')}</p>}
-            {mode === 'reset' && <p className="text-sm text-ghost">{t('login.reset.subtitle')}</p>}
+            {mode === 'login' && <p className="ui-description">{t('login.subtitle')}</p>}
+            {mode === 'forgot' && <p className="ui-description">{t('login.forgot.subtitle')}</p>}
+            {mode === 'reset' && <p className="ui-description">{t('login.reset.subtitle')}</p>}
           </div>
 
           {verifyStatus && (
@@ -218,7 +221,7 @@ function LoginPageInner() {
 
               <p className="text-center text-sm text-ghost mt-2">
                 {t('login.noAccount')}{' '}
-                <Link href="/auth/register" className="text-amber-text hover:text-amber-text2 transition-colors">
+                <Link href={authHref('register', next)} className="text-amber-text hover:text-amber-text2 transition-colors">
                   {t('login.createOne')}
                 </Link>
               </p>

@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios'
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios'
 import type {
   TokenResponse, User,
   CareerTrack, CareerTrackSummary, Enrollment,
@@ -21,6 +21,7 @@ import type {
   AssessmentResult, Recommendations, TrackDetail, SkillLevels,
 } from '@/types'
 import { useAuthStore } from '@/lib/store'
+import { authHref, currentPath } from '@/lib/authRedirect'
 import { useLanguageStore } from '@/lib/language'
 import type { BillingCycle, CreditPack, Offer, PlanId, RefundPolicySummary, RefundStatus, SubscriptionOrder } from '@/lib/billing/types'
 import { mentorV2EndpointLive, mentorV2Live } from '@/features/mentor/flag'
@@ -110,6 +111,9 @@ export function resolveAssetUrl(url: string): string {
  * function runs, long after both modules have finished evaluating, never
  * at import time.
  */
+/** A request config that knows whether it went out under a session. */
+type SessionConfig = InternalAxiosRequestConfig & { _hadSession?: boolean }
+
 function clearDeadSession() {
   if (typeof window === 'undefined') return
   try {
@@ -166,6 +170,9 @@ class ApiClient {
             const parsed = JSON.parse(raw)
             const token = parsed?.state?.token
             const expiresAt = parsed?.state?.expiresAt
+            // Remembered for the 401 handler: only a request made under a
+            // session can mean "your session ended".
+            if (token) (config as SessionConfig)._hadSession = true
             if (expiresAt && Date.now() >= expiresAt) {
               // Clears the store as well as storage, so the UI drops to
               // its logged-out state now rather than after the 401 comes
@@ -188,7 +195,13 @@ class ApiClient {
     this.http.interceptors.response.use(
       (r) => r,
       (error: AxiosError) => {
-        if (error.response?.status === 401 && typeof window !== 'undefined') {
+        // A 401 for a visitor who never signed in is just "this needs an
+        // account": the public pages they browse skip those calls, and the
+        // page that made one handles the refusal (or its guard sends them to
+        // sign in). Bouncing them to the login page from a catalogue page would
+        // make browsing without an account impossible.
+        const hadSession = !!(error.config as SessionConfig | undefined)?._hadSession
+        if (error.response?.status === 401 && typeof window !== 'undefined' && hadSession) {
           clearDeadSession()
           // Already on an auth screen: clearing is enough, and navigating
           // to the login page from the login page is how a redirect loop
@@ -196,9 +209,9 @@ class ApiClient {
           if (!window.location.pathname.startsWith('/auth/')) {
             // A full navigation on purpose: this runs outside React (no router
             // to call) and the reload is what drops every piece of in-memory
-            // session state along with the dead token.
-            // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-            window.location.href = '/auth/login'
+            // session state along with the dead token. `next` brings them back
+            // here after signing in again.
+            window.location.href = authHref('login', currentPath())
           }
         }
         return Promise.reject(error)
@@ -539,6 +552,14 @@ class ApiClient {
   return res.data
   }
 
+  /** Days are bucketed in the browser's own timezone. */
+  async getProfileActivity(days = 84) {
+    const res = await this.http.get<import('@/types').ProfileActivity>('/profile/activity', {
+      params: { days, tz_offset_minutes: new Date().getTimezoneOffset() },
+    })
+    return res.data
+  }
+
   // ─── Wallet ───────────────────────────────────────────────────────────
 
   async getWallet() {
@@ -579,6 +600,12 @@ class ApiClient {
 
   async getChallenges() {
     const res = await this.http.get('/challenges/')
+    return res.data
+  }
+
+  /** The public challenge catalogue: the cards only, for anyone signed in or not. */
+  async getPublicChallenges() {
+    const res = await this.http.get('/challenges/catalog')
     return res.data
   }
 
@@ -1141,13 +1168,21 @@ class ApiClient {
   }
 
   async getMentorV2Context(
-    params: { lessonId?: string; exerciseId?: string },
+    params: { lessonId?: string; exerciseId?: string; courseId?: string },
     language: 'ar' | 'en',
   ) {
     const res = await this.http.get<import('@/features/mentor/types').MentorContextSelection>(
       '/mentor/context', { params: { ...params, language } },
     )
     return res.data
+  }
+
+  /** The courses the learner is enrolled in: what the hub's course picker offers. Free. */
+  async getMentorCourses(language: 'ar' | 'en') {
+    const res = await this.http.get<{ courses: import('@/features/mentor/types').MentorCourseOption[] }>(
+      '/mentor/courses', { params: { language } },
+    )
+    return res.data.courses
   }
 
   /** The question a quiz block shows, in `language`. The same question: no cost, nothing recorded. */
@@ -1166,11 +1201,11 @@ class ApiClient {
     return res.data
   }
 
-  /** The conversation the server is continuing for this lesson (or general): what it sends the
-   *  model as history, so a new device shows the same thread. Free. */
-  async getMentorThread(lessonId: string | undefined) {
+  /** The conversation the server is continuing for this lesson, chosen course, or general: what it
+   *  sends the model as history, so a new device shows the same thread. Free. */
+  async getMentorThread(lessonId: string | undefined, courseId?: string) {
     const res = await this.http.get<{ messages: import('@/features/mentor/types').MentorMessageV2[] }>(
-      '/mentor/thread', { params: lessonId ? { lessonId } : {} },
+      '/mentor/thread', { params: lessonId ? { lessonId } : courseId ? { courseId } : {} },
     )
     return res.data.messages
   }

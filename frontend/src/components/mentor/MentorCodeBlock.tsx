@@ -55,7 +55,7 @@ export function MentorCodeBlock({ code, lang }: { code: string; lang?: string })
   return (
     <div dir="ltr" className="my-2.5 overflow-hidden rounded-lg border border-[#1E2535] bg-[#0B0E14] text-start">
       <div className="flex min-h-[44px] items-center justify-between gap-3 border-b border-[#1E2535] ps-3.5 pe-1 lg:min-h-9">
-        <span className="font-mono text-[11px] uppercase tracking-wide text-[#8E9BB0]">{lang || 'code'}</span>
+        <span className="font-mono text-xs uppercase tracking-wide text-[#8E9BB0]">{lang || 'code'}</span>
         <button
           type="button"
           onClick={() => void copy()}

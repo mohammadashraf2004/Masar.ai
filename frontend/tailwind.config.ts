@@ -92,6 +92,15 @@ const config: Config = {
       // in globals.css (--lc-*), so the lesson body (element selectors there)
       // and the reader chrome around it (these utilities) cannot drift apart.
       fontSize: {
+        // Application typography. These semantic names keep page chrome,
+        // cards and supporting copy on one fluid, bilingual scale instead of
+        // repeating one-off pixel values in every feature.
+        'page-title':    ['var(--ui-title)', 'var(--ui-lh-heading)'],
+        'section-title': ['var(--ui-section)', 'var(--ui-lh-heading)'],
+        'card-title':    ['var(--ui-card-title)', 'var(--ui-lh-heading)'],
+        'body-copy':     ['var(--ui-body)', 'var(--ui-lh-body)'],
+        'description':   ['var(--ui-description)', 'var(--ui-lh-copy)'],
+        'caption':       ['var(--ui-caption)', 'var(--ui-lh-copy)'],
         'lc-title': ['var(--lc-title)', '1.3'],
         'lc-body':  ['var(--lc-body)', '1.75'],
         'lc-meta':  ['var(--lc-meta)', '1.5'],

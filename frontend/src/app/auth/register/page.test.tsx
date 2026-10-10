@@ -7,7 +7,7 @@ import { useLanguageStore } from '@/lib/language'
 import { router } from '@/test/nav'
 import type { User } from '@/types'
 
-vi.mock('@/hooks/useAuth', () => ({ useGuest: () => {} }))
+vi.mock('@/hooks/useAuth', () => ({ useGuest: () => {}, useSession: () => ({ user: null, isAuthenticated: false, isLoading: false }), useNextParam: () => null }))
 vi.mock('@/lib/api', () => ({ api: { register: vi.fn() } }))
 import { api } from '@/lib/api'
 

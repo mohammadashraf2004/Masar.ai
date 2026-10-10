@@ -1,6 +1,7 @@
 'use client'
 import { MobileNavProvider } from '@/components/layout/MobileNavContext'
 import { LegalGate } from '@/components/layout/LegalGate'
+import { AuthPromptDialog } from '@/components/auth/AuthPrompt'
 import { MobileMenu } from '@/components/layout/MobileMenu'
 import { ShellHeader } from '@/components/layout/ShellHeader'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -52,6 +53,10 @@ function AppShellFrame({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+
+      {/* "Sign in to continue", for a signed-out visitor who reaches for something
+          that needs an account. Last, so it stacks above the page's own dialogs. */}
+      <AuthPromptDialog />
     </div>
   )
 }

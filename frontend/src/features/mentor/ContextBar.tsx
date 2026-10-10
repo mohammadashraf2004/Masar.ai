@@ -1,72 +1,79 @@
 'use client'
-import { X } from 'lucide-react'
+import Link from 'next/link'
 import { useMentorV2I18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
+import type { MentorCourseOption } from './types'
+
+/** The hub's course picker: the courses the learner is enrolled in, or general. */
+export interface CoursePicker {
+  options: MentorCourseOption[]
+  /** The course attached now, or null for general. */
+  selected: string | null
+  /** Whether `selected` is one of the learner's courses (a lesson link can name another). */
+  enrolled: boolean
+  /** The attached course's name, for a course reached by a link that is not among `options`. */
+  selectedTitle?: string
+  onSelect: (courseId: string | null) => void
+}
 
 /**
- * What the mentor can see for the next message, as removable chips under the chat header: the
- * lesson, and the exercise's code. What is on is what the request carries as `context`; remove both
- * and the mentor answers in general. The default (the learner's last active lesson) is the
- * server's, so the labels come from the caller.
+ * What the mentor can see for the next message: the whole course the learner chose (the hub's
+ * picker - only courses they are enrolled in), or nothing for "General". A single lesson or an
+ * exercise's code is never attached here; that is the lesson's own mentor panel. The default (the
+ * learner's most active course) is the server's. With no picker (the course list could not be
+ * read), `courseTitle` names the attached course.
  */
-export function ContextBar({
-  lessonLabel,
-  codeLabel,
-  lessonOn,
-  codeOn,
-  onToggleLesson,
-  onToggleCode,
-  onRestore,
-}: {
-  lessonLabel: string | null
-  codeLabel: string | null
-  lessonOn: boolean
-  codeOn: boolean
-  onToggleLesson: (on: boolean) => void
-  onToggleCode: (on: boolean) => void
-  onRestore: () => void
-}) {
-  const { t, tf } = useMentorV2I18n()
-  const showLesson = lessonOn && lessonLabel !== null
-  const showCode = codeOn && codeLabel !== null
-  const anyAvailable = lessonLabel !== null || codeLabel !== null
-  const removed = (lessonLabel !== null && !lessonOn) || (codeLabel !== null && !codeOn)
-
-  const chip = 'inline-flex min-h-[44px] max-w-full items-center gap-1.5 rounded-full border ps-3 pe-1 text-xs lg:min-h-[28px]'
-  const remove = 'grid h-9 w-9 shrink-0 place-items-center rounded-full text-dim hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring lg:h-6 lg:w-6'
+export function ContextBar({ course, courseTitle }: { course?: CoursePicker; courseTitle?: string | null }) {
+  const { t, tf, n } = useMentorV2I18n()
+  const listed = !!course?.selected && course.options.some((option) => option.courseId === course.selected)
+  const wholeCourse = course ? !!course.selected && course.enrolled : !!courseTitle
 
   return (
-    <div data-testid="context-bar" className="flex flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-border bg-panel px-[18px] py-2">
+    <div data-testid="context-bar" data-tour="mentor-context" className="flex flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-border bg-panel px-[18px] py-2">
       <span className="text-xs text-dim">{t('mentor.v2.sees')}</span>
 
-      {showLesson && (
-        <span data-chip="lesson" className={cn(chip, 'border-amber bg-amber-soft text-amber-text')}>
-          <span dir="auto" className="min-w-0 truncate">{lessonLabel}</span>
-          <button type="button" aria-label={tf('mentor.v2.remove', { name: lessonLabel ?? '' })} onClick={() => onToggleLesson(false)} className={remove}>
-            <X size={12} aria-hidden="true" />
-          </button>
+      {course && (
+        <span data-tour="mentor-course" className="inline-flex max-w-full items-center gap-1.5">
+          <label htmlFor="mentor-course" className="sr-only">{t('mentor.v2.course.label')}</label>
+          <select
+            id="mentor-course"
+            dir="auto"
+            value={course.selected ?? ''}
+            onChange={(event) => course.onSelect(event.target.value || null)}
+            className={cn(
+              'min-h-[44px] max-w-full truncate rounded-full border ps-3 pe-8 text-xs lg:min-h-[28px]',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring',
+              course.selected ? 'border-amber bg-amber-soft text-amber-text' : 'border-border bg-surface text-bright',
+            )}
+          >
+            <option value="">{t('mentor.v2.course.general')}</option>
+            {course.options.map((option) => (
+              <option key={option.courseId} value={option.courseId}>
+                {tf('mentor.v2.course.progress', { name: option.title, done: n(option.lessonsDone), total: n(option.lessonsTotal) })}
+              </option>
+            ))}
+            {course.selected && !listed && (
+              <option value={course.selected} disabled>
+                {tf('mentor.v2.course.preview', { name: course.selectedTitle ?? course.selected })}
+              </option>
+            )}
+          </select>
+          {course.options.length === 0 && (
+            <span className="text-xs text-ghost">
+              {t('mentor.v2.course.none')}{' '}
+              <Link href="/explore" className="font-medium text-amber-text underline-offset-2 hover:underline">{t('mentor.v2.course.browse')}</Link>
+            </span>
+          )}
         </span>
       )}
 
-      {showCode && (
-        <span data-chip="code" dir="ltr" className={cn(chip, 'border-border bg-surface font-mono text-bright')}>
-          <span className="min-w-0 truncate">{codeLabel}</span>
-          <button type="button" aria-label={tf('mentor.v2.remove', { name: codeLabel ?? '' })} onClick={() => onToggleCode(false)} className={remove}>
-            <X size={12} aria-hidden="true" />
-          </button>
+      {wholeCourse ? (
+        <span data-chip="course" dir="auto" className="inline-flex min-h-[44px] max-w-full items-center rounded-full border border-amber/40 px-3 text-xs text-amber-text lg:min-h-[28px]">
+          <span className="min-w-0 truncate">{course ? t('mentor.v2.course.only') : courseTitle}</span>
         </span>
-      )}
-
-      {!showLesson && !showCode && <span className="min-w-0 flex-1 text-xs text-ghost">{t('mentor.v2.nothingAttached')}</span>}
-
-      {anyAvailable && removed && (
-        <button
-          type="button"
-          onClick={onRestore}
-          className="min-h-[44px] rounded-md px-2 text-xs font-medium text-amber-text hover:text-amber-text2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring lg:min-h-0 lg:py-1"
-        >
-          {t('mentor.v2.attach')}
-        </button>
+      ) : (
+        // At least 16rem wide, so beside a long picker it wraps to its own line rather than a narrow column.
+        <span className="min-w-[min(100%,16rem)] flex-1 text-xs text-ghost">{t('mentor.v2.nothingAttached')}</span>
       )}
     </div>
   )

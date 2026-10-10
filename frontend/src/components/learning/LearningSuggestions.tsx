@@ -57,7 +57,7 @@ export function LearningSuggestions() {
         // with nothing under way yet, what to start.
         <Card key={g.key} data-tour={i === 0 ? 'learn' : undefined} className="p-5">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-bright">{g.title}</h2>
+            <h2 className="ui-card-title">{g.title}</h2>
             <Link href="/learn/masar" className="inline-flex items-center gap-1 text-xs text-amber-text hover:text-amber-text2">
               {t('nav.yourMasar')} <ArrowRight size={11} className="rtl:rotate-180" aria-hidden="true" />
             </Link>

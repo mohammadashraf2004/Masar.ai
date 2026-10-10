@@ -9,7 +9,7 @@ import { YourMasarCard } from '@/components/learning/YourMasarCard'
 import { buttonStyles } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/index'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
-import { useI18n } from '@/lib/i18n'
+import { useI18n, type StringKey } from '@/lib/i18n'
 import { useAuthStore } from '@/lib/store'
 // [screens]
 import { HomeScreen } from '@/features/home/HomeScreen'
@@ -57,6 +57,15 @@ function MemberHome() {
   )
 }
 
+const BROWSE: Array<{ href: string; label: StringKey }> = [
+  { href: '/explore', label: 'nav.explore' },
+  { href: '/tracks', label: 'nav.tracks' },
+  { href: '/challenges', label: 'nav.challenges' },
+  { href: '/tools', label: 'nav.tools' },
+  { href: '/glossary', label: 'nav.glossary' },
+  { href: '/billing', label: 'nav.billing' },
+]
+
 function Landing() {
   const { t } = useI18n()
   const features = [
@@ -86,8 +95,8 @@ function Landing() {
           <Link href="/auth/register" className={buttonStyles({ size: 'lg' })}>
             {t('landing.signUp')} <ArrowRight size={14} className="rtl:rotate-180" aria-hidden="true" />
           </Link>
-          <Link href="/auth/login" className={buttonStyles({ size: 'lg', variant: 'ghost' })}>
-            {t('landing.signIn')}
+          <Link href="/explore" className={buttonStyles({ size: 'lg', variant: 'ghost' })}>
+            {t('landing.explore')}
           </Link>
         </div>
 
@@ -95,11 +104,25 @@ function Landing() {
           {features.map(({ icon: Icon, title, body }) => (
             <li key={title} className="rounded-lg border border-border bg-panel p-5">
               <Icon size={18} className="text-amber-text" aria-hidden="true" />
-              <h2 className="mt-3 text-sm font-semibold text-bright">{title}</h2>
+              <h2 className="ui-card-title mt-3">{title}</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-soft">{body}</p>
             </li>
           ))}
         </ul>
+
+        {/* Everything here can be browsed without an account; signing in is
+            only asked for when the visitor starts learning. */}
+        <section aria-labelledby="landing-browse" className="mt-12">
+          <h2 id="landing-browse" className="ui-card-title">{t('landing.browse')}</h2>
+          <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-soft">{t('landing.browse.body')}</p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {BROWSE.map(({ href, label }) => (
+              <li key={href}>
+                <Link href={href} className={buttonStyles({ size: 'sm', variant: 'ghost' })}>{t(label)}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
 
       <LegalFooter className="mx-auto w-full max-w-5xl pb-[env(safe-area-inset-bottom)]" />

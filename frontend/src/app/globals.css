@@ -23,6 +23,20 @@
   --font-mono: 'JetBrains Mono Diagrams', var(--font-jetbrains), ui-monospace, monospace;
   /* The name the Arabic rules below and lesson content were written against. */
   --font-arabic: var(--font-body);
+
+  /* Application typography. Keep this separate from the lesson-content
+     scale below: page chrome must remain compact while long-form learning
+     content needs a wider line height and its own reading measure. */
+  --ui-title: clamp(1.75rem, 1.65rem + 0.5vw, 2rem);       /* 28 -> 32px */
+  --ui-section: clamp(1.25rem, 1.18rem + 0.35vw, 1.5rem); /* 20 -> 24px */
+  --ui-card-title: clamp(1rem, 0.97rem + 0.15vw, 1.125rem); /* 16 -> 18px */
+  --ui-body: 1rem;
+  --ui-description: 0.875rem;
+  --ui-caption: 0.8125rem;
+  --ui-lh-heading: 1.3;
+  --ui-lh-copy: 1.6;
+  --ui-lh-body: 1.65;
+  --ui-measure: 70ch;
 }
 
 /* ── Theme tokens ─────────────────────────────────────────────────────
@@ -185,8 +199,84 @@ html {
 body {
   font-family: var(--font-body);
   background: rgb(var(--bg));
+  color: rgb(var(--text));
+  font-size: 1rem;
+  line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Semantic text roles shared by page chrome and reusable components. They
+   intentionally use the existing theme tokens: headings are strong without
+   being pure white body copy, descriptions remain readable, and accent is
+   left to links/status/interaction. */
+.ui-page-title {
+  color: rgb(var(--head));
+  font-family: var(--font-display);
+  font-size: var(--ui-title);
+  font-weight: 700;
+  line-height: var(--ui-lh-heading);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.ui-section-title {
+  color: rgb(var(--head));
+  font-family: var(--font-display);
+  font-size: var(--ui-section);
+  font-weight: 600;
+  line-height: var(--ui-lh-heading);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.ui-card-title {
+  color: rgb(var(--text));
+  font-family: var(--font-display);
+  font-size: var(--ui-card-title);
+  font-weight: 600;
+  line-height: var(--ui-lh-heading);
+  text-wrap: pretty;
+}
+.ui-body-copy {
+  color: rgb(var(--text));
+  font-size: var(--ui-body);
+  line-height: var(--ui-lh-body);
+}
+.ui-description {
+  color: rgb(var(--soft));
+  font-size: var(--ui-description);
+  line-height: var(--ui-lh-copy);
+  max-inline-size: var(--ui-measure);
+  text-wrap: pretty;
+}
+.ui-caption {
+  color: rgb(var(--mute));
+  font-size: var(--ui-caption);
+  line-height: var(--ui-lh-copy);
+}
+.ui-eyebrow {
+  color: rgb(var(--mute));
+  font-size: var(--ui-caption);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ui-eyebrow-accent {
+  color: rgb(var(--acc-text));
+}
+
+html[lang="ar"] :is(.ui-page-title, .ui-section-title, .ui-card-title) {
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+html[lang="ar"] :is(.ui-body-copy, .ui-description, .ui-caption) {
+  line-height: 1.8;
+}
+html[lang="ar"] .ui-eyebrow {
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 /* Scrollbar */
@@ -284,7 +374,7 @@ html[lang="ar"] [class*="tracking-"] { letter-spacing: normal; }
   margin-bottom: 0.5rem;
 }
 .prose-dark h2 { font-size: 1.25rem; }
-.prose-dark h3 { font-size: 1.1rem; color: rgb(var(--acc-text)); }
+.prose-dark h3 { font-size: 1.1rem; color: rgb(var(--text)); }
 .prose-dark p { margin-bottom: 0.875rem; }
 .prose-dark ul, .prose-dark ol { margin: 0.75rem 0 0.75rem 1.25rem; }
 .prose-dark li { margin-bottom: 0.3rem; }

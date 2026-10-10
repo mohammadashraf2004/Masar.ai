@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useId, useRef, useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { api } from '@/lib/api'
@@ -8,6 +7,8 @@ import { cn } from '@/lib/utils'
 import { useI18n, type StringKey } from '@/lib/i18n'
 import { localizedTitle } from '@/lib/content-language'
 import type { SearchHit } from '@/types'
+import { GatedLink, useRequireAuth } from '@/components/auth/AuthPrompt'
+import { needsAccount } from '@/lib/authRedirect'
 
 // Two letters is the smallest query the server's term expansion can do
 // anything useful with; the tools page uses the same floor.
@@ -28,6 +29,7 @@ const DEBOUNCE_MS = 250
 export function GlobalSearch({ className }: { className?: string }) {
   const { t, language } = useI18n()
   const router = useRouter()
+  const requireAuth = useRequireAuth()
   const listId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
   const boxRef = useRef<HTMLDivElement>(null)
@@ -102,6 +104,8 @@ export function GlobalSearch({ className }: { className?: string }) {
   /** Enter on the highlighted result. (A click needs only `finish`: the link navigates.) */
   function go(hit: SearchHit) {
     finish()
+    // A lesson or a course's lessons need an account: a visitor is asked to sign in first.
+    if (needsAccount(hit.href) && !requireAuth(hit.href)) return
     router.push(hit.href)
   }
 
@@ -160,7 +164,7 @@ export function GlobalSearch({ className }: { className?: string }) {
         >
           <kbd
             dir="ltr"
-            className="rounded border border-border px-1.5 py-px font-mono text-[11px] text-ghost"
+            className="rounded border border-border px-1.5 py-px font-mono text-xs text-ghost"
           >
             Ctrl K
           </kbd>
@@ -178,7 +182,7 @@ export function GlobalSearch({ className }: { className?: string }) {
             <ul id={listId} role="listbox" aria-label={t('search.label')} className="py-1.5">
               {list.map((hit, i) => (
                 <li key={`${hit.kind}-${hit.id}`} role="presentation">
-                  <Link
+                  <GatedLink
                     id={`${listId}-${i}`}
                     role="option"
                     aria-selected={i === active}
@@ -191,13 +195,13 @@ export function GlobalSearch({ className }: { className?: string }) {
                     )}
                   >
                     <span className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-ghost">
+                      <span className="font-mono text-xs uppercase tracking-wider text-ghost">
                         {t(`search.kind.${hit.kind}` as StringKey)}
                       </span>
                       {hit.parent_title && <span className="truncate text-xs text-ghost">{hit.parent_title}</span>}
                     </span>
                     <span className="text-[13px] text-bright">{localizedTitle(hit, language) || hit.title}</span>
-                  </Link>
+                  </GatedLink>
                 </li>
               ))}
             </ul>

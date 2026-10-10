@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, X } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useSession } from '@/hooks/useAuth'
 import { useLearningCatalog } from '@/hooks/useLearningCatalog'
 import { AppShell } from '@/components/layout/AppShell'
 import { LegalFooter } from '@/components/layout/LegalFooter'
@@ -47,7 +47,8 @@ const toggle = (list: string[], slug: string) =>
  * chosen: exactly the combination the path generator takes.
  */
 export default function ExplorePage() {
-  const { isLoading: authLoading } = useAuth()
+  // Public: the catalogue is for browsing without an account.
+  const { isLoading: authLoading } = useSession()
   const { t } = useI18n()
   const ctx = useLabelContext()
   const { catalog, error } = useLearningCatalog()
@@ -104,7 +105,7 @@ export default function ExplorePage() {
             <>
               <section className="space-y-5" aria-label="Filters">
                 <div>
-                  <h2 className="mb-2 text-xs font-medium uppercase tracking-widest text-ghost">{t('explore.byLevel')}</h2>
+                  <h2 className="ui-eyebrow mb-2">{t('explore.byLevel')}</h2>
                   <div className="flex flex-wrap gap-2">
                     {catalog.levels.map((l) => (
                       <Chip key={l.slug} pressed={levels.includes(l.slug)} onClick={() => setLevels(toggle(levels, l.slug))}>
@@ -114,7 +115,7 @@ export default function ExplorePage() {
                   </div>
                 </div>
                 <div>
-                  <h2 className="mb-2 text-xs font-medium uppercase tracking-widest text-ghost">{t('explore.byField')}</h2>
+                  <h2 className="ui-eyebrow mb-2">{t('explore.byField')}</h2>
                   <div className="flex flex-wrap gap-2">
                     {catalog.fields.map((f) => (
                       <Chip key={f.slug} pressed={fields.includes(f.slug)} onClick={() => setFields(toggle(fields, f.slug))}>
@@ -124,7 +125,7 @@ export default function ExplorePage() {
                   </div>
                 </div>
                 <div>
-                  <h2 className="mb-2 text-xs font-medium uppercase tracking-widest text-ghost">{t('explore.byCareer')}</h2>
+                  <h2 className="ui-eyebrow mb-2">{t('explore.byCareer')}</h2>
                   <div className="flex flex-wrap gap-2">
                     {catalog.goals.map((g) => (
                       <Chip key={g.slug} pressed={goals.includes(g.slug)} onClick={() => setGoals(toggle(goals, g.slug))}>
@@ -163,7 +164,7 @@ export default function ExplorePage() {
               </Card>
 
               <section aria-label={t('explore.courses')}>
-                <h2 className="mb-3 text-xs font-medium uppercase tracking-widest text-ghost">
+                <h2 className="ui-eyebrow mb-3">
                   {t('explore.courses')}{courses ? ` (${courses.length})` : ''}
                 </h2>
                 {!courses ? (

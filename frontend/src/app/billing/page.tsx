@@ -1,7 +1,8 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
+import { useSession } from '@/hooks/useAuth'
+import { useRequireAuth } from '@/components/auth/AuthPrompt'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PageBody } from '@/components/layout/PageContainer'
@@ -38,7 +39,10 @@ type Promo = { code: string; percent: number }
  * are VAT-inclusive, so the order adds up to what is charged and no tax line is added.
  */
 export default function BillingPage() {
-  const { isLoading: authLoading } = useAuth()
+  // Public: plans, prices and what they include are for anyone to compare.
+  // Starting a trial or paying needs an account (the server refuses it anyway).
+  const { isLoading: authLoading } = useSession()
+  const requireAuth = useRequireAuth()
   const { t, tf } = useI18n()
   const router = useRouter()
   const provider = useMemo(() => getPaymentProvider(), [])
@@ -131,6 +135,7 @@ export default function BillingPage() {
   }
 
   async function pay() {
+    if (!requireAuth('/billing')) return
     const startsTrial = Boolean(catalog?.trialEligible && cart.type === 'plan' && cart.id === 'pro')
     if (!catalog || !totals || processing || (!startsTrial && (!provider || !method))) return
     setProcessing(true)

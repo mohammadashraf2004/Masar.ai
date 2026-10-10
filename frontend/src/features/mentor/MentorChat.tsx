@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, ArrowRight, Send } from 'lucide-react'
@@ -7,6 +7,7 @@ import { LogoMark } from '@/components/layout/Logo'
 import { useCreditBalance } from '@/components/layout/WalletContext'
 import { MentorMarkdown } from '@/components/mentor/MentorMarkdown'
 import { QuotaUpsell } from '@/components/mentor/QuotaUpsell'
+import { useFillHeight } from '@/hooks/useFillHeight'
 import type { Thread } from '@/hooks/useMentorChat'
 import { Card } from '@/components/ui/index'
 import { useI18n, useMentorV2I18n } from '@/lib/i18n'
@@ -14,10 +15,10 @@ import { cannotAffordMessage } from '@/lib/mentor/credits'
 import { cn } from '@/lib/utils'
 import { ActionChips, NEEDS_NO_TEXT, placeholderKey } from './ActionChips'
 import { ContextBar } from './ContextBar'
-import { contextLabels, DEFAULT_CONTEXT } from './context'
+import { DEFAULT_CONTEXT } from './context'
 import { LearnerModelCard, PastChats, SuggestionCard } from './MentorAside'
 import { MentorBlocks, MentorMessageView, type MessageActions } from './MentorMessageView'
-import type { MentorContextSelection } from './types'
+import type { MentorContextSelection, MentorCourseOption } from './types'
 import { useMentorV2 } from './useMentorV2'
 import { mentorV2EndpointLive } from './flag'
 import { mockCreditBalanceFromQuery } from './mock'
@@ -27,13 +28,24 @@ const MAX_COMPOSER_HEIGHT = 128
 /**
  * The hub's chat (Mentor v2 §2a): a chat card with the context bar, the messages, the action chips
  * and the composer, beside the learner model, the suggestion and past chats. Below 900px the chat
- * is the whole screen, with its own top bar, and the aside is left to the other tabs.
+ * is the whole screen, with its own top bar, and the aside is left to the other tabs. The hub passes
+ * a whole course as `base` (see `wholeCourse`), so the bar has no lesson or code to show.
  */
-export function MentorChat({ base = DEFAULT_CONTEXT }: { base?: MentorContextSelection }) {
-  const { t, tf, n, language } = useMentorV2I18n()
+export function MentorChat({
+  base = DEFAULT_CONTEXT,
+  courses,
+  onSelectCourse,
+}: {
+  base?: MentorContextSelection
+  /** The learner's enrolled courses, for the course picker (undefined: no picker). */
+  courses?: MentorCourseOption[]
+  onSelectCourse?: (courseId: string | null) => void
+}) {
+  const { t, tf } = useMentorV2I18n()
   const { t: tOld, dir } = useI18n()
   const router = useRouter()
   const chat = useMentorV2({ base, proactive: true })
+  const [chatRef, chatHeight] = useFillHeight<HTMLDivElement>()
   const walletBalance = useCreditBalance()
   const mockBalance = mentorV2EndpointLive('message') ? null : mockCreditBalanceFromQuery()
   const balance = mockBalance ?? walletBalance
@@ -42,9 +54,16 @@ export function MentorChat({ base = DEFAULT_CONTEXT }: { base?: MentorContextSel
   const log = useRef<HTMLDivElement>(null)
   const field = useRef<HTMLTextAreaElement>(null)
 
-  const labels = contextLabels(base, language, n)
-  const lessonLabel = base.lessonId ? labels.lesson : null
-  const codeLabel = base.exerciseId ? labels.code : null
+  const picker = courses && onSelectCourse
+    ? {
+        options: courses,
+        selected: base.courseId ?? null,
+        enrolled: !!base.courseEnrolled,
+        selectedTitle: base.courseTitle,
+        onSelect: onSelectCourse,
+      }
+    : undefined
+  const courseTitle = base.courseEnrolled ? base.courseTitle : undefined
   const left = balance === null ? null : Math.max(0, balance - chat.spent)
   const broke = chat.creditsShort || cannotAffordMessage(balance, chat.spent)
   const canSend = !chat.loading && (draft.trim() !== '' || (chat.intent !== null && NEEDS_NO_TEXT.includes(chat.intent)))
@@ -81,7 +100,12 @@ export function MentorChat({ base = DEFAULT_CONTEXT }: { base?: MentorContextSel
   return (
     <>
       {/* Mobile: the chat is the screen. */}
-      <div className="flex min-w-0 flex-[2_1_520px] flex-col max-[899px]:fixed max-[899px]:inset-0 max-[899px]:z-[60] max-[899px]:bg-void" data-testid="mentor-chat">
+      <div
+        ref={chatRef}
+        style={chatHeight ? ({ '--mentor-chat-h': `${chatHeight}px` } as CSSProperties) : undefined}
+        className="flex min-w-0 flex-[2_1_520px] flex-col max-[899px]:fixed max-[899px]:inset-0 max-[899px]:z-[60] max-[899px]:bg-void"
+        data-testid="mentor-chat"
+      >
         <header className="flex items-center gap-2.5 border-b border-border bg-ink px-3 pt-[env(safe-area-inset-top)] min-[900px]:hidden">
           <button
             type="button"
@@ -93,7 +117,7 @@ export function MentorChat({ base = DEFAULT_CONTEXT }: { base?: MentorContextSel
           </button>
           <div className="min-w-0 flex-1 py-2">
             <p className="text-sm font-semibold text-white">{t('mentor.v2.mobile.title')}</p>
-            {lessonLabel && <p dir="auto" className="truncate text-[11px] text-ghost">{lessonLabel}</p>}
+            {courseTitle && <p dir="auto" className="truncate text-xs text-ghost">{courseTitle}</p>}
           </div>
           {left !== null && (
             <Link href="/billing" className="flex h-[34px] items-center gap-2 rounded-full border border-border bg-surface px-3 font-mono text-xs text-white">
@@ -102,7 +126,8 @@ export function MentorChat({ base = DEFAULT_CONTEXT }: { base?: MentorContextSel
           )}
         </header>
 
-        <Card className="flex h-[calc(100dvh-200px)] min-h-[480px] min-w-0 flex-col overflow-hidden p-0 md:h-[640px] max-[899px]:h-auto max-[899px]:min-h-0 max-[899px]:flex-1 max-[899px]:rounded-none max-[899px]:border-0">
+        {/* From 900px the window runs to the bottom of the screen (useFillHeight); below it is the whole screen. */}
+        <Card className="flex min-w-0 flex-col overflow-hidden p-0 min-[900px]:h-[var(--mentor-chat-h,640px)] min-[900px]:min-h-[420px] max-[899px]:min-h-0 max-[899px]:flex-1 max-[899px]:rounded-none max-[899px]:border-0">
           <div className="flex items-center gap-3 border-b border-border px-[18px] py-3.5 max-[899px]:hidden">
             <LogoMark size={34} label={null} />
             <div className="min-w-0 flex-1">
@@ -119,15 +144,7 @@ export function MentorChat({ base = DEFAULT_CONTEXT }: { base?: MentorContextSel
             </button>
           </div>
 
-          <ContextBar
-            lessonLabel={lessonLabel}
-            codeLabel={codeLabel}
-            lessonOn={chat.lessonOn}
-            codeOn={chat.codeOn}
-            onToggleLesson={chat.setLessonOn}
-            onToggleCode={chat.setCodeOn}
-            onRestore={() => { chat.setLessonOn(true); chat.setCodeOn(true) }}
-          />
+          <ContextBar course={picker} courseTitle={courseTitle} />
 
           {viewing && (
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-panel px-[18px] py-2.5 text-xs text-dim">
@@ -188,6 +205,7 @@ export function MentorChat({ base = DEFAULT_CONTEXT }: { base?: MentorContextSel
                 <ActionChips selected={chat.intent} disabled={chat.loading || !!viewing} onSelect={chat.setIntent} />
                 <form
                   className="flex items-end gap-2.5 px-3.5 pb-1 max-[899px]:pb-[max(0.25rem,env(safe-area-inset-bottom))]"
+                  data-tour="mentor-composer"
                   onSubmit={(e) => { e.preventDefault(); void submit() }}
                 >
                   <textarea

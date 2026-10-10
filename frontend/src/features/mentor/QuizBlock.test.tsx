@@ -40,6 +40,17 @@ describe('QuizBlock', () => {
     expect(JSON.stringify(quiz)).not.toMatch(/correct/i)
   })
 
+  it('uses dark text on the yellow selected state', async () => {
+    vi.spyOn(mentorV2, 'answerQuiz').mockReturnValue(new Promise(() => {}))
+    view()
+
+    const option = screen.getByRole('radio', { name: /thread_id/ })
+    await userEvent.click(option)
+
+    expect(option).toHaveClass('bg-amber', 'text-on-amber')
+    expect(option).not.toHaveClass('text-white')
+  })
+
   it('confirms a right pick and shows how far the skill moved, in mono', async () => {
     const onResult = vi.fn()
     view(onResult)

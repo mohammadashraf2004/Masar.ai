@@ -35,7 +35,7 @@ export function InterviewSide({
     <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-5">
       {session && (
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold text-white">{t(on ? 'interview.lastScore' : 'interview.scoresOff.title')}</h2>
+          <h2 className="ui-card-title mb-3">{t(on ? 'interview.lastScore' : 'interview.scoresOff.title')}</h2>
           {!on ? (
             <p className="text-[13px] leading-relaxed text-dim">{t('interview.scoresOff')}</p>
           ) : score && last ? (
@@ -63,7 +63,7 @@ export function InterviewSide({
       )}
 
       <Card className="p-5">
-        <h2 className="mb-2 text-sm font-semibold text-white">{t('interview.history')}</h2>
+        <h2 className="ui-card-title mb-2">{t('interview.history')}</h2>
         {loaded && past.length === 0 ? (
           <p className="py-1 text-[13px] text-ghost">{t('interview.history.empty')}</p>
         ) : (

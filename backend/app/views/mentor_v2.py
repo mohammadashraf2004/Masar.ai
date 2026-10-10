@@ -19,6 +19,7 @@ INTENTS = (
     "EXPLAIN", "SIMPLIFY", "HINT", "SOCRATIC", "DEBUG", "QUIZ", "PRACTICE",
     "REVIEW", "CONNECT", "WHY", "PROJECT_COACH", "CAREER_CONTEXT", "GENERAL_QUESTION",
 )
+CONTEXT_ONLY_INTENTS = {"HINT", "QUIZ", "REVIEW"}
 Intent = Literal[
     "EXPLAIN", "SIMPLIFY", "HINT", "SOCRATIC", "DEBUG", "QUIZ", "PRACTICE",
     "REVIEW", "CONNECT", "WHY", "PROJECT_COACH", "CAREER_CONTEXT", "GENERAL_QUESTION",
@@ -62,8 +63,12 @@ class MentorMessageIn(BaseModel):
 
     @model_validator(mode="after")
     def _text_or_trigger(self):
-        if not (self.text and self.text.strip()) and not self.trigger:
-            raise ValueError("a message needs text, or a trigger the server can verify")
+        has_text = bool(self.text and self.text.strip())
+        uses_visible_context = self.intent in CONTEXT_ONLY_INTENTS
+        if not has_text and not self.trigger and not uses_visible_context:
+            raise ValueError(
+                "a message needs text, a context-only intent, or a trigger the server can verify"
+            )
         return self
 
 
@@ -120,3 +125,18 @@ class MentorContextOut(BaseModel):
     exerciseTitle: Optional[str] = None
     lessonNumber: Optional[int] = None
     lessonTotal: Optional[int] = None
+    # Whether the learner is enrolled in this course: only such a course can be chosen in the
+    # hub as what a conversation is about.
+    courseEnrolled: Optional[bool] = None
+
+
+class MentorCourseOut(BaseModel):
+    courseId: str
+    title: str
+    lessonsDone: int
+    lessonsTotal: int
+
+
+class MentorCoursesOut(BaseModel):
+    """The courses the learner is enrolled in, for the hub's course picker."""
+    courses: List[MentorCourseOut]

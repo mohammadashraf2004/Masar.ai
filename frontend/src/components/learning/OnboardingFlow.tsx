@@ -92,7 +92,7 @@ export function OnboardingFlow({ catalog, initial, onDone }: OnboardingFlowProps
   return (
     <div className="mx-auto w-full max-w-2xl">
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-white">{t('onb.title')}</h1>
+        <h1 className="ui-page-title">{t('onb.title')}</h1>
         <p className="mt-1 text-sm text-soft">{t('onb.subtitle')}</p>
       </div>
 
@@ -115,7 +115,7 @@ export function OnboardingFlow({ catalog, initial, onDone }: OnboardingFlowProps
       <Card className="p-5 sm:p-6">
         {step === 1 && (
           <section aria-labelledby="onb-h">
-            <h2 id="onb-h" className="text-lg font-semibold text-bright">{t('onb.level.title')}</h2>
+            <h2 id="onb-h" className="ui-section-title">{t('onb.level.title')}</h2>
             <p className="mb-4 mt-1 text-sm text-soft">{t('onb.level.hint')}</p>
             <LevelPicker
               levels={catalog.levels}
@@ -127,7 +127,7 @@ export function OnboardingFlow({ catalog, initial, onDone }: OnboardingFlowProps
 
         {step === 2 && (
           <section aria-labelledby="onb-h">
-            <h2 id="onb-h" className="text-lg font-semibold text-bright">{t('onb.fields.title')}</h2>
+            <h2 id="onb-h" className="ui-section-title">{t('onb.fields.title')}</h2>
             <p className="mb-4 mt-1 text-sm text-soft">{t('onb.fields.hint')}</p>
             <FieldPicker
               fields={catalog.fields}
@@ -140,7 +140,7 @@ export function OnboardingFlow({ catalog, initial, onDone }: OnboardingFlowProps
 
         {step === 3 && (
           <section aria-labelledby="onb-h">
-            <h2 id="onb-h" className="text-lg font-semibold text-bright">{t('onb.goal.title')}</h2>
+            <h2 id="onb-h" className="ui-section-title">{t('onb.goal.title')}</h2>
             <p className="mb-4 mt-1 text-sm text-soft">{t('onb.goal.hint')}</p>
             <GoalPicker
               goals={catalog.goals}
@@ -152,7 +152,7 @@ export function OnboardingFlow({ catalog, initial, onDone }: OnboardingFlowProps
 
         {step === 4 && answers.goal && (
           <section aria-labelledby="onb-h">
-            <h2 id="onb-h" className="text-lg font-semibold text-bright">{t('skills.title')}</h2>
+            <h2 id="onb-h" className="ui-section-title">{t('skills.title')}</h2>
             <p className="mb-4 mt-1 text-sm text-soft">{t('skills.subtitle')}</p>
             <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border bg-surface px-3 py-2.5 text-xs text-soft">
               {goal && <LearningLabel parts={roleLabel(goal, ctx)} className="text-bright" />}
@@ -166,7 +166,7 @@ export function OnboardingFlow({ catalog, initial, onDone }: OnboardingFlowProps
               <span aria-hidden="true">·</span>
               {level && <LearningLabel parts={levelLabel(level, ctx)} />}
             </p>
-            <h3 className="text-sm font-semibold text-bright">{t('skills.heading')}</h3>
+            <h3 className="ui-card-title">{t('skills.heading')}</h3>
             <p className="mb-4 mt-1 text-xs text-soft">{t('skills.hint')}</p>
             <SkillsStep
               query={{ goal: answers.goal, level: answers.level, fields: answers.fields }}

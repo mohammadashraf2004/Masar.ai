@@ -73,7 +73,7 @@ export function QuizPanel({ quiz }: QuizPanelProps) {
     <div className="space-y-4 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h3 dir="auto" className="font-medium text-bright">{quiz.title}</h3>
+          <h3 dir="auto" className="ui-card-title">{quiz.title}</h3>
           <p className="text-xs text-ghost mt-0.5">
             {mcqIndices.length} multiple-choice{openIndices.length > 0 ? ` · ${openIndices.length} open-ended` : ''} · pass at {quiz.passing_score}%
           </p>

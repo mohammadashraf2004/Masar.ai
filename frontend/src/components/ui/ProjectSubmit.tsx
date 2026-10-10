@@ -144,7 +144,7 @@ export function ProjectSubmit({ project }: { project: Project }) {
             <div key={i} className="p-3 rounded bg-surface border border-border space-y-1.5">
               <div className="flex items-center gap-1.5">
                 <Lightbulb size={12} className="text-amber-text" />
-                <span className="text-[11px] font-medium uppercase tracking-wider text-amber-text">
+                <span className="ui-eyebrow ui-eyebrow-accent">
                   Hint {i + 1}
                 </span>
               </div>
@@ -166,7 +166,7 @@ export function ProjectSubmit({ project }: { project: Project }) {
       {open && (
         <form onSubmit={submit} className="space-y-3 border-t border-border pt-4">
           <div className="space-y-1.5">
-            <label className="text-[11px] font-medium uppercase tracking-wider text-amber-text">
+            <label className="ui-eyebrow ui-eyebrow-accent">
               Your solution
             </label>
             <CodeCell

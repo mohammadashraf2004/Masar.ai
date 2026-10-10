@@ -36,6 +36,7 @@ export function ActionChips({
     <div
       role="group"
       aria-label={t('mentor.v2.actions.label')}
+      data-tour="mentor-actions"
       className="flex gap-2 overflow-x-auto px-3.5 pb-2.5 pt-1 [scrollbar-width:none]"
     >
       {ACTIONS.map(({ key, intent }) => {

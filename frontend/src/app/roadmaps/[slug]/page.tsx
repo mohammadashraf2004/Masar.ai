@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
+import { useSession } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PageBody } from '@/components/layout/PageContainer'
@@ -23,7 +23,8 @@ import type { TrackDetail } from '@/types'
  * following the order, or without this roadmap at all.
  */
 export default function RoadmapPage() {
-  const { isLoading: authLoading } = useAuth()
+  // Public: a roadmap is something to explore before signing up.
+  const { isLoading: authLoading } = useSession()
   const { slug } = useParams() as { slug: string }
   const { t, tf, language } = useI18n()
   const ctx = useLabelContext()

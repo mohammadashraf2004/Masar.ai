@@ -90,7 +90,7 @@ export function QuizBlock({
 
   return (
     <div className="flex flex-col gap-2.5" data-testid="quiz-block">
-      <span dir="ltr" className="font-mono text-[10px] text-ghost" style={{ letterSpacing: '0.1em' }}>{t('mentor.v2.quiz.label')}</span>
+      <span dir="ltr" className="ui-eyebrow font-mono">{t('mentor.v2.quiz.label')}</span>
       <p dir="auto" className="text-sm font-medium leading-[1.7] text-white">{shown.question}</p>
       <ul role="radiogroup" aria-label={shown.question} className="flex flex-col gap-2">
         {shown.options.map((option, i) => {
@@ -110,7 +110,7 @@ export function QuizBlock({
                   'flex min-h-[44px] w-full items-center gap-3 rounded-lg border px-3 py-2 text-start text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring',
                   right ? 'border-emerald bg-emerald/10 text-white'
                     : wrong ? 'border-rose bg-rose/10 text-white'
-                    : isPicked ? 'border-amber bg-amber-soft text-white'
+                    : isPicked ? 'border-amber bg-amber text-on-amber'
                     : 'border-border bg-surface text-bright hover:border-amber/40',
                 )}
               >

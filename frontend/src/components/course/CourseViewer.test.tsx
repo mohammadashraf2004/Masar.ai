@@ -9,7 +9,7 @@ import type { Exercise, Lesson, ToolCourse, ToolTopic } from '@/types'
 // [/code-cell]
 
 const auth = vi.hoisted(() => ({ user: { id: 1 }, isAuthenticated: true, isLoading: false }))
-vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth }))
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth, useSession: () => auth, useNextParam: () => null }))
 vi.mock('@/components/layout/AppShell', () => ({ AppShell: ({ children }: { children: ReactNode }) => <>{children}</> }))
 vi.mock('@/components/layout/PageHeader', () => ({ PageHeader: ({ title }: { title: string }) => <h1>{title}</h1> }))
 vi.mock('@/lib/api', async (importOriginal) => {

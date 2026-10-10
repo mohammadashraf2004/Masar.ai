@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import MentorPage from '@/app/mentor/page'
@@ -19,6 +19,7 @@ vi.mock('@/hooks/useAuth', () => ({
     isAuthenticated: true,
     isLoading: false,
   }),
+  useNextParam: () => null,
 }))
 vi.mock('@/components/layout/AppShell', async () => {
   const { createElement } = await import('react')
@@ -86,6 +87,8 @@ class FakeRecognition {
 }
 
 beforeEach(() => {
+  // The interview itself: until it opens, learners get "coming soon" (the last describe).
+  vi.stubEnv('NEXT_PUBLIC_MOCK_INTERVIEW', '1')
   Element.prototype.scrollTo = vi.fn()
   vi.mocked(api.getMentorSessions).mockResolvedValue([])
   listTracks.mockResolvedValue([
@@ -638,5 +641,31 @@ describe('the interview loading state, from the handoff', () => {
     const bar = await screen.findByTestId('mentor-upsell')
     expect(within(bar).getByText(STRINGS.en['interview.upsell.credits.body'])).toBeInTheDocument()
     expect(within(bar).getByRole('link', { name: STRINGS.en['mentor.upsell.credits.cta'] })).toHaveAttribute('href', '/billing')
+  })
+})
+
+describe('before the mock interview opens', () => {
+  beforeEach(() => vi.stubEnv('NEXT_PUBLIC_MOCK_INTERVIEW', ''))
+
+  it('the tab says coming soon, offers no way to start, and starts nothing', async () => {
+    seed({}, false)
+    await renderStage()
+    expect(screen.getByTestId('interview-coming-soon')).toHaveTextContent(STRINGS.en['interview.soon.title'])
+    expect(screen.queryByRole('link', { name: STRINGS.en['interview.report.new'] })).not.toBeInTheDocument()
+    expect(screen.queryByText(STRINGS.en['interview.none.title'])).not.toBeInTheDocument()
+    expect(api.getMockInterviewQuestion).not.toHaveBeenCalled()
+  })
+
+  it('a link to the setup or a report lands on the same notice, with the way back', async () => {
+    await act(async () => { render(<SetupPage />) })
+    expect(screen.getByTestId('interview-coming-soon')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: STRINGS.en['interview.report.back'] })).toHaveAttribute('href', '/mentor')
+    expect(screen.queryByRole('button', { name: STRINGS.en['interview.start'] })).not.toBeInTheDocument()
+    expect(listTracks).not.toHaveBeenCalled()
+    cleanup()
+
+    setParams({ id: 'iv1' })
+    await act(async () => { render(<ReportPage />) })
+    expect(screen.getByTestId('interview-coming-soon')).toBeInTheDocument()
   })
 })

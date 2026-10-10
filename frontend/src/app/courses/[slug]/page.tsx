@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { Check, Lock } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useSession } from '@/hooks/useAuth'
+import { useRequireAuth } from '@/components/auth/AuthPrompt'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PageBody } from '@/components/layout/PageContainer'
@@ -29,7 +30,10 @@ import type { CatalogCourseDetail, CourseAccess, ReadinessReport } from '@/types
  * The lessons stay on their existing pages: the catalogue entry points at them.
  */
 export default function CoursePage() {
-  const { isLoading: authLoading } = useAuth()
+  // Public: anyone may read what a course is. Starting it needs an account, and
+  // what a signed-in learner may open is the server's answer (Free/Pro, owned).
+  const { isLoading: authLoading, isAuthenticated } = useSession()
+  const requireAuth = useRequireAuth()
   const { slug } = useParams() as { slug: string }
   const { t, language } = useI18n()
   const [course, setCourse] = useState<CatalogCourseDetail | null>(null)
@@ -43,6 +47,11 @@ export default function CoursePage() {
     api.getCatalogCourse(slug)
       .then(async (c) => {
         setCourse(c)
+        if (!isAuthenticated) {
+          // No account, no access or readiness to ask about.
+          setState('ready')
+          return
+        }
         const ownership = await api.getCourseAccess(slug)
         setAccess(ownership)
         setState('ready')
@@ -52,7 +61,7 @@ export default function CoursePage() {
         }
       })
       .catch(() => setState('missing'))
-  }, [authLoading, slug])
+  }, [authLoading, isAuthenticated, slug])
 
   if (authLoading) {
     return <div className="flex min-h-dvh items-center justify-center bg-void"><Spinner announce className="h-6 w-6" /></div>
@@ -78,7 +87,18 @@ export default function CoursePage() {
 
             <aside className="space-y-4 lg:order-2 lg:self-start">
               <Card className="space-y-4 p-5">
-                {canLearn ? (
+                {!isAuthenticated ? (
+                  <>
+                    <p className="text-sm text-bright">{t('gate.lessonsAfterSignIn')}</p>
+                    <button
+                      type="button"
+                      onClick={() => requireAuth(`/courses/${slug}`)}
+                      className={buttonStyles({ variant: 'amber', size: 'lg', className: 'w-full' })}
+                    >
+                      {t('gate.startLearning')}
+                    </button>
+                  </>
+                ) : canLearn ? (
                   <p className="flex items-center gap-2 text-sm text-emerald">
                     <Check size={16} aria-hidden="true" />
                     {access?.reason === 'pro' ? t('course.proAccess') : t('course.owned')}

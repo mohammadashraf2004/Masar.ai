@@ -13,6 +13,7 @@ import type { BillingCatalogApi } from '@/lib/api'
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: null, isAuthenticated: true, isLoading: false }),
   useGuest: () => {},
+  useSession: () => ({ user: null, isAuthenticated: true, isLoading: false }), useNextParam: () => null,
 }))
 vi.mock('@/lib/api', () => ({ api: {
   getWallet: vi.fn(), search: vi.fn(), getBillingCatalog: vi.fn(), startSubscriptionTrial: vi.fn(),

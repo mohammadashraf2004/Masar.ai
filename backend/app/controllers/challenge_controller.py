@@ -177,6 +177,42 @@ Return ONLY a JSON object with this exact structure:
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
+class PublicChallengeCard(BaseModel):
+    """What a signed-out visitor may see of a challenge: the catalogue card.
+
+    An explicit whitelist, not a redacted ChallengeDetail: the dataset, its
+    description, the grading rubric, the hints and every attempt field stay
+    behind sign-in, so a field added to the detail later is never public by
+    accident.
+    """
+    id: int
+    title: str
+    slug: str
+    difficulty: str
+    credit_cost: int
+    passing_score: float
+    max_attempts: int
+    description: str
+    tags: list
+
+
+@router.get("/catalog", response_model=List[PublicChallengeCard])
+def list_public_challenges(db: Session = Depends(get_db)):
+    """The challenge catalogue for anyone, signed in or not - browsing needs no
+    account. Joining, the dataset, hints and submitting all still do.
+    Declared before `/{slug}` so "catalog" is never read as a slug."""
+    challenges = db.query(ChallengeProject).filter(ChallengeProject.is_active == True).all()
+    return [
+        PublicChallengeCard(
+            id=ch.id, title=ch.title, slug=ch.slug,
+            difficulty=ch.difficulty.value, credit_cost=ch.credit_cost,
+            passing_score=ch.passing_score, max_attempts=ch.max_attempts,
+            description=ch.description, tags=ch.tags or [],
+        )
+        for ch in challenges
+    ]
+
+
 @router.get("/", response_model=List[ChallengeListItem])
 def list_challenges(
     current_user: User = Depends(get_current_user),

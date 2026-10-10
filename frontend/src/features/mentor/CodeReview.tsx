@@ -162,7 +162,7 @@ export function CodeReview({ exerciseId }: { exerciseId?: string }) {
               {fileName}
               <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-0.5" style={{ background: codeCellColors.amber }} />
             </span>
-            <span className="ms-auto font-mono text-[11px]" style={{ color: codeCellColors.muted }}>{t('mentor.v2.review.static')}</span>
+            <span className="ms-auto font-mono text-xs" style={{ color: codeCellColors.muted }}>{t('mentor.v2.review.static')}</span>
           </div>
 
           <div className="overflow-x-auto py-3.5" data-testid="review-code">
@@ -216,7 +216,7 @@ export function CodeReview({ exerciseId }: { exerciseId?: string }) {
 
       <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-5">
         <Card className="flex flex-col gap-3 p-5" aria-busy={busy}>
-          <h2 className="text-sm font-semibold text-white">{t('mentor.v2.review.notes')}</h2>
+          <h2 className="ui-card-title">{t('mentor.v2.review.notes')}</h2>
           {busy && <p role="status" className="text-xs text-ghost">{t('mentor.v2.review.reviewing')}</p>}
           {result?.summary && <p dir="auto" className="text-[13px] leading-[1.7] text-bright" data-testid="review-summary">{result.summary}</p>}
           {result && result.comments.length === 0 && <p className="text-xs text-ghost">{t('mentor.v2.review.noNotes')}</p>}
@@ -243,7 +243,7 @@ export function CodeReview({ exerciseId }: { exerciseId?: string }) {
 
         {result && (
           <Card className="flex flex-col gap-3 p-5" data-testid="debug-card">
-            <h2 className="text-sm font-semibold text-white">{t('mentor.v2.review.debug')}</h2>
+            <h2 className="ui-card-title">{t('mentor.v2.review.debug')}</h2>
             <ol className="flex flex-col gap-2.5">
               {result.debugSteps.map((step, i) => (
                 <li key={i} data-unlocked={step.unlocked} className={cn('flex gap-2.5 text-[13px] leading-[1.7]', step.unlocked ? 'text-bright' : 'text-ghost')}>

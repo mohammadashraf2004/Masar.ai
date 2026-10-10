@@ -23,6 +23,10 @@ describe('LegalFooter', () => {
     )
     expect(linkedin.parentElement).toContainElement(footer.querySelector('.brand-en'))
     expect(within(footer).getByRole('navigation')).not.toContainElement(linkedin)
+    const reference = within(footer).getByText('+201044881008')
+    expect(reference).toHaveAttribute('dir', 'ltr')
+    expect(linkedin.parentElement).toContainElement(reference)
+    expect(linkedin.compareDocumentPosition(reference) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('renders the Arabic copy while keeping the company line left-to-right', () => {
@@ -35,6 +39,7 @@ describe('LegalFooter', () => {
     expect(footer).toHaveTextContent('جميع الحقوق محفوظة')
     expect(footer.querySelector('.brand-ar')).toHaveTextContent('مسار')
     expect(footer.querySelector('.brand-en')).toHaveClass('brand-en')
-    expect(footer.querySelector('span[dir="ltr"]')).toHaveTextContent(`© ${new Date().getFullYear()} Masar Inc.`)
+    expect(within(footer).getByText(`© ${new Date().getFullYear()} Masar Inc.`)).toHaveAttribute('dir', 'ltr')
+    expect(within(footer).getByText('+201044881008')).toHaveAttribute('dir', 'ltr')
   })
 })

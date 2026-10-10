@@ -5,6 +5,8 @@ import { useI18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/layout/Logo'
 
+const REFERENCE_NUMBER = '+201044881008'
+
 /** The site-wide legal bar. It stays in normal flow at the end of a page's scroller. */
 export function LegalFooter({ className }: { className?: string }) {
   const { t } = useI18n()
@@ -27,6 +29,7 @@ export function LegalFooter({ className }: { className?: string }) {
         >
           <Linkedin size={14} aria-hidden="true" />
         </a>
+        <span dir="ltr" className="font-mono text-xs text-ghost">{REFERENCE_NUMBER}</span>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ghost">

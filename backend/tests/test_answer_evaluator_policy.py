@@ -465,10 +465,10 @@ def test_a_question_with_no_reference_still_builds_a_clean_block():
     assert STUDENT_WRONG in block
 
 
-def test_follow_up_turns_carry_the_conversation_not_a_fresh_context():
-    """On turn two the history is sent instead of re-sending the whole
-    context block — unchanged behaviour, asserted so the grounding tests
-    above cannot quietly start covering the wrong path."""
+def test_follow_up_turns_carry_the_conversation_and_a_fresh_context():
+    """On turn two the history is sent AND the new answer arrives inside the
+    context block: the stored history is the learner's plain text, so the
+    block is not in it (see test_a_retry_is_graded_against_the_exercise_too)."""
     llm = FakeLLM(_json_reply())
     history = [
         {"role": "user", "content": "first attempt"},
@@ -476,7 +476,8 @@ def test_follow_up_turns_carry_the_conversation_not_a_fresh_context():
     ]
     _evaluate(llm, user_message="second attempt", history=history)
 
-    assert llm.messages == history + [{"role": "user", "content": "second attempt"}]
+    assert llm.messages[:2] == history
+    assert llm.messages[2] == {"role": "user", "content": svc._build_context_block(_context(), "second attempt")}
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -600,3 +601,48 @@ def test_the_token_budget_is_unchanged():
     llm = FakeLLM(_json_reply())
     _evaluate(llm)
     assert llm.max_tokens == 700
+
+
+# ─── Retries and the provider's input cap ────────────────────────────────────
+
+def test_a_retry_is_graded_against_the_exercise_too():
+    """The stored history holds the learner's plain text, not the context
+    block, so a second answer used to reach the model with no exercise,
+    requirements or reference at all."""
+    llm = FakeLLM(_json_reply())
+    history = [
+        {"role": "user", "content": STUDENT_WRONG},
+        {"role": "assistant", "content": "❌ Incorrect\n\n1. Result\n..."},
+    ]
+    _evaluate(llm, user_message=STUDENT_RIGHT, history=history)
+
+    assert llm.messages[:2] == history
+    latest = llm.messages[-1]["content"]
+    assert latest.index("1. EXERCISE REQUIREMENTS") < latest.index(STUDENT_RIGHT) < latest.index("3. REFERENCE ANSWER")
+    assert QUESTION in latest and REFERENCE in latest
+
+
+@pytest.mark.parametrize("language,mode", [
+    ("en", "industry"), ("ar", "arabic_first"), ("ar", "industry"), ("ar", "english_technical"),
+])
+def test_the_whole_grading_policy_survives_the_providers_input_cap(language, mode):
+    from app.core.config import settings
+    from app.services.language.language_policy import build_policy
+    from app.services.llm.providers.OpenAIProvider import OpenAIProvider
+
+    llm = FakeLLM(_json_reply())
+    svc.evaluate_answer(
+        llm=llm, context=_context(), conversation_history=[], user_message=STUDENT_WRONG,
+        language=language, terminology_mode=mode,
+    )
+    provider = OpenAIProvider(
+        api_key="unused", model_id="unused",
+        default_input_max_characters=settings.INPUT_DEFAULT_MAX_CHARACTERS,
+    )
+    system, _ = provider.clip_input(llm.system, llm.messages)
+
+    assert system == llm.system
+    assert system.endswith(build_policy(language, mode))
+    if language == "ar":
+        assert "Use these English terms (Arabic meaning" in system
+        assert len(system) > settings.INPUT_DEFAULT_MAX_CHARACTERS  # the case that used to be cut

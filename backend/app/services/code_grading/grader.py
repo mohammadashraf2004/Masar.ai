@@ -83,10 +83,14 @@ def blanks_remaining_feedback(count: int, line: int | None = None) -> dict[str, 
             "en": f"One blank (`___`) is still empty.{where_en} Fill it in, then check your answer again.",
             "ar": f"ما زال هناك فراغ واحد (`___`) لم يُملأ.{where_ar} أكمله ثم تحقّق من إجابتك مرة أخرى.",
         }
-    return {
-        "en": f"{count} blanks (`___`) are still empty.{where_en} Fill them in, then check your answer again.",
-        "ar": f"ما زالت هناك {count} فراغات (`___`) لم تُملأ.{where_ar} أكملها ثم تحقّق من إجابتك مرة أخرى.",
-    }
+    en = f"{count} blanks (`___`) are still empty.{where_en} Fill them in, then check your answer again."
+    # Arabic counts agree with the number: a dual for two, a plural for 3-10,
+    # a singular (accusative) noun from 11 on.
+    if count == 2:
+        where_dual = f" أولهما في السطر {line}." if line else ""
+        return {"en": en, "ar": f"ما زال هناك فراغان (`___`) لم يُملآ.{where_dual} أكملهما ثم تحقّق من إجابتك مرة أخرى."}
+    noun = "فراغات" if count <= 10 else "فراغًا"
+    return {"en": en, "ar": f"ما زالت هناك {count} {noun} (`___`) لم تُملأ.{where_ar} أكملها ثم تحقّق من إجابتك مرة أخرى."}
 
 
 # ─── Configuration ─────────────────────────────────────────────────────────

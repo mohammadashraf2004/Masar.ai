@@ -15,6 +15,9 @@ from .grader import DEFAULT_ABS_TOL, DEFAULT_REL_TOL, GradingResult
 SQL_TEST_TYPES = frozenset({"sql_blank", "sql_result"})
 _BLANK = re.compile(r"/\*\s*blank:(\d+)\s*\*/(.*?)/\*\s*endblank\s*\*/", re.I | re.S)
 _LEADING_COMMENT = re.compile(r"\A(?:\s|--[^\n]*(?:\n|$)|/\*.*?\*/)*", re.S)
+# Strings and comments are not code: a '___' LIKE pattern is not a blank.
+_NOT_CODE = re.compile(r"'(?:[^']|'')*'|\"(?:[^\"]|\"\")*\"|--[^\n]*|/\*.*?\*/", re.S)
+_BLANK_TOKEN = re.compile(r"(?<![\w$])___(?![\w$])")
 
 # Learner SQL runs inside the API process, so its cost must be bounded there.
 # The VM-step deadline alone is not enough: one step such as
@@ -219,6 +222,24 @@ def normalize_sql_fragment(value: str) -> str:
     value = re.sub(r"\s+", " ", value)
     value = re.sub(r"\s*([(),=<>+*/%-])\s*", r"\1", value)
     return value
+
+
+def sql_blanks_remaining(code: str) -> tuple[int, int | None]:
+    """How many blanks the learner has not filled yet, and the line of the first.
+
+    A blank is unfilled while a ``___`` placeholder is still in the query
+    (inside a marked field or not; a ``'___'`` LIKE pattern or a comment does
+    not count) or while a marked field is left empty. Such a query is
+    unfinished, not wrong: Run explains the blanks instead of sending ``___``
+    to SQLite.
+    """
+    code = code or ""
+    positions = {match.start() for match in _BLANK.finditer(code) if not match.group(2).strip()}
+    masked = _NOT_CODE.sub(lambda match: re.sub(r"[^\n]", " ", match.group(0)), code)
+    positions.update(match.start() for match in _BLANK_TOKEN.finditer(masked))
+    if not positions:
+        return 0, None
+    return len(positions), code.count("\n", 0, min(positions)) + 1
 
 
 class SQLGrader:

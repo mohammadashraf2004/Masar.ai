@@ -8,7 +8,8 @@ from app.services.code_grading.authoring import (
     build_static_python_tests,
     count_python_blanks,
 )
-from app.services.code_grading.text_grader import text_fingerprint
+from app.services.code_grading.sql_grader import sql_blanks_remaining
+from app.services.code_grading.text_grader import text_blanks_remaining, text_fingerprint
 
 
 def run(coro):
@@ -226,12 +227,43 @@ def test_static_configuration_grader_accepts_valid_variants_and_rejects_starter(
     assert not unsafe.passed
     assert unsafe.failed_test_id == "safe"
 
-    blank = run(grader.grade("FROM ___\n", [{
+    blank_tests = [{
         "id": "blank_1", "type": "regex_all", "patterns": [r"^FROM python:3\.12-slim$"],
         "feedback": {"en": "Blank 1: choose the base image.", "ar": "الفراغ 1: اختر الصورة الأساسية."},
-    }]))
+    }]
+    blank = run(grader.grade("FROM python:3.11\n", blank_tests))
     assert blank.feedback_code == "BLANK_INCORRECT"
     assert blank.feedback["en"].startswith("Blank 1")
+
+    # A blank left empty is unfinished, not a wrong answer.
+    empty = run(grader.grade("FROM ___\n", blank_tests))
+    assert (empty.passed, empty.feedback_code, empty.failed_test_id) == (False, "BLANKS_REMAINING", "blanks_remaining")
+    assert empty.feedback["en"].startswith("One blank (`___`) is still empty. The first one is on line 1.")
+    assert "أولها في السطر 1" in empty.feedback["ar"]
+
+
+def test_blanks_remaining_feedback_uses_correct_arabic_number_forms():
+    from app.services.code_grading.grader import blanks_remaining_feedback
+
+    assert blanks_remaining_feedback(1, 4)["ar"].startswith("ما زال هناك فراغ واحد (`___`) لم يُملأ. أولها في السطر 4.")
+    two = blanks_remaining_feedback(2, 3)["ar"]
+    assert two.startswith("ما زال هناك فراغان (`___`) لم يُملآ. أولهما في السطر 3. أكملهما")
+    assert blanks_remaining_feedback(5)["ar"].startswith("ما زالت هناك 5 فراغات (`___`) لم تُملأ. أكملها")
+    assert blanks_remaining_feedback(12)["ar"].startswith("ما زالت هناك 12 فراغًا (`___`)")
+    assert blanks_remaining_feedback(2, 3)["en"] == (
+        "2 blanks (`___`) are still empty. The first one is on line 3. Fill them in, then check your answer again."
+    )
+
+
+def test_text_blanks_remaining_counts_every_placeholder_including_comments():
+    assert text_blanks_remaining("FROM python:3.12-slim\nWORKDIR /app\n") == (0, None)
+    assert text_blanks_remaining("FROM ___\nWORKDIR ___\n") == (2, 1)
+    # Blanks inside YAML templating, after a sigil, and in a comment the brief asks to complete.
+    assert text_blanks_remaining("replicas: 3\nimage: \"{{ ___ }}\"\n") == (1, 2)
+    assert text_blanks_remaining("subjectAltName = @___\n") == (1, 1)
+    assert text_blanks_remaining("# ex:nolan ex:directed ___ .\nSELECT ?m WHERE {}\n") == (1, 1)
+    # Identifiers that merely contain underscores are the learner's own text.
+    assert text_blanks_remaining("my___var: 1\n____: 2\n") == (0, None)
 
 
 def _sql_blank_tests(template: str) -> list[dict]:
@@ -357,17 +389,56 @@ def test_sql_grader_checks_fields_individually_then_hidden_result():
     ]
     grader = SQLGrader()
 
+    # Empty or partly filled: unfinished, reported without running the query.
     first = run(grader.grade(starter, tests))
-    assert (first.failed_test_id, first.tests_passed) == ("blank_1", 0)
+    assert (first.passed, first.feedback_code, first.failed_test_id) == (False, "BLANKS_REMAINING", "blanks_remaining")
+    assert first.feedback["en"].startswith("2 blanks (`___`) are still empty.")
+    assert (first.execution.stdout, first.execution.stderr) == ("", "")
 
     one_field = starter.replace("___", "customer_id", 1)
     second = run(grader.grade(one_field, tests))
-    assert (second.failed_test_id, second.tests_passed) == ("blank_2", 1)
+    assert (second.feedback_code, second.failed_test_id) == ("BLANKS_REMAINING", "blanks_remaining")
+    assert second.feedback["en"].startswith("One blank (`___`) is still empty.")
+    assert "near" not in second.feedback["en"] and second.execution.stderr == ""
+
+    # A marked field emptied out is still a blank, even with no ___ left.
+    emptied = one_field.replace("/* blank:2 */ ___ /* endblank */", "/* blank:2 */  /* endblank */")
+    assert run(grader.grade(emptied, tests)).feedback_code == "BLANKS_REMAINING"
+
+    # Every field filled: the query runs, and the first wrong field is named.
+    wrong = one_field.replace("___", "SUM(customer_id)", 1)
+    third = run(grader.grade(wrong, tests))
+    assert (third.feedback_code, third.failed_test_id, third.tests_passed) == ("BLANK_INCORRECT", "blank_2", 1)
+    assert third.execution.stdout.startswith("customer_id\torders\n")
 
     solution = one_field.replace("___", "count(*)", 1)
     result = run(grader.grade(solution, tests))
     assert result.passed
     assert result.execution.stdout == "customer_id\torders\n1\t2\n2\t1\n"
+
+
+def test_sql_blanks_remaining_counts_unfilled_fields_not_literals_or_comments():
+    marked = (
+        "SELECT\n"
+        "    /* blank:1 */ ___ /* endblank */ AS customer_id,\n"
+        "    /* blank:2 */ ___ /* endblank */ AS orders\n"
+        "FROM purchases;"
+    )
+    assert sql_blanks_remaining(marked) == (2, 2)
+    assert sql_blanks_remaining(marked.replace("___", "customer_id", 1)) == (1, 3)
+    # Markers deleted, placeholder kept; a placeholder inside an expression.
+    assert sql_blanks_remaining("SELECT ___ FROM purchases") == (1, 1)
+    assert sql_blanks_remaining("SELECT\n  COUNT(___)\nFROM purchases") == (1, 2)
+    # An emptied marked field counts once, not twice.
+    assert sql_blanks_remaining("SELECT /* blank:1 */ /* endblank */ FROM t") == (1, 1)
+    # Underscores the learner wrote on purpose are not blanks.
+    finished = (
+        "SELECT name FROM t -- replace ___ later\n"
+        "WHERE code LIKE '___' AND note <> 'it''s ___' AND \"___\" IS NOT NULL\n"
+        "/* ___ */ AND my___col = 1"
+    )
+    assert sql_blanks_remaining(finished) == (0, None)
+    assert sql_blanks_remaining("") == (0, None)
 
 
 def test_sql_grader_rejects_writes_and_multiple_statements():

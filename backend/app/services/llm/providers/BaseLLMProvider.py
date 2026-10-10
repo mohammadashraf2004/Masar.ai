@@ -10,6 +10,12 @@ class BaseLLMProvider(ABC):
 
     # Set by the concrete providers from settings.INPUT_DEFAULT_MAX_CHARACTERS.
     default_input_max_characters: int = 10_000
+    # The system prompt is Masar's own instructions (a prompt constant plus
+    # the language policy), never learner or database text, so the content
+    # cap above does not fit it: at 10k it cut the end off the Arabic
+    # answer-grading policy (~10.9k), terminology list included. It keeps a
+    # sanity bound of its own.
+    system_max_characters: int = 32_000
 
     def clip_input(self, system: str, messages: List[dict]) -> tuple[str, List[dict]]:
         """Last line of defence on prompt size.
@@ -27,7 +33,7 @@ class BaseLLMProvider(ABC):
             {**m, "content": str(m.get("content", ""))[:cap]}
             for m in messages
         ]
-        return system[:cap], clipped
+        return system[:max(cap, self.system_max_characters)], clipped
 
     @abstractmethod
     def chat(self, system: str, messages: List[dict], max_tokens: int) -> str:

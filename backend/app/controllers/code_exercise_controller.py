@@ -22,6 +22,8 @@ from app.services.code_grading.grader import (
     UNGRADED_STATUSES, blanks_remaining_feedback, first_blank_line, is_static_only,
 )
 from app.services.exercise_progress import refresh_course_progress
+from app.services.code_grading.sql_grader import sql_blanks_remaining
+from app.services.code_grading.text_grader import text_blanks_remaining
 from app.services.execution_fairness import runner_turn
 from app.views.code_exercise import (
     AttemptStateResponse, CodeExerciseResponse, CodePayload, FeedbackResponse, RunResponse, SolutionResponse,
@@ -76,9 +78,15 @@ async def run_code(
     current_user: User = Depends(get_current_user), db: Session = Depends(get_db),
 ):
     exercise = _code_exercise(db, exercise_id, current_user.id, require_tests=False)
-    remaining = count_python_blanks(payload.code) if exercise.language == "python" else 0
+    if exercise.language == "python":
+        remaining = count_python_blanks(payload.code)
+        line = first_blank_line(payload.code) if remaining else None
+    elif exercise.language == "sql":
+        remaining, line = sql_blanks_remaining(payload.code)
+    else:
+        remaining, line = text_blanks_remaining(payload.code)
     if remaining:
-        message = blanks_remaining_feedback(remaining, first_blank_line(payload.code))[payload.language]
+        message = blanks_remaining_feedback(remaining, line)[payload.language]
         result = ExecutionResult("incomplete", stderr=message + "\n")
     elif exercise.language == "python" and is_static_only(list(exercise.grading_tests or [])):
         result = check_without_running(payload.code, payload.language)

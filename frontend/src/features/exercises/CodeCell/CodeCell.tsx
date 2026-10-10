@@ -362,8 +362,12 @@ export function CodeCell({
       {runner.execution && (
         <section aria-label={tx.console} className="overflow-hidden rounded-xl border border-[#1E2535] bg-[#090D13] text-sm" dir="ltr">
           <div className="border-b border-[#1E2535] px-4 py-2 font-arabic text-xs text-[#A0AEC0]" dir="auto">{tx.console}</div>
+          {/* Each line takes its direction from its own text (globals.css pins every
+              <pre> to LTR, which a dir attribute cannot override): output and tracebacks
+              stay left-to-right, Masar's Arabic notes (no output, blanks left, runner
+              unavailable) read right-to-left. */}
           {(runner.execution.stdout || !runner.execution.stderr) && (
-            <pre className="max-h-64 overflow-auto whitespace-pre-wrap p-4 font-mono text-xs leading-5 text-[#E2E8F0]">
+            <pre className="max-h-64 overflow-auto whitespace-pre-wrap p-4 text-start font-mono text-xs leading-5 text-[#E2E8F0] [unicode-bidi:plaintext]">
               {runner.execution.stdout || tx.noOutput}
             </pre>
           )}
@@ -372,10 +376,10 @@ export function CodeCell({
             // traceback stays one click away instead of in the learner's face.
             <details className="border-t border-rose-500/20">
               <summary className="cursor-pointer px-4 py-2 font-arabic text-xs text-[#A0AEC0]" dir="auto">{tx.technicalDetails}</summary>
-              <pre className="max-h-48 overflow-auto whitespace-pre-wrap px-4 pb-4 font-mono text-xs leading-5 text-rose-300">{runner.execution.stderr}</pre>
+              <pre className="max-h-48 overflow-auto whitespace-pre-wrap px-4 pb-4 text-start font-mono text-xs leading-5 text-rose-300 [unicode-bidi:plaintext]">{runner.execution.stderr}</pre>
             </details>
           ) : (
-            <pre className="max-h-48 overflow-auto whitespace-pre-wrap border-t border-rose-500/20 p-4 font-mono text-xs leading-5 text-rose-300">{runner.execution.stderr}</pre>
+            <pre className="max-h-48 overflow-auto whitespace-pre-wrap border-t border-rose-500/20 p-4 text-start font-mono text-xs leading-5 text-rose-300 [unicode-bidi:plaintext]">{runner.execution.stderr}</pre>
           ))}
         </section>
       )}

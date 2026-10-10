@@ -130,6 +130,7 @@ services:
       - RESEND_API_KEY
       - EMAIL_FROM
       # Payments: Kashier takes every new payment (app/services/payments/checkout.py).
+      - PAYMENTS_ENABLED=${PAYMENTS_ENABLED:-false}
       - KASHIER_MODE=${KASHIER_MODE:-test}
       - KASHIER_MERCHANT_ID
       - KASHIER_API_KEY

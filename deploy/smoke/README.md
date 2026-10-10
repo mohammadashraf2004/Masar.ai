@@ -59,15 +59,19 @@ for s in api frontend; do docker tag "$(dc images -q $s)" "masar-rollback-$s:$PR
 dc build api frontend
 ```
 
-## 4. Migrate 036 to 038 (**CHANGE**: schema)
+## 4. Migrate 036 to 040 (**CHANGE**: schema)
 
 037 creates `mentor_requests`. 038 only adds `pro_ai_usage.release_reason` where an early
 draft of 036 left it out; production's 036 already created it, so 038 changes nothing here.
+039 (credit packs) adds nullable/defaulted columns to `credit_packages`, `user_wallets` and
+`wallet_transactions`, upserts the four packs by code and switches the old seed packs off; it
+rewrites no balance. 040 adds two nullable text columns to `exercises`. All five steps are
+additive: the API that is still running ignores them, so migrating before the swap is safe.
 
 ```sh
 dc run --rm --no-deps api alembic current        # 036_pro_ai_usage
 dc run --rm --no-deps api alembic upgrade head
-dc run --rm --no-deps api alembic current        # 038_pro_ai_release_reason (head)
+dc run --rm --no-deps api alembic current        # 040_exercise_example_answers (head)
 psqlq -c '\d mentor_requests'
 ```
 
@@ -157,7 +161,7 @@ billing regression.
 
 ```sh
 psqlq -c "select count(*) from mentor_requests where status = 'processing'"   # wait until 0, so no charge is stranded
-dc run --rm --no-deps api alembic downgrade 036_pro_ai_usage                   # with the NEW image: it knows 037 and 038
+dc run --rm --no-deps api alembic downgrade 036_pro_ai_usage                   # with the NEW image: it knows 037 to 040
 dc config --images                                                             # the api and frontend image names
 docker tag "masar-rollback-api:$PREV" <api image name>
 docker tag "masar-rollback-frontend:$PREV" <frontend image name>

@@ -486,3 +486,23 @@ def test_kashier_configuration_fails_closed(values, production, expected):
     assert len(problems) == len(expected)
     for fragment, problem in zip(expected, problems):
         assert fragment in problem
+
+
+@pytest.mark.parametrize("enabled, keys, expected", [
+    (False, False, False),
+    (False, True, False),   # keys alone never open payments
+    (True, False, False),   # the switch alone never opens payments
+    (True, True, True),
+])
+def test_payments_open_needs_the_switch_and_every_key(enabled, keys, expected):
+    values = {"PAYMENTS_ENABLED": enabled}
+    if keys:
+        values.update(KASHIER_MERCHANT_ID="M", KASHIER_API_KEY="a", KASHIER_SECRET_KEY="s",
+                      KASHIER_PUBLIC_API_URL="https://api.x")
+    assert Settings(_env_file=None, **values).payments_open is expected
+
+
+def test_the_switch_without_a_configured_gateway_is_refused_at_boot():
+    problems = Settings(_env_file=None, PAYMENTS_ENABLED=True).kashier_problems(production=True)
+    assert any("PAYMENTS_ENABLED" in p for p in problems)
+    assert Settings(_env_file=None).kashier_problems(production=True) == []

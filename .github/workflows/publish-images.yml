@@ -1,0 +1,89 @@
+name: Publish release frontend image (GHCR)
+
+# RC4 = RC3 + the footer reference-number commit. Only the frontend changed (the backend, migrations and compose
+# files are byte-identical to RC3), so only the frontend image is built here; the API image remains the verified RC3
+# digest. This file lives on its own branch (publish/*), is not part of the release branch, and the build checks out
+# SOURCE_SHA, not the branch this workflow runs from.
+#
+# Deploy by DIGEST (printed in the job summary), never by tag.
+
+on:
+  push:
+    branches: ["publish/rc4-d30907b"]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  SOURCE_SHA: d30907bd78eb8b36e54a8e2325bd910953039630
+  TAG: rc4-d30907b
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+
+      - name: The tree being built is exactly the approved commit
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain)"
+          echo "building $(git log -1 --format='%H %s')"
+
+      - name: Image name (the owner must be lower case)
+        run: echo "WEB_IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/masar-frontend" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push the frontend image (production build arguments)
+        id: web
+        uses: docker/build-push-action@v7
+        with:
+          context: frontend
+          file: frontend/Dockerfile
+          push: true
+          provenance: false
+          tags: ${{ env.WEB_IMAGE }}:${{ env.TAG }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.masarai.net/api/v1
+            NEXT_PUBLIC_SITE_URL=https://masarai.net
+            NEXT_PUBLIC_MENTOR_V2_LIVE=message,quiz
+            NEXT_PUBLIC_PAYMENTS_PROVIDER=
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.SOURCE_SHA }}
+            org.opencontainers.image.title=masar-frontend
+
+      - name: Smoke the pushed frontend digest
+        run: |
+          docker run -d --name web -p 3000:3000 "${WEB_IMAGE}@${{ steps.web.outputs.digest }}"
+          for i in $(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:3000/ && break; sleep 2; done
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)" = "200"
+          curl -fsS http://127.0.0.1:3000/terms | grep -c '+201044881008' | sed 's/^/footer reference number occurrences on \/terms: /' || true
+
+      - name: Immutable reference
+        run: |
+          {
+            echo "frontend=${WEB_IMAGE}@${{ steps.web.outputs.digest }}"
+            echo "source=${SOURCE_SHA}"
+          } | tee digests.txt
+          {
+            echo "### Release frontend image (deploy by digest)"
+            echo '```'
+            cat digests.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: image-digests
+          path: digests.txt

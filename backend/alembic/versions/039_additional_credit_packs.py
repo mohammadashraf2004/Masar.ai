@@ -8,9 +8,15 @@ Additive only. Nothing here rewrites a balance a learner already has:
   Plus 400 / 149 - the popular one, Power 1,000 / 299). Packs that carry no code
   are the old seed's and are switched off, never deleted: nothing links to them.
 * ``user_wallets.purchased_credits`` is the part of ``credit_balance`` that was
-  bought. It is backfilled as ``LEAST(credit_balance, lifetime_purchased)``: a
-  buyer never ends up with less purchased credit than they paid for (within what
-  they still hold), and a wallet that never bought anything stays at 0.
+  bought. It is backfilled from the LEDGER: the credits of the wallet's confirmed
+  ``topup`` rows, capped at what the wallet still holds, so a buyer never ends up
+  with less purchased credit than they paid for (within what they still hold) and
+  a wallet that never bought anything stays at 0. It is NOT taken from
+  ``lifetime_purchased``: that counter is not purchase-only on a live database.
+  Production's launch promo (500 credits to every account) was recorded in it, so
+  using it would turn promotional credits into permanent "purchased" credits that
+  promo expiry can never take back (verified on a restore of the production
+  database before release).
 * ``wallet_transactions`` gains the columns that make each row traceable:
   ``package_id`` (which pack an order bought), ``purchased_delta`` (how much of
   the row moved in or out of the purchased bucket), ``related_tx_id`` (the row a
@@ -77,8 +83,9 @@ def upgrade() -> None:
     if "purchased_credits" not in _columns("user_wallets"):
         op.add_column("user_wallets", sa.Column("purchased_credits", sa.Integer(), nullable=False, server_default="0"))
         bind.execute(sa.text(
-            "UPDATE user_wallets SET purchased_credits = GREATEST(0, LEAST(COALESCE(credit_balance, 0), "
-            "COALESCE(lifetime_purchased, 0)))"
+            "UPDATE user_wallets w SET purchased_credits = GREATEST(0, LEAST(COALESCE(w.credit_balance, 0), "
+            "COALESCE((SELECT SUM(t.credits) FROM wallet_transactions t WHERE t.wallet_id = w.id "
+            "AND t.transaction_type = 'topup' AND t.status = 'confirmed'), 0)))"
         ))
         op.create_check_constraint("ck_user_wallets_purchased_non_negative", "user_wallets", "purchased_credits >= 0")
 

@@ -2,6 +2,7 @@ import asyncio
 
 from app.services.code_execution import LocalPythonRunner
 from app.services.code_grading import PythonGrader, SQLGrader, TextGrader
+from app.services.code_grading.sql_grader import sql_blank_values
 from app.services.code_grading.authoring import (
     build_fill_in_blank_exercise,
     build_static_python_tests,
@@ -231,6 +232,99 @@ def test_static_configuration_grader_accepts_valid_variants_and_rejects_starter(
     }]))
     assert blank.feedback_code == "BLANK_INCORRECT"
     assert blank.feedback["en"].startswith("Blank 1")
+
+
+def _sql_blank_tests(template: str) -> list[dict]:
+    return [
+        {
+            "id": "blank_1", "type": "sql_blank", "blank": 1,
+            "accepted": ["customer_id"],
+            "feedback": {"en": "Blank 1: select the customer.", "ar": "الفراغ 1: اختر العميل."},
+        },
+        {
+            "id": "blank_2", "type": "sql_blank", "blank": 2,
+            "accepted": ["COUNT(*)", "count(1)"],
+            "feedback": {"en": "Blank 2: count the rows.", "ar": "الفراغ 2: عد الصفوف."},
+        },
+        {
+            "id": "result", "type": "sql_result", "template": template,
+            "setup_sql": (
+                "CREATE TABLE purchases(customer_id INTEGER);"
+                "INSERT INTO purchases VALUES (1),(1),(2);"
+            ),
+            "expected_columns": ["customer_id", "orders"],
+            "expected_rows": [[1, 2], [2, 1]], "ordered": True,
+            "feedback": {"en": "Check the result.", "ar": "راجع النتيجة."},
+        },
+    ]
+
+
+PLAIN_SQL_STARTER = (
+    "SELECT ___ AS customer_id,\n"
+    "       ___ AS orders\n"
+    "FROM purchases GROUP BY customer_id ORDER BY customer_id;"
+)
+
+
+def test_sql_starter_shows_bare_blanks_and_fields_are_still_checked_one_by_one():
+    tests = _sql_blank_tests(PLAIN_SQL_STARTER)
+    grader = SQLGrader()
+
+    first = run(grader.grade(PLAIN_SQL_STARTER, tests))
+    assert (first.failed_test_id, first.tests_passed) == ("blank_1", 0)
+
+    one_field = PLAIN_SQL_STARTER.replace("___", "customer_id", 1)
+    second = run(grader.grade(one_field, tests))
+    assert (second.failed_test_id, second.tests_passed) == ("blank_2", 1)
+
+    # A wrong but runnable field is named after the result disagrees.
+    wrong = one_field.replace("___", "SUM(customer_id)", 1)
+    third = run(grader.grade(wrong, tests))
+    assert (third.feedback_code, third.failed_test_id) == ("BLANK_INCORRECT", "blank_2")
+
+    solution = one_field.replace("___", "count(*)", 1)
+    result = run(grader.grade(solution, tests))
+    assert result.passed
+    assert result.execution.stdout == "customer_id\torders\n1\t2\n2\t1\n"
+
+
+def test_sql_blank_values_ignore_commas_inside_answers_and_whitespace_changes():
+    template = "SELECT ___, ___ AS n\nFROM t\nWHERE x IN (___)\nGROUP BY ___;"
+    code = "SELECT  COALESCE(a, ',') ,  COUNT(*) AS n FROM t WHERE x IN ('a', 'b, c') GROUP BY a;"
+    values = sql_blank_values(template, code)
+    assert [value.strip() for value in values] == ["COALESCE(a, ',')", "COUNT(*)", "'a', 'b, c'", "a"]
+    # Blanks separated only by a line break split at that break.
+    window = "OVER (\n    ___\n    ___\n)"
+    filled = "OVER (\n    ORDER BY m\n    ROWS BETWEEN 2 PRECEDING AND CURRENT ROW\n)"
+    assert [value.strip() for value in sql_blank_values(window, filled)] == [
+        "ORDER BY m", "ROWS BETWEEN 2 PRECEDING AND CURRENT ROW",
+    ]
+    # Rewritten scaffold: the blanks can no longer be told apart.
+    assert sql_blank_values(template, "SELECT a, COUNT(*) AS total FROM t GROUP BY a;") is None
+
+
+def test_sql_grader_falls_back_to_the_result_when_the_scaffold_was_rewritten():
+    tests = _sql_blank_tests(PLAIN_SQL_STARTER)
+    grader = SQLGrader()
+    rewritten = "SELECT customer_id, COUNT(*) AS orders FROM purchases GROUP BY 1 ORDER BY 1"
+    assert run(grader.grade(rewritten, tests)).passed
+    wrong = "SELECT customer_id, 0 AS orders FROM purchases GROUP BY 1 ORDER BY 1"
+    failure = run(grader.grade(wrong, tests))
+    assert (failure.feedback_code, failure.failed_test_id) == ("TEST_FAILED", "result")
+
+
+def test_sql_grader_still_reads_drafts_from_marked_starters():
+    """Learners may hold drafts of the older starters that marked each blank."""
+    starter = (
+        "SELECT /* blank:1 */ ___ /* endblank */ AS customer_id, "
+        "/* blank:2 */ ___ /* endblank */ AS orders "
+        "FROM purchases GROUP BY customer_id ORDER BY customer_id;"
+    )
+    tests = _sql_blank_tests(PLAIN_SQL_STARTER)
+    grader = SQLGrader()
+    one_field = starter.replace("___", "customer_id", 1)
+    assert run(grader.grade(one_field, tests)).failed_test_id == "blank_2"
+    assert run(grader.grade(one_field.replace("___", "count(*)", 1), tests)).passed
 
 
 def test_sql_grader_checks_fields_individually_then_hidden_result():

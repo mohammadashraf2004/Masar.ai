@@ -96,6 +96,17 @@ def test_every_code_exercise_has_a_complete_code_cell(courses, by_id):
         assert exercise.starter_code != exercise.solution_code, exercise_id
 
 
+def test_sql_starters_show_only_bare_blanks_and_are_still_graded_blank_by_blank(by_id):
+    sql = {eid: e for eid, e in by_id.items() if e.exercise_type == "code" and e.language == "sql"}
+    assert sql
+    for exercise_id, exercise in sql.items():
+        for code in (exercise.starter_code, exercise.solution_code):
+            assert "blank:" not in code and "endblank" not in code, exercise_id
+        untouched = asyncio.run(SQL.grade(exercise.starter_code, exercise.tests))
+        assert (untouched.feedback_code, untouched.failed_test_id) == ("BLANK_INCORRECT", "blank_1"), exercise_id
+        assert asyncio.run(SQL.grade(exercise.solution_code, exercise.tests)).passed, exercise_id
+
+
 def test_every_exercise_uses_a_known_interaction_and_nothing_is_run_only(by_id):
     types = Counter(e.exercise_type for e in by_id.values())
     assert set(types) == {"code", "legacy"}, types

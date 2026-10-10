@@ -60,8 +60,7 @@ def code_exercise(db):
 @pytest.fixture()
 def sql_exercise(db, code_exercise):
     starter = (
-        "SELECT /* blank:1 */ ___ /* endblank */ AS customer_id, "
-        "/* blank:2 */ ___ /* endblank */ AS orders "
+        "SELECT ___ AS customer_id, ___ AS orders "
         "FROM purchases GROUP BY customer_id ORDER BY customer_id;"
     )
     solution = starter.replace("___", "customer_id", 1).replace("___", "COUNT(*)", 1)
@@ -82,7 +81,7 @@ def sql_exercise(db, code_exercise):
                 "feedback": {"en": "Blank 2: count rows.", "ar": "الفراغ 2: عد الصفوف."},
             },
             {
-                "id": "result", "type": "sql_result",
+                "id": "result", "type": "sql_result", "template": starter,
                 "setup_sql": (
                     "CREATE TABLE purchases(customer_id INTEGER);"
                     "INSERT INTO purchases VALUES (1),(1),(2);"

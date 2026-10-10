@@ -1,0 +1,128 @@
+name: Publish release images (private GHCR)
+
+# Builds the API and frontend images from ONE exact, approved commit and pushes them to the private
+# GitHub Container Registry. This file lives on its own branch (publish/*); it is not part of the
+# release branch and never changes the code that is built: the build checks out SOURCE_SHA, not the
+# branch this workflow runs from.
+#
+# Deploy by DIGEST (printed in the job summary and uploaded as an artifact), never by tag: a tag can be
+# moved, a digest cannot.
+
+on:
+  push:
+    branches: ["publish/rc2-4925c81"]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  SOURCE_SHA: 4925c81ae48deb4a12ec4374e57224837a4a8563
+  TAG: rc2-4925c81
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: smoke
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+
+      - name: The tree being built is exactly the approved commit
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain)"
+          echo "building $(git log -1 --format='%H %s')"
+
+      - name: Image names (the owner must be lower case)
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "API_IMAGE=ghcr.io/${owner}/masar-api" >> "$GITHUB_ENV"
+          echo "WEB_IMAGE=ghcr.io/${owner}/masar-frontend" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push the API image
+        id: api
+        uses: docker/build-push-action@v7
+        with:
+          context: backend
+          file: backend/Dockerfile
+          push: true
+          provenance: false
+          tags: ${{ env.API_IMAGE }}:${{ env.TAG }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.SOURCE_SHA }}
+            org.opencontainers.image.title=masar-api
+
+      - name: Build and push the frontend image (production build arguments)
+        id: web
+        uses: docker/build-push-action@v7
+        with:
+          context: frontend
+          file: frontend/Dockerfile
+          push: true
+          provenance: false
+          tags: ${{ env.WEB_IMAGE }}:${{ env.TAG }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.masarai.net/api/v1
+            NEXT_PUBLIC_SITE_URL=https://masarai.net
+            NEXT_PUBLIC_MENTOR_V2_LIVE=message,quiz
+            NEXT_PUBLIC_PAYMENTS_PROVIDER=
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.SOURCE_SHA }}
+            org.opencontainers.image.title=masar-frontend
+
+      - name: Smoke the pushed API digest (imports, runs the whole migration chain on an empty database)
+        run: |
+          docker run --rm --network host \
+            -e DATABASE_URL=postgresql://postgres:password@localhost:5432/smoke \
+            -e SECRET_KEY=smoke-test-secret-key-not-for-production-use-only -e APP_ENV=development \
+            "${API_IMAGE}@${{ steps.api.outputs.digest }}" sh -c 'python -c "import app.main" && alembic upgrade head && alembic current'
+
+      - name: Smoke the pushed frontend digest
+        run: |
+          docker run -d --name web -p 3000:3000 "${WEB_IMAGE}@${{ steps.web.outputs.digest }}"
+          for i in $(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:3000/ && break; sleep 2; done
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)" = "200"
+          docker logs web 2>&1 | tail -5
+
+      - name: Immutable references
+        run: |
+          {
+            echo "api=${API_IMAGE}@${{ steps.api.outputs.digest }}"
+            echo "frontend=${WEB_IMAGE}@${{ steps.web.outputs.digest }}"
+            echo "source=${SOURCE_SHA}"
+          } | tee digests.txt
+          {
+            echo "### Release images (deploy by digest)"
+            echo '```'
+            cat digests.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: image-digests
+          path: digests.txt

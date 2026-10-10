@@ -19,6 +19,9 @@ PLATFORM_MESSAGES_AR: dict[str, str] = {
     "The execution service failed.": "تعطّلت خدمة التشغيل.",
     "The execution service returned an invalid result.": "أعادت خدمة التشغيل نتيجة غير صالحة.",
     "Exercise setup is invalid.": "إعداد هذا التمرين غير صالح.",
+    "The execution request was rejected.": "رفضت بيئة التشغيل طلب التنفيذ.",
+    "The execution environment could not start.": "تعذّر بدء بيئة التشغيل.",
+    "The execution environment returned an invalid result.": "أعادت بيئة التشغيل نتيجة غير صالحة.",
 }
 
 

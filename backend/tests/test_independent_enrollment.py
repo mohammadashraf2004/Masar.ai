@@ -18,7 +18,7 @@ from app.models.progress import Enrollment
 from app.models.tool_course import ToolTopic
 from app.services.payments import kashier_service
 from tests.curriculum_fixtures import correct_answers, finish_topics, import_small_courses, topic_ids
-from tests.learning_fixtures import learn_catalog, learn_client, learn_db, logs_enabled, register  # noqa: F401
+from tests.learning_fixtures import accept_written_answers, learn_catalog, learn_client, learn_db, logs_enabled, register  # noqa: F401
 
 API = "/api/v1/learning"
 
@@ -434,12 +434,14 @@ def test_progress_moves_the_enrollment_from_enrolled_to_in_progress_to_completed
     assert 0 < progress["progress_percentage"] < 50 and progress["next_module"]["id"] == first
     assert _get(learn_client, "/my-courses", who).json()[0]["status"] == "in_progress"
 
+    accept_written_answers(learn_db, who["id"], exercises)
     _mark(learn_client, who, first, lessons[1:], exercises)
     progress = _get(learn_client, "/courses/course-013/progress", who).json()
     assert progress["modules_completed"] == 1 and progress["next_module"]["id"] == second
     assert progress["progress_percentage"] == 50.0 and progress["status"] == "in_progress"
 
     lessons, exercises = _module_items(learn_db, second)
+    accept_written_answers(learn_db, who["id"], exercises)
     _mark(learn_client, who, second, lessons, exercises)
     progress = _get(learn_client, "/courses/course-013/progress", who).json()
     assert (progress["status"], progress["progress_percentage"], progress["next_module"]) == ("completed", 100.0, None)

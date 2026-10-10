@@ -122,6 +122,9 @@ class ExerciseSpec:
     description_ar: Optional[str] = None
     hint_ar: Optional[str] = None
     success_message_ar: Optional[str] = None
+    # Written exercises only (see curriculum/examples).
+    example_answer: Optional[str] = None
+    example_answer_ar: Optional[str] = None
 
 
 @dataclass

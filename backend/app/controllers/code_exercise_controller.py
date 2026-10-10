@@ -9,17 +9,20 @@ from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.learning import Exercise
 from app.models.user import User
-from app.services.billing.access_service import course_for_content, require_content_access
+from app.services.billing.access_service import require_content_access
 from app.services.code_exercises import (
-    NOT_EXECUTED_LANGUAGE, SQL_GRADER, check_without_running, grader_for_language, RUNNER,
-    attempt_state, feedback_messages, mark_complete, record_attempt,
+    FULL_FEEDBACK_AFTER_FAILED_CHECKS, NOT_EXECUTED_LANGUAGE, SQL_GRADER, check_without_running,
+    grader_for_language, RUNNER, attempt_state, feedback_messages, mark_complete, record_attempt,
+    withhold_answers,
 )
 from app.services.code_execution import ExecutionResult
 from app.services.code_execution.messages import platform_message
 from app.services.code_grading.authoring import count_python_blanks
-from app.services.code_grading.grader import blanks_remaining_feedback, first_blank_line, is_static_only
+from app.services.code_grading.grader import (
+    UNGRADED_STATUSES, blanks_remaining_feedback, first_blank_line, is_static_only,
+)
+from app.services.exercise_progress import refresh_course_progress
 from app.services.execution_fairness import runner_turn
-from app.services.learning import enrollment as course_enrollment
 from app.views.code_exercise import (
     AttemptStateResponse, CodeExerciseResponse, CodePayload, FeedbackResponse, RunResponse, SolutionResponse,
     SubmitResponse,
@@ -96,10 +99,10 @@ async def run_code(
         status=result.status, execution_time_ms=result.execution_time_ms,
     )
     db.commit()
-    # When nothing ran, stderr holds Masar's own message (runner off or unavailable), not the
-    # learner's output: give it in the interface language.
+    # When nothing ran, stderr holds Masar's own message (runner off or unavailable, or a
+    # broken exercise setup), not the learner's output: give it in the interface language.
     stderr = result.stderr
-    if result.status == "execution_error":
+    if result.status in UNGRADED_STATUSES:
         stderr = platform_message(stderr, payload.language)
     return RunResponse(
         status=result.status, stdout=result.stdout, stderr=stderr,
@@ -120,6 +123,7 @@ async def submit_code(
     # bounded in sql_grader); hold this account's runner turn for it.
     tests, setup = list(exercise.grading_tests or []), exercise.pre_exercise_code or ""
     language, user_id = exercise.language, current_user.id
+    solution, starter = exercise.solution_code, exercise.starter_code
     db.commit()  # no pooled connection held while the runner works (plain values only below)
     turn = runner_turn(user_id) if language == "python" else nullcontext()
     async with turn:
@@ -135,22 +139,34 @@ async def submit_code(
         tests_total=grade.tests_total, execution_time_ms=grade.execution.execution_time_ms,
     )
     if grade.passed:
+        # Only a passing submission completes the exercise; Run never does.
         mark_complete(db, current_user.id, exercise)
-    course = course_for_content(db, exercise) if grade.passed else None
     db.flush()
     state = attempt_state(db, current_user.id, exercise)
     db.commit()
-    if course is not None:
-        course_enrollment.sync_lifecycle(db, current_user.id, course)
+    if grade.passed:
+        refresh_course_progress(db, current_user.id, exercise)
+    withheld = False
+    if (not grade.passed and grade.status not in UNGRADED_STATUSES
+            and grade.feedback_code != "BLANKS_REMAINING"
+            and state["failed_checks"] < FULL_FEEDBACK_AFTER_FAILED_CHECKS
+            and not state["solution_available"]):
+        # The first wrong answer hears which blank is wrong; the way to fix
+        # it (which may quote the answer) follows a second, different attempt.
+        messages, withheld = withhold_answers(
+            messages, solution=solution, starter=starter, failed_test_id=grade.failed_test_id,
+        )
+    if grade.notice:
+        messages = {language: "\n\n".join((messages[language], grade.notice[language])) for language in ("en", "ar")}
     stderr = grade.execution.stderr
-    if grade.status == "execution_error":  # Masar's own message, as in run_code
+    if grade.status in UNGRADED_STATUSES:  # Masar's own message, as in run_code
         stderr = platform_message(stderr, payload.language)
     return SubmitResponse(
         status=grade.status, passed=grade.passed, stdout=grade.execution.stdout,
         stderr=stderr, execution_time_ms=grade.execution.execution_time_ms,
         feedback=FeedbackResponse(
             code=grade.feedback_code, message=messages[payload.language],
-            messages=messages, test_id=grade.failed_test_id,
+            messages=messages, test_id=grade.failed_test_id, withheld=withheld,
         ),
         tests_passed=grade.tests_passed, tests_total=grade.tests_total,
         failed_test=grade.failed_test_id,

@@ -12,6 +12,9 @@ from app.db.session import engine
 from tests.test_migration_graph import _config
 
 REVISION = "038_pro_ai_release_reason"
+# 040 (written-exercise example answers) builds on 038; the repair is still
+# exercised by stepping back to 037 and returning to whatever the head is.
+HEAD = "040_exercise_example_answers"
 
 
 def _release_reason():
@@ -24,10 +27,11 @@ def _current():
         return connection.execute(sa.text("SELECT version_num FROM alembic_version")).scalar()
 
 
-def test_038_follows_037_and_is_the_head():
+def test_038_follows_037_and_leads_to_the_single_head():
     script = ScriptDirectory.from_config(_config())
     assert script.get_revision(REVISION).down_revision == "037_mentor_requests"
-    assert script.get_heads() == [REVISION]
+    assert script.get_heads() == [HEAD]
+    assert REVISION in {revision.revision for revision in script.walk_revisions("base", HEAD)}
 
 
 def test_038_restores_the_column_a_drifted_036_left_out():
@@ -47,7 +51,7 @@ def test_038_restores_the_column_a_drifted_036_left_out():
     column = _release_reason()
     assert column is not None and column["nullable"] is True
     assert getattr(column["type"], "length", None) == 120
-    assert _current() == REVISION
+    assert _current() == HEAD
 
 
 def test_038_is_a_no_op_on_a_healthy_database_both_ways():
@@ -61,4 +65,4 @@ def test_038_is_a_no_op_on_a_healthy_database_both_ways():
     finally:
         command.upgrade(cfg, "head")
     assert _release_reason() is not None
-    assert _current() == REVISION
+    assert _current() == HEAD

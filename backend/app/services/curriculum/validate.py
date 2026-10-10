@@ -48,6 +48,7 @@ _TEST_REQUIRED_FIELDS = {
     "placeholders_removed": ("max_pass",),
     "ast_requirements": ("requirements",),
     "ast_contains": ("expected_ast", "path"),
+    "blank_computed": ("path", "statement", "slots", "context"),
     "text_changed": ("starter_fingerprint",),
     "regex_all": ("patterns",),
     "regex_none": ("patterns",),
@@ -63,7 +64,11 @@ def _test_definition_problems(where: str, test: Mapping[str, object]) -> List[st
     out: List[str] = []
     if kind not in SUPPORTED_TEST_TYPES:
         return [f"{where} {test_id}: unknown test type {kind!r}"]
-    missing = [field for field in _TEST_REQUIRED_FIELDS[kind] if field not in test]
+    required = _TEST_REQUIRED_FIELDS[kind]
+    if kind in {"expression_equals", "return_value_equals"} and "raises" in test:
+        # A check that expects an exception has no expected value.
+        required = tuple(field for field in required if field != "expected")
+    missing = [field for field in required if field not in test]
     if missing:
         out.append(f"{where} {test_id}: missing required fields: {', '.join(missing)}")
     if not test.get("feedback"):

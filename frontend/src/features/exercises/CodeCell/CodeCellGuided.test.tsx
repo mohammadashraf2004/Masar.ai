@@ -154,6 +154,75 @@ describe('CodeCell guided practice', () => {
     expect(within(card).queryByText(/check again/)).toBeNull()
   })
 
+  it('shows partial credit as its own result with the checks that pass', async () => {
+    render(<Guided onSubmit={vi.fn().mockResolvedValue(grade({ status: 'partial', tests_passed: 1 }))} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Check Answer' }))
+    const card = (await screen.findByText('Partly correct')).closest('section') as HTMLElement
+    expect(within(card).getByText('1 / 2 tests')).toBeInTheDocument()
+    expect(within(card).getByText('Fix this and check again. Your code is saved as you type.')).toBeInTheDocument()
+  })
+
+  it.each([
+    ['execution_error', 'The project runner is unavailable. Your answer was not graded and this attempt does not count.'],
+    ['grading_error', 'This exercise cannot be checked right now because of a problem on our side.'],
+  ] as const)('never presents a %s as a wrong answer', async (status, message) => {
+    render(<Guided onSubmit={vi.fn().mockResolvedValue(grade({ status, feedback: { code: status.toUpperCase(), message, messages: {} } }))} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Check Answer' }))
+    const card = (await screen.findByText('Not graded')).closest('section') as HTMLElement
+    expect(within(card).getByText(message)).toBeInTheDocument()
+    expect(within(card).getByText('This attempt was not counted. Try again in a moment.')).toBeInTheDocument()
+    expect(within(card).queryByText(/check again/)).toBeNull()
+    expect(within(card).queryByText(/tests/)).toBeNull()
+  })
+
+  it('names resource limits', async () => {
+    render(<Guided onSubmit={vi.fn().mockResolvedValue(grade({ status: 'memory_limit', feedback: { code: 'MEMORY_LIMIT', message: 'Too much memory.', messages: {} } }))} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Check Answer' }))
+    expect(await screen.findByText('Memory limit reached')).toBeInTheDocument()
+  })
+
+  it('marks a result stale once the code changes, and reset clears it', async () => {
+    render(<Guided onSubmit={vi.fn().mockResolvedValue(grade({
+      status: 'correct', passed: true, tests_passed: 2, tests_total: 2,
+      feedback: { code: 'CORRECT', message: 'Well done.', messages: {} },
+    }))} />)
+    const stale = 'You have changed the code since this result. Check again to grade the new version.'
+    await userEvent.click(screen.getByRole('button', { name: 'Check Answer' }))
+    expect(await screen.findByText('Well done.')).toBeInTheDocument()
+    expect(screen.queryByText(stale)).toBeNull()
+    await userEvent.type(screen.getByRole('textbox', { name: 'main.py' }), '# edit')
+    expect(screen.getByText(stale)).toBeInTheDocument()
+    // The menu toggle and the menu item share the label; the item opens second.
+    await userEvent.click(screen.getByRole('button', { name: 'Reset to starter code' }))
+    const [, item] = screen.getAllByRole('button', { name: 'Reset to starter code' })
+    await userEvent.click(item)
+    expect(screen.queryByText('Well done.')).toBeNull()
+    expect(screen.queryByText(stale)).toBeNull()
+  })
+
+  it.each([
+    ['en', { response: { status: 429 } }, 'You are checking very quickly. Wait a few seconds, then try again.'],
+    ['en', new Error('Network Error'), 'Could not reach the checker. Nothing was graded; try again in a moment.'],
+    ['ar', { response: { status: 503 } }, 'تعذّر الوصول إلى أداة التحقق. لم يُقيَّم شيء؛ حاول مرة أخرى بعد قليل.'],
+  ] as const)('explains a failed request in the interface language (%s)', async (language, cause, message) => {
+    useLanguageStore.setState({ language })
+    render(<Guided onSubmit={vi.fn().mockRejectedValue(cause)} />)
+    await userEvent.click(screen.getByRole('button', { name: language === 'ar' ? 'تحقّق من الإجابة' : 'Check Answer' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(message)
+  })
+
+  it('keeps the traceback of a checked answer behind Technical details', async () => {
+    render(<Guided onSubmit={vi.fn().mockResolvedValue(grade({
+      status: 'runtime_error', stderr: ['Traceback (most recent call last):', 'ZeroDivisionError: division by zero'].join('\n'),
+      feedback: { code: 'RUNTIME_ERROR', message: 'Blank 2: divide must refuse a zero divisor.', messages: {} },
+    }))} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Check Answer' }))
+    await screen.findByText('Blank 2: divide must refuse a zero divisor.')
+    const details = screen.getByText('Technical details').closest('details') as HTMLDetailsElement
+    expect(details).not.toHaveAttribute('open')
+    expect(within(details).getByText(/ZeroDivisionError/)).toBeInTheDocument()
+  })
+
   it('speaks Arabic around unchanged code', async () => {
     useLanguageStore.setState({ language: 'ar' })
     render(<Guided />)

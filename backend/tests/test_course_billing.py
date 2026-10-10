@@ -10,7 +10,7 @@ from app.models.learning_path import Course
 from app.services.learning.catalog_service import load_catalog_bundle
 from app.services.payments import paymob_service
 from tests.learning_fixtures import *  # noqa: F401,F403
-from tests.learning_fixtures import make_admin, register
+from tests.learning_fixtures import accept_written_answers, make_admin, register
 from tests.kashier_fixtures import kashier  # noqa: F401
 
 
@@ -253,6 +253,13 @@ def test_paid_content_is_redacted_but_the_first_two_ordered_lessons_remain_reada
     assert quizzes[locked_quiz.id]["questions"] == []
     assert quizzes[locked_quiz.id]["is_locked"] is True
 
+    # Readable is not completed: without an accepted answer nothing counts.
+    unanswered = learn_client.post(
+        f"/api/v1/tool-courses/topics/{topic.id}/progress",
+        headers=who["headers"], json={"exercise_id": free_exercise.id},
+    )
+    assert unanswered.status_code == 409 and unanswered.json()["detail"]["code"] == "ANSWER_NOT_ACCEPTED_YET"
+    accept_written_answers(learn_db, who["id"], [free_exercise.id])
     free_exercise_progress = learn_client.post(
         f"/api/v1/tool-courses/topics/{topic.id}/progress",
         headers=who["headers"], json={"exercise_id": free_exercise.id},

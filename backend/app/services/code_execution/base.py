@@ -13,6 +13,9 @@ class ExecutionResult:
     variables: dict[str, Any] = field(default_factory=dict)
     return_values: dict[str, Any] = field(default_factory=dict)
     detail: str | None = None
+    # The learner program's own failure ({"type", "message", "line"}) when it
+    # stopped with an error; None when it ran to the end.
+    error: dict[str, Any] | None = None
 
     @property
     def succeeded(self) -> bool:

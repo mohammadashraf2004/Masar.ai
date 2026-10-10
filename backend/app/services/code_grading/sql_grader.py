@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 import asyncio
+import math
 import re
 import sqlite3
 import time
 from typing import Any
 
 from app.services.code_execution import ExecutionResult
-from .grader import GradingResult
+from .grader import DEFAULT_ABS_TOL, DEFAULT_REL_TOL, GradingResult
 
 
 SQL_TEST_TYPES = frozenset({"sql_blank", "sql_result"})
@@ -111,6 +112,105 @@ def sql_blank_values(template: str, code: str) -> list[str] | None:
     return values
 
 
+# A statement that starts with one of these is a write or a schema change, not
+# a mistyped SELECT.
+_WRITE_KEYWORDS = frozenset({
+    "insert", "update", "delete", "replace", "upsert", "merge", "drop", "create", "alter",
+    "truncate", "attach", "detach", "pragma", "vacuum", "reindex", "analyze", "begin",
+    "commit", "rollback", "savepoint", "release", "grant", "revoke", "copy", "load", "install",
+})
+
+
+def _classify_sqlite_error(message: str) -> str:
+    """The learner-facing kind of a SQLite failure."""
+    lowered = message.lower()
+    if "interrupted" in lowered:
+        return "timeout"
+    if "not authorized" in lowered or "readonly" in lowered or "read-only" in lowered:
+        return "forbidden_operation"
+    if "too big" in lowered or "out of memory" in lowered:
+        return "memory_limit"
+    if "syntax error" in lowered or "incomplete input" in lowered or "unrecognized token" in lowered:
+        return "syntax_error"
+    # "no such column", "ambiguous column name", "misuse of aggregate", ...:
+    # the query is well formed but cannot run against this data.
+    return "runtime_error"
+
+
+def sql_failure_feedback(execution: ExecutionResult) -> dict[str, str]:
+    """What went wrong with the query, in both languages. The raw SQLite
+    message stays in the console (stderr); the feedback explains it."""
+    detail = (execution.stderr or "").strip()
+    detail = detail[len("SQL error: "):] if detail.startswith("SQL error: ") else detail
+    status = execution.status
+    if status == "syntax_error":
+        return {
+            "en": f"SQL could not read your query (syntax error): {detail}",
+            "ar": "تعذّر على SQL قراءة الاستعلام (خطأ في الصياغة). التفاصيل في نافذة المخرجات.",
+        }
+    if status == "runtime_error":
+        return {
+            "en": f"Your query is well formed but cannot run on this data: {detail}",
+            "ar": "صياغة الاستعلام سليمة لكنه لا يعمل على هذه البيانات. "
+                  "تحقق من أسماء الجداول والأعمدة ومن الدوال التجميعية. التفاصيل في نافذة المخرجات.",
+        }
+    if status == "forbidden_operation":
+        return {
+            "en": "Only one read-only SELECT (or WITH ... SELECT) query is allowed here.",
+            "ar": "يُسمح هنا باستعلام قراءة واحد فقط يبدأ بـ SELECT أو WITH، دون تعديل البيانات.",
+        }
+    if status == "timeout":
+        return {
+            "en": "Your query took too long and was stopped. Look for a join without a condition.",
+            "ar": "استغرق الاستعلام وقتًا طويلًا فأُوقف. ابحث عن ربط (JOIN) بلا شرط.",
+        }
+    if status in {"output_limit", "memory_limit"}:
+        return {
+            "en": "Your query produced more data than the practice sandbox allows. "
+                  "Filter or aggregate the rows instead of returning everything.",
+            "ar": "أنتج الاستعلام بيانات أكثر مما تسمح به بيئة التدريب. صفِّ الصفوف أو اجمعها بدلًا من إرجاعها كلها.",
+        }
+    return {
+        "en": detail or "The query could not be checked.",
+        "ar": "تعذّر التحقق من الاستعلام.",
+    }
+
+
+def _cell_key(value: Any) -> tuple[int, Any]:
+    """A sort key that orders equal numbers together whatever their type
+    (``3`` and ``3.0``), so an unordered comparison pairs the same rows."""
+    if value is None:
+        return (0, 0)
+    if isinstance(value, bool):
+        return (1, int(value))
+    if isinstance(value, (int, float)):
+        return (1, round(float(value), 9))
+    return (2, str(value))
+
+
+def _cells_match(actual: Any, expected: Any) -> bool:
+    numbers = (int, float)
+    if (isinstance(actual, numbers) and isinstance(expected, numbers)
+            and not isinstance(actual, bool) and not isinstance(expected, bool)):
+        return math.isclose(float(actual), float(expected), rel_tol=DEFAULT_REL_TOL, abs_tol=DEFAULT_ABS_TOL)
+    return actual == expected
+
+
+def rows_match(actual: list[tuple[Any, ...]], expected: list[tuple[Any, ...]], *, ordered: bool) -> bool:
+    """Same rows (as a sequence, or as a multiset when order is free), with
+    floats compared within a tolerance: an equivalent query that sums in a
+    different order is not a wrong answer."""
+    if len(actual) != len(expected):
+        return False
+    if not ordered:
+        actual = sorted(actual, key=lambda row: [_cell_key(cell) for cell in row])
+        expected = sorted(expected, key=lambda row: [_cell_key(cell) for cell in row])
+    return all(
+        len(a) == len(e) and all(_cells_match(x, y) for x, y in zip(a, e))
+        for a, e in zip(actual, expected)
+    )
+
+
 def normalize_sql_fragment(value: str) -> str:
     """Normalize case and insignificant spacing without changing SQL meaning."""
     value = re.sub(r"--[^\n]*", " ", value)
@@ -166,7 +266,7 @@ class SQLGrader:
                 if not execution.succeeded:
                     return GradingResult(
                         execution.status, False, execution.status.upper(),
-                        {"en": execution.stderr, "ar": execution.stderr},
+                        sql_failure_feedback(execution),
                         str(test.get("id") or f"test_{index + 1}"), passed, len(required), execution,
                     )
                 ok = bool(execution.detail == "match")
@@ -212,7 +312,7 @@ class SQLGrader:
         if not execution.succeeded:
             return GradingResult(
                 execution.status, False, execution.status.upper(),
-                {"en": execution.stderr, "ar": execution.stderr},
+                sql_failure_feedback(execution),
                 str(result_test.get("id") or "result"), 0, len(required), execution,
             )
         if execution.detail == "match":
@@ -279,8 +379,16 @@ class SQLGrader:
         started = time.perf_counter()
         visible = _LEADING_COMMENT.sub("", code)
         if not re.match(r"(?is)^(select|with)\b", visible):
+            leading = re.match(r"\s*([A-Za-z_]+)", visible)
+            first_word = leading.group(1).lower() if leading else ""
+            if first_word in _WRITE_KEYWORDS or not first_word:
+                return ExecutionResult(
+                    "forbidden_operation", stderr="Only one read-only SELECT or WITH query is allowed.",
+                )
+            # Not a write: most likely a mistyped SELECT ("SELEC ...").
             return ExecutionResult(
-                "forbidden_operation", stderr="Only one read-only SELECT or WITH query is allowed.",
+                "syntax_error",
+                stderr=f'SQL error: a query must start with SELECT or WITH, not "{leading.group(1)}".',
             )
         if len(code) > MAX_SQL_BYTES:
             return ExecutionResult("output_limit", stderr="The query is too long.")
@@ -314,22 +422,26 @@ class SQLGrader:
                 return ExecutionResult("output_limit", stderr="The query returned more than 500 rows.")
             columns = [item[0] for item in cursor.description or []]
         except sqlite3.ProgrammingError as exc:
-            return ExecutionResult("syntax_error", stderr=f"SQL error: {exc}")
+            message = str(exc)
+            if "one statement at a time" in message:
+                # Two queries are not a syntax error: only one is allowed.
+                return ExecutionResult(
+                    "forbidden_operation", stderr="Only one read-only SELECT or WITH query is allowed.",
+                )
+            return ExecutionResult(_classify_sqlite_error(message), stderr=f"SQL error: {message}")
         except sqlite3.DatabaseError as exc:
             message = str(exc)
-            status = "timeout" if "interrupted" in message.lower() else "syntax_error"
-            return ExecutionResult(status, stderr=f"SQL error: {message}")
+            return ExecutionResult(_classify_sqlite_error(message), stderr=f"SQL error: {message}")
         finally:
             connection.close()
 
         expected_rows = [tuple(row) for row in test.get("expected_rows", [])]
         actual_rows = [tuple(row) for row in rows]
-        ordered = bool(test.get("ordered", False))
-        rows_match = actual_rows == expected_rows if ordered else sorted(actual_rows, key=repr) == sorted(expected_rows, key=repr)
+        same_rows = rows_match(actual_rows, expected_rows, ordered=bool(test.get("ordered", False)))
         expected_columns = test.get("expected_columns")
         columns_match = expected_columns is None or columns == [str(item) for item in expected_columns]
         rendered = "\t".join(columns) + "\n" + "\n".join("\t".join(str(value) for value in row) for row in rows)
         return ExecutionResult(
             "success", stdout=rendered.rstrip() + "\n", execution_time_ms=int((time.perf_counter() - started) * 1000),
-            detail="match" if rows_match and columns_match else "mismatch",
+            detail="match" if same_rows and columns_match else "mismatch",
         )

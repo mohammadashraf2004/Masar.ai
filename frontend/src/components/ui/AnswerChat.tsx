@@ -1,13 +1,13 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
-import { useI18n } from '@/lib/i18n'
+import { useExerciseI18n, useI18n } from '@/lib/i18n'
 import { Spinner } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { CodeCell } from '@/components/ui/CodeCell'
 import { getErrorMessage } from '@/lib/utils'
 import type { AnswerChatMessage } from '@/types'
-import { Send, CheckCircle, HelpCircle, Bot, User, Code2, Undo2, RotateCcw } from 'lucide-react'
+import { Send, CheckCircle, HelpCircle, Bot, User, Code2, Undo2, RotateCcw, BookOpen } from 'lucide-react'
 
 interface AnswerChatProps {
   /** Either an exercise id, or a [quizId, questionIndex] pair for an
@@ -36,7 +36,15 @@ const UNDO_LIMIT = 100
 
 export function AnswerChat({ target, isCode, starterCode, placeholder, onResult }: AnswerChatProps) {
   const { language, mode, t } = useI18n()
+  const tx = useExerciseI18n()
   const [messages, setMessages] = useState<AnswerChatMessage[]>([])
+  // Written exercises: the server says when an example answer may be shown
+  // (after a first evaluated answer); it is fetched only when asked for.
+  const [exampleAvailable, setExampleAvailable] = useState(false)
+  const [example, setExample] = useState<{ example_answer: string; example_answer_ar?: string | null } | null>(null)
+  const [exampleOpen, setExampleOpen] = useState(false)
+  const [exampleLoading, setExampleLoading] = useState(false)
+  const [exampleError, setExampleError] = useState(false)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
   const [draft, setDraft] = useState('')
   const [loading, setLoading] = useState(true)
@@ -60,6 +68,10 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
     setMessages([])
     setIsCorrect(null)
     setHistory([])
+    setExampleAvailable(false)
+    setExample(null)
+    setExampleOpen(false)
+    setExampleError(false)
     // The coalescing timestamp is deliberately NOT reset here: a ref must
     // not be written during render. It does not need to be — `history` is
     // empty above, and editDraft always snapshots when the history is
@@ -78,6 +90,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
         if (!cancelled) {
           setMessages(data.messages)
           setIsCorrect(data.is_correct)
+          setExampleAvailable(Boolean(data.example_available))
           // Bring the student's most recent submission back into the editor
           // so a reload lands them where they left off, ready to edit. The
           // conversation already shows this text, so nothing is revealed
@@ -162,6 +175,7 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
         : await api.answerQuizQuestion(target.quizId, target.questionIndex, content, prefs)
       setMessages(data.messages)
       setIsCorrect(data.is_correct)
+      setExampleAvailable(Boolean(data.example_available))
       if (data.is_correct != null) onResult?.(data.is_correct)
     } catch (err) {
       setError(getErrorMessage(err))
@@ -170,6 +184,26 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
       if (!isCode) setDraft(content)
     }
     setSending(false)
+  }
+
+  async function toggleExample() {
+    if (exampleOpen) {
+      setExampleOpen(false)
+      return
+    }
+    if (example === null && target.kind === 'exercise') {
+      setExampleLoading(true)
+      setExampleError(false)
+      try {
+        setExample(await api.getExerciseExample(target.id))
+      } catch {
+        setExampleError(true)
+        return
+      } finally {
+        setExampleLoading(false)
+      }
+    }
+    setExampleOpen(true)
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -262,7 +296,33 @@ export function AnswerChat({ target, isCode, starterCode, placeholder, onResult 
     </div>
   )
 
-  if (!isCode) return conversation
+  const exampleText = example ? (language === 'ar' ? example.example_answer_ar || example.example_answer : example.example_answer) : ''
+  const examplePanel = exampleAvailable && target.kind === 'exercise' && (
+    <div className="space-y-2" dir="auto">
+      <button
+        type="button"
+        onClick={() => void toggleExample()}
+        disabled={exampleLoading}
+        aria-expanded={exampleOpen}
+        className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border px-3 text-sm text-bright disabled:opacity-60"
+      >
+        {exampleLoading ? <Spinner className="w-3.5 h-3.5" /> : <BookOpen size={14} />}
+        {exampleOpen ? tx.example.hide : tx.example.show}
+      </button>
+      {exampleError && <p role="alert" className="text-xs text-rose">{tx.example.failed}</p>}
+      {exampleOpen && example && (
+        <section className="rounded-lg border border-border bg-surface p-4" aria-label={tx.example.title}>
+          <h4 className="mb-1 text-sm font-semibold text-bright">{tx.example.title}</h4>
+          <p className="mb-3 text-xs text-ghost">{tx.example.note}</p>
+          <p className="whitespace-pre-line text-sm leading-relaxed text-soft" dir="auto">{exampleText}</p>
+        </section>
+      )}
+    </div>
+  )
+
+  if (!isCode) {
+    return examplePanel ? <div className="space-y-3">{conversation}{examplePanel}</div> : conversation
+  }
 
   // ── Code: editor and conversation are separate panels ──────────────────
   // They used to share one card, with the editor as the chat's input box.

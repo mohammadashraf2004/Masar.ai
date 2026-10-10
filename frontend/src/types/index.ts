@@ -302,6 +302,8 @@ export interface AnswerSubmission {
   is_correct: boolean | null
   score: number | null
   updated_at?: string
+  /** Written exercises: an example answer exists and may now be shown. */
+  example_available?: boolean | null
 }
 
 // ─── Tool Courses ──────────────────────────────────────────────────────────
@@ -1426,7 +1428,7 @@ export interface TestResult {
 
 export type ExerciseExecutionStatus =
   | 'success' | 'syntax_error' | 'runtime_error' | 'timeout'
-  | 'memory_limit' | 'forbidden_operation' | 'execution_error' | 'grading_error' | 'incomplete'
+  | 'memory_limit' | 'output_limit' | 'forbidden_operation' | 'execution_error' | 'grading_error' | 'incomplete'
 
 export interface ExerciseRunResult {
   status: ExerciseExecutionStatus
@@ -1440,10 +1442,13 @@ export interface ExerciseFeedback {
   message: string
   test_id?: string | null
   messages: { en?: string; ar?: string }
+  /** The precise note was held back because it would quote the answer; it
+   *  comes after the learner's next different attempt. */
+  withheld?: boolean
 }
 
 export interface GradeResult {
-  status: ExerciseExecutionStatus | 'incorrect' | 'correct'
+  status: ExerciseExecutionStatus | 'incorrect' | 'partial' | 'correct'
   passed: boolean
   stdout: string
   stderr: string

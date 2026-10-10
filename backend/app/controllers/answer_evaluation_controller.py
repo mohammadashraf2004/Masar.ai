@@ -17,13 +17,14 @@ from app.models.user import User
 from app.models.learning import Exercise, Quiz, Topic
 from app.models.tool_course import ToolTopic
 from app.models.answer_submission import AnswerSubmission
-from app.views.answer_submission import AnswerMessage, AnswerSubmissionResponse
+from app.views.answer_submission import AnswerMessage, AnswerSubmissionResponse, ExampleAnswerResponse
 from app.core.security import get_current_user
 from app.core.limiter import limiter
 from app.services import get_llm, answer_evaluator_service
 from app.services.content.vocabulary_service import promote_from_correct_answer
 from app.services.wallet.wallet_service import deduct_credits, refund_credits
 from app.services.billing.access_service import require_content_access
+from app.services.exercise_progress import mark_complete, refresh_course_progress
 
 logger = logging.getLogger(__name__)
 
@@ -165,6 +166,28 @@ def _graded_turn(
 
 # ─── Exercises ───────────────────────────────────────────────────────────
 
+def _has_evaluated_answer(submission: AnswerSubmission | None) -> bool:
+    """The learner has sent an answer and the evaluator has replied to it."""
+    return bool(submission) and any(
+        message.get("role") == "assistant" for message in (submission.messages or [])
+        if isinstance(message, dict)
+    )
+
+
+def _with_example_state(submission: AnswerSubmission, exercise: Exercise | None) -> AnswerSubmissionResponse:
+    response = AnswerSubmissionResponse.model_validate(submission)
+    available = bool(exercise and exercise.example_answer) and _has_evaluated_answer(submission)
+    return response.model_copy(update={"example_available": available})
+
+
+def _reference(exercise: Exercise, language: str | None) -> str | None:
+    """What the evaluator compares with: the example answer in the learner's
+    language when there is one, otherwise the authored solution."""
+    if exercise.example_answer:
+        return (exercise.example_answer_ar if language == "ar" else None) or exercise.example_answer
+    return exercise.solution_code
+
+
 @router.post("/exercises/{exercise_id}/answer", response_model=AnswerSubmissionResponse)
 @limiter.limit("20/minute")
 def answer_exercise(
@@ -203,7 +226,7 @@ def answer_exercise(
         "title": exercise.title,
         "prompt": exercise.description,
         "starter_code": exercise.starter_code,
-        "reference": exercise.solution_code,
+        "reference": _reference(exercise, payload.language),
         "skill_tags": exercise.skill_tested or [],
         "technical_terms": _declared_terms(db, exercise),
     }
@@ -211,9 +234,14 @@ def answer_exercise(
         db, current_user.id, submission, context, payload,
         what=f"exercise {exercise_id}",
     )
+    # The server records completion when the evaluator accepts the answer,
+    # rather than trusting a later "mark complete" request from the browser.
+    completed = bool(submission.is_correct) and mark_complete(db, current_user.id, exercise)
     db.commit()
+    if completed:
+        refresh_course_progress(db, current_user.id, exercise)
     db.refresh(submission)
-    return submission
+    return _with_example_state(submission, exercise)
 
 
 @router.get("/exercises/{exercise_id}/answer", response_model=AnswerSubmissionResponse)
@@ -231,7 +259,34 @@ def get_exercise_answer(
     ).first()
     if not submission:
         raise HTTPException(status_code=404, detail="No conversation yet for this exercise")
-    return submission
+    return _with_example_state(submission, exercise)
+
+
+@router.get("/exercises/{exercise_id}/example", response_model=ExampleAnswerResponse)
+def get_example_answer(
+    exercise_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One good answer to a written exercise, once the learner has tried it:
+    shown before a first attempt it would simply be the answer."""
+    exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
+    if not exercise:
+        raise HTTPException(status_code=404, detail="Exercise not found")
+    if exercise.exercise_type == "code" or exercise.starter_code:
+        raise HTTPException(status_code=409, detail={"code": "USE_DETERMINISTIC_CODE_GRADER"})
+    require_content_access(db, current_user.id, exercise)
+    if not exercise.example_answer:
+        raise HTTPException(status_code=404, detail="No example answer for this exercise")
+    submission = db.query(AnswerSubmission).filter(
+        AnswerSubmission.user_id == current_user.id,
+        AnswerSubmission.exercise_id == exercise_id,
+    ).first()
+    if not _has_evaluated_answer(submission):
+        raise HTTPException(status_code=403, detail={"code": "EXAMPLE_LOCKED"})
+    return ExampleAnswerResponse(
+        example_answer=exercise.example_answer, example_answer_ar=exercise.example_answer_ar,
+    )
 
 
 # ─── Open-ended quiz questions ────────────────────────────────────────────

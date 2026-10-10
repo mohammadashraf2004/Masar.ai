@@ -385,10 +385,15 @@ def test_disabled_execution_message_follows_the_interface_language(client, code_
 
     check = client.post(f"{base}/submit", headers=headers, json={"code": code, "language": "ar"}).json()
     assert check["status"] == "execution_error" and check["stderr"] == arabic
-    assert check["feedback"]["message"] == arabic
-    assert check["feedback"]["messages"] == {"en": english, "ar": arabic}
+    # The feedback adds that the answer was not graded: an outage is never a wrong answer.
+    not_counted = {"en": "Your answer was not graded and this attempt does not count.",
+                   "ar": "لم تُقيَّم إجابتك ولن تُحتسب هذه المحاولة."}
+    assert check["feedback"]["message"] == f"{arabic} {not_counted['ar']}"
+    assert check["feedback"]["messages"] == {
+        "en": f"{english} {not_counted['en']}", "ar": f"{arabic} {not_counted['ar']}",
+    }
     check = client.post(f"{base}/submit", headers=headers, json={"code": code}).json()
-    assert check["stderr"] == english and check["feedback"]["message"] == english
+    assert check["stderr"] == english and check["feedback"]["message"] == f"{english} {not_counted['en']}"
 
 
 def test_production_never_selects_the_in_process_backend(monkeypatch):

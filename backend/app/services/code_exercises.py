@@ -2,17 +2,18 @@
 from __future__ import annotations
 
 import ast
-from datetime import datetime
+import re
 from typing import Any
 
 from sqlalchemy.orm import Session
 
 from app.models.code_exercise import CodeExerciseAttempt
-from app.models.learning import Exercise, Lesson
-from app.models.progress import ProgressStatus, UserProgress
+from app.models.learning import Exercise
 from app.services.code_execution import ExecutionResult, IsolatedPythonRunner
-from app.services.code_execution.python_runner import ALLOWED_IMPORT_ROOTS as RUNNABLE_IMPORTS
+from app.services.code_execution.python_runner import ALLOWED_IMPORT_ROOTS as RUNNABLE_IMPORTS, parse_learner_python
 from app.services.code_grading import PythonGrader, SQLGrader, TextGrader
+from app.services.code_grading.grader import UNGRADED_STATUSES
+from app.services.exercise_progress import mark_complete  # noqa: F401 - re-exported for callers
 
 
 RUNNER = IsolatedPythonRunner()
@@ -46,7 +47,7 @@ def check_without_running(code: str, language: str) -> ExecutionResult:
     honestly confirm - that the code parses - and where the check happens.
     """
     try:
-        tree = ast.parse(code, mode="exec")
+        tree = parse_learner_python(code)
     except SyntaxError as exc:
         return ExecutionResult("syntax_error", stderr=f"SyntaxError: {exc.msg} (line {exc.lineno})")
     libraries = sorted({
@@ -75,8 +76,10 @@ def check_without_running(code: str, language: str) -> ExecutionResult:
 # starter, a program with blanks left, or the same program checked again does
 # not count, so clicking Check Answer repeatedly cannot unlock it.
 SOLUTION_AFTER_FAILED_CHECKS = 3
-# Results that say nothing about the learner's answer (runner unavailable).
-UNGRADED_STATUSES = frozenset({"execution_error"})
+# Feedback that would hand over part of the official answer (a check that
+# says "Blank 3: `{"result": a / b}`") is held back until this many different
+# wrong answers: the learner first hears which blank is wrong, then how.
+FULL_FEEDBACK_AFTER_FAILED_CHECKS = 2
 
 
 def _normalized(code: str | None) -> str:
@@ -149,32 +152,52 @@ def record_attempt(
     return attempt
 
 
-def mark_complete(db: Session, user_id: int, exercise: Exercise) -> None:
-    """Record completion in Masar's existing UserProgress aggregate."""
-    filters = [UserProgress.user_id == user_id]
-    values: dict[str, Any] = {"user_id": user_id, "status": ProgressStatus.in_progress, "started_at": datetime.utcnow()}
-    if exercise.tool_topic_id is not None:
-        filters.append(UserProgress.tool_topic_id == exercise.tool_topic_id)
-        values["tool_topic_id"] = exercise.tool_topic_id
-    elif exercise.topic_id is not None:
-        filters.append(UserProgress.topic_id == exercise.topic_id)
-        values["topic_id"] = exercise.topic_id
-    else:
-        return
-    progress = db.query(UserProgress).filter(*filters).first()
-    if progress is None:
-        progress = UserProgress(**values)
-        db.add(progress)
-        db.flush()
-    completed = progress.exercises_completed or []
-    if exercise.id not in completed:
-        progress.exercises_completed = [*completed, exercise.id]
+_CODE_SPAN = re.compile(r"`([^`\n]+)`")
+_BLANK_NUMBER = re.compile(r"(?:\bBlank\s+|الفراغ\s+)(\d+)")
 
-    if exercise.tool_topic_id is not None:
-        total_lessons = db.query(Lesson).filter(Lesson.tool_topic_id == exercise.tool_topic_id).count()
-        total_exercises = db.query(Exercise).filter(Exercise.tool_topic_id == exercise.tool_topic_id).count()
-        if (len(progress.lessons_completed or []) >= total_lessons
-                and len(progress.exercises_completed or []) >= total_exercises
-                and (total_lessons or total_exercises)):
-            progress.status = ProgressStatus.completed
-            progress.completed_at = progress.completed_at or datetime.utcnow()
+
+def _squash(value: str | None) -> str:
+    return re.sub(r"\s+", "", value or "")
+
+
+def reveals_answer(text: str, solution: str | None, starter: str | None) -> bool:
+    """True when the message quotes code that is in the official solution
+    but not in the starter the learner was given - part of the answer."""
+    solution_text, starter_text = _squash(solution), _squash(starter)
+    if not solution_text:
+        return False
+    for span in _CODE_SPAN.findall(text or ""):
+        piece = _squash(span)
+        if len(piece) >= 2 and piece in solution_text and piece not in starter_text:
+            return True
+    return False
+
+
+def _withheld_message(language: str, number: str | None) -> str:
+    if language == "ar":
+        if number:
+            return (f"الفراغ {number} لا يعطي النتيجة المطلوبة بعد. أعد قراءة الخطوة الخاصة به ثم حاول مرة أخرى؛ "
+                    "ستظهر ملاحظة أدق بعد محاولتك المختلفة التالية.")
+        return "أحد الفحوص لم ينجح بعد. أعد قراءة التعليمات ثم حاول مرة أخرى؛ ستظهر ملاحظة أدق بعد محاولتك المختلفة التالية."
+    if number:
+        return (f"Blank {number} does not give the required result yet. Re-read its step and try again; "
+                "a more specific note appears after your next different attempt.")
+    return ("One of the checks does not pass yet. Re-read the instructions and try again; "
+            "a more specific note appears after your next different attempt.")
+
+
+def withhold_answers(
+    messages: dict[str, str], *, solution: str | None, starter: str | None, failed_test_id: str | None,
+) -> tuple[dict[str, str], bool]:
+    """``messages`` with any answer-revealing text replaced by a message
+    that still names the blank. Returns (messages, whether anything was held back)."""
+    fallback = re.match(r"blank_(\d+)", failed_test_id or "")
+    result, withheld = dict(messages), False
+    for language in ("en", "ar"):
+        text = messages.get(language) or ""
+        if reveals_answer(text, solution, starter):
+            found = _BLANK_NUMBER.search(text)
+            number = found.group(1) if found else (fallback.group(1) if fallback else None)
+            result[language] = _withheld_message(language, number)
+            withheld = True
+    return result, withheld

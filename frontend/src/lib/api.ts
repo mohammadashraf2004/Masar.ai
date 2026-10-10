@@ -420,6 +420,15 @@ class ApiClient {
     return res.data
   }
 
+  /** One good answer to a written exercise; the server opens it after the
+   *  learner's first evaluated answer. */
+  async getExerciseExample(exerciseId: number) {
+    const res = await this.http.get<{ example_answer: string; example_answer_ar?: string | null }>(
+      `/practice/exercises/${exerciseId}/example`,
+    )
+    return res.data
+  }
+
   async answerQuizQuestion(
     quizId: number,
     questionIndex: number,

@@ -315,6 +315,19 @@ def legacy_catalog(learn_db, learn_catalog):
     return learn_catalog
 
 
+def accept_written_answers(db, user_id: int, exercise_ids) -> None:
+    """Record that the evaluator accepted this learner's written answers,
+    the evidence the progress routes now require before an exercise counts."""
+    from app.models.answer_submission import AnswerSubmission
+
+    for exercise_id in exercise_ids:
+        db.add(AnswerSubmission(
+            user_id=user_id, exercise_id=exercise_id, is_correct=True, score=100.0,
+            messages=[{"role": "user", "content": "answer"}, {"role": "assistant", "content": "Correct."}],
+        ))
+    db.commit()
+
+
 def register(client, *, verified: bool = False) -> Dict[str, object]:
     email = f"learn-{uuid.uuid4().hex[:12]}@example.com"
     resp = client.post("/api/v1/auth/register", json={"accept_terms": True, "accept_privacy": True, 

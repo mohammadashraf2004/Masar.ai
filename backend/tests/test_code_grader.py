@@ -381,5 +381,8 @@ def test_sql_grader_rejects_writes_and_multiple_statements():
     write = run(grader.grade("DELETE FROM records", tests))
     assert write.status == "forbidden_operation"
 
+    # Two queries are not a syntax error: the answer breaks the one-query rule.
     multiple = run(grader.grade("SELECT value FROM records; SELECT 2", tests))
-    assert multiple.status == "syntax_error"
+    assert multiple.status == "forbidden_operation"
+    assert "Only one read-only SELECT" in multiple.feedback["en"]
+    assert "استعلام قراءة واحد" in multiple.feedback["ar"]

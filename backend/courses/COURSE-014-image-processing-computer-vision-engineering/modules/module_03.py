@@ -71,7 +71,6 @@ TOPIC = {
         "interpolation",
         "color-grading",
         "image-effects",
-        "module-03",
     ],
 
     "prerequisite_ids": ["M02.L01"],

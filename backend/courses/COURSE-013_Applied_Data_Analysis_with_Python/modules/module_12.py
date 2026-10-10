@@ -42,7 +42,6 @@ TOPIC = {
         "cifar10",
         "time-series",
         "image-denoising",
-        "module-12",
     ],
     "prerequisite_ids": ["M11.L01"],
     "lesson": {

@@ -47,7 +47,6 @@ TOPIC = {
         "lof",
         "mass-volume",
         "excess-mass",
-        "module-10",
     ],
     "prerequisite_ids": ["M09.L01"],
     "lesson": {

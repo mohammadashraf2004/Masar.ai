@@ -71,7 +71,6 @@ TOPIC = {
         "churn",
         "basket-analysis",
         "analytical-engineering",
-        "module-01",
     ],
 
     "prerequisite_ids": [

@@ -67,7 +67,6 @@ TOPIC = {
         "knowledge-boundaries",
         "agentic-loop",
         "mcp",
-        "module-01",
     ],
 
     "prerequisite_ids": [

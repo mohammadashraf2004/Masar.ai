@@ -61,7 +61,6 @@ TOPIC = {
         "online-learning",
         "generalization",
         "model-evaluation",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

@@ -65,7 +65,6 @@ TOPIC = {
         "diffedit",
         "retouching",
         "outpainting",
-        "module-09",
     ],
 
     "prerequisite_ids": ["M08.L01"],

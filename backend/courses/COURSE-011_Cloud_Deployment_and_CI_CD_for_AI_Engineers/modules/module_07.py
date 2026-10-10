@@ -66,7 +66,6 @@ TOPIC = {
         "alertmanager",
         "opentelemetry",
         "jaeger",
-        "module-07",
     ],
 
     "prerequisite_ids": ["M06.L01"],

@@ -30,7 +30,7 @@ TOPIC = {
     "estimated_hours": 4.0,
     "skill_tags": [
         "gcp", "compute-engine", "iam", "startup-script", "static-ip", "ssh",
-        "firewall", "docker-compose", "nginx", "ssl", "subdomains", "module-08"
+        "firewall", "docker-compose", "nginx", "ssl", "subdomains"
     ],
     "prerequisite_ids": ["M08.L06"],
 

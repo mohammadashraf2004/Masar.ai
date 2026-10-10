@@ -62,7 +62,6 @@ TOPIC = {
         "image-registry",
         "ports",
         "volumes",
-        "module-03",
     ],
 
     "prerequisite_ids": ["M02.L01"],

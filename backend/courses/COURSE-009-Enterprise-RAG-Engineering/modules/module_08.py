@@ -37,7 +37,7 @@ TOPIC = {'title': 'Multimodal RAG',
                 'multimodal-evaluation',
                 'security',
                 'observability',
-                'module-01'],
+                ],
  'prerequisite_ids': ['M01.L01', 'M01.L02', 'M01.L03', 'M01.L04', 'M01.L05', 'M01.L06', 'M01.L07'],
  'lesson': {'title': 'Multimodal RAG',
             'content': '# Multimodal RAG\n'

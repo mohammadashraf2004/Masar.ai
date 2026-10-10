@@ -30,7 +30,7 @@ TOPIC = {
     "estimated_hours": 2.5,
     "skill_tags": [
         "aws", "iam", "ec2", "security-groups", "elastic-ip",
-        "cloud-security", "networking", "module-08",
+        "cloud-security", "networking",
     ],
     "prerequisite_ids": ["M07.L01"],
 

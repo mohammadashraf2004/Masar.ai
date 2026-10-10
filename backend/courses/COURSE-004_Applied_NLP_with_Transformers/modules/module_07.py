@@ -51,7 +51,6 @@ TOPIC = {
         "haystack",
         "domain-adaptation",
         "evaluation",
-        "module-01",
     ],
     "prerequisite_ids": [
         "M01.L01",

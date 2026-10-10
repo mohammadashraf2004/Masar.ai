@@ -61,7 +61,6 @@ TOPIC = {
         "aws",
         "variables",
         "outputs",
-        "module-04",
     ],
 
     "prerequisite_ids": ["M03.L01"],

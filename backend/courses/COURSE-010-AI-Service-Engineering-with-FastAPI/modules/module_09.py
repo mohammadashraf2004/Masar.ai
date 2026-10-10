@@ -64,7 +64,6 @@ TOPIC = {
         "redis",
         "traffic-shaping",
         "abuse-prevention",
-        "module-01",
     ],
 
     "prerequisite_ids": [

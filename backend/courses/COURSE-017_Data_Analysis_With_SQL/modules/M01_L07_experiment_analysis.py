@@ -65,7 +65,6 @@ TOPIC = {
         "time-boxing",
         "experiment-quality",
         "quasi-experiments",
-        "module-01",
     ],
 
     "prerequisite_ids": [

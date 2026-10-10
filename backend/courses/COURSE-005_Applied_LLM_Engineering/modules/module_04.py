@@ -68,7 +68,6 @@ TOPIC = {
         "precision",
         "recall",
         "f1-score",
-        "module-04",
     ],
 
     "prerequisite_ids": [

@@ -57,7 +57,6 @@ TOPIC = {
         "regularization",
         "feature-engineering",
         "dropout",
-        "module-05",
     ],
 
     "prerequisite_ids": [],

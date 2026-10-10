@@ -68,7 +68,6 @@ TOPIC = {
         "negative-sampling",
         "recommendation-systems",
         "hugging-face",
-        "module-02",
     ],
 
     "prerequisite_ids": [

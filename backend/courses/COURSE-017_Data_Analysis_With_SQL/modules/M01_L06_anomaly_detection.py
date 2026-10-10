@@ -66,7 +66,6 @@ TOPIC = {
         "data-quality",
         "winsorization",
         "data-profiling",
-        "module-01",
     ],
 
     "prerequisite_ids": [

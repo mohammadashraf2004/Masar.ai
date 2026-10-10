@@ -70,7 +70,6 @@ TOPIC = {
         "windowing",
         "gibbs-phenomenon",
         "parseval",
-        "module-04",
     ],
 
     "prerequisite_ids": ["M03.L01"],

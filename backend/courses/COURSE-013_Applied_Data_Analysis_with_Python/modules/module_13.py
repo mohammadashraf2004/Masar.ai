@@ -47,7 +47,6 @@ TOPIC = {
         "text-classification",
         "naive-bayes",
         "distilbert",
-        "module-13",
     ],
     "prerequisite_ids": ["M12.L01"],
     "lesson": {

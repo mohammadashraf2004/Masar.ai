@@ -70,7 +70,6 @@ TOPIC = {
         "react",
         "tool-use",
         "llm-systems",
-        "module-07",
     ],
 
     "prerequisite_ids": [

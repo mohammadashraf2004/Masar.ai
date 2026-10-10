@@ -61,7 +61,6 @@ TOPIC = {
         "positional-embeddings",
         "pretraining",
         "fine-tuning",
-        "module-15",
     ],
 
     "prerequisite_ids": [],

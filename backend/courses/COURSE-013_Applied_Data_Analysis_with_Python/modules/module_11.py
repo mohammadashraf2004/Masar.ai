@@ -43,7 +43,6 @@ TOPIC = {
         "stacking",
         "xgboost",
         "regularization",
-        "module-11",
     ],
     "prerequisite_ids": ["M10.L01"],
     "lesson": {

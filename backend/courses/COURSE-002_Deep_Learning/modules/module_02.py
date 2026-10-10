@@ -59,7 +59,6 @@ TOPIC = {
         "gradient-descent",
         "backpropagation",
         "optimization",
-        "module-02",
     ],
 
     "prerequisite_ids": [],

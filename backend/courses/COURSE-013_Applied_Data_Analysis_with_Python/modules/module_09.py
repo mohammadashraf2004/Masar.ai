@@ -51,7 +51,6 @@ TOPIC = {
         "f1",
         "train-test-split",
         "cross-validation",
-        "module-09",
     ],
     "prerequisite_ids": ["M08.L01"],
     "lesson": {

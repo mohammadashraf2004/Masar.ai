@@ -62,7 +62,6 @@ TOPIC = {
         "feature-interactions",
         "feature-selection",
         "domain-knowledge",
-        "module-04",
     ],
 
     "prerequisite_ids": [],

@@ -67,7 +67,6 @@ TOPIC = {
         "abac",
         "authorization-guards",
         "genai-security",
-        "module-01",
     ],
 
     "prerequisite_ids": [

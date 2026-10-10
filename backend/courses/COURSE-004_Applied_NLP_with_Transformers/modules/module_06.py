@@ -49,7 +49,6 @@ TOPIC = {
         "rouge",
         "teacher-forcing",
         "gradient-accumulation",
-        "module-01",
     ],
     "prerequisite_ids": ["M01.L01", "M01.L02", "M01.L03", "M01.L04"],
 

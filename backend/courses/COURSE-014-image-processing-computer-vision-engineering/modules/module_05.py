@@ -70,7 +70,6 @@ TOPIC = {
         "conv2d",
         "conv3d",
         "transposed-convolution",
-        "module-05",
     ],
 
     "prerequisite_ids": ["M04.L01"],

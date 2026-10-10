@@ -62,7 +62,6 @@ TOPIC = {
         "sequential-thinking",
         "mcp",
         "agent-evaluation",
-        "module-01",
     ],
 
     "prerequisite_ids": [

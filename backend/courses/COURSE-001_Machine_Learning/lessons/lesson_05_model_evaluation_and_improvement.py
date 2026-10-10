@@ -64,7 +64,6 @@ TOPIC = {
         "f1-score",
         "roc-auc",
         "imbalanced-data",
-        "module-05",
     ],
 
     "prerequisite_ids": [],

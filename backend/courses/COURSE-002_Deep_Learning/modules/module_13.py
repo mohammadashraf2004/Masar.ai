@@ -63,7 +63,6 @@ TOPIC = {
         "multimodal",
         "rag",
         "foundation-models",
-        "module-16",
     ],
 
     "prerequisite_ids": ["M15.L01"],

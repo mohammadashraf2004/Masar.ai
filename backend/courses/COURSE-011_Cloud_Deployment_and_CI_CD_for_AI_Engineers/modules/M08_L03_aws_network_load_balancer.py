@@ -24,7 +24,7 @@ TOPIC = {
     "order": 3,
     "difficulty": DifficultyLevel.beginner,
     "estimated_hours": 2.75,
-    "skill_tags": ["aws", "network-load-balancer", "target-groups", "vpc", "security-groups", "tcp", "streamlit", "module-08"],
+    "skill_tags": ["aws", "network-load-balancer", "target-groups", "vpc", "security-groups", "tcp", "streamlit"],
     "prerequisite_ids": ["M08.L02"],
 
     "lesson": {

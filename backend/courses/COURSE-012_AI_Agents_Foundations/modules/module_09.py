@@ -67,7 +67,6 @@ TOPIC = {
         "collaboration",
         "consensus",
         "mcp",
-        "module-01",
     ],
 
     "prerequisite_ids": [

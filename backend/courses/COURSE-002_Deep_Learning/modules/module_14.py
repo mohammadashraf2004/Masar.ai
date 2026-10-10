@@ -66,7 +66,6 @@ TOPIC = {
         "text-to-image",
         "stable-diffusion",
         "latent-interpolation",
-        "module-17",
     ],
 
     "prerequisite_ids": [],

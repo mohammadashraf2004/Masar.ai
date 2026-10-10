@@ -69,7 +69,6 @@ TOPIC = {
         "image-captioning",
         "visual-question-answering",
         "multimodal-chat",
-        "module-09",
     ],
 
     "prerequisite_ids": [

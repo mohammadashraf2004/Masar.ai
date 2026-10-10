@@ -48,7 +48,6 @@ TOPIC = {
         "tokenization",
         "fine-tuning",
         "error-analysis",
-        "module-02",
     ],
     "prerequisite_ids": [],
 

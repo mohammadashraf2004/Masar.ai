@@ -30,7 +30,7 @@ TOPIC = {
     "estimated_hours": 4.0,
     "skill_tags": [
         "jenkins", "flask", "streamlit", "docker-compose", "nginx", "linux-permissions",
-        "jupyter", "scikit-learn", "random-forest", "pickle", "api-authentication", "module-08"
+        "jupyter", "scikit-learn", "random-forest", "pickle", "api-authentication"
     ],
     "prerequisite_ids": ["M08.L04"],
 

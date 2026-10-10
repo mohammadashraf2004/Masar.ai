@@ -38,7 +38,6 @@ TOPIC = {
         "supervised-learning",
         "features",
         "generalization",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

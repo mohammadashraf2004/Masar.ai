@@ -64,7 +64,6 @@ TOPIC = {
         "color-spaces",
         "image-io",
         "image-manipulation",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

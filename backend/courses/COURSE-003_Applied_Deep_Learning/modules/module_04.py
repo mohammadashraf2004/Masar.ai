@@ -51,7 +51,6 @@ TOPIC = {
         "time-series",
         "text",
         "embeddings",
-        "module-04",
     ],
     "prerequisite_ids": ["M03.L01"],
 

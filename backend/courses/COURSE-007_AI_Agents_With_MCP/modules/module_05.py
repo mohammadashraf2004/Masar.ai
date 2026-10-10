@@ -68,7 +68,6 @@ TOPIC = {
         "roots",
         "cancellation",
         "mcpserver",
-        "module-03",
     ],
 
     "prerequisite_ids": ["M03.L01"],

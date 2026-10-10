@@ -53,7 +53,6 @@ TOPIC = {
         "rmse",
         "mape",
         "residual-diagnostics",
-        "module-08",
     ],
     "prerequisite_ids": ["M07.L01"],
     "lesson": {

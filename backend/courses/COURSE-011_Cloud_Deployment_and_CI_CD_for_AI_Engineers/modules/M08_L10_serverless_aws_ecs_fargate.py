@@ -32,7 +32,7 @@ TOPIC = {
     "skill_tags": [
         "aws", "ecs", "fargate", "ecr", "application-load-balancer",
         "target-groups", "iam", "aws-cli", "acm", "cloudwatch",
-        "autoscaling", "dns", "module-08",
+        "autoscaling", "dns",
     ],
     "prerequisite_ids": ["M08.L09"],
 

@@ -67,7 +67,6 @@ TOPIC = {
         "residual-connections",
         "batch-normalization",
         "separable-convolution",
-        "module-08",
     ],
 
     "prerequisite_ids": [],

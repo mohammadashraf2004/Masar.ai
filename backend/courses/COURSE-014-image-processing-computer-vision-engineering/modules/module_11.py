@@ -69,7 +69,6 @@ TOPIC = {
         "iou",
         "dice",
         "map",
-        "module-11",
     ],
 
     "prerequisite_ids": ["M10.L01"],

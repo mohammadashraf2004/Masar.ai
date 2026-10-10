@@ -50,7 +50,6 @@ TOPIC = {
         "speech-recognition",
         "multimodal-transformers",
         "clip",
-        "module-01",
     ],
     "prerequisite_ids": [
         "M01.L01",

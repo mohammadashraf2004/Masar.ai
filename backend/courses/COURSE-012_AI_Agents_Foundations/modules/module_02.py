@@ -62,7 +62,6 @@ TOPIC = {
         "tool-use",
         "tool-chaining",
         "agent-foundations",
-        "module-01",
     ],
 
     "prerequisite_ids": [

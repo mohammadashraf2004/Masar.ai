@@ -64,7 +64,6 @@ TOPIC = {
         "gradient-boosting",
         "hist-gradient-boosting",
         "stacking",
-        "module-01",
     ],
 
     "prerequisite_ids": [

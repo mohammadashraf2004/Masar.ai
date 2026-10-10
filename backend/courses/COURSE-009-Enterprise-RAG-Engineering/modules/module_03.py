@@ -55,7 +55,7 @@ TOPIC = {'title': 'Scaling Your RAG Stack',
                 'prompt-injection',
                 'hallucination-detection',
                 'rag-ux',
-                'module-01'],
+                ],
  'prerequisite_ids': ['M01.L01', 'M01.L02'],
  'lesson': {'title': 'Scaling Your RAG Stack',
             'content': '# Scaling Your RAG Stack\n'

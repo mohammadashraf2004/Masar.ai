@@ -69,7 +69,6 @@ TOPIC = {
         "output-verification",
         "structured-output",
         "constrained-decoding",
-        "module-06",
     ],
 
     "prerequisite_ids": [

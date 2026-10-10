@@ -68,7 +68,6 @@ TOPIC = {
         "bentoml",
         "middleware",
         "monitoring",
-        "module-01",
     ],
 
     "prerequisite_ids": [

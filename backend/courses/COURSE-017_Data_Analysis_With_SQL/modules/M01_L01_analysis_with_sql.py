@@ -58,7 +58,6 @@ TOPIC = {
         "databases",
         "analytics-workflow",
         "data-warehousing",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

@@ -66,7 +66,6 @@ TOPIC = {
         "word-embeddings",
         "pretraining",
         "cbow",
-        "module-14",
     ],
 
     "prerequisite_ids": [],

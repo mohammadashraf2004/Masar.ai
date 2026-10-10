@@ -57,7 +57,6 @@ TOPIC = {
         "transfer-learning",
         "hugging-face",
         "pipelines",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

@@ -64,7 +64,6 @@ TOPIC = {
         "cross-validation",
         "hyperparameter-tuning",
         "mlops",
-        "module-01",
     ],
 
     "prerequisite_ids": [

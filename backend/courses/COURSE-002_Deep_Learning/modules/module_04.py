@@ -61,7 +61,6 @@ TOPIC = {
         "validation",
         "overfitting",
         "cross-validation",
-        "module-04",
     ],
 
     "prerequisite_ids": [],

@@ -46,7 +46,6 @@ TOPIC = {
         "scaling",
         "feature-interaction",
         "genai-cleaning",
-        "module-07",
     ],
     "prerequisite_ids": ["M06.L01"],
     "lesson": {

@@ -40,7 +40,7 @@ TOPIC = {'title': 'From RAG to AI Agents',
                 'observability',
                 'opentelemetry',
                 'human-in-the-loop',
-                'module-01'],
+                ],
  'prerequisite_ids': ['M01.L01', 'M01.L02', 'M01.L03', 'M01.L04', 'M01.L05', 'M01.L06'],
  'lesson': {'title': 'From RAG to AI Agents',
             'content': '# From RAG to AI Agents\n'

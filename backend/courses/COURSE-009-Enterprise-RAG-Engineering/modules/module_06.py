@@ -46,7 +46,7 @@ TOPIC = {'title': 'Evaluating Your RAG Application',
                 'online-evaluation',
                 'mlops',
                 'observability',
-                'module-01'],
+                ],
  'prerequisite_ids': ['M01.L01', 'M01.L02', 'M01.L03', 'M01.L04', 'M01.L05'],
  'lesson': {'title': 'Evaluating Your RAG Application',
             'content': '# Evaluating Your RAG Application\n'

@@ -67,7 +67,6 @@ TOPIC = {
         "mcp-inspector",
         "agent-stories",
         "error-handling",
-        "module-03",
     ],
 
     "prerequisite_ids": ["M02.L02"],

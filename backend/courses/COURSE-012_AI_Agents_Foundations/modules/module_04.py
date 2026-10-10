@@ -63,7 +63,6 @@ TOPIC = {
         "observability",
         "retries",
         "architecture",
-        "module-01",
     ],
 
     "prerequisite_ids": [

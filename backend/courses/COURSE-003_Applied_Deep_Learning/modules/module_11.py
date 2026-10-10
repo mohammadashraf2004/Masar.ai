@@ -55,7 +55,6 @@ TOPIC = {
         "training-validation-split",
         "data-leakage",
         "visualization",
-        "module-11",
     ],
     "prerequisite_ids": ["M10.L01"],
 

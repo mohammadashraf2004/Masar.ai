@@ -58,7 +58,6 @@ TOPIC = {
         "prompt-context",
         "ai-architecture",
         "ai-safety",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

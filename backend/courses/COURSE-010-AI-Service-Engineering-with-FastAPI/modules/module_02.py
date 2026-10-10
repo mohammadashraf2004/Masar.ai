@@ -62,7 +62,6 @@ TOPIC = {
         "layered-architecture",
         "genai-services",
         "python-tooling",
-        "module-01",
     ],
 
     "prerequisite_ids": [

@@ -72,6 +72,13 @@ beforeEach(() => {
 })
 
 describe('the profile page', () => {
+  it('uses the dark amber foreground on the selected yellow tab', async () => {
+    render(<ProfilePage />)
+    await screen.findByRole('heading', { level: 1, name: 'Layan Al-Harbi' })
+    expect(screen.getByRole('tab', { name: 'Profile' })).toHaveClass('bg-amber', 'text-on-amber')
+    expect(screen.getByRole('tab', { name: 'Profile' })).not.toHaveClass('text-on-solid', 'text-white')
+  })
+
   it('shows the learner, their path and real numbers', async () => {
     render(<ProfilePage />)
     expect(await screen.findByRole('heading', { level: 1, name: 'Layan Al-Harbi' })).toBeInTheDocument()

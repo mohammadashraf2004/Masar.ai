@@ -70,7 +70,6 @@ TOPIC = {
         "bio-labels",
         "label-alignment",
         "seqeval",
-        "module-11",
     ],
 
     "prerequisite_ids": [

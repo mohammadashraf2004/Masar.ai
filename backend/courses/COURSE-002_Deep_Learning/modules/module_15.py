@@ -69,7 +69,6 @@ TOPIC = {
         "loss-scaling",
         "quantization",
         "int8",
-        "module-18",
     ],
 
     "prerequisite_ids": [],

@@ -71,7 +71,6 @@ TOPIC = {
         "neural-fields",
         "jax",
         "image-reconstruction",
-        "module-06",
     ],
 
     "prerequisite_ids": ["M05.L01"],

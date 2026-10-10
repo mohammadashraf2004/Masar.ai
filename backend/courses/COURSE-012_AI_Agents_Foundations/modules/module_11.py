@@ -67,7 +67,6 @@ TOPIC = {
         "hitl",
         "observability",
         "production-patterns",
-        "module-01",
     ],
 
     "prerequisite_ids": [

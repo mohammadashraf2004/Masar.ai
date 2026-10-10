@@ -59,7 +59,6 @@ TOPIC = {
         "classification",
         "luna16",
         "data-readiness",
-        "module-10",
     ],
     "prerequisite_ids": ["M09.L01"],
 

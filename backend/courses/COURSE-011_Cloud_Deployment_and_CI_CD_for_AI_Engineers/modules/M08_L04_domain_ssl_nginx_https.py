@@ -25,7 +25,7 @@ TOPIC = {
     "order": 4,
     "difficulty": DifficultyLevel.beginner,
     "estimated_hours": 3.25,
-    "skill_tags": ["dns", "ssl", "tls", "csr", "openssl", "nginx", "docker-compose", "https", "namecheap", "module-08"],
+    "skill_tags": ["dns", "ssl", "tls", "csr", "openssl", "nginx", "docker-compose", "https", "namecheap"],
     "prerequisite_ids": ["M08.L03"],
 
     "lesson": {

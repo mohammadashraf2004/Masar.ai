@@ -61,7 +61,6 @@ TOPIC = {
         "model-interpretability",
         "bias-variance",
         "machine-learning-foundations",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

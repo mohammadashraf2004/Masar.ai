@@ -45,7 +45,6 @@ TOPIC = {
         "random-numbers",
         "normality-testing",
         "masked-arrays",
-        "module-04",
     ],
     "prerequisite_ids": ["M03.L01"],
     "lesson": {

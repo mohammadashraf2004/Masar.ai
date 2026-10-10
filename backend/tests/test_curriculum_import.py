@@ -215,7 +215,9 @@ def test_difficulty_ranges_start_at_their_first_level_and_arabic_is_detected_by_
 
 
 def test_skill_tag_variants_collapse_to_one_tag():
-    assert N.norm_tags(["Machine_Learning", "machine learning", "machine-learning", "ML"]) == ["machine-learning", "ml"]
+    assert N.norm_tags([
+        "Machine_Learning", "module-01", "machine learning", "Module 18", "machine-learning", "ML",
+    ]) == ["machine-learning", "ml"]
 
 
 def test_exercise_extras_are_folded_into_the_description_not_dropped():

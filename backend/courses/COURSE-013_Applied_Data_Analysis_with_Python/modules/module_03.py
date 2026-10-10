@@ -41,7 +41,6 @@ TOPIC = {
         "nonparametric-tests",
         "ab-testing",
         "bayes-theorem",
-        "module-03",
     ],
     "prerequisite_ids": ["M02.L01"],
     "lesson": {

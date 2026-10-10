@@ -48,7 +48,6 @@ TOPIC = {
         "shi-tomasi",
         "contours",
         "face-detection",
-        "module-14",
     ],
     "prerequisite_ids": ["M13.L01"],
     "lesson": {

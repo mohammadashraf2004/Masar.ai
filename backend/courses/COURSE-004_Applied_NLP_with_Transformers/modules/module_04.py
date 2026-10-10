@@ -50,7 +50,6 @@ TOPIC = {
         "zero-shot-transfer",
         "error-analysis",
         "hugging-face",
-        "module-01",
     ],
     "prerequisite_ids": ["M01.L01", "M01.L02"],
 

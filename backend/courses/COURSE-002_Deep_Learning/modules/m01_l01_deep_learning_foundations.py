@@ -51,7 +51,6 @@ TOPIC = {
         'machine-learning',
         'deep-learning',
         'foundations',
-        'module-01',
     ],
 
     "prerequisite_ids": [],

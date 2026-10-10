@@ -69,7 +69,6 @@ TOPIC = {
         "prompt-injection",
         "security",
         "governance",
-        "module-01",
     ],
 
     "prerequisite_ids": [

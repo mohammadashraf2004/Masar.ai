@@ -40,7 +40,6 @@ TOPIC = {
         "heatmap",
         "interactive-charts",
         "dashboards",
-        "module-05",
     ],
     "prerequisite_ids": ["M04.L01"],
     "lesson": {

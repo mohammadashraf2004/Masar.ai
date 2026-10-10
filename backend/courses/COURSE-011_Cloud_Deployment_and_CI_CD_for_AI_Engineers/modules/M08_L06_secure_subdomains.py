@@ -29,7 +29,7 @@ TOPIC = {
     "estimated_hours": 3.5,
     "skill_tags": [
         "subdomains", "nginx", "docker-compose", "aws", "load-balancer", "ssl", "tls",
-        "san", "csr", "dns", "https", "module-08"
+        "san", "csr", "dns", "https"
     ],
     "prerequisite_ids": ["M08.L05"],
 

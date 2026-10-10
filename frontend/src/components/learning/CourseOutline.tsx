@@ -12,6 +12,14 @@ import { GatedLink } from '@/components/auth/AuthPrompt'
 
 const HEADING = 'mb-3 text-card-title font-semibold text-bright'
 
+function normalizedCopy(value: string) {
+  return value
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[.!?؟]+$/, '')
+    .toLocaleLowerCase()
+}
+
 /**
  * Everything the course page says about a course before its lessons: what it is
  * about, what it teaches, its modules and projects, what it builds on and which
@@ -22,9 +30,17 @@ export function CourseOutline({ course }: { course: CatalogCourseDetail }) {
   const ctx = useLabelContext()
 
   const description = pick(course.description, course.description_ar, language)
-  const objectives = (language === 'ar' && course.learning_objectives_ar?.length
+  const rawObjectives = (language === 'ar' && course.learning_objectives_ar?.length
     ? course.learning_objectives_ar
     : course.learning_objectives) ?? []
+  const descriptionKey = description ? normalizedCopy(description) : ''
+  const seenObjectives = new Set<string>()
+  const objectives = rawObjectives.filter((objective) => {
+    const key = normalizedCopy(objective)
+    if (!key || key === descriptionKey || seenObjectives.has(key)) return false
+    seenObjectives.add(key)
+    return true
+  })
   const modules = course.modules ?? []
   const projects = course.projects ?? []
   const recommended = course.recommended_prerequisites ?? []

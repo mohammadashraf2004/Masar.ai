@@ -58,7 +58,6 @@ TOPIC = {
         "grad-cam",
         "feature-visualization",
         "latent-space",
-        "module-10",
     ],
 
     "prerequisite_ids": [],

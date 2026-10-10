@@ -106,16 +106,3 @@ class PostListResponse(BaseModel):
 class FollowResponse(BaseModel):
     following_id: int
     is_following: bool
-
-
-# ─── Leaderboard ──────────────────────────────────────────────────────────────
-class LeaderboardEntry(BaseModel):
-    rank: int
-    user: AuthorMini
-    posts_count: int
-    likes_received: int
-    readiness_score: float
-
-
-class LeaderboardResponse(BaseModel):
-    entries: List[LeaderboardEntry]

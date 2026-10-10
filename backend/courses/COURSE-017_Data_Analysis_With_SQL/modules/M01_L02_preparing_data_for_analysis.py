@@ -59,7 +59,6 @@ TOPIC = {
         "data-cleaning",
         "window-functions",
         "data-shaping",
-        "module-01",
     ],
 
     "prerequisite_ids": [

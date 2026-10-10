@@ -58,7 +58,6 @@ TOPIC = {
         "cuda",
         "data-parallel",
         "kaiming-initialization",
-        "module-12",
     ],
     "prerequisite_ids": ["M11.L01"],
 

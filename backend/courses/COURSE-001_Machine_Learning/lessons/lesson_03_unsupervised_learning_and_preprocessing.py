@@ -62,7 +62,6 @@ TOPIC = {
         "clustering",
         "k-means",
         "dbscan",
-        "module-03",
     ],
 
     "prerequisite_ids": [],

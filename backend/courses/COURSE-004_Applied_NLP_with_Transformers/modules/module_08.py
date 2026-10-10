@@ -51,7 +51,6 @@ TOPIC = {
         "latency",
         "model-compression",
         "benchmarking",
-        "module-01",
     ],
     "prerequisite_ids": [
         "M01.L01",

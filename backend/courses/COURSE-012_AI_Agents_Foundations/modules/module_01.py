@@ -60,7 +60,6 @@ TOPIC = {
         "memory",
         "multi-agent-systems",
         "foundations",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

@@ -71,7 +71,6 @@ TOPIC = {
         "gpu-containers",
         "image-optimization",
         "multi-stage-builds",
-        "module-01",
     ],
 
     "prerequisite_ids": [

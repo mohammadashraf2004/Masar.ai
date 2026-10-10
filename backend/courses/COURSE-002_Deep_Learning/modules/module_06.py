@@ -63,7 +63,6 @@ TOPIC = {
         "deployment",
         "monitoring",
         "concept-drift",
-        "module-06",
     ],
 
     "prerequisite_ids": [],

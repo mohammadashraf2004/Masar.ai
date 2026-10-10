@@ -52,7 +52,6 @@ TOPIC = {
         "overfitting",
         "parameter-counting",
         "translation-invariance",
-        "module-07",
     ],
     "prerequisite_ids": ["M06.L01"],
 

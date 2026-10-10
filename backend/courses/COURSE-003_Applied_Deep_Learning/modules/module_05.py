@@ -53,7 +53,6 @@ TOPIC = {
         "normalization",
         "validation",
         "overfitting",
-        "module-05",
     ],
     "prerequisite_ids": ["M04.L01"],
 

@@ -60,7 +60,6 @@ TOPIC = {
         "data-leakage",
         "feature-selection",
         "hyperparameter-tuning",
-        "module-06",
     ],
 
     "prerequisite_ids": [],

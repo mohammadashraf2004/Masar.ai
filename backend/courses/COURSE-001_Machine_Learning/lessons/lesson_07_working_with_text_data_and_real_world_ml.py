@@ -68,7 +68,6 @@ TOPIC = {
         "ab-testing",
         "custom-estimators",
         "scaling",
-        "module-07",
     ],
 
     "prerequisite_ids": [],

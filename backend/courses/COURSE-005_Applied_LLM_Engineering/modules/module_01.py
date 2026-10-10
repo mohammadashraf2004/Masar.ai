@@ -63,7 +63,6 @@ TOPIC = {
         "llm-training",
         "responsible-ai",
         "hugging-face-transformers",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

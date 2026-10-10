@@ -42,7 +42,6 @@ TOPIC = {
         "missing-values",
         "pivot-tables",
         "datetime",
-        "module-02",
     ],
     "prerequisite_ids": ["M01.L01"],
     "lesson": {

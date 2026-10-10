@@ -60,7 +60,6 @@ TOPIC = {
         "seasonality",
         "trend-analysis",
         "business-analysis",
-        "module-01",
     ],
 
     "prerequisite_ids": [

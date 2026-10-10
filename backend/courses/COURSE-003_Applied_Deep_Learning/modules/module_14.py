@@ -56,7 +56,6 @@ TOPIC = {
         "image-processor",
         "state-dict",
         "inference",
-        "module-14",
     ],
     "prerequisite_ids": ["M13.L01"],
 

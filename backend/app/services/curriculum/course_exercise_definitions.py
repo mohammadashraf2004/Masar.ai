@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.services.code_grading.sql_grader import sql_blank_values
+
 from .spec import CourseSpec
 
 
@@ -30,6 +32,10 @@ def _sql(
     feedback: list[tuple[str, str]], *, ordered: bool = False,
 ) -> dict[str, Any]:
     canonical = [variants[0] for variants in answers]
+    solution = _fill_sql(template, canonical)
+    read_back = sql_blank_values(template, solution) or []
+    if [value.strip() for value in read_back] != canonical:
+        raise ValueError(f"SQL answers cannot be read back from the completed query: {canonical}")
     tests = []
     for index, (variants, messages) in enumerate(zip(answers, feedback), start=1):
         test = _feedback(index, messages[0], messages[1])
@@ -37,6 +43,9 @@ def _sql(
         tests.append(test)
     tests.append({
         "id": "query_result", "type": "sql_result", "setup_sql": setup,
+        # The learner sees bare ___ blanks; the grader finds each answer by
+        # lining the submission up against this starter.
+        "template": template,
         "expected_columns": columns, "expected_rows": rows, "ordered": ordered,
         "feedback": {
             "en": "The query runs, but its columns or rows do not match the required result.",
@@ -45,9 +54,9 @@ def _sql(
     })
     return {
         "exercise_type": "code", "language": "sql", "starter_code": template,
-        "solution_code": _fill_sql(template, canonical), "tests": tests,
-        "hint": "Fill only the marked SQL fields; each field is checked before the query result.",
-        "hint_ar": "أكمل حقول SQL المحددة فقط؛ يُفحص كل حقل قبل فحص نتيجة الاستعلام.",
+        "solution_code": solution, "tests": tests,
+        "hint": "Replace each ___ with the missing SQL; each blank is checked before the query result.",
+        "hint_ar": "استبدل كل ___ بجزء SQL الناقص؛ يُفحص كل فراغ قبل فحص نتيجة الاستعلام.",
         "success_message": "Correct! Your completed read-only query returns the expected result.",
         "success_message_ar": "صحيح! يعيد استعلامك المكتمل للقراءة فقط النتيجة المتوقعة.",
     }
@@ -56,10 +65,10 @@ def _sql(
 SQL_DEFINITIONS: dict[str, dict[str, Any]] = {
     "COURSE-017.M01.L02.EX01": _sql(
         """SELECT
-    /* blank:1 */ ___ /* endblank */,
-    /* blank:2 */ ___ /* endblank */ AS order_count
+    ___,
+    ___ AS order_count
 FROM orders
-GROUP BY /* blank:3 */ ___ /* endblank */
+GROUP BY ___
 ORDER BY customer_id;
 """,
         [["customer_id"], ["COUNT(*)", "count(1)"], ["customer_id"]],
@@ -75,15 +84,15 @@ INSERT INTO orders VALUES
     "COURSE-017.M01.L03.EX01": _sql(
         """SELECT
     sales_year,
-    SUM(CASE WHEN kind_of_business = 'Women' THEN /* blank:1 */ ___ /* endblank */ ELSE 0 END) AS womens_sales,
-    SUM(CASE WHEN kind_of_business = 'Men' THEN /* blank:2 */ ___ /* endblank */ ELSE 0 END) AS mens_sales,
+    SUM(CASE WHEN kind_of_business = 'Women' THEN ___ ELSE 0 END) AS womens_sales,
+    SUM(CASE WHEN kind_of_business = 'Men' THEN ___ ELSE 0 END) AS mens_sales,
     ROUND(
         SUM(CASE WHEN kind_of_business = 'Women' THEN sales ELSE 0 END) * 1.0 /
-        /* blank:3 */ ___ /* endblank */,
+        ___,
         2
     ) AS women_to_men_ratio
 FROM retail_sales
-GROUP BY /* blank:4 */ ___ /* endblank */
+GROUP BY ___
 ORDER BY sales_year;
 """,
         [["sales"], ["sales"], ["NULLIF(SUM(CASE WHEN kind_of_business = 'Men' THEN sales ELSE 0 END), 0)"], ["sales_year"]],
@@ -99,13 +108,13 @@ INSERT INTO retail_sales VALUES (2024,'Women',120),(2024,'Men',100),(2025,'Women
     "COURSE-017.M01.L03.EX02": _sql(
         """SELECT
     c.month,
-    /* blank:1 */ ___ /* endblank */ AS sales,
+    ___ AS sales,
     SUM(COALESCE(s.sales, 0)) OVER (
-        /* blank:2 */ ___ /* endblank */
-        /* blank:3 */ ___ /* endblank */
+        ___
+        ___
     ) AS rolling_3_month_sales
 FROM month_calendar AS c
-/* blank:4 */ ___ /* endblank */ product_sales AS s ON s.month = c.month
+___ product_sales AS s ON s.month = c.month
 ORDER BY c.month;
 """,
         [["COALESCE(s.sales, 0)"], ["ORDER BY c.month"], ["ROWS BETWEEN 2 PRECEDING AND CURRENT ROW"], ["LEFT JOIN"]],
@@ -123,18 +132,18 @@ INSERT INTO product_sales VALUES ('2026-01',10),('2026-03',30),('2026-04',20);""
         """WITH cohort_activity AS (
     SELECT
         u.cohort_month,
-        /* blank:1 */ ___ /* endblank */ AS period_number,
-        /* blank:2 */ ___ /* endblank */ AS active_users
+        ___ AS period_number,
+        ___ AS active_users
     FROM users AS u
-    JOIN activity AS a ON /* blank:3 */ ___ /* endblank */
+    JOIN activity AS a ON ___
     GROUP BY u.cohort_month, period_number
 ), retention AS (
     SELECT *, MAX(CASE WHEN period_number = 0 THEN active_users END)
-        OVER (PARTITION BY /* blank:4 */ ___ /* endblank */) AS cohort_size
+        OVER (PARTITION BY ___) AS cohort_size
     FROM cohort_activity
 )
 SELECT cohort_month, period_number, active_users,
-       ROUND(active_users * 100.0 / /* blank:5 */ ___ /* endblank */, 1) AS retention_pct
+       ROUND(active_users * 100.0 / ___, 1) AS retention_pct
 FROM retention
 ORDER BY cohort_month, period_number;
 """,
@@ -154,16 +163,16 @@ INSERT INTO activity VALUES (1,'2026-01-05'),(2,'2026-01-08'),(1,'2026-02-03'),(
     "COURSE-017.M01.L07.EX01": _sql(
         """SELECT
     a.variant,
-    /* blank:1 */ ___ /* endblank */ AS assigned_users,
-    /* blank:2 */ ___ /* endblank */ AS converted_users,
+    ___ AS assigned_users,
+    ___ AS converted_users,
     ROUND(
         COUNT(DISTINCT CASE WHEN o.order_time >= a.assignment_time THEN a.user_id END) * 100.0 /
-        /* blank:3 */ ___ /* endblank */,
+        ___,
         1
     ) AS conversion_rate
 FROM experiment_assignment AS a
-/* blank:4 */ ___ /* endblank */ orders AS o
-  ON o.user_id = a.user_id AND /* blank:5 */ ___ /* endblank */
+___ orders AS o
+  ON o.user_id = a.user_id AND ___
 GROUP BY a.variant
 ORDER BY a.variant;
 """,
@@ -184,11 +193,11 @@ INSERT INTO orders VALUES (1,'2026-01-02'),(2,'2025-12-30'),(3,'2026-01-03');"""
         """SELECT
     a.course_id AS course_1,
     b.course_id AS course_2,
-    /* blank:1 */ ___ /* endblank */ AS learners
+    ___ AS learners
 FROM course_enrollments AS a
 JOIN course_enrollments AS b
-  ON /* blank:2 */ ___ /* endblank */
- AND /* blank:3 */ ___ /* endblank */
+  ON ___
+ AND ___
 GROUP BY a.course_id, b.course_id
 ORDER BY learners DESC, course_1, course_2;
 """,

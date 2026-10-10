@@ -69,7 +69,6 @@ TOPIC = {
         "paged-attention",
         "background-tasks",
         "genai-serving",
-        "module-01",
     ],
 
     "prerequisite_ids": [

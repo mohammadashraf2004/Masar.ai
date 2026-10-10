@@ -44,7 +44,6 @@ TOPIC = {
         "rag",
         "ai-assisted-coding",
         "responsible-ai",
-        "module-15",
     ],
     "prerequisite_ids": ["M14.L01"],
     "lesson": {

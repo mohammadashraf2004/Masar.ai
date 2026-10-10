@@ -68,7 +68,6 @@ TOPIC = {
         "observability",
         "annotations",
         "governance",
-        "module-01",
     ],
 
     "prerequisite_ids": [

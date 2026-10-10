@@ -5,12 +5,11 @@ had nothing to compare their answer with and the evaluator graded without a
 reference. Two nullable columns hold one good answer per language; the API
 shows it only after the learner's first evaluated answer.
 
-Numbered 040 because a concurrent, not yet integrated stream owns 039
-(039_additional_credit_packs). If that revision lands first, point
-down_revision at it; both migrations only add independent nullable columns.
+Chained after 039 (additional credit packs); both migrations only add independent
+nullable columns.
 
 Revision ID: 040_exercise_example_answers
-Revises: 038_pro_ai_release_reason
+Revises: 039_additional_credit_packs
 Create Date: 2026-10-10
 """
 from typing import Sequence, Union
@@ -20,7 +19,7 @@ import sqlalchemy as sa
 
 
 revision: str = "040_exercise_example_answers"
-down_revision: Union[str, None] = "038_pro_ai_release_reason"
+down_revision: Union[str, None] = "039_additional_credit_packs"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

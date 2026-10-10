@@ -12,7 +12,7 @@ from app.db.session import engine
 from tests.test_migration_graph import _config
 
 REVISION = "038_pro_ai_release_reason"
-# 040 (written-exercise example answers) builds on 038; the repair is still
+# 039 and 040 build on 038; the repair is still
 # exercised by stepping back to 037 and returning to whatever the head is.
 HEAD = "040_exercise_example_answers"
 

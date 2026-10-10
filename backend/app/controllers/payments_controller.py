@@ -36,11 +36,10 @@ from app.models.challenge import ExamPayment
 from app.models.billing import BillingOrder, SubscriptionOrder
 from app.models.exam import Exam
 from app.core.security import get_current_user
-from app.services.payments.checkout import require_payments_open
 from app.services.wallet import credit_purchases
 from app.services.wallet.wallet_service import get_or_create_wallet
 from app.services.payments import kashier_service, paymob_service
-from app.services.payments.checkout import language_of, start_checkout
+from app.services.payments.checkout import language_of, payments_gate, start_checkout
 from app.services.payments.settlement import settle_notice
 
 from app.controllers.exam_payment_controller import EXAM_PRICE_EGP
@@ -70,7 +69,7 @@ def _new_merchant_order_id(prefix: str) -> str:
 
 # ─── Wallet top-up ──────────────────────────────────────────────────────────
 
-@router.post("/wallet/topup/init", dependencies=[Depends(require_payments_open)])
+@router.post("/wallet/topup/init", dependencies=[Depends(payments_gate)])
 @limiter.limit("10/minute")
 def init_wallet_topup(
     request: Request,
@@ -131,7 +130,7 @@ def init_wallet_topup(
 
 # ─── Exam fee ────────────────────────────────────────────────────────────────
 
-@router.post("/exam/init", dependencies=[Depends(require_payments_open)])
+@router.post("/exam/init", dependencies=[Depends(payments_gate)])
 @limiter.limit("10/minute")
 def init_exam_payment(
     request: Request,

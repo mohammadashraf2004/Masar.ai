@@ -6,9 +6,10 @@ initiated any more; its webhook remains to reconcile the orders it already took.
 import logging
 
 import httpx
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 
 from app.core.config import settings
+from app.core.security import get_current_user
 from app.services.payments import kashier_service
 
 logger = logging.getLogger("app.payments")
@@ -19,14 +20,25 @@ PROVIDER = "kashier"
 def require_payments_open() -> None:
     """Refuse before anything is written: a closed checkout must not leave orders behind.
 
-    Used as a route dependency on every endpoint that opens a payment, and again inside
-    ``start_checkout`` so no caller can reach the provider while payments are closed."""
+    ``payments_gate`` runs it ahead of every endpoint that opens a payment, and
+    ``start_checkout`` runs it again so no caller can reach the provider while
+    payments are closed."""
     if not settings.payments_open:
         raise HTTPException(status_code=503, detail={
             "code": "PAYMENTS_UNAVAILABLE",
             "message": "Online payments are temporarily unavailable.",
             "message_ar": "الدفع الإلكتروني غير متاح مؤقتًا.",
         })
+
+
+def payments_gate(_user=Depends(get_current_user)) -> None:
+    """Route dependency for every checkout endpoint.
+
+    It depends on the session so authentication is decided first: an anonymous caller
+    gets the usual 401 whether payments are open or not, and only a signed-in
+    caller is told they are closed. FastAPI resolves dependencies before it
+    validates the body or runs the endpoint, so a closed gateway writes nothing."""
+    require_payments_open()
 
 
 def language_of(request) -> str:

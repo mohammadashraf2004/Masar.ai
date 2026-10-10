@@ -110,7 +110,7 @@ def test_checkout_uses_database_minor_units_and_provider_id(learn_client, learn_
     assert order.course_id == course.id
 
 
-def test_checkout_rejects_missing_offer(learn_client, learn_db, learn_catalog):
+def test_checkout_rejects_missing_offer(learn_client, learn_db, learn_catalog, kashier):
     who = register(learn_client)
     bundle = load_catalog_bundle(learn_db)
     course = next(c for c in bundle.courses.values() if bundle.catalog.courses[c.id].is_available)
@@ -125,7 +125,7 @@ def test_checkout_rejects_missing_offer(learn_client, learn_db, learn_catalog):
     assert response.json()["detail"]["code"] == "COURSE_OFFER_UNAVAILABLE"
 
 
-def test_checkout_rejects_a_client_supplied_amount(learn_client, learn_db, learn_catalog):
+def test_checkout_rejects_a_client_supplied_amount(learn_client, learn_db, learn_catalog, kashier):
     who = register(learn_client)
     course, _ = _paid_available_course(learn_db)
     response = learn_client.post(
@@ -136,7 +136,7 @@ def test_checkout_rejects_a_client_supplied_amount(learn_client, learn_db, learn
     assert response.status_code == 422
 
 
-def test_checkout_requires_auth_and_an_active_course(learn_client, learn_db, learn_catalog):
+def test_checkout_requires_auth_and_an_active_course(learn_client, learn_db, learn_catalog, kashier):
     assert learn_client.post(
         "/api/v1/billing/checkout", json={"course_id": "does-not-exist"},
     ).status_code == 401

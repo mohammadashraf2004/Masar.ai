@@ -16,7 +16,7 @@ import httpx
 import pytest
 
 from app.core.config import Settings, settings
-from app.models.billing import SubscriptionOrder, SubscriptionPaymentEvent, UserSubscription
+from app.models.billing import BillingOrder, SubscriptionOrder, SubscriptionPaymentEvent, UserSubscription
 from app.models.challenge import ExamPayment
 from app.models.exam import Exam
 from app.models.wallet import CreditPackage, TransactionStatus, UserWallet, WalletTransaction
@@ -164,31 +164,98 @@ def test_payments_switched_off_is_a_clean_503_that_leaves_no_order_behind(client
     assert db.query(SubscriptionOrder).filter_by(user_id=user_id).count() == 0
 
 
-def test_the_master_switch_keeps_checkout_closed_even_with_every_key_present(client, db, kashier, monkeypatch):
-    """Keys alone never open payments: PAYMENTS_ENABLED is the deliberate act."""
-    monkeypatch.setattr(settings, "PAYMENTS_ENABLED", False)
-    user_id, headers = _register(client)
-    calls = {
-        "/api/v1/billing/subscriptions/checkout": {"plan": "pro", "billing_period": "monthly"},
-        "/api/v1/billing/checkout": {"course_id": "1"},
-        "/api/v1/payments/wallet/topup/init": {"package_id": 1},
-        "/api/v1/payments/exam/init": {"exam_id": 1},
-    }
-    for url, body in calls.items():
-        response = client.post(url, json=body, headers=headers)
-        assert response.status_code == 503, url
-        assert response.json()["detail"]["code"] == "PAYMENTS_UNAVAILABLE", url
+def _payment_rows(db, user_id) -> dict:
+    """How many rows one user has in every table a checkout writes to."""
     db.expire_all()
-    assert db.query(SubscriptionOrder).filter_by(user_id=user_id).count() == 0
-    assert db.query(WalletTransaction).filter_by(user_id=user_id).count() == 0
-    assert kashier.sessions == {}
+    wallet_ids = [wallet.id for wallet in db.query(UserWallet).filter_by(user_id=user_id)]
+    return {
+        "subscription_orders": db.query(SubscriptionOrder).filter_by(user_id=user_id).count(),
+        "billing_orders": db.query(BillingOrder).filter_by(user_id=user_id).count(),
+        "wallet_transactions": (
+            db.query(WalletTransaction).filter(WalletTransaction.wallet_id.in_(wallet_ids)).count()
+            if wallet_ids else 0
+        ),
+        "exam_payments": db.query(ExamPayment).filter_by(user_id=user_id).count(),
+    }
 
 
-def test_a_webhook_cannot_settle_anything_when_no_key_is_configured(client, monkeypatch):
+def test_the_master_switch_keeps_checkout_closed_even_with_every_key_present(client, db, kashier, monkeypatch):
+    """Keys alone never open payments: PAYMENTS_ENABLED is the deliberate act.
+
+    Every checkout is given real inputs (a pack, an exam, a Pro plan), so a missing
+    gate would write an order or open a session instead of merely failing on a 404."""
+    from app.models.learning import CareerTrack
+
+    monkeypatch.setattr(settings, "PAYMENTS_ENABLED", False)
+    assert settings.kashier_configured and not settings.payments_open     # the keys really are present
+    user_id, headers = _register(client)
+    package = CreditPackage(name="Starter", credits=100, bonus_credits=0, egp_price=50.0, is_active=True)
+    track = CareerTrack(slug=f"switch-exam-{uuid.uuid4().hex[:8]}", title="Exam Track", estimated_weeks=1)
+    db.add_all([package, track])
+    db.flush()
+    exam = Exam(track_id=track.id, title="Certification", duration_minutes=60, passing_score=70, max_attempts=3,
+                questions=[{"id": 1, "question": "2+2?", "options": ["3", "4"], "correct": 1,
+                            "explanation": "arithmetic", "points": 1, "type": "mcq"}])
+    db.add(exam)
+    db.commit()
+    package_id, exam_id, track_id = package.id, exam.id, track.id
+    try:
+        before = _payment_rows(db, user_id)
+        calls = {
+            "/api/v1/billing/subscriptions/checkout": {"plan": "pro", "billing_period": "monthly"},
+            "/api/v1/billing/checkout": {"course_id": "1"},
+            "/api/v1/payments/wallet/topup/init": {"package_id": package_id},
+            "/api/v1/payments/exam/init": {"exam_id": exam_id},
+        }
+        for url, body in calls.items():
+            response = client.post(url, json=body, headers=headers)
+            assert response.status_code == 503, url
+            detail = response.json()["detail"]
+            assert detail["code"] == "PAYMENTS_UNAVAILABLE" and detail["message_ar"], url
+        assert _payment_rows(db, user_id) == before
+        assert kashier.sessions == {}
+
+        # Anonymous callers are turned away by authentication, never told about the gateway.
+        for url, body in calls.items():
+            assert client.post(url, json=body).status_code == 401, url
+    finally:
+        # The test database is shared for the whole session: leave no active pack in the
+        # catalogue and no track behind (test_credit_packs reads the full pack list).
+        db.rollback()
+        db.query(Exam).filter(Exam.id == exam_id).delete()
+        db.query(CareerTrack).filter(CareerTrack.id == track_id).delete()
+        db.query(CreditPackage).filter(CreditPackage.id == package_id).delete()
+        db.commit()
+
+
+def test_payments_are_off_unless_someone_turns_them_on():
+    assert Settings.model_fields["PAYMENTS_ENABLED"].default is False
+    assert Settings(_env_file=None).PAYMENTS_ENABLED is False
+
+
+def test_a_webhook_cannot_settle_anything_when_no_key_is_configured(client, db, monkeypatch):
+    """No Payment API key: nothing verifies, not even a signature made with an empty key."""
     monkeypatch.setattr(settings, "KASHIER_API_KEY", None)
-    response = client.post("/api/v1/payments/kashier/webhook", json={"event": "pay", "data": {"merchantOrderId": "x"}},
-                           headers={"x-kashier-signature": "deadbeef"})
-    assert response.status_code in (400, 401, 403)
+    data = FakeKashier.data("wallet-forged-1", "50.00")
+    before = db.query(WalletTransaction).count()
+    for signature in ("deadbeef", sign(data, key=""), ""):
+        response = client.post("/api/v1/payments/kashier/webhook", json={"event": "pay", "data": data},
+                               headers={"x-kashier-signature": signature})
+        assert response.status_code == 401, signature
+    db.expire_all()
+    assert db.query(WalletTransaction).count() == before
+
+
+def test_the_paymob_webhook_cannot_settle_anything_when_no_secret_is_configured(client, db, monkeypatch):
+    monkeypatch.setattr(settings, "PAYMOB_HMAC_SECRET", None)
+    payload = {"obj": {"id": 9, "success": True, "amount_cents": 5000, "currency": "EGP",
+                       "order": {"id": 9, "merchant_order_id": "wallet-forged-2"}}}
+    before = db.query(WalletTransaction).count()
+    for received in ("deadbeef", ""):
+        response = client.post("/api/v1/payments/paymob/webhook", json=payload, params={"hmac": received})
+        assert response.status_code == 401, received
+    db.expire_all()
+    assert db.query(WalletTransaction).count() == before
 
 
 def test_a_refused_session_fails_the_order(client, db, kashier):

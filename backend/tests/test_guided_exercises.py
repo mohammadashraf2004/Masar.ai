@@ -96,14 +96,15 @@ def test_every_code_exercise_has_a_complete_code_cell(courses, by_id):
         assert exercise.starter_code != exercise.solution_code, exercise_id
 
 
-def test_sql_starters_show_only_bare_blanks_and_are_still_graded_blank_by_blank(by_id):
+def test_sql_starters_show_only_bare_blanks_and_an_untouched_one_is_unfinished_not_wrong(by_id):
     sql = {eid: e for eid, e in by_id.items() if e.exercise_type == "code" and e.language == "sql"}
     assert sql
     for exercise_id, exercise in sql.items():
         for code in (exercise.starter_code, exercise.solution_code):
             assert "blank:" not in code and "endblank" not in code, exercise_id
+        # Nothing filled in yet is unfinished: never run, never a wrong attempt.
         untouched = asyncio.run(SQL.grade(exercise.starter_code, exercise.tests))
-        assert (untouched.feedback_code, untouched.failed_test_id) == ("BLANK_INCORRECT", "blank_1"), exercise_id
+        assert (untouched.feedback_code, untouched.failed_test_id) == ("BLANKS_REMAINING", "blanks_remaining"), exercise_id
         assert asyncio.run(SQL.grade(exercise.solution_code, exercise.tests)).passed, exercise_id
 
 

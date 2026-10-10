@@ -302,14 +302,15 @@ def test_sql_starter_shows_bare_blanks_and_fields_are_still_checked_one_by_one()
     tests = _sql_blank_tests(PLAIN_SQL_STARTER)
     grader = SQLGrader()
 
+    # Untouched or half-filled is unfinished, not wrong: never run, never an attempt.
     first = run(grader.grade(PLAIN_SQL_STARTER, tests))
-    assert (first.failed_test_id, first.tests_passed) == ("blank_1", 0)
+    assert (first.feedback_code, first.failed_test_id, first.tests_passed) == ("BLANKS_REMAINING", "blanks_remaining", 0)
 
     one_field = PLAIN_SQL_STARTER.replace("___", "customer_id", 1)
     second = run(grader.grade(one_field, tests))
-    assert (second.failed_test_id, second.tests_passed) == ("blank_2", 1)
+    assert (second.feedback_code, second.failed_test_id) == ("BLANKS_REMAINING", "blanks_remaining")
 
-    # A wrong but runnable field is named after the result disagrees.
+    # Every blank filled but one wrong: the field is named once the result disagrees.
     wrong = one_field.replace("___", "SUM(customer_id)", 1)
     third = run(grader.grade(wrong, tests))
     assert (third.feedback_code, third.failed_test_id) == ("BLANK_INCORRECT", "blank_2")
@@ -345,6 +346,20 @@ def test_sql_grader_falls_back_to_the_result_when_the_scaffold_was_rewritten():
     assert (failure.feedback_code, failure.failed_test_id) == ("TEST_FAILED", "result")
 
 
+def test_a_like_pattern_of_underscores_is_a_pattern_not_an_unfinished_blank():
+    tests = _sql_blank_tests(PLAIN_SQL_STARTER)
+    grader = SQLGrader()
+    # Rewritten scaffold: the result decides, and '___' is a three-character LIKE pattern.
+    rewritten = ("SELECT customer_id, COUNT(*) AS orders FROM purchases "
+                 "WHERE 'abc' LIKE '___' GROUP BY 1 ORDER BY 1")
+    assert sql_blanks_remaining(rewritten) == (0, None)
+    assert run(grader.grade(rewritten, tests)).passed
+    # The same pattern inside a blank of the real starter.
+    filled = PLAIN_SQL_STARTER.replace("___", "customer_id", 1).replace(
+        "___", "COUNT(CASE WHEN 'abc' LIKE '___' THEN 1 END)", 1)
+    assert run(grader.grade(filled, tests)).passed
+
+
 def test_sql_grader_still_reads_drafts_from_marked_starters():
     """Learners may hold drafts of the older starters that marked each blank."""
     starter = (
@@ -355,7 +370,9 @@ def test_sql_grader_still_reads_drafts_from_marked_starters():
     tests = _sql_blank_tests(PLAIN_SQL_STARTER)
     grader = SQLGrader()
     one_field = starter.replace("___", "customer_id", 1)
-    assert run(grader.grade(one_field, tests)).failed_test_id == "blank_2"
+    assert run(grader.grade(one_field, tests)).feedback_code == "BLANKS_REMAINING"   # blank 2 is still empty
+    wrong = one_field.replace("___", "SUM(customer_id)", 1)
+    assert run(grader.grade(wrong, tests)).failed_test_id == "blank_2"               # the marked field is still read
     assert run(grader.grade(one_field.replace("___", "count(*)", 1), tests)).passed
 
 

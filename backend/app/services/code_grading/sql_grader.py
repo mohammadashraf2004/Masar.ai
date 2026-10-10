@@ -9,7 +9,7 @@ import time
 from typing import Any
 
 from app.services.code_execution import ExecutionResult
-from .grader import DEFAULT_ABS_TOL, DEFAULT_REL_TOL, GradingResult
+from .grader import DEFAULT_ABS_TOL, DEFAULT_REL_TOL, GradingResult, blanks_remaining_feedback
 
 
 SQL_TEST_TYPES = frozenset({"sql_blank", "sql_result"})
@@ -271,6 +271,16 @@ class SQLGrader:
                 None, 0, 0, empty,
             )
 
+        remaining, line = sql_blanks_remaining(code)
+        if remaining:
+            # Same contract as the Python grader: attempt_state skips
+            # "blanks_remaining", so a half-filled query is not a wrong answer
+            # and is never sent to SQLite.
+            return GradingResult(
+                "incorrect", False, "BLANKS_REMAINING", blanks_remaining_feedback(remaining, line),
+                "blanks_remaining", 0, len(required), empty,
+            )
+
         result_test = next((test for test in tests if test.get("type") == "sql_result"), None)
         if result_test is not None and any(test.get("type") == "sql_blank" for test in tests):
             return await self._grade_by_result(code, tests, required, result_test)
@@ -381,14 +391,15 @@ class SQLGrader:
     def _blank_filled(fields: dict[int, str] | None, code: str, test: dict[str, Any]) -> bool:
         actual = (fields or {}).get(int(test.get("blank", 0)))
         if actual is None:
-            # Scaffold rewritten: the result test decides, unless blanks remain.
-            return "___" not in code
-        return bool(actual.strip()) and "___" not in actual
+            # Scaffold rewritten: the result test decides, unless blanks remain. Judged like
+            # sql_blanks_remaining, so a '___' LIKE pattern is a pattern, not a blank.
+            return not sql_blanks_remaining(code)[0]
+        return bool(actual.strip()) and not sql_blanks_remaining(actual)[0]
 
     @staticmethod
     def _blank_matches(fields: dict[int, str] | None, test: dict[str, Any]) -> bool:
         actual = (fields or {}).get(int(test.get("blank", 0)), "")
-        if not actual.strip() or "___" in actual:
+        if not actual.strip() or sql_blanks_remaining(actual)[0]:
             return False
         normalized = normalize_sql_fragment(actual)
         return normalized in {

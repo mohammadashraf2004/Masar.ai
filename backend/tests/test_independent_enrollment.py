@@ -16,9 +16,9 @@ from app.models.learning import Lesson
 from app.models.learning_path import Course, LearningProfile, ReadinessAssessment
 from app.models.progress import Enrollment
 from app.models.tool_course import ToolTopic
-from app.services.payments import kashier_service
 from tests.curriculum_fixtures import correct_answers, finish_topics, import_small_courses, topic_ids
-from tests.learning_fixtures import learn_catalog, learn_client, learn_db, logs_enabled, register  # noqa: F401
+from tests.learning_fixtures import accept_written_answers, learn_catalog, learn_client, learn_db, logs_enabled, register  # noqa: F401
+from tests.kashier_fixtures import kashier  # noqa: F401
 
 API = "/api/v1/learning"
 
@@ -434,12 +434,14 @@ def test_progress_moves_the_enrollment_from_enrolled_to_in_progress_to_completed
     assert 0 < progress["progress_percentage"] < 50 and progress["next_module"]["id"] == first
     assert _get(learn_client, "/my-courses", who).json()[0]["status"] == "in_progress"
 
+    accept_written_answers(learn_db, who["id"], exercises)
     _mark(learn_client, who, first, lessons[1:], exercises)
     progress = _get(learn_client, "/courses/course-013/progress", who).json()
     assert progress["modules_completed"] == 1 and progress["next_module"]["id"] == second
     assert progress["progress_percentage"] == 50.0 and progress["status"] == "in_progress"
 
     lessons, exercises = _module_items(learn_db, second)
+    accept_written_answers(learn_db, who["id"], exercises)
     _mark(learn_client, who, second, lessons, exercises)
     progress = _get(learn_client, "/courses/course-013/progress", who).json()
     assert (progress["status"], progress["progress_percentage"], progress["next_module"]) == ("completed", 100.0, None)
@@ -506,7 +508,7 @@ def test_a_paid_course_is_enrolled_only_with_a_purchase_and_still_needs_no_track
     assert granted.json()["enrollment"]["source"] == "purchase"
 
 
-def test_a_free_enrollment_never_opens_a_course_that_is_later_made_paid(learn_client, learn_db, content, monkeypatch):
+def test_a_free_enrollment_never_opens_a_course_that_is_later_made_paid(learn_client, learn_db, content, kashier):
     who = register(learn_client)
     assert _post(learn_client, "/courses/course-013/enroll", who).status_code == 200
     _make_paid(learn_db, content["course-013"])
@@ -520,8 +522,6 @@ def test_a_free_enrollment_never_opens_a_course_that_is_later_made_paid(learn_cl
     locked = learn_client.get(f"/api/v1/tool-courses/topics/{topic}", headers=who["headers"]).json()
     assert all(l["is_locked"] for l in locked["lessons"]) and all(not l["content"] for l in locked["lessons"])
 
-    monkeypatch.setattr(kashier_service, "create_session",
-                        lambda **kw: {"session_id": "sess-91", "checkout_url": "https://checkout.kashier.test/sess-91"})
     checkout = learn_client.post("/api/v1/billing/checkout", headers=who["headers"], json={"course_id": "course-013"})
     assert checkout.status_code == 200, checkout.text                       # not "already owned"
 

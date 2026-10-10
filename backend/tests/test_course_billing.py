@@ -10,7 +10,7 @@ from app.models.learning_path import Course
 from app.services.learning.catalog_service import load_catalog_bundle
 from app.services.payments import paymob_service
 from tests.learning_fixtures import *  # noqa: F401,F403
-from tests.learning_fixtures import make_admin, register
+from tests.learning_fixtures import accept_written_answers, make_admin, register
 from tests.kashier_fixtures import kashier  # noqa: F401
 
 
@@ -110,7 +110,7 @@ def test_checkout_uses_database_minor_units_and_provider_id(learn_client, learn_
     assert order.course_id == course.id
 
 
-def test_checkout_rejects_missing_offer(learn_client, learn_db, learn_catalog):
+def test_checkout_rejects_missing_offer(learn_client, learn_db, learn_catalog, kashier):
     who = register(learn_client)
     bundle = load_catalog_bundle(learn_db)
     course = next(c for c in bundle.courses.values() if bundle.catalog.courses[c.id].is_available)
@@ -125,7 +125,7 @@ def test_checkout_rejects_missing_offer(learn_client, learn_db, learn_catalog):
     assert response.json()["detail"]["code"] == "COURSE_OFFER_UNAVAILABLE"
 
 
-def test_checkout_rejects_a_client_supplied_amount(learn_client, learn_db, learn_catalog):
+def test_checkout_rejects_a_client_supplied_amount(learn_client, learn_db, learn_catalog, kashier):
     who = register(learn_client)
     course, _ = _paid_available_course(learn_db)
     response = learn_client.post(
@@ -136,7 +136,7 @@ def test_checkout_rejects_a_client_supplied_amount(learn_client, learn_db, learn
     assert response.status_code == 422
 
 
-def test_checkout_requires_auth_and_an_active_course(learn_client, learn_db, learn_catalog):
+def test_checkout_requires_auth_and_an_active_course(learn_client, learn_db, learn_catalog, kashier):
     assert learn_client.post(
         "/api/v1/billing/checkout", json={"course_id": "does-not-exist"},
     ).status_code == 401
@@ -253,6 +253,13 @@ def test_paid_content_is_redacted_but_the_first_two_ordered_lessons_remain_reada
     assert quizzes[locked_quiz.id]["questions"] == []
     assert quizzes[locked_quiz.id]["is_locked"] is True
 
+    # Readable is not completed: without an accepted answer nothing counts.
+    unanswered = learn_client.post(
+        f"/api/v1/tool-courses/topics/{topic.id}/progress",
+        headers=who["headers"], json={"exercise_id": free_exercise.id},
+    )
+    assert unanswered.status_code == 409 and unanswered.json()["detail"]["code"] == "ANSWER_NOT_ACCEPTED_YET"
+    accept_written_answers(learn_db, who["id"], [free_exercise.id])
     free_exercise_progress = learn_client.post(
         f"/api/v1/tool-courses/topics/{topic.id}/progress",
         headers=who["headers"], json={"exercise_id": free_exercise.id},

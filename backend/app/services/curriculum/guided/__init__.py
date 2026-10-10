@@ -29,6 +29,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from app.services.code_grading.authoring import count_python_blanks
 from app.services.code_grading.sql_grader import sql_blank_values
+from app.services.code_grading.blanks import canonical_dump, computed_blank_tests
 
 from ..spec import CourseSpec
 
@@ -167,6 +168,10 @@ def _expression_dump(source: str) -> str:
     return ast.dump(ast.parse(source.strip(), mode="eval").body, include_attributes=False)
 
 
+def _canonical_expression_dump(source: str) -> str:
+    return canonical_dump(ast.parse(source.strip(), mode="eval").body)
+
+
 def fill(starter: str, answers: Tuple[str, ...]) -> str:
     """The starter with each blank, in order, replaced by its answer."""
     pieces = starter.split(BLANK)
@@ -216,6 +221,12 @@ def _python_blank_tests(guided: Guided) -> List[Dict[str, Any]]:
             "id": f"blank_{number}", "type": "ast_contains", "static": True,
             "path": path, "expected_ast": _expression_dump(answer),
             "expected_ast_any": [_expression_dump(option) for option in guided.alternatives.get(number, ())],
+            # The same answers with keyword arguments in name order: ``f(b=2, a=1)``
+            # is the same call as ``f(a=1, b=2)``.
+            "expected_ast_canonical": [
+                _canonical_expression_dump(option)
+                for option in (answer, *guided.alternatives.get(number, ()))
+            ],
             "label": f"blank {number}",
             "feedback": _fb(f"Blank {number}: {en}", f"الفراغ {number}: {ar}"),
         })
@@ -245,6 +256,46 @@ def _sql_tests(guided: Guided) -> List[Dict[str, Any]]:
         ),
     })
     return tests
+
+
+COMPUTED_FEEDBACK = (
+    "Blank {n}: compute this value from the program's own variables instead of typing its result in.",
+    "الفراغ {n}: احسب هذه القيمة من متغيرات البرنامج نفسها بدلًا من كتابة نتيجتها مباشرةً.",
+)
+
+
+def _check_problems(exercise_id: str, solution: str, tests: List[Dict[str, Any]]) -> List[str]:
+    """Problems with an executed exercise's checks that would otherwise only
+    show up as learners failing for nothing."""
+    from app.services.code_execution.isolated_python_runner import MAX_OBSERVATIONS, builtins_used
+    from app.services.code_execution.python_runner import ForbiddenCode, bound_names, validate_python_source
+    from app.services.code_grading.grader import grading_test_problems
+
+    problems = list(grading_test_problems(tests))
+    bound = bound_names(ast.parse(solution, mode="exec"))
+    observations = 0
+    variables = set()
+    for test in tests:
+        if test.get("type") in {"expression_equals", "return_value_equals"}:
+            observations += 1
+        if test.get("variable"):
+            variables.add(str(test["variable"]))
+        if test.get("type") == "expression_equals":
+            expression = str(test.get("expression") or "")
+            try:
+                validate_python_source(expression)
+            except (SyntaxError, ForbiddenCode) as exc:
+                problems.append(f"check {test.get('id')}: {exc}")
+                continue
+            # The driver evaluates a check's builtins as the real builtins; a
+            # check must therefore never mean a program name that is also a
+            # builtin's name.
+            clashes = sorted(set(builtins_used(expression)) & bound)
+            if clashes:
+                problems.append(f"check {test.get('id')} reads {clashes}, which the solution redefines")
+    if observations + len(variables) > MAX_OBSERVATIONS:
+        problems.append(f"{observations + len(variables)} observed values exceed the runner's {MAX_OBSERVATIONS}")
+    return problems
 
 
 def _section(title: str, body: str) -> str:
@@ -282,6 +333,18 @@ def build(exercise_id: str, guided: Guided) -> Dict[str, Any]:
         ast.parse(solution, mode="exec")
         if guided.checks:
             tests = [dict(check) for check in guided.checks]
+            for number, test in enumerate(tests, start=1):
+                test.setdefault("id", f"check_{number}")
+            problems = _check_problems(exercise_id, solution, tests)
+            if problems:
+                raise ValueError(f"{exercise_id}: " + "; ".join(problems))
+            # A blank whose value the checks only ever see once can be passed
+            # by typing that value in. These guards, after the behavioural
+            # checks, ask for the computation itself.
+            tests += computed_blank_tests(guided.starter, guided.answers, [
+                _fb(COMPUTED_FEEDBACK[0].format(n=number), COMPUTED_FEEDBACK[1].format(n=number))
+                for number in range(1, blank_count + 1)
+            ])
         else:
             if len(guided.blanks) != blank_count:
                 raise ValueError(f"{exercise_id}: a statically graded exercise needs feedback for every blank")

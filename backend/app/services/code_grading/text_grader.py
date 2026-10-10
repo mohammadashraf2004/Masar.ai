@@ -6,15 +6,28 @@ import re
 from typing import Any
 
 from app.services.code_execution import ExecutionResult
-from .grader import GradingResult
+from .grader import GradingResult, blanks_remaining_feedback
 
 
 TEXT_TEST_TYPES = frozenset({"text_changed", "regex_all", "regex_none", "regex_ordered"})
+_BLANK_TOKEN = re.compile(r"(?<![\w$])___(?![\w$])")
 
 
 def text_fingerprint(value: str) -> str:
     normalized = "\n".join(line.rstrip() for line in value.strip().splitlines())
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def text_blanks_remaining(code: str) -> tuple[int, int | None]:
+    """How many ``___`` blanks are left, and the line of the first.
+
+    Every ``___`` counts, comments included: some briefs put a blank in a
+    comment for the learner to complete, and no official solution has one.
+    """
+    positions = [match.start() for match in _BLANK_TOKEN.finditer(code or "")]
+    if not positions:
+        return 0, None
+    return len(positions), (code or "").count("\n", 0, positions[0]) + 1
 
 
 class TextGrader:
@@ -30,6 +43,13 @@ class TextGrader:
                 "grading_error", False, "INVALID_TEST_CONFIGURATION",
                 {"en": execution.stderr, "ar": "لا يمكن تقييم هذا التمرين لعدم وجود اختبارات مطلوبة."},
                 None, 0, 0, execution,
+            )
+        remaining, line = text_blanks_remaining(code)
+        if remaining:
+            # Unfinished, not wrong: attempt_state skips "blanks_remaining".
+            return GradingResult(
+                "incorrect", False, "BLANKS_REMAINING", blanks_remaining_feedback(remaining, line),
+                "blanks_remaining", 0, len(required), execution,
             )
         passed = 0
         for index, test in enumerate(tests):

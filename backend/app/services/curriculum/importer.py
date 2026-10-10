@@ -258,6 +258,7 @@ def _exercise_values(spec: ExerciseSpec, topic_id: int, lesson_id: int) -> Dict[
         "pre_exercise_code": spec.pre_exercise_code, "grading_tests": spec.tests or None,
         "hint": spec.hint, "hint_ar": spec.hint_ar,
         "success_message": spec.success_message, "success_message_ar": spec.success_message_ar,
+        "example_answer": spec.example_answer, "example_answer_ar": spec.example_answer_ar,
         "difficulty": _difficulty(spec.difficulty), "skill_tested": spec.skill_tested,
     }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Check, ChevronDown, Lightbulb, RotateCcw, X } from 'lucide-react'
+import { Check, ChevronDown, Info, Lightbulb, RotateCcw, X } from 'lucide-react'
 import { Spinner } from '@/components/ui/index'
 import { cn } from '@/lib/utils'
 import { useExerciseI18n } from '@/lib/i18n'
@@ -9,7 +9,20 @@ import type { ExerciseAttemptState, ExerciseFile, ExerciseRunResult, GradeResult
 import { exerciseDraftKey } from '../draftKeys'
 import { CodeEditor } from './CodeEditor'
 import { codeCellColors } from './codeCellTheme'
-import { useExerciseRun } from './useExerciseRun'
+import { filesSignature, useExerciseRun } from './useExerciseRun'
+
+type ExerciseLabels = ReturnType<typeof useExerciseI18n>
+
+/** A failed request in words a learner can act on. Nothing was graded in
+ *  any of these cases, so none of them may read like a wrong answer. */
+export function describeRequestError(cause: unknown, labels: ExerciseLabels) {
+  const response = (cause as { response?: { status?: number; data?: { detail?: unknown } } } | null)?.response
+  if (!response) return labels.errors.unavailable
+  if (response.status === 429) return labels.errors.busy
+  if (response.status === 401) return labels.errors.session
+  if (response.status === 409) return labels.errors.notGradable
+  return labels.errors.unavailable
+}
 
 function starterVersion(content: string) {
   let hash = 2166136261
@@ -93,7 +106,7 @@ export function CodeCell({
   const autoRevealDone = useRef(false)
   const activeExercise = useRef(exerciseId)
   const menuRef = useRef<HTMLDivElement>(null)
-  const runner = useExerciseRun({ onRunTests, onSubmit })
+  const runner = useExerciseRun({ onRunTests, onSubmit, describeError: cause => describeRequestError(cause, tx) })
 
   // A different exercise starts with no solution shown. Reset during render
   // (React's "adjust state when a prop changes"), not in an effect, so the
@@ -160,6 +173,8 @@ export function CodeCell({
 
   const current = starters.get(selected) ?? visibleFiles[0]
   const currentFiles = () => files.map(file => ({ ...file, content: drafts[file.name] ?? file.content }))
+  // The shown result belongs to code the learner has since edited.
+  const stale = runner.resultFor !== null && runner.resultFor !== filesSignature(currentFiles())
 
   function update(content: string) {
     if (!current || current.readOnly) return
@@ -178,6 +193,8 @@ export function CodeCell({
       window.localStorage.removeItem(legacyDraftKey(exerciseId, file.name))
     })
     files.forEach(file => onChange?.(file.name, file.content))
+    // The old result described code that is gone.
+    runner.clear()
     setMenuOpen(false)
   }
 
@@ -345,17 +362,28 @@ export function CodeCell({
       {runner.execution && (
         <section aria-label={tx.console} className="overflow-hidden rounded-xl border border-[#1E2535] bg-[#090D13] text-sm" dir="ltr">
           <div className="border-b border-[#1E2535] px-4 py-2 font-arabic text-xs text-[#A0AEC0]" dir="auto">{tx.console}</div>
+          {/* Each line takes its direction from its own text (globals.css pins every
+              <pre> to LTR, which a dir attribute cannot override): output and tracebacks
+              stay left-to-right, Masar's Arabic notes (no output, blanks left, runner
+              unavailable) read right-to-left. */}
           {(runner.execution.stdout || !runner.execution.stderr) && (
-            <pre className="max-h-64 overflow-auto whitespace-pre-wrap p-4 font-mono text-xs leading-5 text-[#E2E8F0]">
+            <pre className="max-h-64 overflow-auto whitespace-pre-wrap p-4 text-start font-mono text-xs leading-5 text-[#E2E8F0] [unicode-bidi:plaintext]">
               {runner.execution.stdout || tx.noOutput}
             </pre>
           )}
-          {runner.execution.stderr && (
-            <pre className="max-h-48 overflow-auto whitespace-pre-wrap border-t border-rose-500/20 p-4 font-mono text-xs leading-5 text-rose-300">{runner.execution.stderr}</pre>
-          )}
+          {runner.execution.stderr && (runner.grade && !runner.grade.passed && runner.grade.feedback.message ? (
+            // After Check Answer the result card explains the failure; the raw
+            // traceback stays one click away instead of in the learner's face.
+            <details className="border-t border-rose-500/20">
+              <summary className="cursor-pointer px-4 py-2 font-arabic text-xs text-[#A0AEC0]" dir="auto">{tx.technicalDetails}</summary>
+              <pre className="max-h-48 overflow-auto whitespace-pre-wrap px-4 pb-4 text-start font-mono text-xs leading-5 text-rose-300 [unicode-bidi:plaintext]">{runner.execution.stderr}</pre>
+            </details>
+          ) : (
+            <pre className="max-h-48 overflow-auto whitespace-pre-wrap border-t border-rose-500/20 p-4 text-start font-mono text-xs leading-5 text-rose-300 [unicode-bidi:plaintext]">{runner.execution.stderr}</pre>
+          ))}
         </section>
       )}
-      {runner.status === 'done' && runner.grade && <GradeCard grade={runner.grade} labels={tx} />}
+      {runner.status === 'done' && runner.grade && <GradeCard grade={runner.grade} labels={tx} stale={stale} />}
       {runner.status === 'done' && runner.grade?.passed && attempt?.passed && !attempt.completed_independently && (
         <p className="text-xs text-ghost" dir="auto">{tx.passedWithSolution}</p>
       )}
@@ -420,28 +448,34 @@ export function CodeCell({
 }
 
 /** What kind of result this is, so a learner can tell "Python could not read
- * it" from "it ran but the answer is wrong" at a glance. */
-export function gradeOutcome(grade: GradeResult, labels: ReturnType<typeof useExerciseI18n>) {
-  if (grade.passed) return { label: labels.status.correct, scored: true }
-  if (grade.feedback.code === 'BLANKS_REMAINING') return { label: labels.status.blanks, scored: false }
+ * it" from "it ran but the answer is wrong" at a glance - and from "we could
+ * not grade it", which is never the learner's fault. */
+export function gradeOutcome(grade: GradeResult, labels: ExerciseLabels) {
+  if (grade.passed) return { label: labels.status.correct, scored: true, graded: true }
+  if (grade.feedback.code === 'BLANKS_REMAINING') return { label: labels.status.blanks, scored: false, graded: true }
   switch (grade.status) {
-    case 'incorrect': return { label: labels.status.incorrect, scored: true }
-    case 'syntax_error': return { label: labels.status.syntax, scored: false }
-    case 'runtime_error': return { label: labels.status.runtime, scored: false }
-    case 'timeout': case 'memory_limit': return { label: labels.status.timeout, scored: false }
-    case 'forbidden_operation': return { label: labels.status.forbidden, scored: false }
-    default: return { label: labels.status.error, scored: false }
+    case 'incorrect': return { label: labels.status.incorrect, scored: true, graded: true }
+    case 'partial': return { label: labels.status.partial, scored: true, graded: true }
+    case 'syntax_error': return { label: labels.status.syntax, scored: false, graded: true }
+    case 'runtime_error': return { label: labels.status.runtime, scored: false, graded: true }
+    case 'timeout': return { label: labels.status.timeout, scored: false, graded: true }
+    case 'memory_limit': return { label: labels.status.memory, scored: false, graded: true }
+    case 'output_limit': return { label: labels.status.output, scored: false, graded: true }
+    case 'forbidden_operation': return { label: labels.status.forbidden, scored: false, graded: true }
+    case 'execution_error': case 'grading_error': return { label: labels.status.notGraded, scored: false, graded: false }
+    default: return { label: labels.status.error, scored: false, graded: false }
   }
 }
 
-function GradeCard({ grade, labels }: { grade: GradeResult; labels: ReturnType<typeof useExerciseI18n> }) {
+function GradeCard({ grade, labels, stale }: { grade: GradeResult; labels: ExerciseLabels; stale: boolean }) {
   const outcome = gradeOutcome(grade, labels)
   return (
     <section
       aria-live="polite"
       className={cn(
         'rounded-xl border bg-[#0D1117] p-4 text-[#E2E8F0]',
-        grade.passed ? 'border-emerald-500/40' : 'border-[#1E2535]',
+        grade.passed ? 'border-emerald-500/40' : outcome.graded ? 'border-[#1E2535]' : 'border-amber-500/40',
+        stale && 'opacity-80',
       )}
       dir="auto"
     >
@@ -460,12 +494,18 @@ function GradeCard({ grade, labels }: { grade: GradeResult; labels: ReturnType<t
         )}
       </div>
       <p className="mt-4 flex items-start gap-2 border-t border-[#1E2535] pt-3 text-sm leading-6 text-[#CBD5E1]">
-        <span className={cn('mt-1 flex size-4 shrink-0 items-center justify-center rounded-full', grade.passed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300')}>
-          {grade.passed ? <Check size={10} /> : <X size={10} />}
+        <span className={cn(
+          'mt-1 flex size-4 shrink-0 items-center justify-center rounded-full',
+          grade.passed ? 'bg-emerald-500/20 text-emerald-300' : outcome.graded ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300',
+        )}>
+          {grade.passed ? <Check size={10} /> : outcome.graded ? <X size={10} /> : <Info size={10} />}
         </span>
-        <span>{grade.feedback.message}</span>
+        <span className="whitespace-pre-line">{grade.feedback.message}</span>
       </p>
-      {!grade.passed && <p className="mt-2 ps-6 text-xs text-[#8B98AD]">{labels.tryAgain}</p>}
+      {!grade.passed && (
+        <p className="mt-2 ps-6 text-xs text-[#8B98AD]">{outcome.graded ? labels.tryAgain : labels.notCounted}</p>
+      )}
+      {stale && <p className="mt-2 ps-6 text-xs text-amber-300">{labels.stale}</p>}
     </section>
   )
 }

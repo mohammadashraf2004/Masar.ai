@@ -55,12 +55,30 @@ print(execute({"name": "divide", "args": {"a": 10, "b": 4}}), execute({"name": "
 ''',
         answers=('["a", "b"]', "b == 0", '{"result": a / b}', 'divide(**call["args"])'),
         checks=(
-            check("sorted(divide_declaration['parameters']['required'])", ["a", "b"], "Blank 1: `[\"a\", \"b\"]`.", "الفراغ 1: `[\"a\", \"b\"]`."),
-            check("[divide(1, 0), divide(0, 5)]", [{"error": "b must not be zero"}, {"result": 0.0}],
-                  "Blank 2: check the divisor `b == 0`, not the dividend.", "الفراغ 2: افحص المقسوم عليه `b == 0` لا المقسوم."),
-            check("divide(10, 4)", {"result": 2.5}, "Blank 3: `{\"result\": a / b}`.", "الفراغ 3: `{\"result\": a / b}`."),
-            check("[execute({'name': 'divide', 'args': {'a': 9, 'b': 3}}), execute({'name': 'rm', 'args': {}})]", [{"result": 3.0}, {"error": "unknown tool 'rm'"}],
-                  "Blank 4: `divide(**call[\"args\"])` unpacks the arguments.", "الفراغ 4: يفكّ `divide(**call[\"args\"])` الوسائط."),
+            # One check per blank, in blank order, so a failure names the blank
+            # that caused it; none of the messages quotes the answer.
+            check("sorted(divide_declaration['parameters']['required'])", ["a", "b"],
+                  "Blank 1: `required` must name every parameter the model has to supply - both of them.",
+                  "الفراغ 1: يجب أن يذكر `required` كل معامل على النموذج أن يوفره - كليهما."),
+            check("divide(1, 0)", {"error": "b must not be zero"},
+                  "Blank 2: `divide` does not handle a zero divisor safely - it must return the error before it ever divides.",
+                  "الفراغ 2: لا تتعامل `divide` بأمان مع مقسوم عليه يساوي صفرًا - يجب أن تُعيد الخطأ قبل أن تقسم أصلًا."),
+            # Hidden inputs beyond the brief's examples: negative and fractional
+            # numbers. A fixed result copied from the example fails here.
+            check("[divide(10, 4), divide(-9, 2), divide(7.5, 2.5), divide(-6, -4)]",
+                  [{"result": 2.5}, {"result": -4.5}, {"result": 3.0}, {"result": 1.5}],
+                  "Blank 3: the result must be computed from `a` and `b`, so each pair of numbers gets its own quotient - a fixed value only matches one example.",
+                  "الفراغ 3: يجب حساب النتيجة من `a` و`b` كي يحصل كل زوج من الأعداد على ناتج قسمته - القيمة الثابتة تطابق مثالًا واحدًا فقط."),
+            check("divide(0, 5)", {"result": 0.0},
+                  "Blank 2: a zero dividend is valid (0 divided by 5 is 0); only a zero divisor must be rejected.",
+                  "الفراغ 2: المقسوم الذي يساوي صفرًا مقبول (0 مقسومًا على 5 يساوي 0)؛ لا يُرفض إلا المقسوم عليه الصفري."),
+            check("[execute({'name': 'divide', 'args': {'a': 9, 'b': 3}}), execute({'name': 'divide', 'args': {'a': 1, 'b': 0}})]",
+                  [{"result": 3.0}, {"error": "b must not be zero"}],
+                  "Blank 4: `execute` must run the host's `divide` with the arguments the model sent in the `args` entry of its call.",
+                  "الفراغ 4: يجب أن تشغّل `execute` الدالة `divide` الموجودة على المضيف بالوسائط التي أرسلها النموذج في مدخل `args` من استدعائه."),
+            check("execute({'name': 'rm', 'args': {}})", {"error": "unknown tool 'rm'"},
+                  "`execute` must still refuse a tool the model was never given (keep the name check).",
+                  "يجب أن ترفض `execute` أي أداة لم تُعطَ للنموذج (أبقِ فحص الاسم)."),
         ),
         hints=(
             ("`required` lists the parameter names the model must always supply.", "يسرد `required` أسماء المعاملات التي يجب أن يوفرها النموذج دائمًا."),

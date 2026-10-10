@@ -145,6 +145,11 @@ class Exercise(Base):
     hint_ar = Column(Text, nullable=True)
     success_message = Column(Text, nullable=True)
     success_message_ar = Column(Text, nullable=True)
+    # Written exercises: one good answer per language, shown after the
+    # learner's first evaluated answer and given to the evaluator as its
+    # reference (migration 040).
+    example_answer = Column(Text, nullable=True)
+    example_answer_ar = Column(Text, nullable=True)
     difficulty = Column(Enum(DifficultyLevel), default=DifficultyLevel.beginner)
     skill_tested = Column(JSON, default=list)
 

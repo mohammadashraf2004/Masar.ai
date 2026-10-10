@@ -34,6 +34,7 @@ from app.services.billing.access_service import (
 from app.models.learning_path import Course
 from app.services.learning import enrollment as course_enrollment
 from app.services.learning import track_catalog
+from app.services.exercise_progress import lock_progress, written_answer_accepted
 from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
@@ -94,6 +95,14 @@ def _validate_progress_targets(db: Session, payload: ProgressUpdate, *, topic_id
             raise HTTPException(status_code=400, detail="That exercise does not belong to this topic")
         if exercise.exercise_type == "code" or exercise.starter_code:
             raise HTTPException(status_code=409, detail={"code": "SUBMIT_CODE_TO_COMPLETE"})
+
+
+def _require_accepted_answer(db: Session, user_id: int, payload) -> None:
+    """A written exercise is complete when the evaluator accepted the
+    learner's answer - that verdict, not this request, is the evidence.
+    Checked after access, so locked content still answers 403 first."""
+    if payload.exercise_id is not None and not written_answer_accepted(db, user_id, payload.exercise_id):
+        raise HTTPException(status_code=409, detail={"code": "ANSWER_NOT_ACCEPTED_YET"})
 
 
 # ─── Career Tracks ──────────────────────────────────────────────────────
@@ -285,13 +294,16 @@ def update_progress(
             require_content_access(db, current_user.id, db.query(Exercise).filter(Exercise.id == payload.exercise_id).one())
         else:
             require_course_access(db, current_user.id, course)
+    _require_accepted_answer(db, current_user.id, payload)
 
     # Scoped to current_user.id on both read and write, so there is no id
     # in the request a caller could change to touch someone else's row.
+    # Serialized with every other completion for this learner and topic.
+    lock_progress(db, current_user.id, topic_id=topic_id)
     progress = db.query(UserProgress).filter(
         UserProgress.user_id == current_user.id,
         UserProgress.topic_id == topic_id,
-    ).first()
+    ).order_by(UserProgress.id.asc()).first()
 
     if not progress:
         progress = UserProgress(

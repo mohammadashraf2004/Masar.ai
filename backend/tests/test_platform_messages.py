@@ -14,13 +14,17 @@ SOURCES = (
     APP / "services" / "project_lab" / "execution.py",
     APP / "services" / "code_execution" / "python_runner.py",
     APP / "services" / "code_execution" / "isolated_python_runner.py",
+    # The runner's own outage messages reach the learner through the adapter.
+    APP.parent / "project_runner" / "executor.py",
 )
-WRITTEN = re.compile(r'(?:JobOutcome\("infrastructure_error"|ExecutionResult\("execution_error"),\s*stderr="([^"]+)"')
+WRITTEN = re.compile(
+    r'(?:JobOutcome\("infrastructure_error"|ExecutionResult\("(?:execution_error|grading_error)"),\s*stderr="([^"]+)"'
+)
 
 
 def test_every_message_masar_writes_instead_of_output_has_arabic():
     found = {message for path in SOURCES for message in WRITTEN.findall(path.read_text(encoding="utf-8"))}
-    assert len(found) >= 8, f"the pattern no longer finds the messages: {sorted(found)}"
+    assert len(found) >= 10, f"the pattern no longer finds the messages: {sorted(found)}"
     missing = sorted(found - set(PLATFORM_MESSAGES_AR))
     assert not missing, f"add Arabic for: {missing}"
     assert all(re.search(r"[؀-ۿ]", text) for text in PLATFORM_MESSAGES_AR.values())

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/lib/api', () => ({ api: { getBillingCatalog: vi.fn(), checkoutSubscription: vi.fn() } }))
+vi.mock('@/lib/api', () => ({ api: { getBillingCatalog: vi.fn(), checkoutSubscription: vi.fn(), initWalletTopUp: vi.fn() } }))
 
 import { apiCatalogSource } from '@/lib/billing/catalog'
 import { currencyLabel, formatMoney } from '@/lib/billing/money'
@@ -256,9 +256,18 @@ describe('the Kashier provider: redirects to a backend-priced hosted checkout', 
     expect(api.checkoutSubscription).toHaveBeenCalledWith('pro', 'yearly', 'card')
   })
 
-  it('refuses anything that is not the Pro plan: nothing else sells through it yet', async () => {
+  it('sells credit packs by id only: the backend prices the pack and redirects to its hosted URL', async () => {
+    vi.mocked(api.initWalletTopUp).mockResolvedValue({ checkout_url: 'https://checkout.kashier.io/session/9', merchant_order_id: 'wallet-9', reference: 'wallet-9' })
     const provider = new KashierProvider()
-    await expect(provider.pay({ ...proRequest, cart: { type: 'pack', id: 'p1' } })).rejects.toThrow(KASHIER_NOT_CONFIGURED)
+    const pack: PaymentRequest = { ...proRequest, cart: { type: 'pack', id: '3' }, amount: 1 }
+    expect(await provider.pay(pack)).toEqual({ status: 'redirect', url: 'https://checkout.kashier.io/session/9' })
+    // the amount on the request is display-only: only the package id and method leave the browser
+    expect(api.initWalletTopUp).toHaveBeenCalledWith({ package_id: 3, method: 'card' })
+  })
+
+  it('refuses any plan other than Pro: nothing else sells through it', async () => {
+    const provider = new KashierProvider()
+    await expect(provider.pay({ ...proRequest, cart: { type: 'plan', id: 'free' } })).rejects.toThrow(KASHIER_NOT_CONFIGURED)
   })
 
   it('fails cleanly for a method Kashier does not take', async () => {

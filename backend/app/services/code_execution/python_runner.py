@@ -1,22 +1,18 @@
-"""Restricted local Python runner.
+"""Source rules for learner Python, applied before anything executes.
 
-This is a development runner and defense-in-depth, not a production sandbox.
-The interface deliberately permits replacing it with a container/microVM
-service without changing grading or API code.
+This is defense-in-depth, not the sandbox. The security boundary for learner
+code is the isolated project runner (see isolated_python_runner.py and
+docs/project-lab.md): its own container, no network, read-only filesystem,
+seccomp and gVisor in production. These rules stop the obvious misuse early,
+with a clear message, and keep a development machine's runner honest.
+
+``LocalPythonRunner`` (development and tests) lives in isolated_python_runner
+and is re-exported here for the callers that import it from this module.
 """
 from __future__ import annotations
 
 import ast
-import asyncio
-import json
-import os
-import subprocess
-import sys
-import tempfile
-import time
 from typing import Any
-
-from .base import CodeRunner, ExecutionResult
 
 
 _ALLOWED_IMPORT_ROOTS = {
@@ -35,18 +31,169 @@ _BLOCKED_ROOTS = {
     "os", "sys", "subprocess", "socket", "pathlib", "shutil", "tempfile",
     "multiprocessing", "ctypes", "resource", "signal", "importlib", "builtins",
 }
+# Dunder names a program may legitimately read. Every other one
+# (``__builtins__``, ``__loader__``, ``__spec__``, ``__import__`` ...) hands
+# out the interpreter's internals, which the rules below exist to withhold.
+_ALLOWED_DUNDER_NAMES = {"__name__", "__file__", "__doc__"}
+# Attributes without a leading underscore that still reach an interpreter
+# frame (and through it the globals and builtins of any module) or load
+# native code.
+_ESCAPE_ATTRIBUTES = {
+    "gi_frame", "gi_code", "cr_frame", "cr_code", "ag_frame", "ag_code",
+    "f_globals", "f_locals", "f_builtins", "f_back", "f_code", "tb_frame", "tb_next",
+    "ctypeslib", "load_library",
+}
+_BLOCKED_ATTRIBUTES = _BLOCKED_ROOTS | _ESCAPE_ATTRIBUTES | {
+    "system", "popen", "spawn", "fork", "kill", "unlink", "remove", "rmdir",
+    "read_csv", "read_pickle", "read_excel", "read_parquet", "read_json",
+    "to_csv", "to_pickle", "to_excel", "to_parquet", "to_json", "load", "save", "savez",
+}
+
+
+# Builtins that hand out the interpreter itself (code execution, attribute
+# access by name, namespaces, files). Merely naming one - ``g = getattr`` and
+# later ``g(obj, name)`` - is the same as calling it.
+_REFERENCE_BLOCKED = _BLOCKED_CALLS - {"input", "dir"}
+_COMPREHENSIONS = (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)
+_FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)
 
 
 class ForbiddenCode(ValueError):
     pass
 
 
-def validate_python_source(source: str) -> ast.AST:
+# Deeper than any real exercise program. Grading steps that recurse over the
+# syntax tree (ast.unparse, ast.dump, copy.deepcopy) would otherwise exceed
+# Python's recursion limit inside the API on a crafted 1 + 1 + ... chain.
+MAX_SYNTAX_DEPTH = 120
+_TOO_DEEP = "your code is nested too deeply for Python to read"
+
+
+def parse_learner_python(source: str) -> ast.Module:
+    """``ast.parse`` for submitted code that never raises anything but
+    SyntaxError: a parser stack overflow or an absurdly deep tree becomes a
+    syntax error instead of an API failure."""
     try:
-        tree = ast.parse(source, mode="exec")
-    except SyntaxError:
-        raise
+        tree: ast.Module | None = ast.parse(source or "", mode="exec")
+    except (RecursionError, MemoryError):
+        tree = None
+    if tree is not None:
+        pending: list[tuple[ast.AST, int]] = [(tree, 0)]
+        while pending:
+            node, depth = pending.pop()
+            if depth > MAX_SYNTAX_DEPTH:
+                tree = None
+                break
+            pending.extend((child, depth + 1) for child in ast.iter_child_nodes(node))
+    if tree is None:
+        error = SyntaxError(_TOO_DEEP)
+        error.lineno = 1
+        raise error
+    return tree
+
+
+def bound_names(tree: ast.AST) -> set[str]:
+    """Every name a program binds anywhere: assignment, def, class, parameter,
+    import, and loop/comprehension/with/except/match targets."""
+    bound: set[str] = set()
     for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            bound.add(node.id)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            bound.add(node.name)
+        elif isinstance(node, ast.arg):
+            bound.add(node.arg)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            bound.update(alias.asname or alias.name.split(".", 1)[0] for alias in node.names)
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            bound.add(node.name)
+        elif isinstance(node, (ast.MatchAs, ast.MatchStar)) and node.name:
+            bound.add(node.name)
+    return bound
+
+
+def _local_names(scope: ast.AST) -> set[str]:
+    """Names local to one function, lambda or comprehension scope. Inside it
+    such a name can never fall back to the builtin of the same name (Python
+    raises UnboundLocalError instead), unlike a module-level name whose
+    binding may never run (``if False: getattr = None``)."""
+    if isinstance(scope, _COMPREHENSIONS):
+        return {
+            node.id for generator in scope.generators for node in ast.walk(generator.target)
+            if isinstance(node, ast.Name)
+        }
+    arguments = scope.args
+    names = {argument.arg for argument in (
+        *arguments.posonlyargs, *arguments.args, *arguments.kwonlyargs,
+        *(item for item in (arguments.vararg, arguments.kwarg) if item is not None),
+    )}
+    declared: set[str] = set()
+    pending: list[ast.AST] = list(scope.body) if isinstance(scope.body, list) else [scope.body]
+    while pending:
+        node = pending.pop()
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.add(node.name)
+            pending.extend(node.decorator_list)
+            continue  # its body is another scope
+        if isinstance(node, (ast.Lambda, *_COMPREHENSIONS)):
+            continue
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            names.add(node.id)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            names.update(alias.asname or alias.name.split(".", 1)[0] for alias in node.names)
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            names.add(node.name)
+        elif isinstance(node, (ast.Global, ast.Nonlocal)):
+            declared.update(node.names)
+        pending.extend(ast.iter_child_nodes(node))
+    return names - declared
+
+
+def _check_builtin_references(tree: ast.AST) -> None:
+    """Refuse any reference to a dangerous builtin that is not provably the
+    learner's own local name. Iterative, so deeply nested code cannot make
+    the API itself run out of stack."""
+    pending: list[tuple[ast.AST, tuple[frozenset[str], ...]]] = [(tree, ())]
+    while pending:
+        node, scopes = pending.pop()
+        if isinstance(node, _FUNCTIONS):
+            # Decorators, defaults and annotations are evaluated in the
+            # enclosing scope (``typing.get_type_hints`` hands annotations back).
+            arguments = node.args
+            every = (*arguments.posonlyargs, *arguments.args, *arguments.kwonlyargs,
+                     *(item for item in (arguments.vararg, arguments.kwarg) if item is not None))
+            outer = [*getattr(node, "decorator_list", []), *arguments.defaults,
+                     *(item for item in arguments.kw_defaults if item is not None),
+                     *(item.annotation for item in every if item.annotation is not None),
+                     *([node.returns] if getattr(node, "returns", None) is not None else [])]
+            pending.extend((item, scopes) for item in outer)
+            inner = (*scopes, frozenset(_local_names(node)))
+            body = node.body if isinstance(node.body, list) else [node.body]
+            pending.extend((item, inner) for item in body)
+            continue
+        if isinstance(node, _COMPREHENSIONS):
+            inner = (*scopes, frozenset(_local_names(node)))
+            pending.extend((item, inner) for item in ast.iter_child_nodes(node))
+            continue
+        if (isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) and node.id in _REFERENCE_BLOCKED
+                and not any(node.id in scope for scope in scopes)):
+            raise ForbiddenCode(f"Using '{node.id}' is not allowed in exercises.")
+        pending.extend((item, scopes) for item in ast.iter_child_nodes(node))
+
+
+def validate_python_source(source: str) -> ast.AST:
+    tree = parse_learner_python(source)
+    _check_builtin_references(tree)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id.startswith("__") and node.id.endswith("__"):
+            # ``__builtins__.open(...)`` and ``__loader__.load_module(...)``
+            # would bypass every call rule below, and no exercise needs them.
+            if node.id == "__builtins__" or (
+                isinstance(node.ctx, ast.Load) and node.id not in _ALLOWED_DUNDER_NAMES
+            ):
+                raise ForbiddenCode(f"Using '{node.id}' is not allowed in exercises.")
+        if isinstance(node, (ast.Global, ast.Nonlocal)) and "__builtins__" in node.names:
+            raise ForbiddenCode("Using '__builtins__' is not allowed in exercises.")
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             modules = [alias.name for alias in node.names] if isinstance(node, ast.Import) else [node.module or ""]
             for module in modules:
@@ -54,9 +201,9 @@ def validate_python_source(source: str) -> ast.AST:
                 if root not in _ALLOWED_IMPORT_ROOTS:
                     raise ForbiddenCode(f"Importing '{root}' is not allowed in exercises.")
             for alias in node.names:
-                bound = alias.asname or alias.name.split(".", 1)[0]
-                if bound.startswith("_") or bound in _BLOCKED_ROOTS:
-                    raise ForbiddenCode(f"Importing '{bound}' is not allowed in exercises.")
+                name = alias.asname or alias.name.split(".", 1)[0]
+                if name.startswith("_") or name in _BLOCKED_ROOTS:
+                    raise ForbiddenCode(f"Importing '{name}' is not allowed in exercises.")
         if isinstance(node, ast.Call):
             if isinstance(node.func, ast.Name) and node.func.id in _BLOCKED_CALLS:
                 raise ForbiddenCode(f"Calling '{node.func.id}' is not allowed in exercises.")
@@ -68,18 +215,13 @@ def validate_python_source(source: str) -> ast.AST:
                     raise ForbiddenCode(f"Calling '{root.id}.{node.func.attr}' is not allowed in exercises.")
         if isinstance(node, ast.Attribute):
             pieces = []
-            current = node
+            current: ast.AST = node
             while isinstance(current, ast.Attribute):
                 pieces.append(current.attr)
                 current = current.value
             if any(piece.startswith("_") for piece in pieces):
                 raise ForbiddenCode("Private attribute access is not allowed in exercises.")
-            blocked_attributes = _BLOCKED_ROOTS | {
-                "system", "popen", "spawn", "fork", "kill", "unlink", "remove", "rmdir",
-                "read_csv", "read_pickle", "read_excel", "read_parquet", "read_json",
-                "to_csv", "to_pickle", "to_excel", "to_parquet", "to_json", "load", "save", "savez",
-            }
-            if any(piece in blocked_attributes for piece in pieces):
+            if any(piece in _BLOCKED_ATTRIBUTES for piece in pieces):
                 raise ForbiddenCode(f"Attribute '{node.attr}' is not allowed in exercises.")
     return tree
 
@@ -94,159 +236,10 @@ def validate_check_expressions(calls: list[dict[str, Any]] | None) -> None:
             validate_python_source(expression)
 
 
-_CHILD = r'''
-import contextlib, io, json, traceback
-
-class LimitedBuffer(io.StringIO):
-    def __init__(self, limit):
-        super().__init__(); self.limit = limit; self.used = 0; self.truncated = False
-    def write(self, value):
-        value = str(value); remaining = self.limit - self.used
-        if remaining <= 0:
-            self.truncated = True; return len(value)
-        piece = value[:remaining]; self.used += len(piece)
-        if len(piece) < len(value): self.truncated = True
-        return super().write(piece)
-    def result(self):
-        return self.getvalue() + ("\n[output truncated]" if self.truncated else "")
-
-def safe(value, depth=0):
-    if depth > 5: return {"kind": "repr", "type": type(value).__name__, "repr": "<depth limit>"}
-    if value is None or isinstance(value, (bool, int, float, str)):
-        # numpy.float64 subclasses float: report (and store) the plain type, as production does.
-        base = next((t for t in (bool, int, float, str) if isinstance(value, t)), type(value))
-        return {"kind": "value", "type": base.__name__ if value is not None else "NoneType", "value": value if value is None else base(value)}
-    if isinstance(value, (list, tuple)):
-        return {"kind": "value", "type": type(value).__name__, "value": [safe(v, depth+1).get("value", safe(v, depth+1).get("repr")) for v in value[:100]]}
-    if isinstance(value, dict):
-        items = list(value.items())[:100]
-        return {"kind": "value", "type": type(value).__name__, "value": {str(k): safe(v, depth+1).get("value", safe(v, depth+1).get("repr")) for k, v in items}}
-    if hasattr(value, "columns") and hasattr(value, "shape"):
-        data = {"columns": [str(c) for c in list(value.columns)], "shape": list(value.shape)}
-        try: data["column_values"] = {str(c): value[c].tolist()[:100] for c in value.columns}
-        except Exception: pass
-        return {"kind": "dataframe", "type": type(value).__name__, "value": data}
-    # The same conversions as the production runner's harness, so a check
-    # observes identical values in development, tests and production.
-    item = getattr(value, "item", None)
-    if callable(item) and getattr(value, "shape", None) == ():
-        try: return safe(item(), depth+1)
-        except Exception: pass
-    if isinstance(value, (set, frozenset)):
-        return safe(sorted(value, key=repr), depth+1)
-    if hasattr(value, "to_dict") and hasattr(value, "index"):
-        try: return safe(value.to_dict(), depth+1)
-        except Exception: pass
-    if hasattr(value, "tolist"):
-        try: return safe(value.tolist(), depth+1)
-        except Exception: pass
-    return {"kind": "repr", "type": type(value).__name__, "repr": repr(value)[:2000]}
-
-payload = json.loads(input())
-out, err, ns = LimitedBuffer(payload["output_limit"]), LimitedBuffer(payload["output_limit"]), {"__name__": "__exercise__"}
-result = {"status": "success", "stdout": "", "stderr": "", "variables": {}, "return_values": {}}
-try:
-    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-        if payload.get("pre_code"): exec(compile(payload["pre_code"], "<setup>", "exec"), ns, ns)
-        exec(compile(payload["code"], "<learner>", "exec"), ns, ns)
-        for request in payload.get("calls", []):
-            key = request["key"]
-            try:
-                if "expression" in request:
-                    # An exercise author's hidden check (validated by the parent), not learner code.
-                    result["return_values"][key] = safe(eval(compile(request["expression"], "<check>", "eval"), ns, ns))
-                    continue
-                fn = ns.get(request["function"])
-                result["return_values"][key] = safe(fn(*request.get("args", []), **request.get("kwargs", {}))) if callable(fn) else {"missing": True}
-            except Exception as exc:
-                result["return_values"][key] = {"error": f"{type(exc).__name__}: {exc}"}
-    for name in payload.get("variables", []):
-        result["variables"][name] = safe(ns[name]) if name in ns else {"missing": True}
-except SyntaxError as exc:
-    result["status"] = "syntax_error"; err.write("".join(traceback.format_exception_only(type(exc), exc)))
-except Exception as exc:
-    result["status"] = "runtime_error"; err.write("".join(traceback.format_exception_only(type(exc), exc)))
-result["stdout"], result["stderr"] = out.result(), err.result()
-print(json.dumps(result, ensure_ascii=False, allow_nan=False, default=str))
-'''
-
-
-def _limits(memory_bytes: int, cpu_seconds: int):
-    def apply() -> None:
-        try:
-            import resource
-            resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
-            resource.setrlimit(resource.RLIMIT_CPU, (cpu_seconds, cpu_seconds))
-            resource.setrlimit(resource.RLIMIT_FSIZE, (0, 0))
-            resource.setrlimit(resource.RLIMIT_NOFILE, (16, 16))
-        except (ImportError, OSError, ValueError):
-            pass
-    return apply
-
-
-class LocalPythonRunner(CodeRunner):
-    def __init__(self, *, timeout_seconds: float = 3.0, memory_mb: int = 512, output_limit: int = 16_384):
-        self.timeout_seconds = timeout_seconds
-        self.memory_bytes = memory_mb * 1024 * 1024
-        self.output_limit = output_limit
-
-    async def run(self, code: str, *, pre_exercise_code: str = "", variables=None, calls=None) -> ExecutionResult:
-        started = time.perf_counter()
-        try:
-            validate_python_source(code)
-        except SyntaxError as exc:
-            return ExecutionResult("syntax_error", stderr=f"SyntaxError: {exc.msg} (line {exc.lineno})")
-        except ForbiddenCode as exc:
-            return ExecutionResult("forbidden_operation", stderr=str(exc), detail=str(exc))
-        try:
-            validate_python_source(pre_exercise_code)
-            validate_check_expressions(calls)
-        except (SyntaxError, ForbiddenCode) as exc:
-            return ExecutionResult("execution_error", stderr="Exercise setup is invalid.", detail=str(exc))
-
-        payload = json.dumps({
-            "code": code, "pre_code": pre_exercise_code, "variables": variables or [],
-            "calls": calls or [], "output_limit": self.output_limit,
-        }, ensure_ascii=False).encode()
-        kwargs: dict[str, Any] = {
-            "stdin": asyncio.subprocess.PIPE, "stdout": asyncio.subprocess.PIPE,
-            "stderr": asyncio.subprocess.PIPE,
-        }
-        if os.name == "posix":
-            kwargs["preexec_fn"] = _limits(self.memory_bytes, max(1, int(self.timeout_seconds)))
-        elif os.name == "nt":
-            kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
-        with tempfile.TemporaryDirectory(prefix="masar-exercise-") as workdir:
-            try:
-                process = await asyncio.create_subprocess_exec(
-                    sys.executable, "-I", "-c", _CHILD, cwd=workdir,
-                    # One BLAS thread: each extra thread reserves an address-space
-                    # arena that the memory limit above would refuse.
-                    env={
-                        "PATH": os.environ.get("PATH", ""), "PYTHONIOENCODING": "utf-8",
-                        "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1",
-                    }, **kwargs,
-                )
-                stdout, stderr = await asyncio.wait_for(process.communicate(payload + b"\n"), self.timeout_seconds)
-            except asyncio.TimeoutError:
-                try:
-                    process.kill()
-                except ProcessLookupError:
-                    pass  # the CPU-time limit already ended it
-                await process.wait()
-                return ExecutionResult("timeout", stderr="Execution exceeded the time limit.", execution_time_ms=int((time.perf_counter()-started)*1000))
-            except Exception as exc:
-                return ExecutionResult("execution_error", stderr="The execution service failed.", detail=str(exc))
-        elapsed = int((time.perf_counter() - started) * 1000)
-        if process.returncode and not stdout:
-            status = "memory_limit" if process.returncode < 0 else "execution_error"
-            return ExecutionResult(status, stderr=stderr.decode("utf-8", "replace")[:self.output_limit], execution_time_ms=elapsed)
-        try:
-            data = json.loads(stdout.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError):
-            return ExecutionResult("execution_error", stderr="The execution service returned an invalid result.", execution_time_ms=elapsed)
-        return ExecutionResult(
-            data.get("status", "execution_error"), data.get("stdout", "")[:self.output_limit],
-            data.get("stderr", "")[:self.output_limit], elapsed, data.get("variables", {}),
-            data.get("return_values", {}),
-        )
+def __getattr__(name: str) -> Any:
+    # Lazy: the local runner is built on the isolated runner, which imports
+    # the rules above from this module.
+    if name == "LocalPythonRunner":
+        from .isolated_python_runner import LocalPythonRunner
+        return LocalPythonRunner
+    raise AttributeError(name)

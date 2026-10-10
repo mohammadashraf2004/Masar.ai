@@ -36,6 +36,7 @@ from app.services.billing.access_service import (
     course_access, course_for_tool_topic, free_lesson_ids, free_preview_content_ids, require_content_access,
     require_course_access, require_lesson_access,
 )
+from app.services.exercise_progress import lock_progress, recompute_tool_course_progress, written_answer_accepted
 
 router = APIRouter(prefix="/tool-courses", tags=["Tool Courses"])
 
@@ -80,6 +81,14 @@ def _validate_progress_targets(db: Session, payload: ToolProgressUpdate, *, topi
             raise HTTPException(status_code=400, detail="That exercise does not belong to this topic")
         if exercise.exercise_type == "code" or exercise.starter_code:
             raise HTTPException(status_code=409, detail={"code": "SUBMIT_CODE_TO_COMPLETE"})
+
+
+def _require_accepted_answer(db: Session, user_id: int, payload) -> None:
+    """A written exercise is complete when the evaluator accepted the
+    learner's answer - that verdict, not this request, is the evidence.
+    Checked after access, so locked content still answers 403 first."""
+    if payload.exercise_id is not None and not written_answer_accepted(db, user_id, payload.exercise_id):
+        raise HTTPException(status_code=409, detail={"code": "ANSWER_NOT_ACCEPTED_YET"})
 
 
 # ─── Browse ──────────────────────────────────────────────────────────────
@@ -242,43 +251,8 @@ def get_tool_topic(
 # ─── Progress tracking ────────────────────────────────────────────────────
 
 def _recompute_course_progress(db: Session, user_id: int, tool_course_id: int) -> None:
-    """Keeps ToolEnrollment.progress_pct in sync: fraction of the course's
-    topics that have at least one recorded UserProgress row with a
-    non-empty lessons_completed list. Simple and cheap; matches the
-    granularity actually shown in the UI (topic-level progress cards)."""
-    topic_ids = [
-        t.id for t in db.query(ToolTopic.id).filter(
-            ToolTopic.tool_course_id == tool_course_id,
-            ToolTopic.completion_required.is_(True),
-        ).all()
-    ]
-    if not topic_ids:
-        return
-    done = (
-        db.query(UserProgress)
-        .filter(
-            UserProgress.user_id == user_id,
-            UserProgress.tool_topic_id.in_(topic_ids),
-            UserProgress.status == ProgressStatus.completed,
-        )
-        .count()
-    )
-    pct = round(100 * done / len(topic_ids), 1)
-
-    enrollment = db.query(ToolEnrollment).filter(
-        ToolEnrollment.user_id == user_id,
-        ToolEnrollment.tool_course_id == tool_course_id,
-    ).first()
-    if enrollment:
-        enrollment.progress_pct = pct
-        if pct >= 100 and not enrollment.completed_at:
-            enrollment.completed_at = datetime.utcnow()
-            if not db.query(ToolCourseCompletion).filter(
-                ToolCourseCompletion.user_id == user_id,
-                ToolCourseCompletion.tool_course_id == tool_course_id,
-            ).first():
-                db.add(ToolCourseCompletion(user_id=user_id, tool_course_id=tool_course_id))
-        db.commit()
+    """Keeps ToolEnrollment.progress_pct in sync (see exercise_progress)."""
+    recompute_tool_course_progress(db, user_id, tool_course_id)
 
 
 @router.post("/topics/{topic_id}/progress", response_model=ToolProgressResponse)
@@ -300,11 +274,14 @@ def update_tool_progress(
             require_content_access(db, current_user.id, db.query(Exercise).filter(Exercise.id == payload.exercise_id).one())
         else:
             require_course_access(db, current_user.id, course)
+    _require_accepted_answer(db, current_user.id, payload)
 
+    # Serialized with every other completion for this learner and topic.
+    lock_progress(db, current_user.id, tool_topic_id=topic_id)
     progress = db.query(UserProgress).filter(
         UserProgress.user_id == current_user.id,
         UserProgress.tool_topic_id == topic_id,
-    ).first()
+    ).order_by(UserProgress.id.asc()).first()
 
     if not progress:
         progress = UserProgress(

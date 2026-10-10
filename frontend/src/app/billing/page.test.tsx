@@ -97,7 +97,7 @@ describe('plans & offers: the starting order', () => {
     expect(plan(PRO).getByText('EGP / year')).toBeInTheDocument()
     expect(plan(PRO).getByText('Billed yearly: EGP 2,199 instead of EGP 3,588 — save EGP 1,389')).toBeInTheDocument()
     expect(plan(PRO).getByText('Full access to every published course: all modules, lessons, exercises, quizzes and projects')).toBeInTheDocument()
-    expect(plan(PRO).getByText('50 included AI credits per rolling 4 hours on the paid plan — your wallet credits are never used')).toBeInTheDocument()
+    expect(plan(PRO).getByText('50 included AI credits per rolling 4 hours on the paid plan — credits you buy are kept for when they run out')).toBeInTheDocument()
     expect(plan(PRO).getByText('Most popular')).toBeInTheDocument()
     expect(plan('Free').getByText('Free forever')).toBeInTheDocument()
   })
@@ -108,6 +108,13 @@ describe('plans & offers: the starting order', () => {
     expect(screen.getByRole('button', { name: /500.*EGP 100/ })).not.toHaveTextContent('free')
     // (the sidebar's wallet card shows the same number, so find it by the words beside it)
     expect((await screen.findByText('Your balance')).textContent).toContain('1,240')
+  })
+
+  it('says so, rather than showing an empty card, when there are no credit packs', async () => {
+    vi.mocked(api.getBillingCatalog).mockResolvedValue({ ...CATALOG, packs: [] })
+    await renderBilling()
+    expect(screen.getByText('Credit packs are not available right now. Please check back soon.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Top up credits' })).toBeInTheDocument()
   })
 })
 
@@ -163,6 +170,29 @@ describe('choosing what to buy', () => {
     await user.click(current)
     expect(plan(PRO).getByRole('button', { name: 'Selected' })).toBeInTheDocument()
     expect(payButton()).toHaveTextContent('Pay EGP 2,199')
+  })
+
+  it('does not turn Free or the current Pro plan into a checkout item for a Pro account', async () => {
+    const user = userEvent.setup()
+    vi.mocked(api.getBillingCatalog).mockResolvedValueOnce({ ...CATALOG, current_plan: 'pro' })
+    vi.mocked(api.getAiAllowance).mockResolvedValueOnce({
+      plan: 'pro', all_courses_access: true, ai_billing: 'allowance', trial: false,
+      ai_allowance: { limit: 50, window_seconds: 14400, used: 0, remaining: 50, next_credit_available_at: null },
+    })
+    await renderBilling()
+
+    const free = plan('Free').getByRole('button', { name: 'Included with Pro' })
+    const pro = plan(PRO).getByRole('button', { name: 'Your current plan' })
+    expect(free).toHaveAttribute('aria-disabled', 'true')
+    expect(pro).toHaveAttribute('aria-disabled', 'true')
+    expect(screen.getByRole('button', { name: /500.*EGP 100/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(payButton()).toHaveTextContent('Pay EGP 100')
+
+    await user.click(free)
+    await user.click(pro)
+    expect(payButton()).toHaveTextContent('Pay EGP 100')
+    expect(screen.queryByText('Free plan — Yearly')).toBeNull()
+    expect(screen.queryByText('Pro plan — Yearly')).toBeNull()
   })
 })
 
@@ -279,7 +309,7 @@ describe('when payments are not open (no provider)', () => {
 
   it('shows everything, says nothing can be bought yet, and cannot be paid', async () => {
     await renderBilling({ methods: false })
-    expect(screen.getByText(/Payments are not open yet/)).toBeInTheDocument()
+    expect(screen.getByText(/Online payments are temporarily unavailable/)).toBeInTheDocument()
     expect(payButton()).toBeDisabled()
     expect(screen.queryByText(/Test mode/)).toBeNull()
   })

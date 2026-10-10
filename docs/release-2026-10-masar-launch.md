@@ -143,6 +143,19 @@ mock-interview questions (replayed free by their request id, migration **037**) 
 exercise feedback keep the answer server-side; skill gap, roadmap and hints do not.
 `GET /api/v1/billing/ai-allowance` reports plan, allowance, `ai_billing` and `trial`.
 
+## Payments are OFF at launch (`PAYMENTS_ENABLED`)
+
+Kashier is not connected for this release. `PAYMENTS_ENABLED` defaults to false and must be
+true **and** all four `KASHIER_*` values set before any checkout opens. While closed,
+subscription, course, credit-pack and exam checkouts answer `503 PAYMENTS_UNAVAILABLE`
+before an order or wallet row is written (no pending or failed orders pile up), the billing
+pages say online payments are temporarily unavailable (EN/AR), and nothing can be bought.
+Webhooks stay verified-only: with no key configured nothing verifies, so nothing can settle.
+Wallet, Free/Pro entitlements, the 50-credit Pro allowance, AI spending and refunds, the credit
+pack catalogue and purchased-credit accounting (039) all work without a provider.
+Production env for this release: leave `PAYMENTS_ENABLED`, `KASHIER_*`, `PAYMOB_*` and
+`NEXT_PUBLIC_PAYMENTS_PROVIDER` empty/unset.
+
 ## Payments: Kashier (Paymob historical only)
 
 Every new checkout - Pro, course purchases, credit top-ups, exam fees - is a Kashier
@@ -205,13 +218,22 @@ solutions, grading data), English or Arabic, get a fixed refusal: free, no provi
 at sign-out; another account on the same browser never reads or sends them. Drafts saved
 before this release under the old key are no longer read (learners see the starter once).
 
-Deploy: `alembic upgrade head` (036 -> 037 -> 038; 037 creates `mentor_requests` only, no
+Deploy: `alembic upgrade head` (036 -> 037 -> 038 -> 039 -> 040; 037 creates `mentor_requests` only, no
 data is touched; 038 re-adds `pro_ai_usage.release_reason` only where an early 036 draft left
-it out, a no-op on production). Check: `SELECT version_num FROM alembic_version;` is
-`038_pro_ai_release_reason`, and
+it out, a no-op on production; 039 and 040 are described below). Check:
+`SELECT version_num FROM alembic_version;` is `040_exercise_example_answers`, and
 `\d mentor_requests` shows `uq_mentor_requests_user_action_request` and
 `ck_mentor_requests_status`. Rollback: `alembic downgrade 036_pro_ai_usage` drops only
 that table; deploy the previous image with it.
+
+## Migrations 039 and 040
+
+* **039_additional_credit_packs** - see `docs/credit-packs.md`. Additive; no balance is rewritten;
+  `user_wallets.purchased_credits` is backfilled as `LEAST(credit_balance, lifetime_purchased)`.
+* **040_exercise_example_answers** - `exercises.example_answer` / `example_answer_ar`, both
+  nullable. The API shows an example only after the learner's first evaluated answer.
+
+Downgrade order is 040, 039, 038, 037, 036 (`alembic downgrade 036_pro_ai_usage`).
 
 ## Limits and policies introduced with this release
 

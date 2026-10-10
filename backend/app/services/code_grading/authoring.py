@@ -237,8 +237,10 @@ def _blank_candidates(starter_code: str, solution_code: str) -> list[_BlankCandi
 
 def count_python_blanks(source: str) -> int:
     """Count editable ``___`` expression slots without counting comments/strings."""
+    from app.services.code_execution.python_runner import parse_learner_python
+
     try:
-        tree = ast.parse(source or "", mode="exec")
+        tree = parse_learner_python(source or "")
     except SyntaxError:
         return 0
     return sum(isinstance(node, ast.Name) and node.id == "___" for node in ast.walk(tree))

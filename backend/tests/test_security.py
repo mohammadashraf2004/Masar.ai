@@ -696,11 +696,18 @@ def test_progress_rejects_nonexistent_lesson_id(client, seeded_topic):
     assert resp.status_code == 400
 
 
-def test_progress_accepts_an_exercise_from_this_topic(client, seeded_topic):
+def test_progress_accepts_an_exercise_from_this_topic(client, db, seeded_topic):
     """The guard must not reject the legitimate case — this is what stops
     the two rejection tests below from passing against a broken endpoint
     that refuses everything."""
-    _, token, _ = _register(client)
+    from tests.learning_fixtures import accept_written_answers
+
+    _, token, user_id = _register(client)
+    unanswered = client.post(f"/api/v1/tracks/topics/{seeded_topic['topic_id']}/progress",
+                             headers=_auth(token), json={"exercise_id": seeded_topic["exercise_id"]})
+    # A written exercise only counts once the evaluator accepted an answer.
+    assert unanswered.status_code == 409 and unanswered.json()["detail"]["code"] == "ANSWER_NOT_ACCEPTED_YET"
+    accept_written_answers(db, user_id, [seeded_topic["exercise_id"]])
     resp = client.post(f"/api/v1/tracks/topics/{seeded_topic['topic_id']}/progress",
                        headers=_auth(token),
                        json={"exercise_id": seeded_topic["exercise_id"]})

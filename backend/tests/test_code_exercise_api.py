@@ -335,6 +335,120 @@ def test_sql_run_and_submit_are_isolated_deterministic_and_track_progress(client
     assert sql_exercise.id in progress.exercises_completed
 
 
+def _submitter(client, headers, exercise_id):
+    def submit(code, language="en"):
+        response = client.post(
+            f"/api/v1/practice/exercises/{exercise_id}/submit",
+            headers=headers, json={"code": code, "language": language},
+        )
+        assert response.status_code == 200, response.text
+        return response.json()
+    return submit
+
+
+def test_sql_blanks_left_empty_are_unfinished_not_wrong_attempts(client, db, sql_exercise):
+    _, headers = _register(client)
+    base = f"/api/v1/practice/exercises/{sql_exercise.id}"
+    submit = _submitter(client, headers, sql_exercise.id)
+    starter = sql_exercise.starter_code
+    partial = starter.replace("___", "customer_id", 1)
+    emptied = partial.replace("/* blank:2 */ ___ /* endblank */", "/* blank:2 */ /* endblank */")
+
+    for code in (starter, partial, emptied, partial.replace("___", "COUNT(___)", 1)):
+        body = submit(code)
+        assert body["passed"] is False
+        assert (body["feedback"]["code"], body["failed_test"]) == ("BLANKS_REMAINING", "blanks_remaining")
+        assert body["stderr"] == "" and "SQL error" not in body["feedback"]["message"]
+        assert body["attempt"]["failed_checks"] == 0
+        assert body["attempt"]["checks_until_solution"] == 3
+
+    arabic = submit(partial, "ar")
+    assert arabic["feedback"]["message"].startswith("ما زال هناك فراغ واحد (`___`) لم يُملأ.")
+
+    # Run explains the blanks instead of passing "___" to SQLite (near "___": syntax error).
+    for language, expected in (
+        ("en", "One blank (`___`) is still empty. The first one is on line 1."),
+        ("ar", "ما زال هناك فراغ واحد (`___`) لم يُملأ. أولها في السطر 1."),
+    ):
+        run = client.post(f"{base}/run", headers=headers, json={"code": partial, "language": language})
+        assert run.status_code == 200, run.text
+        assert run.json()["status"] == "incomplete"
+        assert run.json()["stdout"] == ""
+        assert run.json()["stderr"].startswith(expected)
+        assert "near" not in run.json()["stderr"]
+
+    locked = client.post(f"{base}/solution", headers=headers)
+    assert locked.status_code == 403
+    assert locked.json()["detail"] == {"code": "SOLUTION_LOCKED", "checks_until_solution": 3}
+
+    passed = submit(sql_exercise.solution_code)
+    assert passed["passed"] is True
+    assert passed["attempt"]["completed_independently"] is True
+    assert passed["attempt"]["failed_checks"] == 0
+
+
+def test_sql_distinct_wrong_queries_unlock_the_solution(client, db, sql_exercise):
+    user_id, headers = _register(client)
+    base = f"/api/v1/practice/exercises/{sql_exercise.id}"
+    submit = _submitter(client, headers, sql_exercise.id)
+    one_field = sql_exercise.starter_code.replace("___", "customer_id", 1)
+
+    first = submit(one_field.replace("___", "SUM(customer_id)", 1))
+    assert (first["passed"], first["failed_test"]) == (False, "blank_2")
+    assert first["attempt"]["failed_checks"] == 1
+    # The same query again, or an unfinished one, is not a new attempt.
+    assert submit(one_field.replace("___", "SUM(customer_id)", 1) + "\n")["attempt"]["failed_checks"] == 1
+    assert submit(one_field)["attempt"]["failed_checks"] == 1
+    assert submit(one_field.replace("___", "MAX(customer_id)", 1))["attempt"]["checks_until_solution"] == 1
+    locked = client.post(f"{base}/solution", headers=headers)
+    assert locked.json()["detail"] == {"code": "SOLUTION_LOCKED", "checks_until_solution": 1}
+
+    third = submit(one_field.replace("___", "COUNT(*) + 1", 1))
+    assert third["attempt"]["failed_checks"] == 3
+    assert third["attempt"]["solution_available"] is True
+
+    shown = client.post(f"{base}/solution", headers=headers)
+    assert shown.status_code == 200
+    assert shown.json()["solution_code"] == sql_exercise.solution_code
+
+    passed = submit(sql_exercise.solution_code)
+    assert passed["passed"] is True
+    assert passed["attempt"]["completed_independently"] is False
+    db.expire_all()
+    progress = db.query(UserProgress).filter(UserProgress.user_id == user_id).one()
+    assert sql_exercise.id in progress.exercises_completed
+
+
+def test_text_blanks_left_empty_are_unfinished_not_wrong_attempts(client, db, code_exercise):
+    code_exercise.language = "dockerfile"
+    code_exercise.starter_code = "FROM ___\nWORKDIR ___\n"
+    code_exercise.solution_code = "FROM python:3.12-slim\nWORKDIR /app\n"
+    code_exercise.pre_exercise_code = None
+    code_exercise.grading_tests = [
+        {"id": "blank_1", "type": "regex_all", "patterns": [r"^FROM\s+python:3\.12-slim$"],
+         "feedback": {"en": "Blank 1: choose the base image.", "ar": "الفراغ 1: اختر الصورة الأساسية."}},
+        {"id": "blank_2", "type": "regex_all", "patterns": [r"^WORKDIR\s+/app$"],
+         "feedback": {"en": "Blank 2: set the working directory.", "ar": "الفراغ 2: حدّد مجلد العمل."}},
+    ]
+    db.commit()
+    _, headers = _register(client)
+    base = f"/api/v1/practice/exercises/{code_exercise.id}"
+    submit = _submitter(client, headers, code_exercise.id)
+    partial = "FROM python:3.12-slim\nWORKDIR ___\n"
+
+    for code in (code_exercise.starter_code, partial):
+        body = submit(code)
+        assert (body["feedback"]["code"], body["failed_test"]) == ("BLANKS_REMAINING", "blanks_remaining")
+        assert body["attempt"]["failed_checks"] == 0
+    run = client.post(f"{base}/run", headers=headers, json={"code": partial, "language": "ar"})
+    assert run.json()["status"] == "incomplete"
+    assert "أولها في السطر 2" in run.json()["stderr"]
+
+    wrong = submit("FROM python:3.11\nWORKDIR /app\n")
+    assert (wrong["failed_test"], wrong["attempt"]["failed_checks"]) == ("blank_1", 1)
+    assert submit(code_exercise.solution_code)["passed"] is True
+
+
 # ─── Sandbox: learner Python never runs outside the execution service ──────
 
 @pytest.fixture()
@@ -385,10 +499,15 @@ def test_disabled_execution_message_follows_the_interface_language(client, code_
 
     check = client.post(f"{base}/submit", headers=headers, json={"code": code, "language": "ar"}).json()
     assert check["status"] == "execution_error" and check["stderr"] == arabic
-    assert check["feedback"]["message"] == arabic
-    assert check["feedback"]["messages"] == {"en": english, "ar": arabic}
+    # The feedback adds that the answer was not graded: an outage is never a wrong answer.
+    not_counted = {"en": "Your answer was not graded and this attempt does not count.",
+                   "ar": "لم تُقيَّم إجابتك ولن تُحتسب هذه المحاولة."}
+    assert check["feedback"]["message"] == f"{arabic} {not_counted['ar']}"
+    assert check["feedback"]["messages"] == {
+        "en": f"{english} {not_counted['en']}", "ar": f"{arabic} {not_counted['ar']}",
+    }
     check = client.post(f"{base}/submit", headers=headers, json={"code": code}).json()
-    assert check["stderr"] == english and check["feedback"]["message"] == english
+    assert check["stderr"] == english and check["feedback"]["message"] == f"{english} {not_counted['en']}"
 
 
 def test_production_never_selects_the_in_process_backend(monkeypatch):

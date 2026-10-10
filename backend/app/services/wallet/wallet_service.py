@@ -4,10 +4,13 @@ backend/app/services/wallet/wallet_service.py
 Central service for all credit operations.
 Import deduct_credits() in any controller that calls an LLM.
 """
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
+
+from app.core.config import settings
 
 from app.core.authz import email_verification_error
 from app.core.metrics import record_credit_denial, record_credits_spent
@@ -137,7 +140,12 @@ def expire_promo_credits_if_due(wallet: UserWallet, db: Session, commit: bool = 
         return 0
 
     balance = wallet.credit_balance or 0
-    removed = min(wallet.promo_credits_remaining, max(0, balance - FREE_PLAN_CREDITS))
+    # Never reaches into purchased credits: only the rest of the balance can lapse.
+    removed = min(
+        wallet.promo_credits_remaining,
+        max(0, balance - FREE_PLAN_CREDITS),
+        max(0, balance - (wallet.purchased_credits or 0)),
+    )
     wallet.credit_balance = balance - removed
     wallet.promo_credits_remaining = 0
     wallet.promo_expires_at = None
@@ -224,9 +232,10 @@ def deduct_credits(
     # costs us nothing.
     _require_verified_email(user_id, db)
 
-    # A Pro subscriber's AI actions are paid from the plan's included allowance,
-    # never from the wallet - not even when the allowance is used up (purchased
-    # and promo credits are left alone; the request is refused instead).
+    # A Pro subscriber's AI actions are paid from the plan's included allowance
+    # first. Past it, the wallet's PURCHASED credits (and only those - signup and
+    # promo credits stay out of reach) pay for the action, within their own daily
+    # safety limit; with none to spend the request is refused instead.
     if action_type in pro_ai.PRO_AI_ACTIONS:
         subscription = pro_ai.eligible_subscription(db, user_id)
         if subscription is not None:
@@ -249,6 +258,13 @@ def deduct_credits(
     # before the check and decrement below. See that function's docstring.
     expire_promo_credits_if_due(wallet, db, commit=False)
 
+    # A retried request (same Idempotency-Key) that was already charged and not
+    # refunded is not charged again.
+    request_key = pro_ai.current_request_key(action_type)
+    if request_key and _already_charged(db, wallet.id, request_key):
+        db.rollback()
+        raise _duplicate_request(action_type)
+
     if wallet.credit_balance < cost:
         # Worth a metric of its own: a rising denial rate is the difference
         # between "nobody is using the AI features" and "everybody is, and
@@ -265,13 +281,58 @@ def deduct_credits(
             }
         )
 
+    return _debit_wallet(wallet, cost, action_type, db, description=description, request_key=request_key)
+
+
+def _duplicate_request(action_type: str) -> HTTPException:
+    return HTTPException(
+        status_code=409,
+        detail={"error": "duplicate_request", "action": action_type,
+                "message": "This request was already received; it is not run or charged twice."},
+    )
+
+
+def _already_charged(db: Session, wallet_id: int, request_key: str) -> bool:
+    """Whether a deduction under this request key is still standing (not refunded).
+    Called with the wallet row locked, so two retries cannot both pass."""
+    ids = [row.id for row in db.query(WalletTransaction.id).filter(
+        WalletTransaction.wallet_id == wallet_id,
+        WalletTransaction.transaction_type == TransactionType.deduction,
+        WalletTransaction.request_key == request_key,
+    ).all()]
+    if not ids:
+        return False
+    refunded = {row.related_tx_id for row in db.query(WalletTransaction.related_tx_id).filter(
+        WalletTransaction.wallet_id == wallet_id,
+        WalletTransaction.transaction_type == TransactionType.refund,
+        WalletTransaction.related_tx_id.in_(ids),
+    ).all()}
+    return any(i not in refunded for i in ids)
+
+
+def _debit_wallet(
+    wallet: UserWallet, cost: int, action_type: str, db: Session, *,
+    description: str = None, purchased_only: bool = False, request_key: str = None,
+) -> dict:
+    """Take `cost` from a wallet row the caller has locked and already checked, and
+    write the ledger row. Commits.
+
+    Where the credits come from: the part of the balance that was not bought
+    (signup and promo credits, promo first) is spent first, purchased credits last,
+    so expiry can never take away credits the user actually paid for.
+    `purchased_only` is for a Pro subscriber past the included allowance, who may
+    spend purchased credits and nothing else."""
     record_credits_spent(action_type, cost)
+    purchased = min(wallet.purchased_credits or 0, wallet.credit_balance or 0)
+    included_part = 0 if purchased_only else max(0, (wallet.credit_balance or 0) - purchased)
+    from_purchased = cost if purchased_only else max(0, cost - included_part)
+
     wallet.credit_balance  -= cost
     wallet.lifetime_spent  += cost
-    # Spend promo credits before purchased ones, so expiry can never take
-    # away credits the user actually paid for.
-    if wallet.promo_credits_remaining > 0:
-        wallet.promo_credits_remaining = max(0, wallet.promo_credits_remaining - cost)
+    wallet.purchased_credits = purchased - from_purchased
+    from_included = cost - from_purchased
+    if from_included and wallet.promo_credits_remaining > 0:
+        wallet.promo_credits_remaining = max(0, wallet.promo_credits_remaining - from_included)
 
     tx = WalletTransaction(
         wallet_id        = wallet.id,
@@ -281,11 +342,25 @@ def deduct_credits(
         description      = description or f"Used {action_type.replace('_', ' ').title()}",
         action_type      = action_type,
         balance_after    = wallet.credit_balance,
+        purchased_delta  = -from_purchased,
+        request_key      = request_key,
     )
     db.add(tx)
     db.commit()
 
-    return {"credits_used": cost, "balance_after": wallet.credit_balance}
+    return {"credits_used": cost, "balance_after": wallet.credit_balance,
+            "purchased_credits_used": from_purchased}
+
+
+def purchased_spent_since(db: Session, wallet_id: int, since: datetime) -> int:
+    """Net purchased credits spent since `since`: what deductions took from the
+    purchased bucket, less what refunds put back."""
+    spent = db.query(func.coalesce(func.sum(WalletTransaction.purchased_delta), 0)).filter(
+        WalletTransaction.wallet_id == wallet_id,
+        WalletTransaction.transaction_type.in_((TransactionType.deduction, TransactionType.refund)),
+        WalletTransaction.created_at >= since,
+    ).scalar()
+    return -int(spent or 0)
 
 
 PRO_LIMIT_MESSAGE = (
@@ -294,14 +369,62 @@ PRO_LIMIT_MESSAGE = (
 )
 
 
+def _charge_purchased_after_allowance(user_id: int, action_type: str, cost: int, db: Session):
+    """A Pro subscriber past the included allowance: pay from PURCHASED credits when
+    there are enough and the rolling-24-hour purchased-credit limit allows it.
+    Returns the charge result, or None when there is nothing to spend (the caller
+    then refuses with the allowance's own 429). Signup and promo credits are never
+    used here, and the unverified-email check has already passed."""
+    get_or_create_wallet(user_id, db)
+    wallet = db.query(UserWallet).filter(UserWallet.user_id == user_id).with_for_update().one()
+    expire_promo_credits_if_due(wallet, db, commit=False)
+
+    request_key = pro_ai.current_request_key(action_type)
+    if request_key and _already_charged(db, wallet.id, request_key):
+        db.rollback()
+        raise _duplicate_request(action_type)
+
+    purchased = min(wallet.purchased_credits or 0, wallet.credit_balance or 0)
+    if purchased < cost:
+        db.rollback()
+        return None
+
+    limit = settings.PURCHASED_CREDITS_DAILY_LIMIT
+    since = datetime.now(timezone.utc) - timedelta(hours=24)
+    if purchased_spent_since(db, wallet.id, since) + cost > limit:
+        db.rollback()
+        record_credit_denial(action_type)
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error": "purchased_credits_daily_limit",
+                "message": f"For safety, purchased credits can be used up to {limit} per 24 hours "
+                           "once your included AI credits are used up. Please try again later.",
+                "action": action_type,
+                "credits_needed": cost,
+                "daily_limit": limit,
+            },
+            headers={"Retry-After": "3600"},
+        )
+    result = _debit_wallet(
+        wallet, cost, action_type, db, purchased_only=True, request_key=request_key,
+        description=f"Used {action_type.replace('_', ' ').title()} (purchased credits)",
+    )
+    return {**result, "source": "purchased_credits"}
+
+
 def _charge_pro_allowance(user_id: int, action_type: str, cost: int, subscription, db: Session) -> dict:
-    """Reserve `cost` from the Pro allowance (see pro_ai_allowance) or refuse with
-    429 - never falling back to the wallet."""
+    """Reserve `cost` from the Pro allowance (see pro_ai_allowance); past it, pay from
+    purchased credits if there are any; otherwise refuse with 429. Signup and promo
+    credits are never used for a Pro subscriber's AI actions."""
     try:
         usage = pro_ai.reserve(
             db, user_id, subscription, action_type, cost, request_key=pro_ai.current_request_key(action_type),
         )
     except pro_ai.AllowanceExceeded as exc:
+        paid = _charge_purchased_after_allowance(user_id, action_type, cost, db)
+        if paid is not None:
+            return paid
         record_credit_denial(action_type)
         status = exc.status
         retry_at = exc.available_at
@@ -326,11 +449,7 @@ def _charge_pro_allowance(user_id: int, action_type: str, cost: int, subscriptio
             headers=headers or None,
         )
     except pro_ai.DuplicateRequest:
-        raise HTTPException(
-            status_code=409,
-            detail={"error": "duplicate_request", "action": action_type,
-                    "message": "This request was already received; it is not run or charged twice."},
-        )
+        raise _duplicate_request(action_type)
     pro_ai.remember(pro_ai.RequestCharge(user_id, action_type, cost, usage.id))
     remaining = pro_ai.allowance_status(db, user_id).remaining
     wallet = get_or_create_wallet(user_id, db)
@@ -390,7 +509,32 @@ def refund_credits(
         .one()
     )
 
+    # The deduction this refund answers: the latest one for this action and price that
+    # has not been refunded yet. It says how much of the charge came out of purchased
+    # credits, which go back to the purchased bucket (they never expire); the rest
+    # lands in the ordinary balance, as before. With no such deduction (a refund
+    # issued outside the request that charged) everything lands in the ordinary balance.
+    refunded_ids = db.query(WalletTransaction.related_tx_id).filter(
+        WalletTransaction.wallet_id == wallet.id,
+        WalletTransaction.transaction_type == TransactionType.refund,
+        WalletTransaction.related_tx_id.isnot(None),
+    )
+    original = (
+        db.query(WalletTransaction)
+        .filter(
+            WalletTransaction.wallet_id == wallet.id,
+            WalletTransaction.transaction_type == TransactionType.deduction,
+            WalletTransaction.action_type == action_type,
+            WalletTransaction.credits == -cost,
+            ~WalletTransaction.id.in_(refunded_ids),
+        )
+        .order_by(WalletTransaction.id.desc())
+        .first()
+    )
+    back_to_purchased = min(cost, -(original.purchased_delta or 0)) if original is not None else 0
+
     wallet.credit_balance += cost
+    wallet.purchased_credits = (wallet.purchased_credits or 0) + back_to_purchased
     # The spend is being undone, so it should stop counting as spent. Floored
     # at zero: a refund must never drive lifetime_spent negative, whatever
     # state the row was already in.
@@ -404,6 +548,8 @@ def refund_credits(
         description      = reason,
         action_type      = action_type,   # same label as the deduction it reverses
         balance_after    = wallet.credit_balance,
+        purchased_delta  = back_to_purchased,
+        related_tx_id    = original.id if original is not None else None,
     )
     db.add(tx)
     db.commit()
@@ -445,8 +591,12 @@ def confirm_pending_topup(tx: WalletTransaction, db: Session, *, commit: bool = 
     wallet = db.query(UserWallet).filter(UserWallet.id == tx.wallet_id).with_for_update().one()
     wallet.credit_balance     += tx.credits
     wallet.lifetime_purchased += tx.credits
+    # Bought credits sit in their own bucket: they never expire and plan changes leave them alone.
+    wallet.purchased_credits   = (wallet.purchased_credits or 0) + tx.credits
     tx.status = TransactionStatus.confirmed
     tx.balance_after = wallet.credit_balance
+    tx.purchased_delta = tx.credits
+    tx.settled_at = datetime.now(timezone.utc)
 
     if commit:
         db.commit()
@@ -475,6 +625,7 @@ def add_credits(
         # purchase-only lets migrations identify paying users accurately.
         if transaction_type == "topup":
             wallet.lifetime_purchased += credits
+            wallet.purchased_credits = (wallet.purchased_credits or 0) + credits
 
     tx = WalletTransaction(
         wallet_id        = wallet.id,
@@ -486,6 +637,8 @@ def add_credits(
         payment_ref      = payment_ref,
         description      = description,
         balance_after    = wallet.credit_balance,
+        purchased_delta  = credits if (status == "confirmed" and transaction_type == "topup") else 0,
+        settled_at       = datetime.now(timezone.utc) if (status == "confirmed" and transaction_type == "topup") else None,
     )
     db.add(tx)
     db.commit()

@@ -17,6 +17,7 @@ Register in main.py:
     app.include_router(payments_router, prefix="/api/v1/payments", tags=["Payments"])
 """
 import uuid
+from urllib.parse import quote
 from typing import Literal
 
 import httpx
@@ -35,9 +36,10 @@ from app.models.challenge import ExamPayment
 from app.models.billing import BillingOrder, SubscriptionOrder
 from app.models.exam import Exam
 from app.core.security import get_current_user
+from app.services.wallet import credit_purchases
 from app.services.wallet.wallet_service import get_or_create_wallet
 from app.services.payments import kashier_service, paymob_service
-from app.services.payments.checkout import language_of, start_checkout
+from app.services.payments.checkout import language_of, payments_gate, start_checkout
 from app.services.payments.settlement import settle_notice
 
 from app.controllers.exam_payment_controller import EXAM_PRICE_EGP
@@ -67,7 +69,7 @@ def _new_merchant_order_id(prefix: str) -> str:
 
 # ─── Wallet top-up ──────────────────────────────────────────────────────────
 
-@router.post("/wallet/topup/init")
+@router.post("/wallet/topup/init", dependencies=[Depends(payments_gate)])
 @limiter.limit("10/minute")
 def init_wallet_topup(
     request: Request,
@@ -83,9 +85,18 @@ def init_wallet_topup(
         raise HTTPException(status_code=404, detail="Package not found")
 
     merchant_order_id = _new_merchant_order_id("wallet")
-    total_credits = package.credits + package.bonus_credits
+    total_credits = package.credits + (package.bonus_credits or 0)
 
     wallet = get_or_create_wallet(current_user.id, db)
+    # An abandoned checkout must not block a new one forever, and a learner cannot
+    # stack up an unbounded number of unpaid orders.
+    credit_purchases.release_stale_orders(db, wallet.id)
+    db.commit()
+    if credit_purchases.open_order_count(db, wallet.id) >= credit_purchases.MAX_OPEN_ORDERS:
+        raise HTTPException(
+            status_code=429,
+            detail="You already have unpaid credit orders open. Finish or wait for them to expire before starting another.",
+        )
     tx = WalletTransaction(
         wallet_id=wallet.id,
         transaction_type=TransactionType.topup,
@@ -96,6 +107,7 @@ def init_wallet_topup(
         payment_ref=merchant_order_id,
         description=f"{package.name} package — Kashier",
         balance_after=wallet.credit_balance,
+        package_id=package.id,
     )
     db.add(tx)
     db.commit()
@@ -112,12 +124,13 @@ def init_wallet_topup(
         raise
     tx.provider_order_id = result["provider_order_id"]
     db.commit()
-    return {"checkout_url": result["checkout_url"], "merchant_order_id": merchant_order_id}
+    return {"checkout_url": result["checkout_url"], "merchant_order_id": merchant_order_id,
+            "reference": merchant_order_id}
 
 
 # ─── Exam fee ────────────────────────────────────────────────────────────────
 
-@router.post("/exam/init")
+@router.post("/exam/init", dependencies=[Depends(payments_gate)])
 @limiter.limit("10/minute")
 def init_exam_payment(
     request: Request,
@@ -180,7 +193,11 @@ def get_payment_status(
         UserWallet.user_id == current_user.id,
     ).first()
     if tx:
-        return {"kind": "wallet_topup", "status": tx.status.value}
+        # `status` is the settlement state ("pending" | "confirmed" | "failed"); `order` is the
+        # learner-facing state of a credit purchase (paid, refunded, expired...).
+        order = credit_purchases.order_by_reference(db, tx.wallet_id, merchant_order_id) \
+            if tx.transaction_type == TransactionType.topup else None
+        return {"kind": "wallet_topup", "status": tx.status.value, "order": order}
 
     payment = db.query(ExamPayment).filter(
         ExamPayment.payment_ref == merchant_order_id,
@@ -295,6 +312,8 @@ def _frontend_return(db: Session, merchant_order_id: str) -> RedirectResponse:
     course_order = db.query(BillingOrder).filter(BillingOrder.merchant_order_id == merchant_order_id).first()
     if course_order:
         return RedirectResponse(url=f"{settings.FRONTEND_URL}/billing/course-success?order_id={course_order.id}")
+    if merchant_order_id.startswith("wallet-"):
+        return RedirectResponse(url=f"{settings.FRONTEND_URL}/billing/credits?reference={quote(merchant_order_id, safe='')}")
     subscription_order = db.query(SubscriptionOrder).filter(
         SubscriptionOrder.merchant_order_id == merchant_order_id,
     ).first()

@@ -96,14 +96,15 @@ def test_every_code_exercise_has_a_complete_code_cell(courses, by_id):
         assert exercise.starter_code != exercise.solution_code, exercise_id
 
 
-def test_sql_starters_show_only_bare_blanks_and_are_still_graded_blank_by_blank(by_id):
+def test_sql_starters_show_only_bare_blanks_and_an_untouched_one_is_unfinished_not_wrong(by_id):
     sql = {eid: e for eid, e in by_id.items() if e.exercise_type == "code" and e.language == "sql"}
     assert sql
     for exercise_id, exercise in sql.items():
         for code in (exercise.starter_code, exercise.solution_code):
             assert "blank:" not in code and "endblank" not in code, exercise_id
+        # Nothing filled in yet is unfinished: never run, never a wrong attempt.
         untouched = asyncio.run(SQL.grade(exercise.starter_code, exercise.tests))
-        assert (untouched.feedback_code, untouched.failed_test_id) == ("BLANK_INCORRECT", "blank_1"), exercise_id
+        assert (untouched.feedback_code, untouched.failed_test_id) == ("BLANKS_REMAINING", "blanks_remaining"), exercise_id
         assert asyncio.run(SQL.grade(exercise.solution_code, exercise.tests)).passed, exercise_id
 
 
@@ -252,15 +253,21 @@ def test_grading_distinguishes_blanks_syntax_runtime_and_wrong_answers():
 
     runtime = _grade(fields, "scores = [3, 4, 5]\ntotal = sum(scores) / 0\n")
     assert runtime.status == "runtime_error"
-    assert "ZeroDivisionError" in runtime.feedback["en"] and "توقف بسبب خطأ" in runtime.feedback["ar"]
+    # The crash happened before `total` existed, so the crash is the feedback.
+    assert "ZeroDivisionError" in runtime.feedback["en"] and "line 2" in runtime.feedback["en"]
+    assert "توقف بسبب ZeroDivisionError" in runtime.feedback["ar"] and "السطر 2" in runtime.feedback["ar"]
 
     wrong = _grade(fields, "scores = [3, 4, 5]\ntotal = max(scores)\n")
     assert (wrong.status, wrong.passed) == ("incorrect", False)
     assert wrong.feedback == {"en": "The total should be 12.", "ar": "يجب أن يكون المجموع 12."}
 
-    # Behaviour is graded, not text: any correct expression passes.
-    for answer in ("sum(scores)", "3 + 4 + 5", "scores[0] + scores[1] + scores[2]"):
+    # Behaviour is graded, not text: any correct expression passes...
+    for answer in ("sum(scores)", "scores[0] + scores[1] + scores[2]", "sum(score for score in scores)"):
         assert _grade(fields, f"scores = [3, 4, 5]\ntotal = {answer}\n").passed, answer
+    # ...but typing the data or the result in is not computing it.
+    for typed in ("12", "3 + 4 + 5"):
+        hardcoded = _grade(fields, f"scores = [3, 4, 5]\ntotal = {typed}\n")
+        assert (hardcoded.passed, hardcoded.feedback_code) == (False, "BLANK_HARDCODED"), typed
 
 
 def test_run_on_a_static_exercise_checks_syntax_and_explains_why_it_does_not_execute():

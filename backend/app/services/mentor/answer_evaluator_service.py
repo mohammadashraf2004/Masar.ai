@@ -311,15 +311,14 @@ def evaluate_answer(
         skill_tags: List[str],
     }
     """
-    # The context block is sent only on the first message, to avoid repeating
-    # a large block every turn — the model already has it in its own context
-    # window from the conversation history. The student's answer is built
-    # INTO it rather than appended after, so it lands between the
-    # requirements and the reference; see _build_context_block.
-    if not conversation_history:
-        messages = [{"role": "user", "content": _build_context_block(context, user_message)}]
-    else:
-        messages = conversation_history + [{"role": "user", "content": user_message}]
+    # Every turn's answer is sent inside the context block. The student's
+    # answer is built INTO it rather than appended after, so it lands between
+    # the requirements and the reference; see _build_context_block. Sending
+    # the block on the first turn only did not work: the stored history keeps
+    # the learner's plain text, not the block, so every retry was graded with
+    # no exercise, requirements or reference at all.
+    current = {"role": "user", "content": _build_context_block(context, user_message)}
+    messages = list(conversation_history or []) + [current]
 
     raw = llm.chat(
         system=SYSTEM_PROMPT + build_policy(language, terminology_mode),

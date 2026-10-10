@@ -67,7 +67,10 @@ describe('CodeCell', () => {
     expect(onSubmit).not.toHaveBeenCalled()
 
     await userEvent.click(screen.getByRole('button', { name: 'Run Code' }))
-    expect(await screen.findByText('SyntaxError: invalid syntax')).toHaveClass('text-rose-300')
+    const syntax = await screen.findByText('SyntaxError: invalid syntax')
+    expect(syntax).toHaveClass('text-rose-300')
+    // Direction comes from each line's text (verified in a real browser; jsdom has no layout).
+    expect(syntax).toHaveClass('[unicode-bidi:plaintext]', 'text-start')
 
     await userEvent.click(screen.getByRole('button', { name: 'Run Code' }))
     expect(await screen.findByText('RuntimeError: boom')).toHaveClass('text-rose-300')

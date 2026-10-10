@@ -26,3 +26,5 @@ At 299 EGP/month, the typical estimate is 3.0% of revenue (4.8% upper bound); th
 ## Pro allowance decision
 
 Masar had no existing Pro credit grant, so this change does not invent one. Pro unlocks course content while AI operations continue to consume the existing wallet balance. If product policy later requires bundled recurring credits, **1,000 credits per paid month** is the calculated starting ceiling: about 18.20 EGP expected and 28.86 EGP at the upper bound (6.1%-9.7% of monthly revenue). Ship that only after production token metrics confirm the blend and after defining monthly replenishment for annual subscribers; never grant 12 months upfront.
+
+> Update 2026-10-10: purchased credit packs are now sold (see docs/credit-packs.md). Pro still draws on the 50-per-4-hours allowance first; past it, only credits the user bought (never signup/promo credits) can pay for AI actions.

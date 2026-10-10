@@ -19,7 +19,11 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
     css: false,
+    // Every test starts with fresh mocks: spies restored, and vi.fn() call history and
+    // implementations cleared. Vitest 4 made restoreMocks restore spies only, so the
+    // reset is spelled out; tests rely on it (call counts do not carry over).
     restoreMocks: true,
+    mockReset: true,
     // Three test files at a time. Under load (Docker, a busy laptop) the default fan-out starves
     // the slower component tests past Vitest's 5 s limit, which shows up as random timeouts.
     maxWorkers: 3,

@@ -20,7 +20,7 @@ from app.models.billing import (
 )
 from app.models.learning_path import Course
 from app.models.user import User
-from app.models.wallet import CreditPackage
+from app.services.wallet import credit_purchases
 from app.services.billing.access_service import active_enrollment
 from app.services.billing import pro_ai_allowance as pro_ai
 from app.services.billing.course_billing import current_offer
@@ -28,7 +28,9 @@ from app.services.billing.refunds import (
     RefundError, refund_eligibility, request_refund, transition_refund,
 )
 from app.services.learning.catalog_service import load_catalog_bundle
-from app.services.payments.checkout import PROVIDER as CHECKOUT_PROVIDER, language_of, start_checkout
+from app.services.payments.checkout import (
+    PROVIDER as CHECKOUT_PROVIDER, language_of, payments_gate, start_checkout,
+)
 from app.services.billing.subscriptions import (
     cancel_at_period_end, current_plan_code, current_subscription, plan_amount,
     release_stale_checkouts, start_free_trial, subscription_is_entitled,
@@ -142,7 +144,7 @@ def billing_catalog(
 ):
     """The only public price list. Amounts returned here are major EGP units."""
     plans = db.query(BillingPlan).filter(BillingPlan.is_active.is_(True)).order_by(BillingPlan.id).all()
-    packages = db.query(CreditPackage).filter(CreditPackage.is_active.is_(True)).order_by(CreditPackage.id).all()
+    packages = credit_purchases.active_packs(db)
     trial_eligible = bool(user) and not db.query(UserSubscription.id).filter(
         UserSubscription.user_id == user.id,
     ).first()
@@ -164,7 +166,10 @@ def billing_catalog(
             for p in plans
         ],
         "packs": [
-            {"id": str(p.id), "credits": p.credits, "bonus": p.bonus_credits or 0, "price": p.egp_price}
+            {
+                "id": str(p.id), "code": p.code, "name": p.name, "credits": p.credits,
+                "bonus": p.bonus_credits or 0, "price": p.egp_price, "popular": bool(p.is_popular),
+            }
             for p in packages
         ],
         "offer": None,
@@ -207,7 +212,7 @@ def subscription_trial(
     return _subscription_out(subscription)
 
 
-@router.post("/billing/subscriptions/checkout")
+@router.post("/billing/subscriptions/checkout", dependencies=[Depends(payments_gate)])
 @limiter.limit("10/minute")
 def subscription_checkout(
     request: Request,
@@ -446,7 +451,7 @@ class CheckoutIn(BaseModel):
     phone_number: Optional[str] = Field(None, min_length=6, max_length=20, pattern=r"^\+?[0-9]{6,19}$")
 
 
-@router.post("/billing/checkout")
+@router.post("/billing/checkout", dependencies=[Depends(payments_gate)])
 @limiter.limit("10/minute")
 def checkout(
     request: Request,

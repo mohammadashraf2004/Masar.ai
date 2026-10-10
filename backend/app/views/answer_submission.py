@@ -32,6 +32,14 @@ class AnswerSubmissionResponse(BaseModel):
     is_correct: Optional[bool]
     score: Optional[float]
     updated_at: Optional[datetime]
+    # Exercises only: an example answer exists and this learner may now see
+    # it (after their first evaluated answer). None for quiz questions.
+    example_available: Optional[bool] = None
 
     class Config:
         from_attributes = True
+
+
+class ExampleAnswerResponse(BaseModel):
+    example_answer: str
+    example_answer_ar: Optional[str] = None

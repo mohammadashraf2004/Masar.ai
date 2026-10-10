@@ -1114,14 +1114,11 @@ def test_error_responses_do_not_leak_internals(client):
 # 15. Sensitive data exposure
 # ─────────────────────────────────────────────────────────────────────────
 
-def test_leaderboard_does_not_expose_email_addresses(client, db):
-    """A public-ish social surface built from User rows is the classic
-    place for over-broad serialization to leak PII."""
-    email, token, _ = _register(client)
+def test_community_leaderboard_is_not_available(client, db):
+    """Learners must not be discoverable through a user-ranking endpoint."""
+    _, token, _ = _register(client)
     resp = client.get("/api/v1/community/leaderboard", headers=_auth(token))
-    assert resp.status_code == 200
-    assert email not in resp.text
-    assert "@example.com" not in resp.text
+    assert resp.status_code == 404
 
 
 def test_community_feed_does_not_expose_author_emails(client):

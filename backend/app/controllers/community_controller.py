@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func, desc
-from typing import Optional, List
+from sqlalchemy import desc
+from typing import Optional
 
 from app.db.session import get_db
 from app.models.user import User
@@ -9,7 +9,7 @@ from app.models.community import Post, PostLike, PostComment, UserFollow, PostTy
 from app.views.community import (
     PostCreate, PostUpdate, PostResponse, PostListResponse,
     CommentCreate, CommentResponse,
-    FollowResponse, LeaderboardResponse, LeaderboardEntry, AuthorMini,
+    FollowResponse,
 )
 from app.core.limiter import limiter
 from app.core.security import get_current_user
@@ -304,47 +304,3 @@ def user_posts(
         posts=[_post_to_response(p, current_user.id) for p in posts],
         total=total, page=page, per_page=per_page,
     )
-
-
-# ─── Leaderboard ─────────────────────────────────────────────────────────────
-
-@router.get("/leaderboard", response_model=LeaderboardResponse)
-def leaderboard(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    # Get top 20 users by posts + likes received
-    rows = (
-        db.query(
-            User,
-            func.count(Post.id).label("posts_count"),
-            func.coalesce(func.sum(Post.likes_count), 0).label("likes_received"),
-        )
-        .outerjoin(Post, Post.author_id == User.id)
-        .group_by(User.id)
-        .order_by(
-            desc(func.coalesce(func.sum(Post.likes_count), 0)),
-            desc(func.count(Post.id)),
-        )
-        .limit(20)
-        .all()
-    )
-
-    entries = [
-        LeaderboardEntry(
-            rank=i + 1,
-            user=AuthorMini(
-                id=user.id,
-                full_name=user.full_name,
-                experience_level=user.experience_level,
-                overall_readiness_score=user.overall_readiness_score,
-                avatar_url=user.avatar_url,
-            ),
-            posts_count=posts_count,
-            likes_received=likes_received,
-            readiness_score=user.overall_readiness_score,
-        )
-        for i, (user, posts_count, likes_received) in enumerate(rows)
-    ]
-
-    return LeaderboardResponse(entries=entries)

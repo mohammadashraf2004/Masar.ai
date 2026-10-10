@@ -26,7 +26,9 @@ MAX_CHARACTERS = 4000
 # Courses whose every written exercise has an example answer. The test suite
 # enforces full coverage for these; add a course here once its file is done
 # (see docs/written-example-answers-guide.md).
-COMPLETE_COURSES: frozenset = frozenset()
+COMPLETE_COURSES = frozenset({
+    "COURSE-001", "COURSE-002", "COURSE-003", "COURSE-004", "COURSE-005", "COURSE-006", "COURSE-007",
+})
 _ARABIC = re.compile(r"[؀-ۿ]")
 
 

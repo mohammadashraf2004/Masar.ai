@@ -821,7 +821,9 @@ html[lang="ar"] .text-lc-title { line-height: var(--lc-lh-head-rtl); }
   --tc: #111620; --tl: #1E2535; --th: #F7FAFC; --tt: #C9D1DD;
   position: fixed;
   inset-inline: 16px;
-  bottom: 16px;
+  /* Keep the notice clear of pinned composers, especially AI Mentor's input. */
+  inset-block-start: calc(56px + 16px + env(safe-area-inset-top));
+  bottom: auto;
   z-index: 80;
   display: flex;
   flex-wrap: wrap;
@@ -839,3 +841,4 @@ html[lang="ar"] .text-lc-title { line-height: var(--lc-lh-head-rtl); }
 }
 [data-theme="light"] .tour-replay { --tc: #FFFFFF; --tl: #E2DFD7; --th: #0E1116; --tt: #2A2F3A; }
 @media (min-width: 640px) { .tour-replay { margin-inline: auto; } }
+@media (min-width: 1024px) { .tour-replay { inset-block-start: 80px; } }

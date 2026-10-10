@@ -2,9 +2,8 @@
 import { useRouter } from 'next/navigation'
 import { useAuth, useNextParam } from '@/hooks/useAuth'
 import { useLearningCatalog } from '@/hooks/useLearningCatalog'
-import { Logo } from '@/components/layout/Logo'
+import { OnboardingHeader } from '@/components/layout/OnboardingHeader'
 import { LegalFooter } from '@/components/layout/LegalFooter'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { QuickOnboarding } from '@/components/learning/QuickOnboarding'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/index'
@@ -26,10 +25,7 @@ export default function QuickOnboardingPage() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-void px-4 pt-8 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6">
-      <div className="mx-auto mb-8 flex max-w-2xl items-center justify-between">
-        <Logo size={28} wordmarkClassName="text-sm" />
-        <LanguageSwitcher />
-      </div>
+      <OnboardingHeader />
       <div className="flex-1">
         {error ? (
           <div className="mx-auto max-w-2xl text-center">

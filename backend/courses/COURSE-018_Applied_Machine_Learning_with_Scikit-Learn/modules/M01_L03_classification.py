@@ -66,7 +66,6 @@ TOPIC = {
         "multiclass",
         "multilabel",
         "multioutput",
-        "module-01",
     ],
 
     "prerequisite_ids": [

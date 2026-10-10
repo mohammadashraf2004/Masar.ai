@@ -43,7 +43,6 @@ TOPIC = {
         "ipython",
         "databricks",
         "pyspark",
-        "module-01",
     ],
     "prerequisite_ids": [],
     "lesson": {

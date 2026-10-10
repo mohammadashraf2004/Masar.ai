@@ -24,13 +24,14 @@ from app.core.security import get_current_user, get_optional_user
 from app.db.session import get_db
 from app.models.project_lab import LabAttempt, LabProject
 from app.models.user import User
+from app.services.code_execution.messages import platform_message
 from app.services.project_lab import service
 from app.services.project_lab.execution import ProjectExecutionService, get_execution_service
 from app.views.project_lab import (
     ArtifactContent, ArtifactSummary, AttemptRef, AttemptView, CheckError, CheckItem, CheckRequest,
     CheckResponse, CheckRunOutput, CompletionView, FileView, FileWrite, MilestoneDetail, MilestoneSummary,
-    PathRequest, ProgressView, ProjectCard, ProjectDetail, ProjectOverview, RunResponse, StartResponse,
-    SubmissionView, TaskDetail, TaskSummary, TrackRef, WorkspaceView,
+    PathRequest, ProgressView, ProjectCard, ProjectDetail, ProjectOverview, RunRequest, RunResponse,
+    StartResponse, SubmissionView, TaskDetail, TaskSummary, TrackRef, WorkspaceView,
 )
 
 router = APIRouter(prefix="/project-lab", tags=["Project Lab"])
@@ -191,7 +192,7 @@ async def _execution_lease(db: Session, user_id: int, attempt_id: int, action: s
 @router.post("/attempts/{attempt_id}/run", response_model=RunResponse)
 @limiter.limit("30/minute")
 async def run_file(
-    request: Request, attempt_id: int, payload: PathRequest,
+    request: Request, attempt_id: int, payload: RunRequest,
     current_user: User = Depends(get_current_user), db: Session = Depends(get_db),
     execution: ProjectExecutionService = Depends(get_execution_service),
 ):
@@ -216,9 +217,12 @@ async def run_file(
         service.record_run(db, attempt, resolved.path, resolved.language, result)
         if result.succeeded and result.generated_files:
             service.save_artifacts(db, attempt, result.generated_files)
+    stderr = result.stderr
+    if result.status == "infrastructure_error":  # Masar's own message, not the learner's output
+        stderr = platform_message(stderr, payload.language)
     return RunResponse(
         path=resolved.path, kind=resolved.language, status=result.status, stdout=result.stdout,
-        stderr=result.stderr, execution_ms=result.execution_ms, generated_files=result.generated_files,
+        stderr=stderr, execution_ms=result.execution_ms, generated_files=result.generated_files,
         table=result.table, error=result.error, stdout_truncated=result.stdout_truncated,
         stderr_truncated=result.stderr_truncated, artifacts_truncated=result.artifacts_truncated,
     )

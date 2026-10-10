@@ -47,7 +47,7 @@ TOPIC = {'title': 'The RAG Platform',
                 'api-security',
                 'vectara',
                 'hallucination-correction',
-                'module-01'],
+                ],
  'prerequisite_ids': ['M01.L01', 'M01.L02', 'M01.L03', 'M01.L04'],
  'lesson': {'title': 'The RAG Platform',
             'content': '# The RAG Platform\n'

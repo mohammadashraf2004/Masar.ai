@@ -47,7 +47,6 @@ TOPIC = {
         "rest-api",
         "graphql",
         "orm",
-        "module-06",
     ],
     "prerequisite_ids": ["M05.L01"],
     "lesson": {

@@ -62,7 +62,6 @@ TOPIC = {
         "data-visualization",
         "feature-compression",
         "machine-learning-foundations",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

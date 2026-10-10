@@ -51,7 +51,7 @@ next "The env file requires gVisor everywhere"
 [ "$(env_value PROJECT_RUNNER_PIDS_LIMIT)" -ge 512 ] 2>/dev/null \
   || fail "PROJECT_RUNNER_PIDS_LIMIT must be at least 512 under gVisor (a lower host pid cap lets a fork bomb crash the gVisor sentry)"
 backend=$(env_value PROJECT_LAB_EXECUTION_BACKEND)
-[ -z "$backend" ] || [ "$backend" = "runner" ] || fail "PROJECT_LAB_EXECUTION_BACKEND must be runner (or unset: compose defaults to runner)"
+[ "$backend" = "runner" ] || fail "PROJECT_LAB_EXECUTION_BACKEND must be runner (unset means disabled: docker-compose.prod.yml defaults it to disabled)"
 pass "runtime, seccomp profile, both REQUIRE flags and the pid cap are set"
 
 next "The compose configuration runs project-runner under runsc"

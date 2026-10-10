@@ -65,7 +65,6 @@ TOPIC = {
         "backpressure",
         "connection-management",
         "llm-streaming",
-        "module-01",
     ],
 
     "prerequisite_ids": [

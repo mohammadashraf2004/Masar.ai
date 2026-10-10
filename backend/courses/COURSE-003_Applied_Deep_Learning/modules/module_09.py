@@ -61,7 +61,6 @@ TOPIC = {
         "layer-normalization",
         "tokenization",
         "vision-transformer",
-        "module-09",
     ],
     "prerequisite_ids": ["M08.L01"],
 

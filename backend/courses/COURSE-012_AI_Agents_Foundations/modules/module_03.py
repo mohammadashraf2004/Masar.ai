@@ -63,7 +63,6 @@ TOPIC = {
         "openai-agents-sdk",
         "tool-security",
         "agent-integration",
-        "module-01",
     ],
 
     "prerequisite_ids": [

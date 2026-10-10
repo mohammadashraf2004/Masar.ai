@@ -69,7 +69,6 @@ TOPIC = {
         "mmr",
         "generative-topic-labeling",
         "visualization",
-        "module-05",
     ],
 
     "prerequisite_ids": [

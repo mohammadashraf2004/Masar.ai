@@ -72,7 +72,6 @@ TOPIC = {
         "augmented-sbert",
         "tsdae",
         "domain-adaptation",
-        "module-10",
     ],
 
     "prerequisite_ids": [

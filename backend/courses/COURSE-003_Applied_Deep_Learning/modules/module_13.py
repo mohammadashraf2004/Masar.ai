@@ -57,7 +57,6 @@ TOPIC = {
         "3d-augmentation",
         "tensorboard",
         "medical-imaging",
-        "module-13",
     ],
     "prerequisite_ids": ["M12.L01"],
 

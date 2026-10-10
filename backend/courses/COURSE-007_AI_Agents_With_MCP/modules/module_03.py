@@ -69,7 +69,6 @@ TOPIC = {
         "code-mode",
         "security",
         "reliability",
-        "module-02",
     ],
 
     "prerequisite_ids": ["M02.L01"],

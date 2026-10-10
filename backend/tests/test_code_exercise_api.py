@@ -60,8 +60,7 @@ def code_exercise(db):
 @pytest.fixture()
 def sql_exercise(db, code_exercise):
     starter = (
-        "SELECT /* blank:1 */ ___ /* endblank */ AS customer_id, "
-        "/* blank:2 */ ___ /* endblank */ AS orders "
+        "SELECT ___ AS customer_id, ___ AS orders "
         "FROM purchases GROUP BY customer_id ORDER BY customer_id;"
     )
     solution = starter.replace("___", "customer_id", 1).replace("___", "COUNT(*)", 1)
@@ -82,7 +81,7 @@ def sql_exercise(db, code_exercise):
                 "feedback": {"en": "Blank 2: count rows.", "ar": "الفراغ 2: عد الصفوف."},
             },
             {
-                "id": "result", "type": "sql_result",
+                "id": "result", "type": "sql_result", "template": starter,
                 "setup_sql": (
                     "CREATE TABLE purchases(customer_id INTEGER);"
                     "INSERT INTO purchases VALUES (1),(1),(2);"
@@ -371,6 +370,25 @@ def test_disabled_execution_fails_closed_for_run_and_check(client, db, code_exer
     state = client.get(f"{base}/progress", headers=headers).json()
     assert (state["failed_checks"], state["solution_available"]) == (0, False)
     assert db.query(UserProgress).filter(UserProgress.user_id == user_id).first() is None
+
+
+def test_disabled_execution_message_follows_the_interface_language(client, code_exercise, execution_disabled):
+    _, headers = _register(client)
+    base = f"/api/v1/practice/exercises/{code_exercise.id}"
+    code = "value = 3.14159\nresult = round(value, 2)"
+    english, arabic = "Project execution is not available right now.", "تشغيل الكود غير متاح الآن."
+
+    # English is unchanged, with or without the language field.
+    assert client.post(f"{base}/run", headers=headers, json={"code": code}).json()["stderr"] == english
+    assert client.post(f"{base}/run", headers=headers, json={"code": code, "language": "en"}).json()["stderr"] == english
+    assert client.post(f"{base}/run", headers=headers, json={"code": code, "language": "ar"}).json()["stderr"] == arabic
+
+    check = client.post(f"{base}/submit", headers=headers, json={"code": code, "language": "ar"}).json()
+    assert check["status"] == "execution_error" and check["stderr"] == arabic
+    assert check["feedback"]["message"] == arabic
+    assert check["feedback"]["messages"] == {"en": english, "ar": arabic}
+    check = client.post(f"{base}/submit", headers=headers, json={"code": code}).json()
+    assert check["stderr"] == english and check["feedback"]["message"] == english
 
 
 def test_production_never_selects_the_in_process_backend(monkeypatch):

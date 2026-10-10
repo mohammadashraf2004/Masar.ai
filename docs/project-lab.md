@@ -323,7 +323,9 @@ do it in a maintenance window** (or with `"live-restore": true` already in
    gVisor from `/proc/version` the same way.)
 
 5. **Configure the Project Lab** in `/etc/masar/production.env`. Start from
-   `PROJECT_LAB_EXECUTION_BACKEND=disabled`; change it to `runner` only after
+   `PROJECT_LAB_EXECUTION_BACKEND=disabled` (also what `docker-compose.prod.yml`
+   uses when the variable is absent; only `docker-compose.yml` alone, for local
+   development, falls back to `runner`); change it to `runner` only after
    steps 1–4 pass:
 
    ```sh

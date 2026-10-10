@@ -427,6 +427,17 @@ def test_run_infrastructure_failure_is_distinguished(client, lab, use_backend):
     assert body["status"] == "infrastructure_error"
 
 
+def test_run_infrastructure_message_follows_the_interface_language(client, lab, use_backend):
+    use_backend(DisabledBackend())
+    _, headers = _register(client)
+    attempt_id = _start(client, headers, lab)
+    run = lambda **extra: client.post(f"{API}/attempts/{attempt_id}/run",  # noqa: E731
+                                      json={"path": "analysis/kpis.py", **extra}, headers=headers).json()
+    # English stays exactly what the runner wrote, with or without the field.
+    assert run()["stderr"] == run(language="en")["stderr"] == "Project execution is not available right now."
+    assert run(language="ar")["stderr"] == "تشغيل الكود غير متاح الآن."
+
+
 def test_run_sql_queries_the_project_datasets(client, lab):
     _, headers = _register(client)
     attempt_id = _start(client, headers, lab)

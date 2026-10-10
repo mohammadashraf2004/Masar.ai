@@ -73,7 +73,6 @@ TOPIC = {
         "pidinet",
         "gaussian-pyramid",
         "laplacian-pyramid",
-        "module-08",
     ],
 
     "prerequisite_ids": ["M07.L01"],

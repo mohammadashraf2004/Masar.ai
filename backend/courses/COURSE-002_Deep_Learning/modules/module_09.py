@@ -59,7 +59,6 @@ TOPIC = {
         "yolo",
         "retinanet",
         "iou",
-        "module-11",
     ],
 
     "prerequisite_ids": [],

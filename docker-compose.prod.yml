@@ -43,8 +43,9 @@ x-logging: &logging
 services:
   # Learner execution is an explicit production activation, never part of a
   # normal stack start. `docker compose up` therefore omits this service while
-  # PROJECT_LAB_EXECUTION_BACKEND=disabled. The gVisor runbook starts it with
-  # `--profile project-lab` only after the host runtime checks pass.
+  # PROJECT_LAB_EXECUTION_BACKEND=disabled (the production default, see `api`
+  # below). The gVisor runbook starts it with `--profile project-lab` only
+  # after the host runtime checks pass.
   project-runner:
     profiles: ["project-lab"]
 
@@ -97,6 +98,14 @@ services:
   # ─── Take the app off the host's interfaces ───────────────────────
   api:
     ports: !reset []
+    environment:
+      # Production default: learner execution OFF. docker-compose.yml falls
+      # back to `runner` for local development; here an env file without the
+      # variable means `disabled`, so it can never select a runner (or make
+      # the gVisor startup gate refuse to boot the API). Enabling execution is
+      # an explicit `PROJECT_LAB_EXECUTION_BACKEND=runner` in the env file,
+      # after the gVisor runbook in docs/project-lab.md passes on this host.
+      - PROJECT_LAB_EXECUTION_BACKEND=${PROJECT_LAB_EXECUTION_BACKEND:-disabled}
 
   frontend:
     ports: !reset []

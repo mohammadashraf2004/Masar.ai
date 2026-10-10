@@ -32,7 +32,7 @@ TOPIC = {
     "skill_tags": [
         "serverless", "cloud-run", "gcp", "cloud-build", "artifact-registry",
         "serverless-neg", "global-load-balancer", "iap", "cloud-armor",
-        "dns", "autoscaling", "module-08",
+        "dns", "autoscaling",
     ],
     "prerequisite_ids": ["M08.L08"],
 

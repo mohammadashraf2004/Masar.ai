@@ -63,7 +63,6 @@ TOPIC = {
         "terraform",
         "github-secrets",
         "devops",
-        "module-05",
     ],
 
     "prerequisite_ids": ["M04.L01"],

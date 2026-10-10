@@ -53,7 +53,6 @@ TOPIC = {
         'vector-search',
         'langchain',
         'production-rag',
-        'module-01',
     ],
 
     "prerequisite_ids": [],

@@ -51,7 +51,6 @@ TOPIC = {
         'foundation-models',
         'self-supervised-learning',
         'generative-ai',
-        'module-01',
     ],
 
     "prerequisite_ids": ['M01.L03'],

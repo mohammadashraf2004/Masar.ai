@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 from app.services.code_grading.authoring import count_python_blanks
+from app.services.code_grading.sql_grader import sql_blank_values
 
 from ..spec import CourseSpec
 
@@ -221,15 +222,6 @@ def _python_blank_tests(guided: Guided) -> List[Dict[str, Any]]:
     return tests
 
 
-def _sql_marked(starter: str) -> str:
-    """Wrap every ``___`` in the SQL grader's blank markers."""
-    pieces = starter.split(BLANK)
-    out = pieces[0]
-    for number, rest in enumerate(pieces[1:], start=1):
-        out += f"/* blank:{number} */ {BLANK} /* endblank */" + rest
-    return out
-
-
 def _sql_tests(guided: Guided) -> List[Dict[str, Any]]:
     tests: List[Dict[str, Any]] = []
     for number, answer in enumerate(guided.answers, start=1):
@@ -241,6 +233,9 @@ def _sql_tests(guided: Guided) -> List[Dict[str, Any]]:
         })
     tests.append({
         "id": "query_result", "type": "sql_result", "setup_sql": guided.sql_setup,
+        # The learner sees bare ___ blanks; the grader finds each answer by
+        # lining the submission up against this starter.
+        "template": guided.starter,
         "expected_columns": list(guided.sql_columns),
         "expected_rows": [list(row) for row in guided.sql_rows],
         "ordered": guided.sql_ordered,
@@ -299,8 +294,9 @@ def build(exercise_id: str, guided: Guided) -> Dict[str, Any]:
         if len(guided.blanks) != blank_count or not guided.sql_setup or not guided.sql_columns:
             raise ValueError(f"{exercise_id}: a SQL exercise needs blank feedback, a fixture and expected columns")
         tests = _sql_tests(guided)
-        starter = _sql_marked(guided.starter)
-        solution = fill(starter, guided.answers)
+        read_back = sql_blank_values(starter, solution) or []
+        if [value.strip() for value in read_back] != [answer.strip() for answer in guided.answers]:
+            raise ValueError(f"{exercise_id}: the answers cannot be read back from the completed query")
     else:
         raise ValueError(f"{exercise_id}: unsupported guided language {language!r}")
     for number, test in enumerate(tests, start=1):

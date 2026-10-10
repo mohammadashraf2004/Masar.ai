@@ -69,7 +69,6 @@ TOPIC = {
         "cancellation",
         "progress",
         "transport-security",
-        "module-04",
     ],
 
     "prerequisite_ids": ["M03.L03"],

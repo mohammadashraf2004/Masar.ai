@@ -72,7 +72,6 @@ TOPIC = {
         "sep",
         "conformance-testing",
         "mcp-roadmap",
-        "module-05",
     ],
 
     "prerequisite_ids": ["M04.L01"],

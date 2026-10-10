@@ -70,7 +70,6 @@ TOPIC = {
         "flash-attention",
         "rope",
         "llm-architecture",
-        "module-03",
     ],
 
     "prerequisite_ids": [

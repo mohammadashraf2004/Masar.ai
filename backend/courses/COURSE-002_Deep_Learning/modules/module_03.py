@@ -58,7 +58,6 @@ TOPIC = {
         "keras",
         "automatic-differentiation",
         "training-loops",
-        "module-03",
     ],
 
     "prerequisite_ids": [],

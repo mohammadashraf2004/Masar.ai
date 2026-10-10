@@ -20,6 +20,7 @@ from app.services.curriculum.spec import (
 
 _ARABIC = re.compile(r"[؀-ۿ]")
 _LETTER = re.compile(r"[^\W\d_]", re.UNICODE)
+_MODULE_NUMBER_TAG = re.compile(r"^module-\d+$")
 
 
 def arabic_ratio(text: str) -> float:
@@ -76,6 +77,11 @@ def norm_tags(tags: Iterable[Any]) -> List[str]:
     seen: List[str] = []
     for tag in tags or []:
         slug = slugify_skill(tag)
+        # A module number describes curriculum structure, not a learner skill.
+        # Keeping it here made labels such as `module-01` appear beside actual
+        # skills throughout the course catalogue.
+        if _MODULE_NUMBER_TAG.fullmatch(slug):
+            continue
         if slug and slug not in seen:
             seen.append(slug)
     return seen

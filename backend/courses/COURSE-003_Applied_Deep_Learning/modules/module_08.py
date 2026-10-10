@@ -53,7 +53,6 @@ TOPIC = {
         "residual-networks",
         "skip-connections",
         "model-capacity",
-        "module-08",
     ],
     "prerequisite_ids": ["M07.L01"],
 

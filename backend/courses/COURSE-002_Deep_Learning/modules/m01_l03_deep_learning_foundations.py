@@ -52,7 +52,6 @@ TOPIC = {
         'loss',
         'backpropagation',
         'training-loop',
-        'module-01',
     ],
 
     "prerequisite_ids": ['M01.L02'],

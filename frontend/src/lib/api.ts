@@ -1317,7 +1317,7 @@ class ApiClient {
 
   async runLabFile(attemptId: number, path: string) {
     const res = await this.http.post<import('@/features/project-lab/types').LabRunResult>(
-      `/project-lab/attempts/${attemptId}/run`, { path },
+      `/project-lab/attempts/${attemptId}/run`, { path, language: useLanguageStore.getState().language },
     )
     return res.data
   }

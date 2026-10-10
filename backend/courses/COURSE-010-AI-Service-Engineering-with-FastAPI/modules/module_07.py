@@ -67,7 +67,6 @@ TOPIC = {
         "services",
         "migrations",
         "streaming-persistence",
-        "module-01",
     ],
 
     "prerequisite_ids": [

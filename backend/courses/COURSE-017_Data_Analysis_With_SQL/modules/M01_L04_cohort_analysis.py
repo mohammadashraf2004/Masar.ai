@@ -63,7 +63,6 @@ TOPIC = {
         "date-dimensions",
         "product-analytics",
         "business-analysis",
-        "module-01",
     ],
 
     "prerequisite_ids": [

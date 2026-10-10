@@ -65,7 +65,6 @@ TOPIC = {
         "graph-memory",
         "mcp",
         "memory-compression",
-        "module-01",
     ],
 
     "prerequisite_ids": [

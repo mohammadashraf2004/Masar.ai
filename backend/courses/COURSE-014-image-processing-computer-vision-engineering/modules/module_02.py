@@ -66,7 +66,6 @@ TOPIC = {
         "image-channels",
         "alpha-compositing",
         "blending",
-        "module-02",
     ],
 
     "prerequisite_ids": ["M01.L01"],

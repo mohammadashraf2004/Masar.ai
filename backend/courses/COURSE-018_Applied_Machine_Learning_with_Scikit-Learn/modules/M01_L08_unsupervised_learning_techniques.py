@@ -64,7 +64,6 @@ TOPIC = {
         "semi-supervised-learning",
         "active-learning",
         "density-estimation",
-        "module-01",
     ],
 
     "prerequisite_ids": [

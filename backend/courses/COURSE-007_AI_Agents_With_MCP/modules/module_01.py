@@ -65,7 +65,6 @@ TOPIC = {
         "mcp-transport",
         "json-rpc",
         "agent-workflows",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

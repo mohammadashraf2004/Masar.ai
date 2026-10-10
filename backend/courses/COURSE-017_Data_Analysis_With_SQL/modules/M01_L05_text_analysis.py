@@ -64,7 +64,6 @@ TOPIC = {
         "categorization",
         "data-preparation",
         "data-analysis",
-        "module-01",
     ],
 
     "prerequisite_ids": [

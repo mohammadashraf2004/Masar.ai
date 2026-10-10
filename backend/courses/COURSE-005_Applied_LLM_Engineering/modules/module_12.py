@@ -80,7 +80,6 @@ TOPIC = {
         "preference-tuning",
         "alignment",
         "orpo",
-        "module-12",
     ],
 
     "prerequisite_ids": [

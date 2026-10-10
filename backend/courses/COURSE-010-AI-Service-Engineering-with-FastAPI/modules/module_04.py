@@ -64,7 +64,6 @@ TOPIC = {
         "environment-variables",
         "settings",
         "genai-services",
-        "module-01",
     ],
 
     "prerequisite_ids": [

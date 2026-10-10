@@ -156,7 +156,7 @@ export function CourseViewer({ slug, curriculum = false }: { slug: string; curri
         onScroll={handleReaderScroll}
       >
         <PageHeader
-          title={`${course.icon ?? ''} ${localizedTitle(course, language)}`}
+          title={localizedTitle(course, language)}
           subtitle={localizedDescription(course, language)}
           dirAuto
           action={
@@ -178,7 +178,7 @@ export function CourseViewer({ slug, curriculum = false }: { slug: string; curri
         <div
           data-testid="course-topic-rail"
           className={cn(
-            'max-h-[40vh] w-full shrink-0 overflow-y-auto border-b border-border bg-ink py-4 transition-[width] duration-200 lg:sticky lg:top-0 lg:max-h-dvh lg:border-b-0 lg:border-e',
+            'max-h-[40vh] w-full shrink-0 overflow-y-auto border-b border-border bg-ink py-4 transition-[width] duration-200 lg:sticky lg:top-0 lg:h-dvh lg:max-h-dvh lg:self-start lg:border-b-0 lg:border-e',
             readerCompact ? 'lg:w-20' : 'lg:w-56 xl:w-64',
           )}
         >

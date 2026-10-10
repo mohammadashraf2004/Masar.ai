@@ -70,7 +70,6 @@ TOPIC = {
         "mcp-gateway",
         "deployment",
         "mcp-registry",
-        "module-03",
     ],
 
     "prerequisite_ids": ["M03.L02"],

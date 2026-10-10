@@ -58,7 +58,6 @@ TOPIC = {
         "generalization",
         "overfitting",
         "underfitting",
-        "module-02",
     ],
 
     "prerequisite_ids": [],

@@ -62,7 +62,6 @@ TOPIC = {
         "aws",
         "azure",
         "gcp",
-        "module-01",
     ],
 
     "prerequisite_ids": [],

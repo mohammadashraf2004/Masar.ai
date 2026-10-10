@@ -32,7 +32,7 @@ TOPIC = {
     "skill_tags": [
         "neural-networks", "activation-functions", "nonlinearity", "pytorch-nn",
         "nn-module", "nn-linear", "batching", "nn-sequential", "parameters",
-        "regression", "overfitting", "module-06",
+        "regression", "overfitting",
     ],
     "prerequisite_ids": ["M05.L01"],
 

@@ -74,7 +74,6 @@ TOPIC = {
         "query-routing",
         "agentic-rag",
         "rag-evaluation",
-        "module-08",
     ],
 
     "prerequisite_ids": [

@@ -68,7 +68,6 @@ TOPIC = {
         "self-criticism",
         "agentic-systems",
         "fine-tuning",
-        "module-01",
     ],
 
     "prerequisite_ids": [

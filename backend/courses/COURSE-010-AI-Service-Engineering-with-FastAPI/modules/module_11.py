@@ -70,7 +70,6 @@ TOPIC = {
         "precision-recall",
         "auto-evaluation",
         "regression-testing",
-        "module-01",
     ],
 
     "prerequisite_ids": [

@@ -49,7 +49,7 @@ export default function ProfilePage() {
                 onClick={() => setTab(value)}
                 className={cn(
                   'flex h-9 items-center rounded-full px-4 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring',
-                  tab === value ? 'bg-amber font-semibold text-on-solid' : 'text-dim hover:text-bright',
+                  tab === value ? 'bg-amber font-semibold text-on-amber' : 'text-dim hover:text-bright',
                 )}
               >
                 {t(`profile.tab.${value}`)}

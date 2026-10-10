@@ -73,7 +73,6 @@ TOPIC = {
         "vision-language",
         "multimodal-ai",
         "visual-question-answering",
-        "module-13",
     ],
 
     "prerequisite_ids": ["M12.L01"],

@@ -51,7 +51,6 @@ TOPIC = {
         'targets',
         'feedback',
         'hypothesis-space',
-        'module-01',
     ],
 
     "prerequisite_ids": ['M01.L01'],

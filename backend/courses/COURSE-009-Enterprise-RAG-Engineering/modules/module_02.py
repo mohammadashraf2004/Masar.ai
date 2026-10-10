@@ -52,7 +52,7 @@ TOPIC = {'title': 'The Base RAG Stack',
                 'reranking',
                 'prompt-engineering',
                 'rag-evaluation',
-                'module-01'],
+                ],
  'prerequisite_ids': ['M01.L01'],
  'lesson': {'title': 'The Base RAG Stack',
             'content': '# The Base RAG Stack\n'

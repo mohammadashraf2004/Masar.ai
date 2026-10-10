@@ -62,7 +62,6 @@ TOPIC = {
         "gru",
         "recurrent-dropout",
         "bidirectional-rnn",
-        "module-13",
     ],
 
     "prerequisite_ids": [],

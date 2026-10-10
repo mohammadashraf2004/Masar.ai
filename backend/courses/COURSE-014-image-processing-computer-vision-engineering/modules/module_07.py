@@ -76,7 +76,6 @@ TOPIC = {
         "dark-channel-prior",
         "edsr",
         "super-resolution",
-        "module-07",
     ],
 
     "prerequisite_ids": ["M06.L01"],

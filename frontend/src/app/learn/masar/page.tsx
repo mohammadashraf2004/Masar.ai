@@ -72,7 +72,22 @@ export default function MasarPage() {
 
   return (
     <AppShell>
-      <PageHeader title={t('learn.title')} contained />
+      {/* The two links sit on the title's line: on a row of their own they left an
+          empty band between the title and the track. */}
+      <PageHeader
+        title={t('learn.title')}
+        contained
+        action={view.kind === 'workflow' && (
+          <div className="flex flex-wrap gap-2 sm:justify-end">
+            <Link href="/profile/learning" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
+              <SlidersHorizontal size={12} aria-hidden="true" /> {t('learn.editAnswers')}
+            </Link>
+            <Link href="/certificates" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
+              <Award size={12} aria-hidden="true" /> {t('nav.certificates')}
+            </Link>
+          </div>
+        )}
+      />
       <PageBody>
         <div className="space-y-6">
           {view.kind === 'loading' && (
@@ -94,17 +109,7 @@ export default function MasarPage() {
           )}
 
           {view.kind === 'workflow' && (
-            <>
-              <div className="flex flex-wrap justify-end gap-2">
-                <Link href="/profile/learning" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
-                  <SlidersHorizontal size={12} aria-hidden="true" /> {t('learn.editAnswers')}
-                </Link>
-                <Link href="/certificates" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
-                  <Award size={12} aria-hidden="true" /> {t('nav.certificates')}
-                </Link>
-              </div>
-              <TrackWorkflowPath goal={view.careerGoal.slug} />
-            </>
+            <TrackWorkflowPath goal={view.careerGoal.slug} />
           )}
         </div>
       </PageBody>

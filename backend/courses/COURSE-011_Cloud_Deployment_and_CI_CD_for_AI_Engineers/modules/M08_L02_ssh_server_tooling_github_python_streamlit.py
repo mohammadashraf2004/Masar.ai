@@ -25,7 +25,7 @@ TOPIC = {
     "order": 2,
     "difficulty": DifficultyLevel.beginner,
     "estimated_hours": 3.0,
-    "skill_tags": ["ssh", "vscode", "docker", "docker-compose", "github", "python", "venv", "streamlit", "ec2", "module-08"],
+    "skill_tags": ["ssh", "vscode", "docker", "docker-compose", "github", "python", "venv", "streamlit", "ec2"],
     "prerequisite_ids": ["M08.L01"],
 
     "lesson": {

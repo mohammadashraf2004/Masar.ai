@@ -67,6 +67,17 @@ async function open(lessons: Lesson[]) {
 }
 
 describe('the lesson viewer with inline figures', () => {
+  it('keeps legacy tool emoji out of the course title', async () => {
+    const course = courseWith([PLAIN])
+    course.icon = '🤖'
+    vi.mocked(api.getToolCourse).mockResolvedValue(course)
+
+    render(<CourseViewer slug="course-008" curriculum />)
+
+    expect(await screen.findByRole('heading', { name: 'Vision-Language Models' })).toHaveTextContent('Vision-Language Models')
+    expect(screen.queryByText(/🤖/)).not.toBeInTheDocument()
+  })
+
   it('waits for persisted authentication before requesting protected lesson content', async () => {
     auth.isLoading = true
     vi.mocked(api.getToolCourse).mockResolvedValue(courseWith([PLAIN]))
@@ -224,7 +235,7 @@ describe('the lesson viewer with inline figures', () => {
     expect(screen.getByTestId('course-section-switcher')).toHaveClass('sticky', 'top-0')
     const scroller = screen.getByTestId('course-page-scroll')
     const rail = screen.getByTestId('course-topic-rail')
-    expect(rail).toHaveClass('lg:w-56', 'xl:w-64')
+    expect(rail).toHaveClass('lg:w-56', 'xl:w-64', 'lg:h-dvh', 'lg:self-start')
 
     fireEvent.scroll(scroller, { target: { scrollTop: 120 } })
     expect(rail).toHaveClass('lg:w-20')

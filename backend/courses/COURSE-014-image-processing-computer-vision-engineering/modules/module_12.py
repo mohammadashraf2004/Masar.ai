@@ -75,7 +75,6 @@ TOPIC = {
         "mediapipe",
         "fomm",
         "yolov8-segmentation",
-        "module-12",
     ],
 
     "prerequisite_ids": ["M11.L01"],

@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { AppShell } from '@/components/layout/AppShell'
 import { LegalFooter } from '@/components/layout/LegalFooter'
@@ -10,7 +10,7 @@ import { cn, formatRelative, safeUrl } from '@/lib/utils'
 import axios from 'axios'
 import { useI18n } from '@/lib/i18n'
 import {
-  Heart, MessageCircle, Github, Trophy,
+  Heart, MessageCircle, Github,
   Plus, X, ChevronDown, ChevronUp,
   Flame, Lightbulb, FolderKanban, Star, BookOpen,
   Send, Users
@@ -47,14 +47,6 @@ interface Post {
   author: Author
   liked_by_me: boolean
   comments: Comment[]
-}
-
-interface LeaderboardEntry {
-  rank: number
-  user: Author
-  posts_count: number
-  likes_received: number
-  readiness_score: number
 }
 
 // ─── Axios instance — reuses the same auth token as the rest of the app ───────
@@ -106,11 +98,6 @@ async function toggleLike(postId: number) {
 
 async function addComment(postId: number, content: string) {
   const res = await http.post<Comment>(`/community/posts/${postId}/comments`, { content })
-  return res.data
-}
-
-async function fetchLeaderboard() {
-  const res = await http.get<{ entries: LeaderboardEntry[] }>('/community/leaderboard')
   return res.data
 }
 
@@ -439,46 +426,30 @@ function CreatePostModal({
 export default function CommunityPage() {
   const { isLoading: authLoading } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<PostType | undefined>(undefined)
   const [showCreate, setShowCreate] = useState(false)
-  const [activeTab, setActiveTab] = useState<'feed' | 'leaderboard'>('feed')
 
-  // Declared before the effect that uses it, and memoized on `filter`, so
-  // the dependency array can name it honestly. Previously this was a
-  // hoisted `function` called above its own declaration with `loadFeed`
-  // missing from the deps — which the React Compiler flags as
-  // "cannot access variable before it is declared".
   // Reset the spinner when the filter changes, in the render phase; the
-  // callback below only fetches. `loading` already starts true for the
-  // first load.
+  // effect below only fetches. `loading` already starts true for the first load.
   const [trackedFilter, setTrackedFilter] = useState(filter)
   if (filter !== trackedFilter) {
     setTrackedFilter(filter)
     setLoading(true)
   }
 
-  const loadFeed = useCallback(async () => {
-    try {
-      const data = await fetchFeed(filter)
-      setPosts(data.posts)
-    } catch {}
-    setLoading(false)
-  }, [filter])
-
   useEffect(() => {
     if (authLoading) return
     let cancelled = false
     ;(async () => {
-      await loadFeed()
       try {
-        const d = await fetchLeaderboard()
-        if (!cancelled) setLeaderboard(d.entries)
-      } catch { /* leaderboard is non-essential */ }
+        const data = await fetchFeed(filter)
+        if (!cancelled) setPosts(data.posts)
+      } catch {}
+      if (!cancelled) setLoading(false)
     })()
     return () => { cancelled = true }
-  }, [authLoading, loadFeed])
+  }, [authLoading, filter])
 
   function updatePost(updated: Post) {
     setPosts(prev => prev.map(p => p.id === updated.id ? updated : p))
@@ -517,128 +488,56 @@ export default function CommunityPage() {
             {/* ── Main feed ── */}
             <div className="lg:col-span-2 space-y-4">
 
-              {/* Tabs */}
-              <div className="flex items-center gap-3">
-                <div className="flex gap-1">
-                  {(['feed', 'leaderboard'] as const).map(tab => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={cn(
-                        'min-h-[44px] lg:min-h-0 px-4 py-2 rounded text-sm transition-all capitalize',
-                        activeTab === tab
-                          ? 'bg-amber/10 text-amber-text border border-amber/20'
-                          : 'text-ghost hover:text-bright border border-transparent'
-                      )}
-                    >
-                      {tab === 'leaderboard'
-                        ? <><Trophy size={13} className="inline me-1.5" />Leaderboard</>
-                        : 'Feed'}
-                    </button>
-                  ))}
-                </div>
+              {/* Type filters */}
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setFilter(undefined)}
+                  className={cn(
+                    'min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded text-xs border transition-all',
+                    !filter
+                      ? 'bg-surface border-amber/30 text-bright'
+                      : 'border-border text-ghost hover:border-muted'
+                  )}
+                >
+                  All
+                </button>
+                {(Object.entries(POST_TYPES) as [PostType, typeof POST_TYPES[PostType]][]).map(
+                  ([key, meta]) => {
+                    const Icon = meta.icon
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setFilter(filter === key ? undefined : key)}
+                        className={cn(
+                          'min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded text-xs border transition-all flex items-center gap-1.5',
+                          filter === key ? meta.bg : 'border-border text-ghost hover:border-muted'
+                        )}
+                      >
+                        <Icon size={11} className={filter === key ? meta.color : ''} />
+                        {meta.label}
+                      </button>
+                    )
+                  }
+                )}
               </div>
 
-              {activeTab === 'feed' && (
-                <>
-                  {/* Type filters */}
-                  <div className="flex gap-2 flex-wrap">
-                    <button
-                      onClick={() => setFilter(undefined)}
-                      className={cn(
-                        'min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded text-xs border transition-all',
-                        !filter
-                          ? 'bg-surface border-amber/30 text-bright'
-                          : 'border-border text-ghost hover:border-muted'
-                      )}
-                    >
-                      All
-                    </button>
-                    {(Object.entries(POST_TYPES) as [PostType, typeof POST_TYPES[PostType]][]).map(
-                      ([key, meta]) => {
-                        const Icon = meta.icon
-                        return (
-                          <button
-                            key={key}
-                            onClick={() => setFilter(filter === key ? undefined : key)}
-                            className={cn(
-                              'min-h-[44px] lg:min-h-0 px-3 py-1.5 rounded text-xs border transition-all flex items-center gap-1.5',
-                              filter === key ? meta.bg : 'border-border text-ghost hover:border-muted'
-                            )}
-                          >
-                            <Icon size={11} className={filter === key ? meta.color : ''} />
-                            {meta.label}
-                          </button>
-                        )
-                      }
-                    )}
-                  </div>
-
-                  {loading ? (
-                    <div className="flex justify-center py-16">
-                      <Spinner announce className="w-6 h-6" />
-                    </div>
-                  ) : posts.length === 0 ? (
-                    <Card className="p-12 text-center">
-                      <Users size={28} className="text-ghost mx-auto mb-3" />
-                      <p className="text-bright font-medium mb-1">No posts yet</p>
-                      <p className="text-sm text-ghost mb-4">Be the first to share something!</p>
-                      <Button size="sm" onClick={() => setShowCreate(true)}>
-                        <Plus size={12} /> Create first post
-                      </Button>
-                    </Card>
-                  ) : (
-                    posts.map(post => (
-                      <PostCard key={post.id} post={post} onUpdate={updatePost} />
-                    ))
-                  )}
-                </>
-              )}
-
-              {activeTab === 'leaderboard' && (
-                <Card className="overflow-hidden">
-                  <div className="px-5 py-4 border-b border-border">
-                    <h3 className="ui-card-title flex items-center gap-2">
-                      <Trophy size={15} className="text-amber-text" /> Top contributors
-                    </h3>
-                  </div>
-                  <div className="divide-y divide-border">
-                    {leaderboard.map(entry => (
-                      <div
-                        key={entry.rank}
-                        className="flex items-center gap-4 px-5 py-3"
-                      >
-                        <div className={cn(
-                          'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0',
-                          entry.rank === 1 ? 'bg-amber text-on-amber' :
-                          entry.rank === 2 ? 'bg-soft/30 text-bright' :
-                          entry.rank === 3 ? 'bg-amber/30 text-amber-text' :
-                          'bg-surface text-ghost'
-                        )}>
-                          {entry.rank}
-                        </div>
-                        <Avatar user={entry.user} size="md" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-bright truncate">
-                            {entry.user.full_name}
-                          </p>
-                          <p className="text-xs text-ghost capitalize">{entry.user.experience_level}</p>
-                        </div>
-                        <div className="flex items-center gap-4 text-xs text-ghost shrink-0">
-                          <span className="flex items-center gap-1">
-                            <Heart size={11} className="text-rose" /> {entry.likes_received}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <FolderKanban size={11} className="text-sky" /> {entry.posts_count}
-                          </span>
-                          <span className="text-amber-text font-mono">
-                            {entry.readiness_score.toFixed(0)}%
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              {loading ? (
+                <div className="flex justify-center py-16">
+                  <Spinner announce className="w-6 h-6" />
+                </div>
+              ) : posts.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <Users size={28} className="text-ghost mx-auto mb-3" />
+                  <p className="text-bright font-medium mb-1">No posts yet</p>
+                  <p className="text-sm text-ghost mb-4">Be the first to share something!</p>
+                  <Button size="sm" onClick={() => setShowCreate(true)}>
+                    <Plus size={12} /> Create first post
+                  </Button>
                 </Card>
+              ) : (
+                posts.map(post => (
+                  <PostCard key={post.id} post={post} onUpdate={updatePost} />
+                ))
               )}
             </div>
 
@@ -671,43 +570,6 @@ export default function CommunityPage() {
                   )}
                 </div>
               </Card>
-
-              {activeTab === 'feed' && leaderboard.length > 0 && (
-                <Card className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="ui-eyebrow">Top 3</h3>
-                    <button
-                      onClick={() => setActiveTab('leaderboard')}
-                      className="min-h-[44px] px-2 text-xs text-amber-text hover:text-amber-text2 lg:min-h-0 lg:px-0"
-                    >
-                      See all
-                    </button>
-                  </div>
-                  <div className="space-y-2.5">
-                    {leaderboard.slice(0, 3).map(entry => (
-                      <div key={entry.rank} className="flex items-center gap-2.5">
-                        <span className={cn(
-                          'text-xs font-bold w-4 text-center',
-                          entry.rank === 1 ? 'text-amber-text'
-                          : entry.rank === 2 ? 'text-soft'
-                          : 'text-amber-text/60'
-                        )}>
-                          {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : '🥉'}
-                        </span>
-                        <Avatar user={entry.user} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-bright truncate">
-                            {entry.user.full_name}
-                          </p>
-                        </div>
-                        <span className="text-xs text-rose flex items-center gap-0.5">
-                          <Heart size={10} className="fill-current" /> {entry.likes_received}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              )}
 
               <Card className="p-4 bg-gradient-to-br from-amber/5 to-transparent border-amber/20">
                 <p className="text-xs text-amber-text font-medium mb-1">💡 Tip</p>

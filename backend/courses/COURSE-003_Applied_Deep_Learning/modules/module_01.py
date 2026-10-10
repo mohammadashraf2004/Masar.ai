@@ -50,7 +50,6 @@ TOPIC = {
         "data-loading",
         "deployment",
         "jupyter",
-        "module-01",
     ],
     "prerequisite_ids": [],
 

@@ -54,7 +54,6 @@ TOPIC = {
         "gpu",
         "numpy",
         "serialization",
-        "module-03",
     ],
     "prerequisite_ids": ["M02.L01"],
 

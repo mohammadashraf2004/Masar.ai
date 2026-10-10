@@ -23,12 +23,92 @@ MAX_VALUE_BYTES = 1_000_000          # any one string/blob/row
 MAX_SQL_BYTES = 100_000              # fixture + learner statement text
 HEAP_LIMIT_BYTES = 128 * 1024 * 1024  # process-wide: this grader is the API's only SQLite user
 MAX_CONCURRENT = 2                   # per worker; queries run off the event loop
+MAX_ANSWER_CHARS = 10_000            # all blank answers together, beyond the starter
 _SLOTS = asyncio.Semaphore(MAX_CONCURRENT)
 
 
 async def _execute_off_loop(code: str, test: dict[str, Any]) -> ExecutionResult:
     async with _SLOTS:
         return await asyncio.to_thread(SQLGrader._execute, code, test)
+
+
+def _tolerant(piece: str) -> str:
+    """Fixed starter text as a pattern; any whitespace run may differ."""
+    return r"\s*".join(re.escape(token) for token in piece.split())
+
+
+def _piece_pattern(piece: str, *, last: bool) -> re.Pattern[str]:
+    """The starter text that ends a blank."""
+    body = _tolerant(piece)
+    if not body and not last:
+        # Two blanks separated only by whitespace: split at the line break the
+        # starter puts between them, or else at the first space.
+        body = r"[ \t]*\n\s*" if "\n" in piece else r"\s+"
+    return re.compile(body + (r"\s*\Z" if last else ""))
+
+
+def _value_end(code: str, start: int, piece: re.Pattern[str]) -> re.Match[str] | None:
+    """Where the fixed text after a blank begins.
+
+    The first place outside any string, comment or parentheses the learner
+    opened inside the blank, so ``COALESCE(a, b)`` or ``'a, b'`` does not end
+    a blank at its comma. A blank with an unclosed quote falls back to the
+    first place at all.
+    """
+    depth, quote, index = 0, "", start
+    while index <= len(code):
+        if not quote and depth == 0 and (match := piece.match(code, index)):
+            return match
+        if index == len(code):
+            break
+        char = code[index]
+        if quote:
+            quote = "" if char == quote else quote
+        elif char in "'\"`":
+            quote = char
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+        elif code.startswith("--", index):
+            newline = code.find("\n", index)
+            index = len(code) - 1 if newline < 0 else newline - 1
+        elif code.startswith("/*", index):
+            close = code.find("*/", index + 2)
+            index = len(code) - 1 if close < 0 else close + 1
+        index += 1
+    return piece.search(code, start)
+
+
+def sql_blank_values(template: str, code: str) -> list[str] | None:
+    """What the learner wrote in each ``___`` of ``template``, in order.
+
+    The starter shows bare ``___`` blanks, so each answer is found by lining
+    the submission up against the starter text around it. ``None`` when the
+    learner changed that surrounding text and the blanks can no longer be
+    told apart.
+    """
+    pieces = template.split("___")
+    # Answers are short; a submission far longer than its starter was rewritten,
+    # and bounding it keeps the matching below cheap.
+    if len(pieces) < 2 or len(code) > len(template) + MAX_ANSWER_CHARS:
+        return None
+    head = re.compile(r"\s*" + _tolerant(pieces[0])).match(code)
+    if head is None:
+        return None
+    values, position = [], head.end()
+    for number, piece in enumerate(pieces[1:], start=1):
+        # Skip the layout before the answer, so a line break between two
+        # blanks ends the first one only after something was written in it.
+        start = position
+        while start < len(code) and code[start].isspace():
+            start += 1
+        match = _value_end(code, start, _piece_pattern(piece, last=number == len(pieces) - 1))
+        if match is None:
+            return None
+        values.append(code[position:match.start()])
+        position = match.end()
+    return values
 
 
 def normalize_sql_fragment(value: str) -> str:
@@ -47,8 +127,11 @@ class SQLGrader:
     Author-provided fixture SQL is loaded into a new ``:memory:`` SQLite
     connection. Learner code must be one SELECT/WITH statement; query-only
     mode, an authorizer, a VM-step deadline, and a row cap provide defense in
-    depth. Blank markers let the grader report the first incorrect field before
-    running the query.
+    depth. Each blank's answer is read by lining the submission up against
+    the starter (the ``template`` on a test), so the grader can report the
+    first incorrect field before running the query. Submissions made from the
+    older marked starters (``/* blank:N */ ___ /* endblank */``) are still
+    read by their markers.
     """
 
     async def run(self, code: str, tests: list[dict[str, Any]]) -> ExecutionResult:
@@ -71,12 +154,13 @@ class SQLGrader:
         if result_test is not None and any(test.get("type") == "sql_blank" for test in tests):
             return await self._grade_by_result(code, tests, required, result_test)
 
+        fields = self._fields(code, tests)
         passed = 0
         execution = empty
         for index, test in enumerate(tests):
             kind = test.get("type")
             if kind == "sql_blank":
-                ok = self._blank_matches(code, test)
+                ok = self._blank_matches(fields, test)
             elif kind == "sql_result":
                 execution = await _execute_off_loop(code, test)
                 if not execution.succeeded:
@@ -120,8 +204,9 @@ class SQLGrader:
         result is wrong, the first field that differs from them is named.
         """
         blanks = [(index, test) for index, test in enumerate(tests) if test.get("type") == "sql_blank"]
+        fields = self._fields(code, tests)
         for done, (index, test) in enumerate(blanks):
-            if not self._blank_filled(code, test):
+            if not self._blank_filled(fields, code, test):
                 return self._blank_failure(test, index, done, len(required))
         execution = await _execute_off_loop(code, result_test)
         if not execution.succeeded:
@@ -135,8 +220,9 @@ class SQLGrader:
                 "correct", True, "CORRECT", {"en": "Correct!", "ar": "إجابة صحيحة!"},
                 None, len(required), len(required), execution,
             )
-        for done, (index, test) in enumerate(blanks):
-            if not self._blank_matches(code, test):
+        # A rewritten scaffold has no blanks to name; the result alone speaks.
+        for done, (index, test) in enumerate(blanks if fields is not None else []):
+            if not self._blank_matches(fields, test):
                 failure = self._blank_failure(test, index, done, len(required))
                 failure.execution = execution
                 return failure
@@ -161,19 +247,26 @@ class SQLGrader:
         )
 
     @staticmethod
-    def _blank_filled(code: str, test: dict[str, Any]) -> bool:
-        fields = {int(number): value for number, value in _BLANK.findall(code)}
-        actual = fields.get(int(test.get("blank", 0)))
+    def _fields(code: str, tests: list[dict[str, Any]]) -> dict[int, str] | None:
+        """Blank number -> what the learner wrote there; ``None`` if unreadable."""
+        marked = _BLANK.findall(code)
+        if marked:
+            return {int(number): value for number, value in marked}
+        template = next((test["template"] for test in tests if isinstance(test.get("template"), str)), None)
+        values = sql_blank_values(template, code) if template else None
+        return None if values is None else dict(enumerate(values, start=1))
+
+    @staticmethod
+    def _blank_filled(fields: dict[int, str] | None, code: str, test: dict[str, Any]) -> bool:
+        actual = (fields or {}).get(int(test.get("blank", 0)))
         if actual is None:
-            # Markers removed: the result test decides, unless blanks remain.
+            # Scaffold rewritten: the result test decides, unless blanks remain.
             return "___" not in code
         return bool(actual.strip()) and "___" not in actual
 
     @staticmethod
-    def _blank_matches(code: str, test: dict[str, Any]) -> bool:
-        wanted = int(test.get("blank", 0))
-        fields = {int(number): value for number, value in _BLANK.findall(code)}
-        actual = fields.get(wanted, "")
+    def _blank_matches(fields: dict[int, str] | None, test: dict[str, Any]) -> bool:
+        actual = (fields or {}).get(int(test.get("blank", 0)), "")
         if not actual.strip() or "___" in actual:
             return False
         normalized = normalize_sql_fragment(actual)

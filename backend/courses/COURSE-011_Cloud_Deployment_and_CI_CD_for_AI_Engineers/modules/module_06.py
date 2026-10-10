@@ -61,7 +61,6 @@ TOPIC = {
         "kubectl",
         "minikube",
         "helm",
-        "module-06",
     ],
 
     "prerequisite_ids": ["M05.L01"],

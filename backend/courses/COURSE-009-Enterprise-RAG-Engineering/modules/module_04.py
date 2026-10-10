@@ -58,7 +58,7 @@ TOPIC = {'title': 'Deploying RAG to Production',
                 'rag-evaluation',
                 'production-architecture',
                 'deployment',
-                'module-01'],
+                ],
  'prerequisite_ids': ['M01.L01', 'M01.L02', 'M01.L03'],
  'lesson': {'title': 'Deploying RAG to Production',
             'content': '# Deploying RAG to Production\n'

@@ -31,7 +31,7 @@ TOPIC = {
     "estimated_hours": 4.0,
     "skill_tags": [
         "gcp", "custom-image", "instance-template", "managed-instance-groups", "autoscaling",
-        "health-checks", "firewall", "global-load-balancer", "https", "dns", "multi-region", "module-08"
+        "health-checks", "firewall", "global-load-balancer", "https", "dns", "multi-region"
     ],
     "prerequisite_ids": ["M08.L07"],
 

@@ -16,7 +16,10 @@ vi.mock('@/components/layout/AppShell', async () => {
 })
 vi.mock('@/components/layout/PageHeader', async () => {
   const { createElement } = await import('react')
-  return { PageHeader: ({ title }: { title: string }) => createElement('h1', null, title) }
+  return {
+    PageHeader: ({ title, action }: { title: string; action?: React.ReactNode }) =>
+      createElement('div', null, createElement('h1', null, title), action),
+  }
 })
 vi.mock('@/components/learning/TrackWorkflowPath', () => ({
   TrackWorkflowPath: ({ goal }: { goal: string }) => <section><h2>Track Workflow</h2><span>{goal}</span></section>,

@@ -105,7 +105,7 @@ describe('the header', () => {
     renderShell()
     const header = within(screen.getByRole('banner'))
     expect(header.getByRole('combobox', { name: 'Search' })).toBeInTheDocument()
-    expect(await header.findByRole('link', { name: '1240 credits' })).toHaveAttribute('href', '/billing')
+    expect(await header.findByRole('button', { name: '1240 credits' })).toBeInTheDocument()
     expect(header.getByRole('link', { name: 'Plans & offers' })).toHaveAttribute('href', '/billing')
     expect(header.getByRole('group', { name: 'Theme' })).toBeInTheDocument()
     expect(header.getByRole('button', { name: 'Profile menu: Amira Hassan' })).toBeInTheDocument()
@@ -120,7 +120,7 @@ describe('the header', () => {
 
   it('asks for the wallet once, not once per thing that shows it', async () => {
     renderShell()
-    await screen.findByRole('link', { name: '1240 credits' })
+    await screen.findByRole('button', { name: '1240 credits' })
     expect(api.getWallet).toHaveBeenCalledTimes(1)
   })
 })

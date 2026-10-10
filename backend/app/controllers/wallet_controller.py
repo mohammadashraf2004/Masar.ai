@@ -8,15 +8,16 @@ Register in main.py:
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from typing import List, Optional
-from pydantic import BaseModel, EmailStr, Field, model_validator
+from typing import List, Literal, Optional
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 from app.db.session import get_db
 from app.core import security_log
 from app.core.authz import require_admin
 from app.core.security import get_current_user
 from app.models.user import User
-from app.models.wallet import UserWallet, WalletTransaction, CreditPackage, PaymentMethod
+from app.models.wallet import UserWallet, WalletTransaction, CreditPackage, PaymentMethod, TransactionStatus, TransactionType
+from app.services.wallet import credit_purchases
 from app.services.wallet.wallet_service import (
     get_or_create_wallet, add_credits, confirm_pending_topup,
     expire_promo_credits_if_due, CREDIT_COSTS,
@@ -34,6 +35,11 @@ class WalletResponse(BaseModel):
     # days left" without the client ever being able to set either value.
     promo_credits_remaining: int = 0
     promo_expires_at: Optional[str] = None
+    # The balance, split by where it came from. `purchased_credits` were bought: they never
+    # expire and are untouched by plan changes. `included_credits` is the rest (signup and
+    # promo credits). The two always add up to `credit_balance`.
+    purchased_credits: int = 0
+    included_credits: int = 0
 
     class Config:
         from_attributes = True
@@ -74,6 +80,7 @@ class TransactionResponse(BaseModel):
 
 class PackageResponse(BaseModel):
     id: int
+    code: Optional[str] = None
     name: str
     credits: int
     egp_price: float
@@ -152,12 +159,15 @@ def get_wallet(
     # Sweep here too, so a user who only ever opens the wallet screen sees
     # a truthful balance rather than one that shrinks on their next action.
     expire_promo_credits_if_due(wallet, db)
+    purchased = min(wallet.purchased_credits or 0, wallet.credit_balance or 0)
     return WalletResponse(
         credit_balance=wallet.credit_balance,
         lifetime_purchased=wallet.lifetime_purchased,
         lifetime_spent=wallet.lifetime_spent,
         promo_credits_remaining=wallet.promo_credits_remaining or 0,
         promo_expires_at=wallet.promo_expires_at.isoformat() if wallet.promo_expires_at else None,
+        purchased_credits=purchased,
+        included_credits=(wallet.credit_balance or 0) - purchased,
     )
 
 
@@ -180,7 +190,20 @@ def get_transactions(
 
 @router.get("/packages", response_model=List[PackageResponse])
 def get_packages(db: Session = Depends(get_db)):
-    return db.query(CreditPackage).filter(CreditPackage.is_active == True).all()
+    return credit_purchases.active_packs(db)
+
+
+@router.get("/purchases")
+def my_purchases(
+    limit: int = Query(30, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """The learner's credit purchases and where each stands: pending, paid, expired,
+    failed, refunded or charged back. Only what a verified provider notice (or staff)
+    recorded - a redirect back from the checkout never moves an order."""
+    wallet = get_or_create_wallet(current_user.id, db)
+    return {"orders": credit_purchases.orders_for_wallet(db, wallet.id, limit)}
 
 
 @router.get("/costs")
@@ -275,6 +298,56 @@ def confirm_payment(
         "credits_added": tx.credits,
         "new_balance": wallet.credit_balance,
     }
+
+
+class AdminReverseRequest(BaseModel):
+    """Staff reconciliation of a credit purchase the provider refunded or charged back
+    outside Masar (a dashboard refund, a bank dispute)."""
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["refund", "chargeback"]
+    # The provider's refund / dispute id: makes the call safe to repeat.
+    idempotency_key: str = Field(..., min_length=6, max_length=80)
+    # Defaults to everything not yet reversed.
+    amount_egp: Optional[float] = Field(None, gt=0, le=1_000_000)
+    note: Optional[str] = Field(None, max_length=120)
+
+
+@router.post("/admin/purchases/{reference}/reverse")
+def admin_reverse_purchase(
+    reference: str,
+    payload: AdminReverseRequest,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Admin: take back the credits of a refunded or charged-back purchase. Capped at the
+    purchased credits the learner still holds, so it can never create a negative balance;
+    what was already spent is reported as `unrecovered`."""
+    order = db.query(WalletTransaction).filter(
+        WalletTransaction.payment_ref == reference,
+        WalletTransaction.transaction_type == TransactionType.topup,
+    ).with_for_update().first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Purchase not found")
+    paid_minor = round(float(order.egp_amount or 0) * 100)
+    already_minor = sum(
+        round(float(r.egp_amount or 0) * 100) for r in db.query(WalletTransaction).filter(
+            WalletTransaction.transaction_type == TransactionType.reversal,
+            WalletTransaction.related_tx_id == order.id,
+        )
+    )
+    amount_minor = round(payload.amount_egp * 100) if payload.amount_egp is not None else paid_minor - already_minor
+    try:
+        result = credit_purchases.reverse_purchase(
+            db, order, amount_minor=amount_minor, event_id=f"admin:{payload.idempotency_key}",
+            kind=payload.kind, note=payload.note,
+        )
+    except credit_purchases.ReversalRejected as exc:
+        db.rollback()
+        raise HTTPException(status_code=409, detail=exc.code)
+    security_log.admin_action(
+        admin_id=current_user.id, action=f"wallet.purchase_{payload.kind}", target=f"{reference} {result['status']}",
+    )
+    return result
 
 
 @router.get("/admin/user-lookup", response_model=AdminUserLookupResponse)

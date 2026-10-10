@@ -25,11 +25,18 @@ export class KashierProvider implements PaymentProvider {
   }
 
   async pay(request: Parameters<PaymentProvider['pay']>[0]): Promise<PaymentResult> {
-    if (request.cart.type !== 'plan' || request.cart.id !== 'pro') {
+    const isPack = request.cart.type === 'pack'
+    if (!isPack && (request.cart.type !== 'plan' || request.cart.id !== 'pro')) {
       throw new Error(KASHIER_NOT_CONFIGURED)
     }
     if (request.method !== 'card' && request.method !== 'wallet') {
       return { status: 'failed', reason: 'unavailable' }
+    }
+    if (isPack) {
+      // A credit pack: the backend prices it from its own catalogue (the package id is all that
+      // is sent) and credits the wallet only when Kashier's confirmed webhook says it was paid.
+      const checkout = await api.initWalletTopUp({ package_id: Number(request.cart.id), method: request.method })
+      return { status: 'redirect', url: checkout.checkout_url }
     }
     // Amount/currency in `request` are display values only. The backend selects the plan row
     // and sends its own amount to Kashier.

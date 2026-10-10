@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from '@/hooks/useAuth'
 import { useRequireAuth } from '@/components/auth/AuthPrompt'
@@ -52,7 +53,7 @@ export default function BillingPage() {
   const [attempt, setAttempt] = useState(0)
 
   const [cycle, setCycle] = useState<BillingCycle>('yearly')
-  const [cart, setCart] = useState<CartItem>({ type: 'plan', id: 'pro' })
+  const [cart, setCart] = useState<CartItem | null>(null)
   const [promo, setPromo] = useState<Promo | null>(null)
   const [promoError, setPromoError] = useState<PromoError | null>(null)
   const [checkingPromo, setCheckingPromo] = useState(false)
@@ -87,7 +88,17 @@ export default function BillingPage() {
     ;(async () => {
       try {
         const loaded = await billingCatalog.load()
-        if (alive) setCatalog(loaded)
+        if (alive) {
+          setCatalog(loaded)
+          // Free is an account state, not a zero-value checkout item. A Free account
+          // starts on the Pro offer; a Pro account starts on the first credit pack so
+          // neither its current plan nor Free can accidentally become an order.
+          setCart(loaded.currentPlan === 'free'
+            ? { type: 'plan', id: 'pro' }
+            : loaded.packs[0]
+              ? { type: 'pack', id: loaded.packs[0].id }
+              : null)
+        }
       } catch {
         if (alive) setLoadFailed(true)
       }
@@ -97,12 +108,19 @@ export default function BillingPage() {
     }
   }, [authLoading, attempt])
 
+  // "Add credits" in the header links here. The packs card only exists once the
+  // catalogue has loaded, after the browser has already looked for the anchor.
+  useEffect(() => {
+    if (!catalog || window.location.hash !== '#credit-packs') return
+    document.getElementById('credit-packs')?.scrollIntoView({ block: 'start' })
+  }, [catalog])
+
   if (authLoading) {
     return <div className="flex min-h-dvh items-center justify-center bg-void"><Spinner announce className="h-6 w-6" /></div>
   }
 
   const method = chosenMethod && methods.includes(chosenMethod) ? chosenMethod : (methods[0] ?? null)
-  const totals = catalog ? priceOrder(cart, cycle, catalog, promo) : null
+  const totals = catalog && cart ? priceOrder(cart, cycle, catalog, promo) : null
   const saving = catalog ? yearlySavingPercent(catalog.plans) : 0
 
   function retry() {
@@ -136,8 +154,8 @@ export default function BillingPage() {
 
   async function pay() {
     if (!requireAuth('/billing')) return
-    const startsTrial = Boolean(catalog?.trialEligible && cart.type === 'plan' && cart.id === 'pro')
-    if (!catalog || !totals || processing || (!startsTrial && (!provider || !method))) return
+    const startsTrial = Boolean(catalog?.trialEligible && cart?.type === 'plan' && cart.id === 'pro')
+    if (!catalog || !cart || !totals || processing || (!startsTrial && (!provider || !method))) return
     setProcessing(true)
     setFailure(null)
     try {
@@ -167,7 +185,7 @@ export default function BillingPage() {
   }
 
   function orderItem(): OrderItem | null {
-    if (!catalog) return null
+    if (!catalog || !cart) return null
     if (cart.type === 'plan') {
       const plan = catalog.plans.find((p) => p.id === cart.id)
       if (!plan) return null
@@ -206,7 +224,7 @@ export default function BillingPage() {
                   aria-pressed={cycle === value}
                   onClick={() => setCycle(value)}
                   className={cn(
-                    'min-h-[44px] rounded-[7px] border px-3.5 py-2 text-[13px] transition-colors lg:min-h-0',
+                    'min-h-[44px] rounded-[7px] border px-3.5 text-[13px] transition-colors lg:min-h-[32px]',
                     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring',
                     cycle === value ? 'border-border bg-panel font-semibold text-white' : 'border-transparent text-dim hover:text-bright',
                   )}
@@ -216,7 +234,7 @@ export default function BillingPage() {
               ))}
             </div>
             {saving > 0 && (
-              <span className="rounded-full border border-emerald px-2.5 py-0.5 text-xs font-semibold text-emerald">
+              <span className="inline-flex min-h-[28px] items-center rounded-full border border-emerald px-3 text-xs font-semibold text-emerald">
                 {tf('billing.save', { n: saving })}
               </span>
             )}
@@ -234,7 +252,7 @@ export default function BillingPage() {
           </Card>
         )}
 
-        {catalog && totals && item && (
+        {catalog && cart && totals && item && (
           <>
             {catalog.offer && (
               <OfferBanner
@@ -304,7 +322,8 @@ function CreditPacks({
   const { t } = useI18n()
   const balance = useCreditBalance()
   return (
-    <Card className="flex min-w-0 flex-[1.4_1_420px] flex-col gap-4 p-[22px]">
+    // self-stretch: beside the order summary this card is as tall as that one, not a short box above empty space.
+    <Card id="credit-packs" className="flex min-w-0 flex-[1.4_1_420px] scroll-mt-20 flex-col gap-4 self-stretch p-[22px]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h2 className="text-base font-bold text-white">{t('billing.packs.title')}</h2>
@@ -316,17 +335,27 @@ function CreditPacks({
           </span>
         )}
       </div>
-      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
-        {catalog.packs.map((pack) => (
-          <PackTile
-            key={pack.id}
-            pack={pack}
-            currency={catalog.currency}
-            selected={cart.type === 'pack' && cart.id === pack.id}
-            onChoose={() => onChoose({ type: 'pack', id: pack.id })}
-          />
-        ))}
-      </div>
+      <Link href="/billing/credits" className="self-start text-[13px] text-amber-text underline underline-offset-2">
+        {t('credits.title')}
+      </Link>
+      {catalog.packs.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-border px-4 py-6 text-center text-[13px] text-dim">
+          {t('billing.packs.none')}
+        </p>
+      ) : (
+        // Two across on a phone, three from sm: the old auto-fit left a lone half-width pack on its own row.
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 max-sm:[&>*:last-child:nth-child(odd)]:col-span-2">
+          {catalog.packs.map((pack) => (
+            <PackTile
+              key={pack.id}
+              pack={pack}
+              currency={catalog.currency}
+              selected={cart.type === 'pack' && cart.id === pack.id}
+              onChoose={() => onChoose({ type: 'pack', id: pack.id })}
+            />
+          ))}
+        </div>
+      )}
     </Card>
   )
 }

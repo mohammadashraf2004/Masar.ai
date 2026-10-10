@@ -20,7 +20,7 @@ from app.models.billing import (
 )
 from app.models.learning_path import Course
 from app.models.user import User
-from app.models.wallet import CreditPackage
+from app.services.wallet import credit_purchases
 from app.services.billing.access_service import active_enrollment
 from app.services.billing import pro_ai_allowance as pro_ai
 from app.services.billing.course_billing import current_offer
@@ -142,7 +142,7 @@ def billing_catalog(
 ):
     """The only public price list. Amounts returned here are major EGP units."""
     plans = db.query(BillingPlan).filter(BillingPlan.is_active.is_(True)).order_by(BillingPlan.id).all()
-    packages = db.query(CreditPackage).filter(CreditPackage.is_active.is_(True)).order_by(CreditPackage.id).all()
+    packages = credit_purchases.active_packs(db)
     trial_eligible = bool(user) and not db.query(UserSubscription.id).filter(
         UserSubscription.user_id == user.id,
     ).first()
@@ -164,7 +164,10 @@ def billing_catalog(
             for p in plans
         ],
         "packs": [
-            {"id": str(p.id), "credits": p.credits, "bonus": p.bonus_credits or 0, "price": p.egp_price}
+            {
+                "id": str(p.id), "code": p.code, "name": p.name, "credits": p.credits,
+                "bonus": p.bonus_credits or 0, "price": p.egp_price, "popular": bool(p.is_popular),
+            }
             for p in packages
         ],
         "offer": None,
